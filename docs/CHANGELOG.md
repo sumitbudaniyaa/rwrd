@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Multi-Tenant Repositories & RLS Isolation (M1-T04)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T04`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented PostgreSQL Row-Level Security (RLS) session transaction wrapper (`apps/api/src/db/rls.ts`) setting `app.current_restaurant_id`.
+  - Built tenant-scoped repository abstraction layer:
+    - `StaffRepository`: enforces tenant scoping on all waitstaff queries, inserts, updates, and soft deletes.
+    - `TableRepository`: enforces tenant scoping on physical tables.
+    - `QrTokenRepository`: resolves public QR tokens and manages rotation within tenant boundaries.
+    - `TipIntentRepository`: enforces tenant parameterization on tip intent creation and reporting.
+  - Added multi-tenancy invariant test suite (`apps/api/tests/tenancy.test.ts`) proving cross-tenant access returns null and cannot modify foreign records (100% pass rate).
+
 ### 2026-11-05 - AES-256-GCM VPA Encryption Service (M1-T03)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
