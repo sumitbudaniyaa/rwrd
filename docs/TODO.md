@@ -29,18 +29,18 @@ Status values:
 
 ## Milestone 1: Database Schema, Security Middleware & Authentication Engine (M1)
 
-| ID         | Task Description                                                                                                                  | Status    | Owner              | Date Completed | Ref / Notes                |
-| :--------- | :-------------------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :------------------------- |
-| **M1-T01** | Define Drizzle ORM schema for all entities (restaurants, staff, tables, qr_tokens, tip_intents, etc.).                            | `Done`    | Senior Staff Agent | 2026-11-05     | All 16 tables defined      |
-| **M1-T02** | Configure `drizzle-kit` migrations, execution scripts, and local development seeders.                                             | `Done`    | Senior Staff Agent | 2026-11-05     | Migrations & seeders ready |
-| **M1-T03** | Implement AES-256-GCM encryption service for VPA at-rest protection and key rotation support.                                     | `Done`    | Senior Staff Agent | 2026-11-05     | AES-256-GCM crypto service |
-| **M1-T04** | Implement tenant-scoped repository abstraction and PostgreSQL Row-Level Security (RLS) policies.                                  | `Done`    | Senior Staff Agent | 2026-11-05     | Tenancy isolation verified |
-| **M1-T05** | Implement Argon2id password hashing and secure token generation utilities.                                                        | `Done`    | Senior Staff Agent | 2026-11-05     | Argon2id & token utils     |
-| **M1-T06** | Implement dual-realm authentication (Restaurant Admin & Company Portal) with JWT and rotating refresh tokens in httpOnly cookies. | `Done`    | Senior Staff Agent | 2026-11-05     | Dual auth engine & tokens  |
-| **M1-T07** | Implement TOTP MFA onboarding, validation, and recovery codes for Admin and Portal users.                                         | `Done`    | Senior Staff Agent | 2026-11-05     | Multi-factor auth          |
-| **M1-T08** | Implement RBAC middleware (Owner, Manager, Super Admin, Support, Finance) and tenancy validation.                                 | `Done`    | Senior Staff Agent | 2026-11-05     | Authorization              |
-| **M1-T09** | Implement security middleware suite: Helmet CSP, CORS allowlist, Redis rate limiter, and CSRF protection.                         | `Done`    | Senior Staff Agent | 2026-11-05     | Edge security              |
-| **M1-T10** | Implement append-only audit logging engine capturing actor, IP, action, before/after states.                                      | `Backlog` | -                  | -              | Compliance & audit         |
+| ID         | Task Description                                                                                                                  | Status | Owner              | Date Completed | Ref / Notes                |
+| :--------- | :-------------------------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :------------------------- |
+| **M1-T01** | Define Drizzle ORM schema for all entities (restaurants, staff, tables, qr_tokens, tip_intents, etc.).                            | `Done` | Senior Staff Agent | 2026-11-05     | All 16 tables defined      |
+| **M1-T02** | Configure `drizzle-kit` migrations, execution scripts, and local development seeders.                                             | `Done` | Senior Staff Agent | 2026-11-05     | Migrations & seeders ready |
+| **M1-T03** | Implement AES-256-GCM encryption service for VPA at-rest protection and key rotation support.                                     | `Done` | Senior Staff Agent | 2026-11-05     | AES-256-GCM crypto service |
+| **M1-T04** | Implement tenant-scoped repository abstraction and PostgreSQL Row-Level Security (RLS) policies.                                  | `Done` | Senior Staff Agent | 2026-11-05     | Tenancy isolation verified |
+| **M1-T05** | Implement Argon2id password hashing and secure token generation utilities.                                                        | `Done` | Senior Staff Agent | 2026-11-05     | Argon2id & token utils     |
+| **M1-T06** | Implement dual-realm authentication (Restaurant Admin & Company Portal) with JWT and rotating refresh tokens in httpOnly cookies. | `Done` | Senior Staff Agent | 2026-11-05     | Dual auth engine & tokens  |
+| **M1-T07** | Implement TOTP MFA onboarding, validation, and recovery codes for Admin and Portal users.                                         | `Done` | Senior Staff Agent | 2026-11-05     | Multi-factor auth          |
+| **M1-T08** | Implement RBAC middleware (Owner, Manager, Super Admin, Support, Finance) and tenancy validation.                                 | `Done` | Senior Staff Agent | 2026-11-05     | Authorization              |
+| **M1-T09** | Implement security middleware suite: Helmet CSP, CORS allowlist, Redis rate limiter, and CSRF protection.                         | `Done` | Senior Staff Agent | 2026-11-05     | Edge security              |
+| **M1-T10** | Implement append-only audit logging engine capturing actor, IP, action, before/after states.                                      | `Done` | Senior Staff Agent | 2026-11-05     | Compliance & audit         |
 
 ---
 

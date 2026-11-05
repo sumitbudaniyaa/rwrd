@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Append-Only Audit Logging Engine (M1-T10)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T10`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented append-only audit logging engine in `apps/api/src/services/auditService.ts`:
+    - Immutable event recording capturing `actorId`, `actorType` (`restaurant_user`, `platform_user`, `system`), `action`, `entityType`, `entityId`, `ipAddress`, and `userAgent`.
+    - Automated sensitive field sanitization (`sanitizeAuditState`) that permanently redacts plain VPAs, encrypted VPAs, password hashes, TOTP secrets, and session tokens before persisting snapshots.
+    - Tenant-scoped audit querying (`getTenantLogs`) enforcing `restaurantId` boundary isolation, preventing cross-tenant audit log leakage.
+    - Platform-level audit query interface (`getPlatformLogs`) for super admin forensic inspection.
+  - Added unit and multi-tenant isolation tests in `apps/api/tests/audit.test.ts` (100% pass rate).
+
 ### 2026-11-05 - Edge Security Middleware Suite & Rate Limiting (M1-T09)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
