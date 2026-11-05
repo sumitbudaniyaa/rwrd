@@ -7,16 +7,19 @@ This runbook provides step-by-step procedures for local development setup, datab
 ## 1. Local Development Bootstrap
 
 ### 1.1 Prerequisites
+
 - **Node.js**: `v20.x` or `v22.x` (LTS)
 - **Package Manager**: `pnpm` (v9.x)
 - **Container Engine**: Docker Desktop or Colima with `docker-compose`
 
 ### 1.2 Initial Setup
+
 1. **Clone the repository**:
    ```bash
-   git clone <repo-url> rwrd
+   git clone https://github.com/sumitbudaniyaa/rwrd.git
    cd rwrd
    ```
+   _Remote:_ `origin -> https://github.com/sumitbudaniyaa/rwrd.git` (Push cadence: every 5 completed tasks).
 2. **Install all workspace dependencies**:
    ```bash
    pnpm install
@@ -31,24 +34,29 @@ This runbook provides step-by-step procedures for local development setup, datab
    cp apps/landing/.env.example apps/landing/.env
    ```
 4. **Start local backing services**:
+
    ```bash
    docker-compose up -d
    ```
-   *Services launched:*
+
+   _Services launched:_
    - PostgreSQL 16 on `localhost:5432` (db: `tiptable_dev`, user: `postgres`, pass: `postgres`)
    - Redis 7 on `localhost:6379`
    - MinIO Object Storage on `localhost:9000` (Console: `localhost:9001`)
 
 5. **Execute database migrations**:
+
    ```bash
    pnpm --filter @tiptable/api db:migrate
    ```
 
 6. **Seed development fixtures (dev only)**:
+
    ```bash
    pnpm --filter @tiptable/api db:seed
    ```
-   *Creates a demo restaurant, test tables, active waitstaff, and admin/portal test accounts.*
+
+   _Creates a demo restaurant, test tables, active waitstaff, and admin/portal test accounts._
 
 7. **Start all services in development mode**:
    ```bash
@@ -90,13 +98,17 @@ pnpm audit:secrets
 We use **Drizzle Kit** for schema versioning.
 
 ### 3.1 Generating a New Migration
+
 When modifying schema definitions in `apps/api/src/db/schema/`:
+
 ```bash
 pnpm --filter @tiptable/api db:generate
 ```
+
 Review the generated SQL file in `apps/api/src/db/migrations/` before committing.
 
 ### 3.2 Applying Migrations
+
 - **Local / CI**:
   ```bash
   pnpm --filter @tiptable/api db:migrate
@@ -109,12 +121,14 @@ Review the generated SQL file in `apps/api/src/db/migrations/` before committing
 ## 4. Production Health & Observability
 
 ### 4.1 Health Check Endpoints
+
 - **Liveness (`GET /healthz`)**:
   Returns `200 OK` if the Express process is accepting HTTP traffic.
 - **Readiness (`GET /readyz`)**:
   Verifies active connections to PostgreSQL (`SELECT 1;`) and Redis (`PING`). Returns `200 OK` only when both backing services respond within 2000ms. Returns `503 Service Unavailable` otherwise.
 
 ### 4.2 Logging Standards
+
 - All logs are formatted as single-line JSON via **Pino**.
 - Every request carries a unique `x-request-id` header which is injected into all log entries and child loggers.
 - Sensitive fields (`password`, `vpa`, `token`, `totpSecret`, `authorization`) are automatically redacted before stream output.
@@ -124,13 +138,17 @@ Review the generated SQL file in `apps/api/src/db/migrations/` before committing
 ## 5. Disaster Recovery & Backups
 
 ### 5.1 Automated PostgreSQL Backup
+
 Create a compressed binary dump of the production database:
+
 ```bash
 pg_dump -h $PGHOST -U $PGUSER -d $PGDATABASE -F c -b -v -f /backups/tiptable_$(date +%Y%m%d_%H%M%S).dump
 ```
 
 ### 5.2 Restoration Procedure
+
 In the event of database corruption or hardware failure:
+
 1. Ensure the API is in maintenance mode.
 2. Terminate existing client connections:
    ```sql
@@ -163,4 +181,3 @@ When rotating the `VPA_ENCRYPTION_KEY`:
    pnpm --filter @tiptable/api cli:re-encrypt-vpas
    ```
 5. Once all records are re-encrypted under the new key, remove `VPA_ENCRYPTION_KEY_PREV`.
-

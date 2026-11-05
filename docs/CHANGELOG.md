@@ -6,7 +6,21 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Git Hooks & Commit Hygiene Setup (M0-T04)
+
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T04`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Configured Git remote `origin` pointing to `https://github.com/sumitbudaniyaa/rwrd.git`.
+  - Installed and initialized Husky `9.x` with executable hooks in `.husky/`.
+  - Implemented `.husky/pre-commit` triggering `lint-staged` for automated Prettier formatting.
+  - Implemented `.husky/commit-msg` enforcing Conventional Commits via `@commitlint/cli` and `@commitlint/config-conventional`.
+  - Authored `.lintstagedrc.json` and `commitlint.config.js`.
+  - Verified commit message validation and staged file formatting.
+
 ### 2026-11-05 - Shared Tooling Package Configuration (M0-T03)
+
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
 - **Task**: `M0-T03`
 - **Author**: Senior Staff Engineer (AI Agent)
@@ -19,6 +33,7 @@ All completed development tasks are recorded in this file in reverse chronologic
   - Created root `tsconfig.json` referencing `@tiptable/config`.
 
 ### 2026-11-05 - Monorepo Root Initialization (M0-T02)
+
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
 - **Task**: `M0-T02`
 - **Author**: Senior Staff Engineer (AI Agent)
@@ -31,6 +46,7 @@ All completed development tasks are recorded in this file in reverse chronologic
   - Authored root `.env.example` documenting all configuration keys with safe dummy values.
 
 ### 2026-11-05 - Initialization of Core Documentation Suite (M0-T01)
+
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
 - **Task**: `M0-T01`
 - **Author**: Senior Staff Engineer (AI Agent)
@@ -44,4 +60,3 @@ All completed development tasks are recorded in this file in reverse chronologic
   - Documented exhaustive environment variable dictionary in `docs/ENV.md`.
   - Created operational bootstrap, migration, and incident recovery guide in `docs/RUNBOOK.md`.
   - Designed RFC 7807 error envelopes and public/admin/portal endpoint contracts in `docs/API.md`.
-

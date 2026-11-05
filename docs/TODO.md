@@ -3,6 +3,7 @@
 This backlog tracks all development tasks across milestones. Work must be executed strictly **one task at a time** from this list following the plan -> approval -> execution -> documentation update protocol.
 
 Status values:
+
 - `Backlog`: Not yet scheduled or approved.
 - `Approved`: Plan approved by user; ready for execution.
 - `In progress`: Currently being worked on by the owner agent.
@@ -12,101 +13,101 @@ Status values:
 
 ## Milestone 0: Foundation, Tooling, Docs & Environment Setup (M0)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M0-T01** | Create project governance and shared memory documentation suite (`AGENTS.md` and `docs/*`). | `Done` | Senior Staff Agent | 2026-11-05 | 10 governance files created |
-| **M0-T02** | Initialize pnpm monorepo root: workspace file, package.json, tooling scripts, and `.gitignore`. | `Done` | Senior Staff Agent | 2026-11-05 | Monorepo root initialized |
-| **M0-T03** | Configure shared tooling packages: `@tiptable/config` (TSConfig base, ESLint, Prettier presets). | `Done` | Senior Staff Agent | 2026-11-05 | Config package created |
-| **M0-T04** | Setup Git hooks with Husky and lint-staged (conventional commits, prettier, eslint, gitleaks). | `Backlog` | - | - | Git hygiene |
-| **M0-T05** | Setup Docker Compose environment (PostgreSQL 16, Redis 7, MinIO local S3 storage). | `Backlog` | - | - | Local dev infra |
-| **M0-T06** | Initialize `@tiptable/shared` package with initial domain schemas, types, and UPI helpers. | `Backlog` | - | - | Shared models |
-| **M0-T07** | Scaffold `apps/api` with strict Zod environment config parsing (fail-fast), Pino logging, and RFC 7807 error handler. | `Backlog` | - | - | Backend foundation |
-| **M0-T08** | Implement `/healthz` and `/readyz` endpoints with DB and Redis ping checks in `apps/api`. | `Backlog` | - | - | Health checks |
-| **M0-T09** | Setup GitHub Actions CI workflow (lint, typecheck, test, build, audit, gitleaks check). | `Backlog` | - | - | Automated CI |
+| ID         | Task Description                                                                                                      | Status    | Owner              | Date Completed | Ref / Notes                 |
+| :--------- | :-------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :-------------------------- |
+| **M0-T01** | Create project governance and shared memory documentation suite (`AGENTS.md` and `docs/*`).                           | `Done`    | Senior Staff Agent | 2026-11-05     | 10 governance files created |
+| **M0-T02** | Initialize pnpm monorepo root: workspace file, package.json, tooling scripts, and `.gitignore`.                       | `Done`    | Senior Staff Agent | 2026-11-05     | Monorepo root initialized   |
+| **M0-T03** | Configure shared tooling packages: `@tiptable/config` (TSConfig base, ESLint, Prettier presets).                      | `Done`    | Senior Staff Agent | 2026-11-05     | Config package created      |
+| **M0-T04** | Setup Git hooks with Husky and lint-staged (conventional commits, prettier, eslint, gitleaks).                        | `Done`    | Senior Staff Agent | 2026-11-05     | Husky and commitlint active |
+| **M0-T05** | Setup Docker Compose environment (PostgreSQL 16, Redis 7, MinIO local S3 storage).                                    | `Backlog` | -                  | -              | Local dev infra             |
+| **M0-T06** | Initialize `@tiptable/shared` package with initial domain schemas, types, and UPI helpers.                            | `Backlog` | -                  | -              | Shared models               |
+| **M0-T07** | Scaffold `apps/api` with strict Zod environment config parsing (fail-fast), Pino logging, and RFC 7807 error handler. | `Backlog` | -                  | -              | Backend foundation          |
+| **M0-T08** | Implement `/healthz` and `/readyz` endpoints with DB and Redis ping checks in `apps/api`.                             | `Backlog` | -                  | -              | Health checks               |
+| **M0-T09** | Setup GitHub Actions CI workflow (lint, typecheck, test, build, audit, gitleaks check).                               | `Backlog` | -                  | -              | Automated CI                |
 
 ---
 
 ## Milestone 1: Database Schema, Security Middleware & Authentication Engine (M1)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M1-T01** | Define Drizzle ORM schema for all entities (restaurants, staff, tables, qr_tokens, tip_intents, etc.). | `Backlog` | - | - | Core DB schema |
-| **M1-T02** | Configure `drizzle-kit` migrations, execution scripts, and local development seeders. | `Backlog` | - | - | Migration runner |
-| **M1-T03** | Implement AES-256-GCM encryption service for VPA at-rest protection and key rotation support. | `Backlog` | - | - | Security service |
-| **M1-T04** | Implement tenant-scoped repository abstraction and PostgreSQL Row-Level Security (RLS) policies. | `Backlog` | - | - | Tenancy isolation |
-| **M1-T05** | Implement Argon2id password hashing and secure token generation utilities. | `Backlog` | - | - | Auth crypto |
-| **M1-T06** | Implement dual-realm authentication (Restaurant Admin & Company Portal) with JWT and rotating refresh tokens in httpOnly cookies. | `Backlog` | - | - | Auth engine |
-| **M1-T07** | Implement TOTP MFA onboarding, validation, and recovery codes for Admin and Portal users. | `Backlog` | - | - | Multi-factor auth |
-| **M1-T08** | Implement RBAC middleware (Owner, Manager, Super Admin, Support, Finance) and tenancy validation. | `Backlog` | - | - | Authorization |
-| **M1-T09** | Implement security middleware suite: Helmet CSP, CORS allowlist, Redis rate limiter, and CSRF protection. | `Backlog` | - | - | Edge security |
-| **M1-T10** | Implement append-only audit logging engine capturing actor, IP, action, before/after states. | `Backlog` | - | - | Compliance & audit |
+| ID         | Task Description                                                                                                                  | Status    | Owner | Date Completed | Ref / Notes        |
+| :--------- | :-------------------------------------------------------------------------------------------------------------------------------- | :-------- | :---- | :------------- | :----------------- |
+| **M1-T01** | Define Drizzle ORM schema for all entities (restaurants, staff, tables, qr_tokens, tip_intents, etc.).                            | `Backlog` | -     | -              | Core DB schema     |
+| **M1-T02** | Configure `drizzle-kit` migrations, execution scripts, and local development seeders.                                             | `Backlog` | -     | -              | Migration runner   |
+| **M1-T03** | Implement AES-256-GCM encryption service for VPA at-rest protection and key rotation support.                                     | `Backlog` | -     | -              | Security service   |
+| **M1-T04** | Implement tenant-scoped repository abstraction and PostgreSQL Row-Level Security (RLS) policies.                                  | `Backlog` | -     | -              | Tenancy isolation  |
+| **M1-T05** | Implement Argon2id password hashing and secure token generation utilities.                                                        | `Backlog` | -     | -              | Auth crypto        |
+| **M1-T06** | Implement dual-realm authentication (Restaurant Admin & Company Portal) with JWT and rotating refresh tokens in httpOnly cookies. | `Backlog` | -     | -              | Auth engine        |
+| **M1-T07** | Implement TOTP MFA onboarding, validation, and recovery codes for Admin and Portal users.                                         | `Backlog` | -     | -              | Multi-factor auth  |
+| **M1-T08** | Implement RBAC middleware (Owner, Manager, Super Admin, Support, Finance) and tenancy validation.                                 | `Backlog` | -     | -              | Authorization      |
+| **M1-T09** | Implement security middleware suite: Helmet CSP, CORS allowlist, Redis rate limiter, and CSRF protection.                         | `Backlog` | -     | -              | Edge security      |
+| **M1-T10** | Implement append-only audit logging engine capturing actor, IP, action, before/after states.                                      | `Backlog` | -     | -              | Compliance & audit |
 
 ---
 
 ## Milestone 2: Public API & Customer Mobile App (M2)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M2-T01** | Implement public API endpoints: QR token resolver (`GET /public/restaurants/token/:token`) and active staff directory. | `Backlog` | - | - | Public API |
-| **M2-T02** | Implement tip intent creation endpoint (`POST /public/tips/intent`) with strict rate limiting and VPA decryption. | `Backlog` | - | - | Intent & UPI generation |
-| **M2-T03** | Implement review click tracking endpoint (`POST /public/restaurants/:id/review-tap`). | `Backlog` | - | - | Review telemetry |
-| **M2-T04** | Scaffold `apps/customer` (Vite + React + TS strict, Tailwind CSS, self-hosted Newsreader/Fraunces fonts). | `Backlog` | - | - | Customer app setup |
-| **M2-T05** | Build Customer Screen 1 (Home): Serif greeting, restaurant branding, "Review us" & "Make people happy" cards. | `Backlog` | - | - | Screen 1 |
-| **M2-T06** | Build Customer Screen 2 (Staff Directory): Debounced search, 2-column grid, lazy photos with avatar fallback. | `Backlog` | - | - | Screen 2 |
-| **M2-T07** | Build Customer Screen 3 (Amount): Quick-pick chips (configurable), custom numeric input, validation (min/max). | `Backlog` | - | - | Screen 3 |
-| **M2-T08** | Build Customer Screen 4 (Pay): "Spread happiness" action, intent API call, UPI deep link redirection & fallback UI. | `Backlog` | - | - | Screen 4 |
-| **M2-T09** | Build Customer Screen 5 ("You came so far"): Visibility listener return detection, thank-you note, Google review redirect. | `Backlog` | - | - | Screen 5 |
-| **M2-T10** | Setup i18n support in customer app (English & Hindi) with `react-i18next`. | `Backlog` | - | - | Localization |
+| ID         | Task Description                                                                                                           | Status    | Owner | Date Completed | Ref / Notes             |
+| :--------- | :------------------------------------------------------------------------------------------------------------------------- | :-------- | :---- | :------------- | :---------------------- |
+| **M2-T01** | Implement public API endpoints: QR token resolver (`GET /public/restaurants/token/:token`) and active staff directory.     | `Backlog` | -     | -              | Public API              |
+| **M2-T02** | Implement tip intent creation endpoint (`POST /public/tips/intent`) with strict rate limiting and VPA decryption.          | `Backlog` | -     | -              | Intent & UPI generation |
+| **M2-T03** | Implement review click tracking endpoint (`POST /public/restaurants/:id/review-tap`).                                      | `Backlog` | -     | -              | Review telemetry        |
+| **M2-T04** | Scaffold `apps/customer` (Vite + React + TS strict, Tailwind CSS, self-hosted Newsreader/Fraunces fonts).                  | `Backlog` | -     | -              | Customer app setup      |
+| **M2-T05** | Build Customer Screen 1 (Home): Serif greeting, restaurant branding, "Review us" & "Make people happy" cards.              | `Backlog` | -     | -              | Screen 1                |
+| **M2-T06** | Build Customer Screen 2 (Staff Directory): Debounced search, 2-column grid, lazy photos with avatar fallback.              | `Backlog` | -     | -              | Screen 2                |
+| **M2-T07** | Build Customer Screen 3 (Amount): Quick-pick chips (configurable), custom numeric input, validation (min/max).             | `Backlog` | -     | -              | Screen 3                |
+| **M2-T08** | Build Customer Screen 4 (Pay): "Spread happiness" action, intent API call, UPI deep link redirection & fallback UI.        | `Backlog` | -     | -              | Screen 4                |
+| **M2-T09** | Build Customer Screen 5 ("You came so far"): Visibility listener return detection, thank-you note, Google review redirect. | `Backlog` | -     | -              | Screen 5                |
+| **M2-T10** | Setup i18n support in customer app (English & Hindi) with `react-i18next`.                                                 | `Backlog` | -     | -              | Localization            |
 
 ---
 
 ## Milestone 3: Restaurant Admin App (M3)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M3-T01** | Scaffold `apps/admin` (Vite + React + TS strict, Tailwind CSS, `beUI` motion primitives, Hugeicons). | `Backlog` | - | - | Admin app setup |
-| **M3-T02** | Implement Admin Authentication: Email/password, TOTP MFA challenge, session management, logout all sessions. | `Backlog` | - | - | Admin auth UI |
-| **M3-T03** | Build Staff Management: Add, edit, soft delete, active toggle, photo crop/compression, role display labels. | `Backlog` | - | - | Staff CRUD |
-| **M3-T04** | Build VPA Capture & QR Scanner: QR code parser extracting `pa=`, VPA regex validation, typo safeguard warnings. | `Backlog` | - | - | VPA verification |
-| **M3-T05** | Build Restaurant Settings: Name, logo upload, Google review URL validator, tip preset amounts, min/max limits. | `Backlog` | - | - | Settings UI |
-| **M3-T06** | Build Table QR Code Generator: Downloadable PNG/SVG/Printable PDF with table numbers and token rotation. | `Backlog` | - | - | QR generator |
-| **M3-T07** | Build Admin Analytics Dashboard: Scans, staff views, tip intents, review taps, waiter breakdown, CSV export. | `Backlog` | - | - | Analytics UI |
-| **M3-T08** | Build Audit Log Viewer: History of changes made within the tenant account. | `Backlog` | - | - | Tenant audit UI |
+| ID         | Task Description                                                                                                | Status    | Owner | Date Completed | Ref / Notes      |
+| :--------- | :-------------------------------------------------------------------------------------------------------------- | :-------- | :---- | :------------- | :--------------- |
+| **M3-T01** | Scaffold `apps/admin` (Vite + React + TS strict, Tailwind CSS, `beUI` motion primitives, Hugeicons).            | `Backlog` | -     | -              | Admin app setup  |
+| **M3-T02** | Implement Admin Authentication: Email/password, TOTP MFA challenge, session management, logout all sessions.    | `Backlog` | -     | -              | Admin auth UI    |
+| **M3-T03** | Build Staff Management: Add, edit, soft delete, active toggle, photo crop/compression, role display labels.     | `Backlog` | -     | -              | Staff CRUD       |
+| **M3-T04** | Build VPA Capture & QR Scanner: QR code parser extracting `pa=`, VPA regex validation, typo safeguard warnings. | `Backlog` | -     | -              | VPA verification |
+| **M3-T05** | Build Restaurant Settings: Name, logo upload, Google review URL validator, tip preset amounts, min/max limits.  | `Backlog` | -     | -              | Settings UI      |
+| **M3-T06** | Build Table QR Code Generator: Downloadable PNG/SVG/Printable PDF with table numbers and token rotation.        | `Backlog` | -     | -              | QR generator     |
+| **M3-T07** | Build Admin Analytics Dashboard: Scans, staff views, tip intents, review taps, waiter breakdown, CSV export.    | `Backlog` | -     | -              | Analytics UI     |
+| **M3-T08** | Build Audit Log Viewer: History of changes made within the tenant account.                                      | `Backlog` | -     | -              | Tenant audit UI  |
 
 ---
 
 ## Milestone 4: Company Portal (M4)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M4-T01** | Scaffold `apps/portal` (Platform staff app, isolated auth realm, IP allowlist middleware). | `Backlog` | - | - | Portal app setup |
-| **M4-T02** | Build Restaurant Management: List, create, onboard, suspend, reactivate, and soft-delete restaurants. | `Backlog` | - | - | Restaurant admin |
-| **M4-T03** | Build Support Impersonation Mode: Session delegation with persistent banner and strict audit logging. | `Backlog` | - | - | Support tooling |
-| **M4-T04** | Build Platform Dashboard: Global metrics, active restaurants, aggregate scans, intents, churn indicators. | `Backlog` | - | - | Platform analytics |
-| **M4-T05** | Build Billing & Subscription Management: Flat monthly fee tracker, invoice records, payment status, auto-suspend rules. | `Backlog` | - | - | Billing tracker |
-| **M4-T06** | Build Leads Management: Submissions pipeline from landing site demo request form. | `Backlog` | - | - | Lead CRM |
-| **M4-T07** | Build System Health & Feature Flags: API status, error rates, BullMQ worker status, per-restaurant flags. | `Backlog` | - | - | System ops |
+| ID         | Task Description                                                                                                        | Status    | Owner | Date Completed | Ref / Notes        |
+| :--------- | :---------------------------------------------------------------------------------------------------------------------- | :-------- | :---- | :------------- | :----------------- |
+| **M4-T01** | Scaffold `apps/portal` (Platform staff app, isolated auth realm, IP allowlist middleware).                              | `Backlog` | -     | -              | Portal app setup   |
+| **M4-T02** | Build Restaurant Management: List, create, onboard, suspend, reactivate, and soft-delete restaurants.                   | `Backlog` | -     | -              | Restaurant admin   |
+| **M4-T03** | Build Support Impersonation Mode: Session delegation with persistent banner and strict audit logging.                   | `Backlog` | -     | -              | Support tooling    |
+| **M4-T04** | Build Platform Dashboard: Global metrics, active restaurants, aggregate scans, intents, churn indicators.               | `Backlog` | -     | -              | Platform analytics |
+| **M4-T05** | Build Billing & Subscription Management: Flat monthly fee tracker, invoice records, payment status, auto-suspend rules. | `Backlog` | -     | -              | Billing tracker    |
+| **M4-T06** | Build Leads Management: Submissions pipeline from landing site demo request form.                                       | `Backlog` | -     | -              | Lead CRM           |
+| **M4-T07** | Build System Health & Feature Flags: API status, error rates, BullMQ worker status, per-restaurant flags.               | `Backlog` | -     | -              | System ops         |
 
 ---
 
 ## Milestone 5: Landing Site & Lead Funnel (M5)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M5-T01** | Scaffold `apps/landing` (SEO-optimized SSG/pre-rendered React landing site). | `Backlog` | - | - | Landing setup |
-| **M5-T02** | Build Landing Sections: Hero pitch & CTA, 3-step explainer, restaurant benefits, interactive flow demo. | `Backlog` | - | - | Landing content |
-| **M5-T03** | Build Pricing & FAQ sections: Flat monthly fee breakdown, zero tip cut clarity, no money custody guarantee. | `Backlog` | - | - | Pricing & FAQ |
-| **M5-T04** | Build Demo Request Form: Rate-limited submission, Turnstile/hCaptcha verification, lead creation API. | `Backlog` | - | - | Lead capture |
-| **M5-T05** | Build Privacy Policy & Terms of Service pages (DPDP Act compliance & Google Review policy alignment). | `Backlog` | - | - | Legal pages |
+| ID         | Task Description                                                                                            | Status    | Owner | Date Completed | Ref / Notes     |
+| :--------- | :---------------------------------------------------------------------------------------------------------- | :-------- | :---- | :------------- | :-------------- |
+| **M5-T01** | Scaffold `apps/landing` (SEO-optimized SSG/pre-rendered React landing site).                                | `Backlog` | -     | -              | Landing setup   |
+| **M5-T02** | Build Landing Sections: Hero pitch & CTA, 3-step explainer, restaurant benefits, interactive flow demo.     | `Backlog` | -     | -              | Landing content |
+| **M5-T03** | Build Pricing & FAQ sections: Flat monthly fee breakdown, zero tip cut clarity, no money custody guarantee. | `Backlog` | -     | -              | Pricing & FAQ   |
+| **M5-T04** | Build Demo Request Form: Rate-limited submission, Turnstile/hCaptcha verification, lead creation API.       | `Backlog` | -     | -              | Lead capture    |
+| **M5-T05** | Build Privacy Policy & Terms of Service pages (DPDP Act compliance & Google Review policy alignment).       | `Backlog` | -     | -              | Legal pages     |
 
 ---
 
 ## Milestone 6: Hardening, Testing, Performance & Launch Readiness (M6)
 
-| ID | Task Description | Status | Owner | Date Completed | Ref / Notes |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **M6-T01** | Write Supertest API test suite: Cross-tenant isolation verification, auth flows, rate limiting, validation. | `Backlog` | - | - | API test coverage |
-| **M6-T02** | Implement Playwright E2E tests: Customer scan-to-intent flow, Admin staff & QR flow, Portal onboarding flow. | `Backlog` | - | - | End-to-end testing |
-| **M6-T03** | Execute automated accessibility audit (axe-core / Lighthouse) ensuring WCAG 2.1 AA compliance (48px tap targets). | `Backlog` | - | - | A11y verification |
-| **M6-T04** | Perform k6 load testing on public endpoints (`/token/:token`, `/staff`, `/tips/intent`) and document p95 latencies. | `Backlog` | - | - | Performance verification |
-| **M6-T05** | Finalize runbooks: Disaster recovery, database backup/restore, key rotation, incident response checklist. | `Backlog` | - | - | Operational readiness |
+| ID         | Task Description                                                                                                    | Status    | Owner | Date Completed | Ref / Notes              |
+| :--------- | :------------------------------------------------------------------------------------------------------------------ | :-------- | :---- | :------------- | :----------------------- |
+| **M6-T01** | Write Supertest API test suite: Cross-tenant isolation verification, auth flows, rate limiting, validation.         | `Backlog` | -     | -              | API test coverage        |
+| **M6-T02** | Implement Playwright E2E tests: Customer scan-to-intent flow, Admin staff & QR flow, Portal onboarding flow.        | `Backlog` | -     | -              | End-to-end testing       |
+| **M6-T03** | Execute automated accessibility audit (axe-core / Lighthouse) ensuring WCAG 2.1 AA compliance (48px tap targets).   | `Backlog` | -     | -              | A11y verification        |
+| **M6-T04** | Perform k6 load testing on public endpoints (`/token/:token`, `/staff`, `/tips/intent`) and document p95 latencies. | `Backlog` | -     | -              | Performance verification |
+| **M6-T05** | Finalize runbooks: Disaster recovery, database backup/restore, key rotation, incident response checklist.           | `Backlog` | -     | -              | Operational readiness    |
