@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Edge Security Middleware Suite & Rate Limiting (M1-T09)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T09`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Redis-backed sliding-window rate limiter in `apps/api/src/middleware/rateLimiter.ts`:
+    - Atomic Redis pipeline (`zremrangebyscore`, `zadd`, `zcard`, `pexpire`) with in-memory sliding window fallback for resilient local execution and test environments.
+    - Emits standard `RateLimit-*` and `Retry-After` headers and raises RFC 7807 429 Too Many Requests problem details upon threshold breach.
+    - Configured tailored limiters: `globalRateLimiter` (default 100 req/min), `authRateLimiter` (20 req/15min on credential endpoints), and `tipIntentRateLimiter` (10 req/min).
+  - Implemented CSRF defense-in-depth middleware in `apps/api/src/middleware/csrf.ts`:
+    - Double-submit CSRF cookie pattern (`tiptable_csrf`) coupled with `x-csrf-token` header validation for state-changing browser interactions with auth cookies.
+    - Safe methods (`GET`, `HEAD`, `OPTIONS`) exempted.
+  - Hardened Helmet configuration in `apps/api/src/app.ts`:
+    - Strict Content Security Policy (CSP) with `default-src 'self'`, `frame-ancestors 'none'`, `object-src 'none'`.
+    - HSTS (`maxAge: 1 year`, preload), `X-Content-Type-Options: nosniff`, and `X-Frame-Options: DENY`.
+  - Added security test suite in `apps/api/tests/security.test.ts` (9 tests, 100% pass rate).
+
 ### 2026-11-05 - RBAC Middleware & Tenancy Authorization (M1-T08)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)

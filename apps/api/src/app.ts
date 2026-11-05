@@ -8,6 +8,8 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { globalRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
+import { setCsrfCookie, verifyCsrf } from './middleware/csrf.js';
 import { healthRouter } from './routes/health.js';
 import { authAdminRouter } from './routes/authAdmin.js';
 import { authPortalRouter } from './routes/authPortal.js';
@@ -19,11 +21,35 @@ export function createApp(): Express {
   // Trust reverse proxy if configured
   app.set('trust proxy', env.TRUST_PROXY);
 
-  // Security Headers
+  // Security Headers & Content Security Policy (CSP)
   app.use(
     helmet({
-      contentSecurityPolicy: env.NODE_ENV === 'production',
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+          connectSrc: ["'self'", ...env.CORS_ALLOWED_ORIGINS],
+          fontSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          frameAncestors: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+        },
+      },
       crossOriginEmbedderPolicy: false,
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'same-site' },
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+      hsts: {
+        maxAge: 31536000,
+        includeSubDomains: true,
+        preload: true,
+      },
+      xContentTypeOptions: true,
+      dnsPrefetchControl: { allow: false },
+      frameguard: { action: 'deny' },
     }),
   );
 
@@ -42,8 +68,20 @@ export function createApp(): Express {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id'],
-      exposedHeaders: ['x-request-id', 'Retry-After'],
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'x-request-id',
+        'x-csrf-token',
+        'x-requested-with',
+      ],
+      exposedHeaders: [
+        'x-request-id',
+        'Retry-After',
+        'RateLimit-Limit',
+        'RateLimit-Remaining',
+        'RateLimit-Reset',
+      ],
     }),
   );
 
@@ -52,6 +90,13 @@ export function createApp(): Express {
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
   app.use(cookieParser());
   app.use(hpp());
+
+  // CSRF Protection & Cookie Provisioning
+  app.use(setCsrfCookie);
+  app.use(verifyCsrf);
+
+  // Global Rate Limiting
+  app.use(globalRateLimiter);
 
   // Request ID & Logging
   app.use(requestIdMiddleware);
@@ -81,9 +126,9 @@ export function createApp(): Express {
   // Health and Readiness Checks
   app.use(healthRouter);
 
-  // Auth Routes
-  app.use('/api/v1', authAdminRouter);
-  app.use('/api/v1', authPortalRouter);
+  // Auth Routes with rate limiting
+  app.use('/api/v1', authRateLimiter, authAdminRouter);
+  app.use('/api/v1', authRateLimiter, authPortalRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {
