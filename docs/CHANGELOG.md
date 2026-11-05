@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - TOTP MFA Onboarding, Verification & Recovery Codes (M1-T07)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T07`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented TOTP MFA service in `apps/api/src/services/mfaService.ts` powered by `otplib` v13:
+    - High-entropy Base32 secret generation (`generateMfaSecret`).
+    - Standard `otpauth://` URI generator (`generateTotpUri`) for authenticator apps (Google Authenticator, 1Password, etc.).
+    - Strict window verification (`verifyTotpCode`) with clock skew tolerance of ±1 step.
+    - Cryptographic recovery codes generation (`generateRecoveryCodes`) producing 8-character uppercase alphanumeric codes.
+    - Single-use consumption verification (`verifyAndConsumeRecoveryCode`) using constant-time hash matching.
+  - Added unit test suite in `apps/api/tests/mfa.test.ts` verifying secret generation, RFC 6238 TOTP verification, and recovery code single-use lifecycle (100% pass rate).
+
 ### 2026-11-05 - Dual-Realm Authentication Engine & Token Rotation (M1-T06)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
