@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Google Review Tap Telemetry Endpoint (M2-T03)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented review tap telemetry endpoint `POST /api/v1/public/restaurants/:id/review-tap` in `apps/api/src/routes/public.ts`:
+    - Validates target restaurant status and verifies provided QR token authenticity and tenant ownership.
+    - Records diner interaction metadata in `review_taps` table (`tableId`, `source`: `home_card` or `post_tip_reminder`).
+    - Compliant with Google review policies: zero gating or incentivization; records click telemetry and returns 204 No Content.
+  - Added `ReviewTapRepository` in `apps/api/src/repositories/reviewTapRepository.ts`.
+  - Added test suite in `apps/api/tests/public.test.ts` verifying telemetry recording, token mismatch rejection, and validation (14 tests, 100% pass rate).
+
 ### 2026-11-05 - Tip Intent Creation & On-the-Fly UPI Deep Link Generation (M2-T02)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

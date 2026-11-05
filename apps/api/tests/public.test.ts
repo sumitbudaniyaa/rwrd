@@ -5,9 +5,10 @@ import { QrTokenRepository } from '../src/repositories/qrTokenRepository.js';
 import { StaffRepository } from '../src/repositories/staffRepository.js';
 import { RestaurantRepository } from '../src/repositories/restaurantRepository.js';
 import { TipIntentRepository } from '../src/repositories/tipIntentRepository.js';
+import { ReviewTapRepository } from '../src/repositories/reviewTapRepository.js';
 import { encryptVpa } from '../src/services/crypto.js';
 import type { ResolvedQrToken } from '../src/repositories/qrTokenRepository.js';
-import type { Restaurant, Staff, TipIntent } from '../src/db/schema/index.js';
+import type { Restaurant, Staff, TipIntent, ReviewTap } from '../src/db/schema/index.js';
 
 describe('Public Customer API Endpoints', () => {
   const app = createApp();
@@ -263,6 +264,76 @@ describe('Public Customer API Endpoints', () => {
 
       expect(res.status).toBe(404);
       expect(res.body.code).toBe('STAFF_NOT_FOUND');
+    });
+  });
+
+  describe('POST /api/v1/public/restaurants/:id/review-tap', () => {
+    it('records a review tap with 204 No Content for a valid request', async () => {
+      vi.spyOn(RestaurantRepository.prototype, 'findActiveById').mockResolvedValue(mockRestaurant);
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
+      const createSpy = vi
+        .spyOn(ReviewTapRepository.prototype, 'create')
+        .mockResolvedValue({} as ReviewTap);
+
+      const res = await request(app)
+        .post(`/api/v1/public/restaurants/${mockRestaurantId}/review-tap`)
+        .send({
+          token: 'valid_table_token_123',
+          source: 'home_card',
+        });
+
+      expect(res.status).toBe(204);
+      expect(createSpy).toHaveBeenCalledWith(mockRestaurantId, {
+        tableId: mockTableId,
+        source: 'home_card',
+      });
+    });
+
+    it('returns 403 Forbidden when token belongs to another restaurant', async () => {
+      vi.spyOn(RestaurantRepository.prototype, 'findActiveById').mockResolvedValue(mockRestaurant);
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue({
+        ...mockResolvedToken,
+        restaurant: {
+          ...mockRestaurant,
+          id: '99999999-9999-9999-9999-999999999999',
+        },
+      });
+
+      const res = await request(app)
+        .post(`/api/v1/public/restaurants/${mockRestaurantId}/review-tap`)
+        .send({
+          token: 'foreign_table_token',
+          source: 'post_tip_reminder',
+        });
+
+      expect(res.status).toBe(403);
+      expect(res.body.code).toBe('TOKEN_MISMATCH');
+    });
+
+    it('returns 404 Not Found when restaurant is inactive or missing', async () => {
+      vi.spyOn(RestaurantRepository.prototype, 'findActiveById').mockResolvedValue(null);
+
+      const res = await request(app)
+        .post(`/api/v1/public/restaurants/${mockRestaurantId}/review-tap`)
+        .send({
+          token: 'valid_table_token_123',
+          source: 'home_card',
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body.code).toBe('RESTAURANT_NOT_FOUND');
+    });
+
+    it('returns 422 Unprocessable Entity for invalid source identifier', async () => {
+      const res = await request(app)
+        .post(`/api/v1/public/restaurants/${mockRestaurantId}/review-tap`)
+        .send({
+          token: 'valid_table_token_123',
+          source: 'unknown_source',
+        });
+
+      expect(res.status).toBe(422);
+      expect(res.body.code).toBe('VALIDATION_FAILED');
     });
   });
 });

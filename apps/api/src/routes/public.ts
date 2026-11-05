@@ -4,7 +4,8 @@ import { QrTokenRepository } from '../repositories/qrTokenRepository.js';
 import { StaffRepository } from '../repositories/staffRepository.js';
 import { RestaurantRepository } from '../repositories/restaurantRepository.js';
 import { TipIntentRepository } from '../repositories/tipIntentRepository.js';
-import { NotFoundError, ValidationError } from '../errors/appError.js';
+import { ReviewTapRepository } from '../repositories/reviewTapRepository.js';
+import { NotFoundError, ValidationError, ForbiddenError } from '../errors/appError.js';
 import { decryptVpa } from '../services/crypto.js';
 import { tipIntentRateLimiter } from '../middleware/rateLimiter.js';
 import {
@@ -12,6 +13,7 @@ import {
   type StaffPublic,
   type TipIntentResponse,
   CreateTipIntentSchema,
+  ReviewTapRequestSchema,
   buildUpiDeepLink,
 } from '@tiptable/shared';
 
@@ -21,6 +23,7 @@ const qrTokenRepo = new QrTokenRepository();
 const staffRepo = new StaffRepository();
 const restaurantRepo = new RestaurantRepository();
 const tipIntentRepo = new TipIntentRepository();
+const reviewTapRepo = new ReviewTapRepository();
 
 const TokenParamSchema = z.object({
   token: z.string().trim().min(1, 'Token is required'),
@@ -189,6 +192,44 @@ publicRouter.post(
       };
 
       res.status(201).json(response);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * POST /api/v1/public/restaurants/:id/review-tap
+ * Records a customer tap on the "Review us on Google" button.
+ * Unlocks restaurant analytics without holding or gating user reviews (compliant with Google policy).
+ */
+publicRouter.post(
+  '/public/restaurants/:id/review-tap',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id: restaurantId } = RestaurantIdParamSchema.parse(req.params);
+      const { token, source } = ReviewTapRequestSchema.parse(req.body);
+
+      const restaurant = await restaurantRepo.findActiveById(restaurantId);
+      if (!restaurant) {
+        throw new NotFoundError('Restaurant not found or inactive', 'RESTAURANT_NOT_FOUND');
+      }
+
+      // Verify token belongs to this restaurant
+      const resolved = await qrTokenRepo.findByToken(token);
+      if (!resolved || resolved.restaurant.id !== restaurantId) {
+        throw new ForbiddenError(
+          'QR token does not match the designated restaurant',
+          'TOKEN_MISMATCH',
+        );
+      }
+
+      await reviewTapRepo.create(restaurantId, {
+        tableId: resolved.table?.id ?? null,
+        source,
+      });
+
+      res.status(204).send();
     } catch (error) {
       next(error);
     }
