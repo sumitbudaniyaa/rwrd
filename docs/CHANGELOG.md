@@ -6,6 +6,31 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Drizzle ORM Schema Definitions (M1-T01)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T01`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Installed and configured `drizzle-orm` and `drizzle-kit` (`apps/api/drizzle.config.ts`).
+  - Defined all 16 PostgreSQL tables matching `docs/DATA_MODEL.md`:
+    - `restaurants`: multi-tenant primary account entity with tip bounds and review links.
+    - `restaurant_users`: admin accounts with Argon2id passwords, TOTP fields, and tenant FK.
+    - `platform_users`: TipTable platform staff accounts with role hierarchy and IP allowlist.
+    - `sessions`: rotating refresh token family store with user type discriminator.
+    - `staff`: waitstaff roster storing AES-256-GCM encrypted VPAs, IV, tag, masked VPA, and DPDP consent timestamp.
+    - `tables`: restaurant tables with unique number constraint per tenant.
+    - `qr_tokens`: cryptographic table QR lookup tokens with rotation timestamps.
+    - `tip_intents`: records of initiated tips with coarse device metadata (zero customer PII).
+    - `review_taps`: telemetry on Google review clicks.
+    - `page_events`: aggregate scans and view counts.
+    - `leads`: landing page demo requests.
+    - `billing_plans`, `subscriptions`, `invoices`: SaaS flat fee subscription ledger.
+    - `audit_logs`: immutable append-only audit trail with before/after snapshots.
+    - `feature_flags`: tenant-specific feature toggle configurations.
+  - Added unit test suite in `apps/api/tests/schema.test.ts` (100% pass rate).
+  - Milestone Cadence: Task 10 completed! Pushing 10-task commit history to `origin main`.
+
 ### 2026-11-05 - GitHub Actions CI Pipeline Setup (M0-T09)
 
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
