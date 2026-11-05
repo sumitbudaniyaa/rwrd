@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Dual-Realm Authentication Engine & Token Rotation (M1-T06)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T06`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented dual-realm authentication architecture in `apps/api/src/services/authService.ts`:
+    - Realm `admin`: signs access tokens with `ADMIN_JWT_SECRET`, audience `tiptable-admin`, refresh cookie `tiptable_admin_rf`.
+    - Realm `portal`: signs access tokens with `PORTAL_JWT_SECRET`, audience `tiptable-portal`, refresh cookie `tiptable_portal_rf`.
+  - Implemented cryptographic token family rotation and token reuse detection:
+    - Attempted reuse of an already-rotated refresh token instantly revokes the entire session family (`familyId`) to neutralize token theft attacks.
+  - Implemented HTTP routes:
+    - `POST /api/v1/admin/auth/login`, `POST /api/v1/admin/auth/refresh`, `POST /api/v1/admin/auth/logout`.
+    - `POST /api/v1/portal/auth/login`, `POST /api/v1/portal/auth/refresh`, `POST /api/v1/portal/auth/logout`.
+  - Configured `cookie-parser` with `httpOnly`, `Secure` (in prod), `SameSite=Strict` cookies.
+  - Integration test suite added in `apps/api/tests/auth.test.ts` (100% pass rate).
+  - Milestone Cadence: Task 15 completed! Pushing 15-task commit history to `origin main`.
+
 ### 2026-11-05 - Argon2id Password Hashing & Secure Tokens (M1-T05)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)

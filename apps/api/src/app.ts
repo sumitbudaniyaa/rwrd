@@ -2,12 +2,15 @@ import express, { type Express } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import hpp from 'hpp';
+import cookieParser from 'cookie-parser';
 import { pinoHttp } from 'pino-http';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { healthRouter } from './routes/health.js';
+import { authAdminRouter } from './routes/authAdmin.js';
+import { authPortalRouter } from './routes/authPortal.js';
 import { NotFoundError } from './errors/appError.js';
 
 export function createApp(): Express {
@@ -47,6 +50,7 @@ export function createApp(): Express {
   // Body Parsing & Parameter Pollution Protection
   app.use(express.json({ limit: '1mb' }));
   app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+  app.use(cookieParser());
   app.use(hpp());
 
   // Request ID & Logging
@@ -76,6 +80,10 @@ export function createApp(): Express {
 
   // Health and Readiness Checks
   app.use(healthRouter);
+
+  // Auth Routes
+  app.use('/api/v1', authAdminRouter);
+  app.use('/api/v1', authPortalRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {
