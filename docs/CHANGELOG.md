@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer Screen 5: Post-Payment "You Came So Far" & Visibility Return Listener (M2-T09)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T09`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Customer Screen 5 in `apps/customer/src/screens/ThanksScreen.tsx`:
+    - Gracious post-payment confirmation with serif typography ("You came so far...") thanking diners for supporting waitstaff.
+    - Explicit non-confirmation payment messaging: acknowledges peer-to-peer UPI transfer initiation without erroneously declaring bank settlement completed.
+    - Google Review call-to-action card with gold star rating display, opening restaurant review links in a new window with fire-and-forget telemetry (`source: 'post_tip_reminder'`).
+    - Direct table home navigation to reset session.
+  - Implemented automatic return detection in `RestaurantLayout` (`apps/customer/src/App.tsx`):
+    - Subscribes to `document.visibilitychange` and `window.pageshow` events.
+    - Senses when customer resumes focus from an external UPI payment application, retrieving cached `tiptable_active_tip` from `sessionStorage` and automatically advancing to the Thanks screen.
+  - Added unit test suite in `apps/customer/tests/thanks.test.tsx` (3 tests, 100% pass rate).
+
 ### 2026-11-05 - Customer Screen 4: Pay Flow, UPI Deep Link & Fallback UI (M2-T08)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

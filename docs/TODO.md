@@ -56,7 +56,7 @@ Status values:
 | **M2-T06** | Build Customer Screen 2 (Staff Directory): Debounced search, 2-column grid, lazy photos with avatar fallback.              | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 2                |
 | **M2-T07** | Build Customer Screen 3 (Amount): Quick-pick chips (configurable), custom numeric input, validation (min/max).             | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 3                |
 | **M2-T08** | Build Customer Screen 4 (Pay): "Spread happiness" action, intent API call, UPI deep link redirection & fallback UI.        | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 4                |
-| **M2-T09** | Build Customer Screen 5 ("You came so far"): Visibility listener return detection, thank-you note, Google review redirect. | `Backlog` | -                  | -              | Screen 5                |
+| **M2-T09** | Build Customer Screen 5 ("You came so far"): Visibility listener return detection, thank-you note, Google review redirect. | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 5                |
 | **M2-T10** | Setup i18n support in customer app (English & Hindi) with `react-i18next`.                                                 | `Backlog` | -                  | -              | Localization            |
 
 ---
