@@ -8,6 +8,7 @@ import {
   Alert01Icon,
   UserGroupIcon,
   Search01Icon,
+  QrCodeIcon,
 } from '@hugeicons/core-free-icons';
 import { MotionCard, MotionButton, Badge, SlideUp } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
@@ -18,6 +19,7 @@ import {
   type CreateStaffInput,
   type UpdateStaffInput,
 } from '../services/api.js';
+import { VpaQrScannerModal } from '../components/VpaQrScannerModal.js';
 
 export const StaffManagementScreen: React.FC = () => {
   const { user, restaurant } = useAuth();
@@ -28,6 +30,7 @@ export const StaffManagementScreen: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffAdminItem | null>(null);
   const [deletingStaff, setDeletingStaff] = useState<StaffAdminItem | null>(null);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
 
   // Form states for Add/Edit
   const [displayName, setDisplayName] = useState('');
@@ -35,6 +38,13 @@ export const StaffManagementScreen: React.FC = () => {
   const [vpa, setVpa] = useState('');
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+
+  const handleVpaCaptured = (scannedVpa: string, payeeName?: string) => {
+    setVpa(scannedVpa);
+    if (!displayName.trim() && payeeName) {
+      setDisplayName(payeeName);
+    }
+  };
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-staff', restaurantId],
@@ -446,10 +456,20 @@ export const StaffManagementScreen: React.FC = () => {
 
               {/* UPI VPA */}
               <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  UPI VPA (Virtual Payment Address){' '}
-                  {isAddModalOpen && <span className="text-rose-500">*</span>}
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-medium text-stone-700">
+                    UPI VPA (Virtual Payment Address){' '}
+                    {isAddModalOpen && <span className="text-rose-500">*</span>}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setIsScannerOpen(true)}
+                    className="inline-flex items-center gap-1 text-[11px] font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+                  >
+                    <HugeiconsIcon icon={QrCodeIcon} className="w-3.5 h-3.5" strokeWidth={1.5} />
+                    <span>Scan UPI QR</span>
+                  </button>
+                </div>
                 <input
                   type="text"
                   required={isAddModalOpen}
@@ -547,6 +567,12 @@ export const StaffManagementScreen: React.FC = () => {
           </div>
         </div>
       )}
+      {/* VPA QR Code Scanner Modal */}
+      <VpaQrScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onVpaCaptured={handleVpaCaptured}
+      />
     </div>
   );
 };

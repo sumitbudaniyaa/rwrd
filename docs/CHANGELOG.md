@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Waitstaff UPI VPA Capture, Live Camera & Image QR Scanner (M3-T04)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T04`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Built `VpaQrScannerModal` (`apps/admin/src/components/VpaQrScannerModal.tsx`) for frictionless waitstaff onboarding without typos:
+    - Live camera scanning with `navigator.mediaDevices.getUserMedia` (`facingMode: 'environment'`) and real-time canvas decoding via `jsQR` with target viewfinder reticle.
+    - Image upload fallback supporting drag-and-drop / file upload of QR code screenshots exported from consumer UPI apps (GPay, PhonePe, Paytm, BHIM).
+    - Extracted VPA parser (`extractVpaFromQrText`): supports standard UPI URIs (`upi://pay?pa=...&pn=...`), URI query parameter strings, and bare `handle@psp` formats with Zod schema validation.
+    - Typo safeguard alert banner: _"Double-check the VPA. A wrong VPA sends diner tips directly to the wrong person. TipTable does not hold or mediate funds."_
+    - Automatically transfers decoded VPA and optional Payee Name into the staff member creation/edit modal.
+  - Integrated into `StaffManagementScreen` with dedicated "Scan UPI QR" action trigger.
+  - Added unit test suite in `apps/admin/tests/vpaScanner.test.tsx` (10 tests covering deep link parsing, query extraction, raw string validation, modal tab switching, canvas decoding, and VPA capture callbacks).
+  - 100% clean typecheck and all 21 admin tests passing.
+
 ### 2026-11-05 - Restaurant Admin Waitstaff Roster Management, VPA Encryption & Photo Crop (M3-T03)
 
 - **Milestone**: M3 (Restaurant Admin App)
