@@ -4,8 +4,10 @@ import { createApp } from '../src/app.js';
 import { QrTokenRepository } from '../src/repositories/qrTokenRepository.js';
 import { StaffRepository } from '../src/repositories/staffRepository.js';
 import { RestaurantRepository } from '../src/repositories/restaurantRepository.js';
+import { TipIntentRepository } from '../src/repositories/tipIntentRepository.js';
+import { encryptVpa } from '../src/services/crypto.js';
 import type { ResolvedQrToken } from '../src/repositories/qrTokenRepository.js';
-import type { Restaurant, Staff } from '../src/db/schema/index.js';
+import type { Restaurant, Staff, TipIntent } from '../src/db/schema/index.js';
 
 describe('Public Customer API Endpoints', () => {
   const app = createApp();
@@ -13,6 +15,7 @@ describe('Public Customer API Endpoints', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
   const mockTableId = '22222222-2222-2222-2222-222222222222';
   const mockStaffId = '33333333-3333-3333-3333-333333333333';
+  const mockIntentId = '44444444-4444-4444-4444-444444444444';
 
   const mockRestaurant: Restaurant = {
     id: mockRestaurantId,
@@ -53,6 +56,8 @@ describe('Public Customer API Endpoints', () => {
     },
   };
 
+  const encrypted = encryptVpa('aarav@okaxis');
+
   const mockStaffList: Staff[] = [
     {
       id: mockStaffId,
@@ -60,9 +65,9 @@ describe('Public Customer API Endpoints', () => {
       displayName: 'Aarav Sharma',
       roleLabel: 'Captain',
       photoUrl: 'https://media.tiptable.in/staff/aarav.webp',
-      vpaEncrypted: 'sensitive_encrypted_vpa_string',
-      vpaIv: 'iv_bytes_hex',
-      vpaTag: 'tag_bytes_hex',
+      vpaEncrypted: encrypted.ciphertext,
+      vpaIv: encrypted.iv,
+      vpaTag: encrypted.tag,
       vpaMasked: 'aarav@okaxis',
       isActive: true,
       isOnShift: true,
@@ -72,6 +77,18 @@ describe('Public Customer API Endpoints', () => {
       deletedAt: null,
     },
   ];
+
+  const mockIntent: TipIntent = {
+    id: mockIntentId,
+    restaurantId: mockRestaurantId,
+    staffId: mockStaffId,
+    tableId: mockTableId,
+    amountInr: 100,
+    status: 'initiated',
+    deviceOs: 'iOS',
+    deviceBrowser: 'Safari',
+    createdAt: new Date(),
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -164,6 +181,88 @@ describe('Public Customer API Endpoints', () => {
 
       expect(res.status).toBe(404);
       expect(res.body.code).toBe('RESTAURANT_NOT_FOUND');
+    });
+  });
+
+  describe('POST /api/v1/public/tips/intent', () => {
+    it('creates a tip intent and returns standardized UPI deep link', async () => {
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
+      vi.spyOn(StaffRepository.prototype, 'findById').mockResolvedValue(mockStaffList[0]!);
+      vi.spyOn(TipIntentRepository.prototype, 'create').mockResolvedValue(mockIntent);
+
+      const res = await request(app).post('/api/v1/public/tips/intent').send({
+        token: 'valid_table_token_123',
+        staffId: mockStaffId,
+        amountInr: 100,
+        deviceOs: 'iOS',
+        deviceBrowser: 'Safari',
+      });
+
+      expect(res.status).toBe(201);
+      expect(res.body).toEqual({
+        intentId: mockIntentId,
+        upiLink:
+          'upi://pay?pa=aarav%40okaxis&pn=Aarav+Sharma&am=100&cu=INR&tn=Tip+for+Aarav+Sharma+at+The+Bombay+Canteen',
+        payeeName: 'Aarav Sharma',
+        amountInr: 100,
+        restaurantName: 'The Bombay Canteen',
+      });
+    });
+
+    it('rejects tip amount lower than restaurant minTipInr with 422', async () => {
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
+
+      const res = await request(app).post('/api/v1/public/tips/intent').send({
+        token: 'valid_table_token_123',
+        staffId: mockStaffId,
+        amountInr: 5, // minimum is 10
+      });
+
+      expect(res.status).toBe(422);
+      expect(res.body.code).toBe('VALIDATION_FAILED');
+      expect(res.body.invalidParams?.[0]?.name).toBe('amountInr');
+      expect(res.body.invalidParams?.[0]?.reason).toContain('between ₹10 and ₹5000');
+    });
+
+    it('rejects tip amount higher than restaurant maxTipInr with 422', async () => {
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
+
+      const res = await request(app).post('/api/v1/public/tips/intent').send({
+        token: 'valid_table_token_123',
+        staffId: mockStaffId,
+        amountInr: 6000, // maximum is 5000
+      });
+
+      expect(res.status).toBe(422);
+      expect(res.body.code).toBe('VALIDATION_FAILED');
+      expect(res.body.invalidParams?.[0]?.reason).toContain('between ₹10 and ₹5000');
+    });
+
+    it('returns 404 when QR token is invalid or expired', async () => {
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(null);
+
+      const res = await request(app).post('/api/v1/public/tips/intent').send({
+        token: 'invalid_token_999',
+        staffId: mockStaffId,
+        amountInr: 100,
+      });
+
+      expect(res.status).toBe(404);
+      expect(res.body.code).toBe('TOKEN_NOT_FOUND');
+    });
+
+    it('returns 404 when staff member does not exist in this tenant', async () => {
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
+      vi.spyOn(StaffRepository.prototype, 'findById').mockResolvedValue(null);
+
+      const res = await request(app).post('/api/v1/public/tips/intent').send({
+        token: 'valid_table_token_123',
+        staffId: '99999999-9999-9999-9999-999999999999',
+        amountInr: 100,
+      });
+
+      expect(res.status).toBe(404);
+      expect(res.body.code).toBe('STAFF_NOT_FOUND');
     });
   });
 });

@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Tip Intent Creation & On-the-Fly UPI Deep Link Generation (M2-T02)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T02`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented tip intent endpoint `POST /api/v1/public/tips/intent` in `apps/api/src/routes/public.ts`:
+    - Validates QR token and tenant bounds (`minTipInr` and `maxTipInr`), raising RFC 7807 422 Unprocessable Entity if outside restaurant limits.
+    - Resolves waitstaff within the tenant boundary, decrypts AES-256-GCM VPA transiently in memory, and generates standardized `upi://pay?pa=<vpa>&pn=<name>&am=<amount>&cu=INR&tn=<note>` deep link.
+    - Records immutable tip intent in `tip_intents` table with initial `initiated` status and device client hints.
+    - Guarded by Redis-backed sliding-window rate limiting (`tipIntentRateLimiter`) to prevent scraping or bot abuse.
+  - Added integration test suite in `apps/api/tests/public.test.ts` (10 tests, 100% pass rate).
+
 ### 2026-11-05 - Public QR Token Resolution & Staff Directory (M2-T01)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

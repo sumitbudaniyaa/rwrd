@@ -3,14 +3,24 @@ import { z } from 'zod';
 import { QrTokenRepository } from '../repositories/qrTokenRepository.js';
 import { StaffRepository } from '../repositories/staffRepository.js';
 import { RestaurantRepository } from '../repositories/restaurantRepository.js';
-import { NotFoundError } from '../errors/appError.js';
-import type { ResolveTokenResponse, StaffPublic } from '@tiptable/shared';
+import { TipIntentRepository } from '../repositories/tipIntentRepository.js';
+import { NotFoundError, ValidationError } from '../errors/appError.js';
+import { decryptVpa } from '../services/crypto.js';
+import { tipIntentRateLimiter } from '../middleware/rateLimiter.js';
+import {
+  type ResolveTokenResponse,
+  type StaffPublic,
+  type TipIntentResponse,
+  CreateTipIntentSchema,
+  buildUpiDeepLink,
+} from '@tiptable/shared';
 
 export const publicRouter = Router();
 
 const qrTokenRepo = new QrTokenRepository();
 const staffRepo = new StaffRepository();
 const restaurantRepo = new RestaurantRepository();
+const tipIntentRepo = new TipIntentRepository();
 
 const TokenParamSchema = z.object({
   token: z.string().trim().min(1, 'Token is required'),
@@ -94,6 +104,91 @@ publicRouter.get(
       }));
 
       res.status(200).json({ staff });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * POST /api/v1/public/tips/intent
+ * Validates tip amount, resolves QR token, decrypts waiter VPA on-the-fly,
+ * records the tip intent, and generates a formatted UPI deep link.
+ * Protected by strict rate limiting.
+ */
+publicRouter.post(
+  '/public/tips/intent',
+  tipIntentRateLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { token, staffId, amountInr, deviceOs, deviceBrowser } = CreateTipIntentSchema.parse(
+        req.body,
+      );
+
+      // 1. Resolve QR token to verify restaurant
+      const resolved = await qrTokenRepo.findByToken(token);
+      if (!resolved) {
+        throw new NotFoundError('QR code is invalid or expired', 'TOKEN_NOT_FOUND');
+      }
+
+      const { restaurant, table } = resolved;
+
+      // 2. Validate tip amount against restaurant-specific bounds
+      if (amountInr < restaurant.minTipInr || amountInr > restaurant.maxTipInr) {
+        throw new ValidationError(
+          `Tip amount must be between ₹${restaurant.minTipInr} and ₹${restaurant.maxTipInr}`,
+          [
+            {
+              name: 'amountInr',
+              reason: `Tip amount must be between ₹${restaurant.minTipInr} and ₹${restaurant.maxTipInr}`,
+            },
+          ],
+        );
+      }
+
+      // 3. Retrieve waiter within this tenant
+      const staffMember = await staffRepo.findById(restaurant.id, staffId);
+      if (!staffMember || !staffMember.isActive) {
+        throw new NotFoundError(
+          'Waitstaff member not found or is currently inactive',
+          'STAFF_NOT_FOUND',
+        );
+      }
+
+      // 4. Decrypt VPA
+      const plainVpa = decryptVpa({
+        ciphertext: staffMember.vpaEncrypted,
+        iv: staffMember.vpaIv,
+        tag: staffMember.vpaTag,
+      });
+
+      // 5. Build standardized UPI deep link
+      const upiLink = buildUpiDeepLink({
+        vpa: plainVpa,
+        payeeName: staffMember.displayName,
+        amountInr,
+        transactionNote: `Tip for ${staffMember.displayName} at ${restaurant.name}`,
+      });
+
+      // 6. Record tip intent (status = 'initiated')
+      const intent = await tipIntentRepo.create(restaurant.id, {
+        staffId: staffMember.id,
+        tableId: table?.id ?? null,
+        amountInr,
+        status: 'initiated',
+        deviceOs: deviceOs ?? null,
+        deviceBrowser: deviceBrowser ?? null,
+      });
+
+      const response: TipIntentResponse = {
+        intentId: intent.id,
+        upiLink,
+        payeeName: staffMember.displayName,
+        amountInr,
+        restaurantName: restaurant.name,
+      };
+
+      res.status(201).json(response);
     } catch (error) {
       next(error);
     }

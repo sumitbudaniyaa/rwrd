@@ -49,7 +49,7 @@ Status values:
 | ID         | Task Description                                                                                                           | Status    | Owner              | Date Completed | Ref / Notes             |
 | :--------- | :------------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :---------------------- |
 | **M2-T01** | Implement public API endpoints: QR token resolver (`GET /public/restaurants/token/:token`) and active staff directory.     | `Done`    | Senior Staff Agent | 2026-11-05     | Public API              |
-| **M2-T02** | Implement tip intent creation endpoint (`POST /public/tips/intent`) with strict rate limiting and VPA decryption.          | `Backlog` | -                  | -              | Intent & UPI generation |
+| **M2-T02** | Implement tip intent creation endpoint (`POST /public/tips/intent`) with strict rate limiting and VPA decryption.          | `Done`    | Senior Staff Agent | 2026-11-05     | Intent & UPI generation |
 | **M2-T03** | Implement review click tracking endpoint (`POST /public/restaurants/:id/review-tap`).                                      | `Backlog` | -                  | -              | Review telemetry        |
 | **M2-T04** | Scaffold `apps/customer` (Vite + React + TS strict, Tailwind CSS, self-hosted Newsreader/Fraunces fonts).                  | `Backlog` | -                  | -              | Customer app setup      |
 | **M2-T05** | Build Customer Screen 1 (Home): Serif greeting, restaurant branding, "Review us" & "Make people happy" cards.              | `Backlog` | -                  | -              | Screen 1                |
