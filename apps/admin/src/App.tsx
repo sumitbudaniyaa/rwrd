@@ -8,6 +8,7 @@ import { LoginScreen } from './screens/LoginScreen.js';
 import { MfaChallengeScreen } from './screens/MfaChallengeScreen.js';
 import { DashboardOverview } from './screens/DashboardOverview.js';
 import { StaffManagementScreen } from './screens/StaffManagementScreen.js';
+import { SettingsScreen } from './screens/SettingsScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,17 +57,7 @@ export const App: React.FC = () => {
                     </div>
                   }
                 />
-                <Route
-                  path="settings"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">Restaurant Settings</h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Google review URL, tip presets, limits.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="settings" element={<SettingsScreen />} />
                 <Route
                   path="audit"
                   element={

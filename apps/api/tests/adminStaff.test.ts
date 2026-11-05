@@ -28,7 +28,7 @@ describe('Admin Staff Management Endpoints', () => {
     vpaEncrypted: 'mockEncryptedVpa',
     vpaIv: 'mockIv',
     vpaTag: 'mockTag',
-    vpaMasked: 'r***a@okaxis',
+    vpaMasked: 'r***l@okaxis',
     photoUrl: 'https://cdn.tiptable.in/staff/rahul.jpg',
     isActive: true,
     isOnShift: true,
@@ -78,7 +78,7 @@ describe('Admin Staff Management Endpoints', () => {
       expect.objectContaining({
         displayName: 'Rahul Sharma',
         roleLabel: 'Senior Waiter',
-        plainVpaForLookup: 'rahul@okaxis',
+        vpaMasked: 'r***l@okaxis',
       }),
     );
     expect(auditSpy).toHaveBeenCalledWith(

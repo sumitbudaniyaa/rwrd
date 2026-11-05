@@ -43,6 +43,7 @@ export type ResolveTokenResponse = z.infer<typeof ResolveTokenResponseSchema>;
 export const UpdateRestaurantSettingsSchema = z
   .object({
     name: z.string().min(2).max(255).optional(),
+    logoUrl: z.string().url().nullable().optional(),
     googleReviewUrl: z
       .string()
       .url()

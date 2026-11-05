@@ -24,6 +24,21 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
       },
     });
     vi.spyOn(api, 'getStaffList').mockResolvedValue({ staff: [] });
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        id: 'rest-1',
+        name: 'The Bombay Canteen',
+        slug: 'the-bombay-canteen',
+        logoUrl: null,
+        googleReviewUrl: 'https://maps.app.goo.gl/bombaycanteen',
+        tipPresets: [20, 50, 100, 200],
+        minTipInr: 10,
+        maxTipInr: 5000,
+        isActive: true,
+        createdAt: '2026-01-01T00:00:00Z',
+        updatedAt: '2026-01-01T00:00:00Z',
+      },
+    });
   });
 
   it('renders admin shell with sidebar navigation, tenant pill, and metrics overview', async () => {
@@ -74,6 +89,8 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     const settingsTab = screen.getByText('Settings');
     fireEvent.click(settingsTab);
 
-    expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
+    });
   });
 });

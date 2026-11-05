@@ -36,6 +36,25 @@ export class RestaurantRepository {
 
     return results[0] || null;
   }
+
+  /**
+   * Updates restaurant settings and attributes.
+   */
+  async update(
+    id: string,
+    data: Partial<Omit<Restaurant, 'id' | 'createdAt'>>,
+  ): Promise<Restaurant | null> {
+    const [updated] = await this.database
+      .update(restaurants)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(eq(restaurants.id, id))
+      .returning();
+
+    return updated || null;
+  }
 }
 
 export const restaurantRepository = new RestaurantRepository();

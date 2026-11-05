@@ -78,6 +78,29 @@ export interface UpdateStaffInput {
   isActive?: boolean;
 }
 
+export interface RestaurantSettings {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+  googleReviewUrl: string;
+  tipPresets: number[];
+  minTipInr: number;
+  maxTipInr: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpdateRestaurantSettingsInput {
+  name?: string;
+  logoUrl?: string | null;
+  googleReviewUrl?: string;
+  tipPresets?: number[];
+  minTipInr?: number;
+  maxTipInr?: number;
+}
+
 let inMemoryToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
@@ -242,6 +265,28 @@ export const api = {
       `/admin/restaurants/${restaurantId}/staff/${staffId}/toggle-active`,
       {
         method: 'POST',
+      },
+    );
+  },
+
+  getRestaurantSettings(restaurantId: string): Promise<{ restaurant: RestaurantSettings }> {
+    return request<{ restaurant: RestaurantSettings }>(
+      `/admin/restaurants/${restaurantId}/settings`,
+      {
+        method: 'GET',
+      },
+    );
+  },
+
+  updateRestaurantSettings(
+    restaurantId: string,
+    data: UpdateRestaurantSettingsInput,
+  ): Promise<{ restaurant: RestaurantSettings }> {
+    return request<{ restaurant: RestaurantSettings }>(
+      `/admin/restaurants/${restaurantId}/settings`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data),
       },
     );
   },

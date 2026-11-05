@@ -6,6 +6,29 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Restaurant Settings, Google Review URL Validation & Tipping Bounds (M3-T05)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend tenant settings endpoints in `apps/api/src/routes/adminRestaurant.ts`:
+    - `GET /api/v1/admin/restaurants/:restaurantId/settings`: Returns restaurant identity, branding logo, Google review link, tip presets, and bounds under strict tenant isolation.
+    - `PUT /api/v1/admin/restaurants/:restaurantId/settings`: Validates inputs using `UpdateRestaurantSettingsSchema` from `@tiptable/shared` (validating Google review URL domain and `minTip <= maxTip`).
+    - Enforced role boundaries: Managers are strictly forbidden from modifying the restaurant's legal name (`403 Forbidden`), while Owners maintain full operational authority.
+    - Auditing: Records `RESTAURANT_SETTINGS_UPDATED` with before/after state diffs via `auditService`.
+  - Implemented frontend configuration interface in `apps/admin`:
+    - Added `getRestaurantSettings` and `updateRestaurantSettings` in `apps/admin/src/services/api.ts`.
+    - Built `SettingsScreen` (`apps/admin/src/screens/SettingsScreen.tsx`):
+      - Brand & Legal Entity: name input (disabled for Manager role with explanation), logo square crop and compression (256x256), and remove logo action.
+      - Google Review Integration: real-time validation ensuring review link belongs to `maps.app.goo.gl`, `g.page/r/`, or `google.com`. Explanatory banner reinforcing un-gated review compliance.
+      - Tip Presets & Bounds: interactive chip manager supporting 1-6 quick-pick chip amounts with duplicate protection, plus minimum and maximum tip limits in INR.
+      - Save Settings trigger with error alerts and success banner.
+  - Added comprehensive test suites:
+    - `apps/api/tests/adminRestaurant.test.ts` (7 tests covering retrieval, cross-tenant isolation, Google URL validation, min/max limits, manager role restriction, and audit logging).
+    - `apps/admin/tests/settings.test.tsx` (5 tests covering profile rendering, manager role disablement, live URL validation, chip add/remove, and successful submission).
+  - 100% clean typecheck and 147 tests passing across monorepo packages.
+
 ### 2026-11-05 - Waitstaff UPI VPA Capture, Live Camera & Image QR Scanner (M3-T04)
 
 - **Milestone**: M3 (Restaurant Admin App)
