@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer Screen 2: Staff Directory & Search (M2-T06)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T06`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Customer Screen 2 (Staff Directory) in `apps/customer/src/screens/StaffScreen.tsx`:
+    - Case-insensitive search bar filtering active waitstaff by display name or role with instant clearing.
+    - Two-column responsive card grid optimized for a 375px mobile viewport.
+    - Rounded-square lazy-loaded staff photos with automatic fallback to two-letter initials avatars on image failure or missing photo.
+    - Seamless navigation to amount selection (`/t/:token/staff/:staffId`) and accessible back navigation to Home.
+    - Friendly empty state when no search matches or when no staff are currently on shift.
+  - Added unit test suite in `apps/customer/tests/staff.test.tsx` (3 tests, 100% pass rate).
+  - Total monorepo tests: 90 passing across `@tiptable/shared`, `@tiptable/api`, and `@tiptable/customer`.
+  - **Milestone Cadence Check**: Task 25 completed! Pushing 5-task commit batch to `origin main`.
+
 ### 2026-11-05 - Customer Screen 1: Home View & Action Cards (M2-T05)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

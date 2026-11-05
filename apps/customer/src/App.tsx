@@ -3,11 +3,12 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RestaurantProvider } from './context/RestaurantContext.js';
 import { HomeScreen } from './screens/HomeScreen.js';
+import { StaffScreen } from './screens/StaffScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
+      retry: false,
       refetchOnWindowFocus: false,
       staleTime: 60 * 1000,
     },
@@ -30,6 +31,7 @@ export const App: React.FC = () => {
           <Routes>
             <Route path="/t/:token" element={<RestaurantLayout />}>
               <Route index element={<HomeScreen />} />
+              <Route path="staff" element={<StaffScreen />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
