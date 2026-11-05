@@ -5,6 +5,7 @@ import { RestaurantProvider } from './context/RestaurantContext.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { StaffScreen } from './screens/StaffScreen.js';
 import { AmountScreen } from './screens/AmountScreen.js';
+import { PayScreen } from './screens/PayScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,7 @@ export const App: React.FC = () => {
               <Route index element={<HomeScreen />} />
               <Route path="staff" element={<StaffScreen />} />
               <Route path="staff/:staffId" element={<AmountScreen />} />
+              <Route path="staff/:staffId/pay" element={<PayScreen />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

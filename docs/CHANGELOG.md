@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer Screen 4: Pay Flow, UPI Deep Link & Fallback UI (M2-T08)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T08`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Customer Screen 4 (Pay) in `apps/customer/src/screens/PayScreen.tsx`:
+    - Dispatches intent creation request to `POST /api/v1/public/tips/intent` with waiter identifier, amount, and client platform hints.
+    - Persists active tip session snapshot to `sessionStorage` (`tiptable_active_tip`) for visibility return detection.
+    - Automates deep link navigation via `window.location.href = upiLink` to launch the device's native UPI app (Google Pay, PhonePe, Paytm, BHIM, CRED).
+    - Comprehensive fallback UI for devices without registered UPI apps or within restricted in-app WebViews (Instagram, WhatsApp):
+      - Recipient UPI ID display with 1-click clipboard copy and visual confirmation.
+      - "Try Opening UPI App Again" trigger.
+      - "I have completed payment" button for advancing to post-payment screen.
+  - Added unit test suite in `apps/customer/tests/pay.test.tsx` (100% pass rate).
+
 ### 2026-11-05 - Customer Screen 3: Tip Amount Selection & Bounds Validation (M2-T07)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
