@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 import type { StaffPublic } from '@tiptable/shared';
 
 export const AmountScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { staffId } = useParams<{ staffId: string }>();
   const { restaurant, token, isLoading: isRestaurantLoading } = useRestaurant();
   const navigate = useNavigate();
@@ -44,15 +47,15 @@ export const AmountScreen: React.FC = () => {
       return;
     }
     if (amount < minTip) {
-      setValidationError(`Minimum tip is ₹${minTip}`);
+      setValidationError(t('amount.err_min', { min: minTip }));
       return;
     }
     if (amount > maxTip) {
-      setValidationError(`Maximum tip is ₹${maxTip.toLocaleString('en-IN')}`);
+      setValidationError(t('amount.err_max', { max: maxTip.toLocaleString('en-IN') }));
       return;
     }
     setValidationError(null);
-  }, [amount, minTip, maxTip]);
+  }, [amount, minTip, maxTip, t]);
 
   if (isRestaurantLoading || (isStaffLoading && !stateStaff)) {
     return <LoadingScreen />;
@@ -117,12 +120,15 @@ export const AmountScreen: React.FC = () => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
-            <span>Back</span>
+            <span>{t('common.back')}</span>
           </button>
 
-          <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider">
-            {restaurant.name}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider hidden sm:inline">
+              {restaurant.name}
+            </span>
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Selected Staff Profile Card */}
@@ -149,7 +155,7 @@ export const AmountScreen: React.FC = () => {
               {staff.displayName}
             </h2>
             <p className="text-xs text-charcoal-500 font-sans mt-0.5">
-              {staff.roleLabel || 'Server'}
+              {staff.roleLabel || t('staff.default_role')}
             </p>
           </div>
         </div>
@@ -157,10 +163,10 @@ export const AmountScreen: React.FC = () => {
         {/* Amount Section */}
         <section className="pt-8 pb-4">
           <h1 className="font-serif text-2xl font-normal text-charcoal-900 text-center tracking-tight">
-            How much would you like to tip?
+            {t('amount.title')}
           </h1>
           <p className="mt-1 text-xs text-charcoal-500 font-sans text-center">
-            100% goes directly to {staff.displayName.split(' ')[0]} via UPI
+            {t('amount.subtitle', { name: staff.displayName.split(' ')[0] })}
           </p>
 
           {/* Preset Chips */}
@@ -190,7 +196,7 @@ export const AmountScreen: React.FC = () => {
               htmlFor="custom-amount"
               className="block text-xs font-medium text-charcoal-600 mb-1.5"
             >
-              Or enter custom amount
+              {t('amount.custom_label')}
             </label>
             <div className="relative rounded-xl shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-charcoal-500 font-semibold text-lg">
@@ -202,7 +208,7 @@ export const AmountScreen: React.FC = () => {
                 inputMode="numeric"
                 value={customInput}
                 onChange={handleCustomChange}
-                placeholder="Other amount"
+                placeholder={t('amount.custom_placeholder')}
                 className={`w-full pl-9 pr-4 py-3.5 rounded-xl bg-white border text-lg font-semibold text-charcoal-900 placeholder:text-charcoal-400 placeholder:font-normal placeholder:text-sm focus:outline-none transition-all ${
                   validationError && isCustom
                     ? 'border-red-400 focus:ring-1 focus:ring-red-400'
@@ -229,7 +235,7 @@ export const AmountScreen: React.FC = () => {
               : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white'
           }`}
         >
-          <span>Spread happiness</span>
+          <span>{t('amount.button')}</span>
           {!isButtonDisabled && amount > 0 && (
             <>
               <span>•</span>

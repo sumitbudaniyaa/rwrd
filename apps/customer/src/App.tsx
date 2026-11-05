@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import './i18n/index.js';
 import {
   BrowserRouter,
   Routes,

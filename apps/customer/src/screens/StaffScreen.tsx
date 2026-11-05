@@ -1,13 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 import type { StaffPublic } from '@tiptable/shared';
 
 export const StaffScreen: React.FC = () => {
+  const { t } = useTranslation();
   const {
     restaurant,
     token,
@@ -64,7 +67,7 @@ export const StaffScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col p-6 max-w-[420px] mx-auto w-full">
-      {/* Top Bar with Back Button */}
+      {/* Top Bar with Back Button and Language Switcher */}
       <div className="flex items-center justify-between pb-4">
         <button
           type="button"
@@ -81,22 +84,23 @@ export const StaffScreen: React.FC = () => {
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          <span>Back</span>
+          <span>{t('common.back')}</span>
         </button>
 
-        <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider">
-          {restaurant.name}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider hidden sm:inline">
+            {restaurant.name}
+          </span>
+          <LanguageSwitcher />
+        </div>
       </div>
 
       {/* Title & Prompt */}
       <header className="pt-2 pb-5">
         <h1 className="font-serif text-3xl font-normal text-charcoal-900 tracking-tight leading-tight">
-          Who served you?
+          {t('staff.title')}
         </h1>
-        <p className="mt-1 text-xs text-charcoal-500 font-sans">
-          Select your server to send a direct tip via UPI
-        </p>
+        <p className="mt-1 text-xs text-charcoal-500 font-sans">{t('staff.subtitle')}</p>
       </header>
 
       {/* Search Input */}
@@ -120,7 +124,7 @@ export const StaffScreen: React.FC = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by name..."
+          placeholder={t('staff.search_placeholder')}
           aria-label="Search staff by name"
           className="w-full pl-10 pr-10 py-3 rounded-xl bg-white border border-cream-300 text-sm text-charcoal-900 placeholder:text-charcoal-400 focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all"
         />
@@ -193,18 +197,18 @@ export const StaffScreen: React.FC = () => {
                 {staff.displayName}
               </h2>
               <p className="text-[11px] text-charcoal-500 font-sans truncate mt-0.5">
-                {staff.roleLabel || 'Server'}
+                {staff.roleLabel || t('staff.default_role')}
               </p>
             </button>
           ))}
         </section>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center py-12 text-center">
-          <p className="text-sm font-medium text-charcoal-700">No staff found</p>
+          <p className="text-sm font-medium text-charcoal-700">{t('staff.empty_title')}</p>
           <p className="text-xs text-charcoal-400 mt-1 max-w-xs">
             {searchQuery
-              ? `No waitstaff matching "${searchQuery}". Check the spelling or search by first name.`
-              : 'No waitstaff active at this moment.'}
+              ? t('staff.empty_matching', { query: searchQuery })
+              : t('staff.empty_desc')}
           </p>
           {searchQuery && (
             <button
@@ -212,7 +216,7 @@ export const StaffScreen: React.FC = () => {
               onClick={() => setSearchQuery('')}
               className="mt-4 px-3 py-1.5 text-xs text-brand-accent font-medium hover:underline"
             >
-              Clear search
+              {t('staff.clear_search')}
             </button>
           )}
         </div>

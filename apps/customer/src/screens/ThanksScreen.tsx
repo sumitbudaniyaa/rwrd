@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 
 interface TipSessionState {
   staffName?: string | undefined;
@@ -12,6 +14,7 @@ interface TipSessionState {
 }
 
 export const ThanksScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { restaurant, token, isLoading, isError } = useRestaurant();
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,24 +80,29 @@ export const ThanksScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full text-center">
-      {/* Top Header Branding */}
-      <header className="pt-4 flex flex-col items-center">
-        {restaurant.logoUrl ? (
-          <img
-            src={restaurant.logoUrl}
-            alt={restaurant.name}
-            className="w-14 h-14 rounded-full object-cover shadow-sm mb-2 border border-cream-200"
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-14 h-14 rounded-full bg-cream-200 flex items-center justify-center text-charcoal-700 font-serif text-xl font-medium mb-2 border border-cream-300">
-            {restaurant.name.charAt(0)}
-          </div>
-        )}
-        <h2 className="text-xs font-medium tracking-wide uppercase text-charcoal-400">
-          {restaurant.name}
-        </h2>
-      </header>
+      {/* Top Header Branding & Language Switcher */}
+      <div>
+        <div className="w-full flex justify-end pb-1">
+          <LanguageSwitcher />
+        </div>
+        <header className="pt-2 flex flex-col items-center">
+          {restaurant.logoUrl ? (
+            <img
+              src={restaurant.logoUrl}
+              alt={restaurant.name}
+              className="w-14 h-14 rounded-full object-cover shadow-sm mb-2 border border-cream-200"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-cream-200 flex items-center justify-center text-charcoal-700 font-serif text-xl font-medium mb-2 border border-cream-300">
+              {restaurant.name.charAt(0)}
+            </div>
+          )}
+          <h2 className="text-xs font-medium tracking-wide uppercase text-charcoal-400">
+            {restaurant.name}
+          </h2>
+        </header>
+      </div>
 
       {/* Main Appreciation Card */}
       <section className="my-auto py-6 flex flex-col items-center">
@@ -115,17 +123,16 @@ export const ThanksScreen: React.FC = () => {
         </div>
 
         <h1 className="font-serif text-3xl sm:text-4xl font-normal text-charcoal-900 tracking-tight leading-tight">
-          You came so far...
+          {t('thanks.title')}
         </h1>
 
         <p className="mt-3 text-sm text-charcoal-600 font-sans max-w-xs leading-relaxed">
-          Thank you for spreading happiness! Your kindness directly supports the people who fed you
-          and took care of you today.
+          {t('thanks.desc')}
         </p>
 
         {staffName && amountInr && (
           <div className="mt-4 inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cream-200/80 text-xs text-charcoal-700 font-medium">
-            <span>Tip initiated for {staffName}</span>
+            <span>{t('thanks.tip_initiated', { name: staffName })}</span>
             <span>•</span>
             <span className="font-semibold">₹{amountInr}</span>
           </div>
@@ -144,10 +151,10 @@ export const ThanksScreen: React.FC = () => {
           </div>
 
           <h3 className="font-serif text-base font-medium text-charcoal-900 leading-snug">
-            Don&apos;t forget to review us
+            {t('thanks.review_title')}
           </h3>
           <p className="mt-1 text-xs text-charcoal-500 font-sans leading-relaxed">
-            Your review on Google helps other diners find us and helps our team continue to grow.
+            {t('thanks.review_desc')}
           </p>
 
           <button
@@ -155,7 +162,7 @@ export const ThanksScreen: React.FC = () => {
             onClick={handleReviewClick}
             className="mt-3.5 w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-[0.99] text-white text-xs font-semibold tracking-wide transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 flex items-center justify-center gap-1.5"
           >
-            <span>Leave a Google Review</span>
+            <span>{t('thanks.review_btn')}</span>
             <svg
               className="w-3.5 h-3.5"
               fill="none"
@@ -177,13 +184,13 @@ export const ThanksScreen: React.FC = () => {
           onClick={handleHomeClick}
           className="w-full py-3 rounded-xl border border-cream-300 bg-white hover:bg-cream-100 text-xs font-medium text-charcoal-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
         >
-          Back to Table Home
+          {t('thanks.home_btn')}
         </button>
       </section>
 
       {/* Footer */}
       <footer className="pt-2 pb-2">
-        <p className="text-[11px] text-charcoal-400">TipTable • Thank you for dining with us</p>
+        <p className="text-[11px] text-charcoal-400">{t('thanks.footer')}</p>
       </footer>
     </main>
   );

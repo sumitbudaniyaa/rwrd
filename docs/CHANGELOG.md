@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer App Internationalization: English & Hindi Support (M2-T10)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T10`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented internationalization (i18n) across `@tiptable/customer` using `i18next`, `react-i18next`, and `i18next-browser-languagedetector`:
+    - Created localization dictionaries for English (`apps/customer/src/i18n/locales/en.json`) and Hindi (`apps/customer/src/i18n/locales/hi.json`).
+    - Initialized i18n instance in `apps/customer/src/i18n/index.ts` with local storage caching (`tiptable_lang`), navigator detection, and fallback to `en`.
+    - Created accessible, mobile-first `LanguageSwitcher` pill component (`apps/customer/src/components/LanguageSwitcher.tsx`) toggling between English and Hindi with active state indicators.
+    - Updated Screens 1 through 5 (`HomeScreen`, `StaffScreen`, `AmountScreen`, `PayScreen`, `ThanksScreen`) and `ErrorScreen` to eliminate all hardcoded copy in favor of `useTranslation().t(...)`.
+  - Added unit and localization test suite in `apps/customer/tests/i18n.test.tsx` (3 tests verifying default English rendering, dynamic Hindi toggle, and parameter interpolation).
+  - All 18 customer tests and 101 monorepo tests passing with 0 errors.
+
 ### 2026-11-05 - Customer Screen 5: Post-Payment "You Came So Far" & Visibility Return Listener (M2-T09)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

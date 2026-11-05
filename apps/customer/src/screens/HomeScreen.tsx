@@ -1,11 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
 import { api } from '../services/api.js';
+import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 
 export const HomeScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { restaurant, table, token, isLoading, isError } = useRestaurant();
   const navigate = useNavigate();
 
@@ -39,8 +42,13 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full">
+      {/* Top Bar with Language Switcher */}
+      <div className="w-full flex justify-end pb-1">
+        <LanguageSwitcher />
+      </div>
+
       {/* Header Section: Branding & Table Indicator */}
-      <header className="pt-6 pb-4 flex flex-col items-center text-center">
+      <header className="pt-2 pb-4 flex flex-col items-center text-center">
         {restaurant.logoUrl ? (
           <img
             src={restaurant.logoUrl}
@@ -74,10 +82,10 @@ export const HomeScreen: React.FC = () => {
       {/* Greeting Section: Claude-style Serif Greeting */}
       <section className="my-auto py-8 text-center">
         <h1 className="font-serif text-4xl sm:text-5xl font-normal text-charcoal-900 tracking-tight leading-tight">
-          You are here for...
+          {t('home.greeting')}
         </h1>
         <p className="mt-3 text-sm text-charcoal-500 font-sans max-w-xs mx-auto">
-          Choose an option below to show your appreciation
+          {t('home.subtitle')}
         </p>
       </section>
 
@@ -107,10 +115,10 @@ export const HomeScreen: React.FC = () => {
             </div>
             <div>
               <h3 className="font-serif text-lg font-medium text-charcoal-900 leading-snug">
-                Make the people who fed you happy
+                {t('home.cardA_title')}
               </h3>
               <p className="mt-1 text-xs text-charcoal-500 leading-relaxed font-sans">
-                Tip your waiter directly into their personal UPI account
+                {t('home.cardA_desc')}
               </p>
             </div>
           </div>
@@ -149,10 +157,10 @@ export const HomeScreen: React.FC = () => {
             </div>
             <div>
               <h3 className="font-serif text-lg font-medium text-charcoal-900 leading-snug">
-                Review us
+                {t('home.cardB_title')}
               </h3>
               <p className="mt-1 text-xs text-charcoal-500 leading-relaxed font-sans">
-                Share your experience on Google Reviews
+                {t('home.cardB_desc')}
               </p>
             </div>
           </div>
@@ -174,9 +182,7 @@ export const HomeScreen: React.FC = () => {
 
       {/* Footer Assurance */}
       <footer className="text-center pt-2 pb-2">
-        <p className="text-[11px] text-charcoal-400">
-          Powered by TipTable • 100% of tips go directly to waitstaff
-        </p>
+        <p className="text-[11px] text-charcoal-400">{t('common.powered_by')}</p>
       </footer>
     </main>
   );

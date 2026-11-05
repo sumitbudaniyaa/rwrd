@@ -46,18 +46,18 @@ Status values:
 
 ## Milestone 2: Public API & Customer Mobile App (M2)
 
-| ID         | Task Description                                                                                                           | Status    | Owner              | Date Completed | Ref / Notes             |
-| :--------- | :------------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :---------------------- |
-| **M2-T01** | Implement public API endpoints: QR token resolver (`GET /public/restaurants/token/:token`) and active staff directory.     | `Done`    | Senior Staff Agent | 2026-11-05     | Public API              |
-| **M2-T02** | Implement tip intent creation endpoint (`POST /public/tips/intent`) with strict rate limiting and VPA decryption.          | `Done`    | Senior Staff Agent | 2026-11-05     | Intent & UPI generation |
-| **M2-T03** | Implement review click tracking endpoint (`POST /public/restaurants/:id/review-tap`).                                      | `Done`    | Senior Staff Agent | 2026-11-05     | Review telemetry        |
-| **M2-T04** | Scaffold `apps/customer` (Vite + React + TS strict, Tailwind CSS, self-hosted Newsreader/Fraunces fonts).                  | `Done`    | Senior Staff Agent | 2026-11-05     | Customer app setup      |
-| **M2-T05** | Build Customer Screen 1 (Home): Serif greeting, restaurant branding, "Review us" & "Make people happy" cards.              | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 1                |
-| **M2-T06** | Build Customer Screen 2 (Staff Directory): Debounced search, 2-column grid, lazy photos with avatar fallback.              | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 2                |
-| **M2-T07** | Build Customer Screen 3 (Amount): Quick-pick chips (configurable), custom numeric input, validation (min/max).             | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 3                |
-| **M2-T08** | Build Customer Screen 4 (Pay): "Spread happiness" action, intent API call, UPI deep link redirection & fallback UI.        | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 4                |
-| **M2-T09** | Build Customer Screen 5 ("You came so far"): Visibility listener return detection, thank-you note, Google review redirect. | `Done`    | Senior Staff Agent | 2026-11-05     | Screen 5                |
-| **M2-T10** | Setup i18n support in customer app (English & Hindi) with `react-i18next`.                                                 | `Backlog` | -                  | -              | Localization            |
+| ID         | Task Description                                                                                                           | Status | Owner              | Date Completed | Ref / Notes             |
+| :--------- | :------------------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :---------------------- |
+| **M2-T01** | Implement public API endpoints: QR token resolver (`GET /public/restaurants/token/:token`) and active staff directory.     | `Done` | Senior Staff Agent | 2026-11-05     | Public API              |
+| **M2-T02** | Implement tip intent creation endpoint (`POST /public/tips/intent`) with strict rate limiting and VPA decryption.          | `Done` | Senior Staff Agent | 2026-11-05     | Intent & UPI generation |
+| **M2-T03** | Implement review click tracking endpoint (`POST /public/restaurants/:id/review-tap`).                                      | `Done` | Senior Staff Agent | 2026-11-05     | Review telemetry        |
+| **M2-T04** | Scaffold `apps/customer` (Vite + React + TS strict, Tailwind CSS, self-hosted Newsreader/Fraunces fonts).                  | `Done` | Senior Staff Agent | 2026-11-05     | Customer app setup      |
+| **M2-T05** | Build Customer Screen 1 (Home): Serif greeting, restaurant branding, "Review us" & "Make people happy" cards.              | `Done` | Senior Staff Agent | 2026-11-05     | Screen 1                |
+| **M2-T06** | Build Customer Screen 2 (Staff Directory): Debounced search, 2-column grid, lazy photos with avatar fallback.              | `Done` | Senior Staff Agent | 2026-11-05     | Screen 2                |
+| **M2-T07** | Build Customer Screen 3 (Amount): Quick-pick chips (configurable), custom numeric input, validation (min/max).             | `Done` | Senior Staff Agent | 2026-11-05     | Screen 3                |
+| **M2-T08** | Build Customer Screen 4 (Pay): "Spread happiness" action, intent API call, UPI deep link redirection & fallback UI.        | `Done` | Senior Staff Agent | 2026-11-05     | Screen 4                |
+| **M2-T09** | Build Customer Screen 5 ("You came so far"): Visibility listener return detection, thank-you note, Google review redirect. | `Done` | Senior Staff Agent | 2026-11-05     | Screen 5                |
+| **M2-T10** | Setup i18n support in customer app (English & Hindi) with `react-i18next`.                                                 | `Done` | Senior Staff Agent | 2026-11-05     | Localization            |
 
 ---
 

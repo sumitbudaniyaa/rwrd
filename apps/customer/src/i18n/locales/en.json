@@ -1,0 +1,58 @@
+{
+  "common": {
+    "back": "Back",
+    "powered_by": "Powered by TipTable • 100% of tips go directly to waitstaff",
+    "error_table_unavailable": "Table unavailable",
+    "error_table_unavailable_desc": "This QR code is either invalid, expired, or the restaurant is currently closed.",
+    "error_ask_server": "Please ask your server for assistance."
+  },
+  "home": {
+    "greeting": "You are here for...",
+    "subtitle": "Choose an option below to show your appreciation",
+    "cardA_title": "Make the people who fed you happy",
+    "cardA_desc": "Tip your waiter directly into their personal UPI account",
+    "cardB_title": "Review us",
+    "cardB_desc": "Share your experience on Google Reviews"
+  },
+  "staff": {
+    "title": "Who served you?",
+    "subtitle": "Select your server to send a direct tip via UPI",
+    "search_placeholder": "Search by name...",
+    "empty_title": "No staff found",
+    "empty_desc": "No waitstaff active at this moment.",
+    "empty_matching": "No waitstaff matching \"{{query}}\". Check the spelling or search by first name.",
+    "clear_search": "Clear search",
+    "default_role": "Server"
+  },
+  "amount": {
+    "title": "How much would you like to tip?",
+    "subtitle": "100% goes directly to {{name}} via UPI",
+    "custom_label": "Or enter custom amount",
+    "custom_placeholder": "Other amount",
+    "button": "Spread happiness",
+    "err_min": "Minimum tip is ₹{{min}}",
+    "err_max": "Maximum tip is ₹{{max}}"
+  },
+  "pay": {
+    "opening": "Opening your UPI app...",
+    "sending": "Sending ₹{{amount}} to {{name}}",
+    "fallback_title": "UPI App Didn't Open?",
+    "fallback_desc": "You can reopen your UPI app or copy the recipient's UPI ID to pay manually from Google Pay, PhonePe, Paytm, or BHIM.",
+    "recipient_id": "Recipient UPI ID",
+    "copy_id": "Copy ID",
+    "copied": "✓ Copied",
+    "reopen": "Try Opening UPI App Again",
+    "completed_btn": "I have completed payment",
+    "disclaimer": "TipTable never touches your funds • Direct peer-to-peer UPI transfer"
+  },
+  "thanks": {
+    "title": "You came so far...",
+    "desc": "Thank you for spreading happiness! Your kindness directly supports the people who fed you and took care of you today.",
+    "tip_initiated": "Tip initiated for {{name}}",
+    "review_title": "Don't forget to review us",
+    "review_desc": "Your review on Google helps other diners find us and helps our team continue to grow.",
+    "review_btn": "Leave a Google Review",
+    "home_btn": "Back to Table Home",
+    "footer": "TipTable • Thank you for dining with us"
+  }
+}

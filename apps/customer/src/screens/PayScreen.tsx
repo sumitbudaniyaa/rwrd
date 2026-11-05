@@ -1,13 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api, ApiError } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 import type { StaffPublic, TipIntentResponse } from '@tiptable/shared';
 
 export const PayScreen: React.FC = () => {
+  const { t } = useTranslation();
   const { staffId } = useParams<{ staffId: string }>();
   const { restaurant, token, isLoading: isRestaurantLoading } = useRestaurant();
   const navigate = useNavigate();
@@ -171,12 +174,15 @@ export const PayScreen: React.FC = () => {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
-            <span>Back</span>
+            <span>{t('common.back')}</span>
           </button>
 
-          <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider">
-            {restaurant.name}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider hidden sm:inline">
+              {restaurant.name}
+            </span>
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* Status Prompt */}
@@ -198,11 +204,10 @@ export const PayScreen: React.FC = () => {
           </div>
 
           <h1 className="font-serif text-2xl font-normal text-charcoal-900 tracking-tight">
-            Opening your UPI app...
+            {t('pay.opening')}
           </h1>
           <p className="mt-1 text-sm text-charcoal-500 font-sans">
-            Sending <span className="font-semibold text-charcoal-800">₹{amountInr}</span> to{' '}
-            <span className="font-semibold text-charcoal-800">{staff.displayName}</span>
+            {t('pay.sending', { amount: amountInr, name: staff.displayName })}
           </p>
         </section>
 
@@ -210,11 +215,10 @@ export const PayScreen: React.FC = () => {
         <div className="p-5 rounded-2xl bg-white border border-cream-300 shadow-sm space-y-4">
           <div>
             <h2 className="text-xs font-semibold text-charcoal-700 uppercase tracking-wide">
-              UPI App Didn&apos;t Open?
+              {t('pay.fallback_title')}
             </h2>
             <p className="mt-1 text-xs text-charcoal-500 leading-relaxed font-sans">
-              You can reopen your UPI app or copy the recipient&apos;s UPI ID to pay manually from
-              Google Pay, PhonePe, Paytm, or BHIM.
+              {t('pay.fallback_desc')}
             </p>
           </div>
 
@@ -222,7 +226,7 @@ export const PayScreen: React.FC = () => {
             <div className="flex items-center justify-between p-3 rounded-xl bg-cream-100 border border-cream-200">
               <div className="truncate pr-2">
                 <span className="block text-[10px] uppercase font-semibold text-charcoal-400">
-                  Recipient UPI ID
+                  {t('pay.recipient_id')}
                 </span>
                 <span className="text-xs font-mono font-medium text-charcoal-800 truncate block">
                   {vpa}
@@ -233,7 +237,7 @@ export const PayScreen: React.FC = () => {
                 onClick={handleCopyVpa}
                 className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-white border border-cream-300 text-xs font-medium text-charcoal-800 hover:bg-cream-50 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
               >
-                {copied ? '✓ Copied' : 'Copy ID'}
+                {copied ? t('pay.copied') : t('pay.copy_id')}
               </button>
             </div>
           )}
@@ -243,7 +247,7 @@ export const PayScreen: React.FC = () => {
             onClick={handleOpenAgain}
             className="w-full py-2.5 rounded-xl border border-cream-300 bg-white hover:bg-cream-100 text-xs font-medium text-charcoal-800 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
           >
-            Try Opening UPI App Again
+            {t('pay.reopen')}
           </button>
         </div>
       </div>
@@ -255,11 +259,9 @@ export const PayScreen: React.FC = () => {
           onClick={handleDone}
           className="w-full py-4 rounded-xl bg-charcoal-900 hover:bg-charcoal-800 active:scale-[0.99] text-white text-base font-medium transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
         >
-          I have completed payment
+          {t('pay.completed_btn')}
         </button>
-        <p className="text-[11px] text-center text-charcoal-400">
-          TipTable never touches your funds • Direct peer-to-peer UPI transfer
-        </p>
+        <p className="text-[11px] text-center text-charcoal-400">{t('pay.disclaimer')}</p>
       </footer>
     </main>
   );
