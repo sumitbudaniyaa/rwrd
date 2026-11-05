@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer Screen 1: Home View & Action Cards (M2-T05)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Screen 1 (Home) in `apps/customer/src/screens/HomeScreen.tsx`:
+    - Restaurant branding header with logo fallback initials and table location chip (`tableNumber` • `section`).
+    - Claude-style centered serif greeting ("You are here for...") in self-hosted Newsreader typography.
+    - Equal visual weight dual cards:
+      a) "Make the people who fed you happy" navigating to the staff directory (`/t/:token/staff`).
+      b) "Review us" opening Google review page in a new window with fire-and-forget telemetry via `trackReviewTap`.
+    - Zero review gating: direct navigation to Google Reviews strictly complying with Google platform policies.
+  - Built `RestaurantContext` and providers handling QR token validation with query caching and graceful error fallback.
+  - Built `LoadingScreen` skeleton animation and friendly `ErrorScreen` for expired/suspended QR codes.
+  - Added unit test suite in `apps/customer/tests/home.test.tsx` (100% pass rate).
+
 ### 2026-11-05 - Customer Mobile App Scaffolding (M2-T04)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
