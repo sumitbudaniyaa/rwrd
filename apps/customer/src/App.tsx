@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RestaurantProvider } from './context/RestaurantContext.js';
 import { HomeScreen } from './screens/HomeScreen.js';
 import { StaffScreen } from './screens/StaffScreen.js';
+import { AmountScreen } from './screens/AmountScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,6 +33,7 @@ export const App: React.FC = () => {
             <Route path="/t/:token" element={<RestaurantLayout />}>
               <Route index element={<HomeScreen />} />
               <Route path="staff" element={<StaffScreen />} />
+              <Route path="staff/:staffId" element={<AmountScreen />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer Screen 3: Tip Amount Selection & Bounds Validation (M2-T07)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T07`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Customer Screen 3 (Amount Selection) in `apps/customer/src/screens/AmountScreen.tsx`:
+    - Waitstaff profile card showing photo (or initials fallback), display name, and role label.
+    - Quick-pick preset chips dynamically derived from tenant configuration (`restaurant.tipPresets`).
+    - Custom numeric input with rupee symbol prefix (₹) and sanitization against non-digit characters.
+    - Strict reactive bounds validation enforcing `restaurant.minTipInr` and `restaurant.maxTipInr`, with inline error feedback.
+    - "Spread happiness" call-to-action button displaying real-time formatted INR amount (`₹<amount>`), disabled on validation errors or zero balance.
+  - Added unit test suite in `apps/customer/tests/amount.test.tsx` covering presets, custom inputs, and boundary enforcement (100% pass rate).
+
 ### 2026-11-05 - Customer Screen 2: Staff Directory & Search (M2-T06)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
