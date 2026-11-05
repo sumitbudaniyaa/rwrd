@@ -6,6 +6,21 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Public QR Token Resolution & Staff Directory (M2-T01)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T01`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented public customer endpoints in `apps/api/src/routes/public.ts`:
+    - `GET /api/v1/public/restaurants/token/:token`: Resolves table QR tokens with validation, returning restaurant public branding (name, slug, logo URL, Google review URL, tip presets, min/max tip bounds) and associated table metadata. Returns RFC 7807 404 when tokens are disabled or expired.
+    - `GET /api/v1/public/restaurants/:id/staff`: Fetches active waitstaff roster for diner tipping.
+    - **Crucial Security Invariant Enforced**: VPAs (`vpaEncrypted`, `plainVpa`, `vpaMasked`) are completely omitted from the public staff DTO, preventing bulk scraper exfiltration.
+  - Added `RestaurantRepository` in `apps/api/src/repositories/restaurantRepository.ts`.
+  - Added public integration test suite in `apps/api/tests/public.test.ts` (5 tests, 100% pass rate).
+  - Monorepo test count: 74 passing tests across `@tiptable/shared` and `apps/api`.
+  - **Milestone Cadence Check**: Task 20 completed! Pushing 5-task commit batch to `origin main`.
+
 ### 2026-11-05 - Append-Only Audit Logging Engine (M1-T10)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)

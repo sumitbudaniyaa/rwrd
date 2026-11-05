@@ -11,6 +11,7 @@ import { errorHandler } from './middleware/errorHandler.js';
 import { globalRateLimiter, authRateLimiter } from './middleware/rateLimiter.js';
 import { setCsrfCookie, verifyCsrf } from './middleware/csrf.js';
 import { healthRouter } from './routes/health.js';
+import { publicRouter } from './routes/public.js';
 import { authAdminRouter } from './routes/authAdmin.js';
 import { authPortalRouter } from './routes/authPortal.js';
 import { NotFoundError } from './errors/appError.js';
@@ -125,6 +126,9 @@ export function createApp(): Express {
 
   // Health and Readiness Checks
   app.use(healthRouter);
+
+  // Public Customer Routes
+  app.use('/api/v1', publicRouter);
 
   // Auth Routes with rate limiting
   app.use('/api/v1', authRateLimiter, authAdminRouter);
