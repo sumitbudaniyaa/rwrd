@@ -6,20 +6,21 @@ This document outlines the threat model, technical security controls, data prote
 
 ## 1. STRIDE Threat Model
 
-| Threat Category | Potential Attack Vector | TipTable Architectural Defense |
-| :--- | :--- | :--- |
-| **Spoofing** | Attacker impersonates an admin user or generates fake QR tokens. | - Argon2id password hashing + mandatory TOTP MFA.<br/>- Cryptographic high-entropy QR lookup tokens (`qr_tokens`).<br/>- Dual isolated auth realms for Admin and Portal users.<br/>- Token rotation and session family tracking. |
-| **Tampering** | Attacker substitutes a waiter's VPA with their own, or alters table QR codes. | - AES-256-GCM authenticated encryption on VPAs at rest.<br/>- Strict VPA change authorization, optional cooling-off period, and immutable audit logs.<br/>- Physical QR tamper protection: restaurant branding and table verification code displayed prominently in customer app. |
-| **Repudiation** | An admin claims they did not delete staff, or a platform agent denies changing billing. | - Immutable, append-only `audit_logs` table capturing `actor_id`, `actor_type`, `action`, IP address, user agent, and full before/after JSON state snapshots. |
-| **Information Disclosure** | Scraping the entire staff roster and their bank VPAs; leaking cross-tenant data. | - Staff VPAs are **never** returned in the public staff list.<br/>- VPA is only decrypted transiently during an individual, rate-limited tip intent (`POST /public/tips/intent`).<br/>- Strict tenant repository scoping + PostgreSQL RLS. |
-| **Denial of Service** | Flooding public endpoints (`/token/:token`, `/tips/intent`, `/leads`). | - Redis-backed sliding-window rate limiters per IP and per waiter.<br/>- Cloudflare Turnstile / hCaptcha on lead forms.<br/>- Body size caps, HTTP parameter pollution protection (`hpp`), and timeout guards. |
-| **Elevation of Privilege** | A restaurant manager escalates to owner, or an admin accesses portal routes. | - Rigid RBAC middleware enforced at both route and domain service layers.<br/>- Separate JWT secrets, audiences, and cookie paths for Admin (`/api/v1/admin`) vs Portal (`/api/v1/portal`). |
+| Threat Category            | Potential Attack Vector                                                                 | TipTable Architectural Defense                                                                                                                                                                                                                                                    |
+| :------------------------- | :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spoofing**               | Attacker impersonates an admin user or generates fake QR tokens.                        | - Argon2id password hashing + mandatory TOTP MFA.<br/>- Cryptographic high-entropy QR lookup tokens (`qr_tokens`).<br/>- Dual isolated auth realms for Admin and Portal users.<br/>- Token rotation and session family tracking.                                                  |
+| **Tampering**              | Attacker substitutes a waiter's VPA with their own, or alters table QR codes.           | - AES-256-GCM authenticated encryption on VPAs at rest.<br/>- Strict VPA change authorization, optional cooling-off period, and immutable audit logs.<br/>- Physical QR tamper protection: restaurant branding and table verification code displayed prominently in customer app. |
+| **Repudiation**            | An admin claims they did not delete staff, or a platform agent denies changing billing. | - Immutable, append-only `audit_logs` table capturing `actor_id`, `actor_type`, `action`, IP address, user agent, and full before/after JSON state snapshots.                                                                                                                     |
+| **Information Disclosure** | Scraping the entire staff roster and their bank VPAs; leaking cross-tenant data.        | - Staff VPAs are **never** returned in the public staff list.<br/>- VPA is only decrypted transiently during an individual, rate-limited tip intent (`POST /public/tips/intent`).<br/>- Strict tenant repository scoping + PostgreSQL RLS.                                        |
+| **Denial of Service**      | Flooding public endpoints (`/token/:token`, `/tips/intent`, `/leads`).                  | - Redis-backed sliding-window rate limiters per IP and per waiter.<br/>- Cloudflare Turnstile / hCaptcha on lead forms.<br/>- Body size caps, HTTP parameter pollution protection (`hpp`), and timeout guards.                                                                    |
+| **Elevation of Privilege** | A restaurant manager escalates to owner, or an admin accesses portal routes.            | - Rigid RBAC middleware enforced at both route and domain service layers.<br/>- Separate JWT secrets, audiences, and cookie paths for Admin (`/api/v1/admin`) vs Portal (`/api/v1/portal`).                                                                                       |
 
 ---
 
 ## 2. Security Controls Matrix
 
 ### Implemented & Architecture Controls
+
 - [x] **Zero Money Custody**: Deep-link architecture eliminates financial aggregator licensing requirements and fund-handling risks.
 - [x] **Column-Level VPA Encryption**: AES-256-GCM encryption with 12-byte IV and 16-byte authentication tag for all stored VPAs.
 - [x] **Session Family Invalidation**: Refresh token reuse detection automatically invalidates the entire session family in Redis/Postgres.
@@ -31,6 +32,7 @@ This document outlines the threat model, technical security controls, data prote
 - [x] **Automated Secret Scanning**: Pre-commit hooks and GitHub Actions CI pipelines scanning with `gitleaks`.
 
 ### Controls Pending Implementation in M1-M6
+
 - [ ] **M1**: Automated account lockout with exponential backoff on repeated failed logins.
 - [ ] **M1**: CSRF protection for cookie-based state-changing endpoints.
 - [ ] **M3**: Waiter VPA change approval cooling-off period.
@@ -70,4 +72,3 @@ In the event of a suspected security event (e.g. credential compromise, rogue VP
 3. **Remediation & Notification**:
    - If encryption keys are exposed: trigger the master key re-encryption job (documented in `docs/RUNBOOK.md`).
    - Notify affected restaurant owners within 24 hours in accordance with DPDP breach disclosure norms.
-

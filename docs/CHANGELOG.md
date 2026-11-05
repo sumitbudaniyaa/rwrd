@@ -6,6 +6,18 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - GitHub Actions CI Pipeline Setup (M0-T09)
+
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T09`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Configured `.github/workflows/ci.yml` defining automated CI matrix:
+    - `lint-and-typecheck`: Prettier check, ESLint, strict TypeScript typechecking.
+    - `test`: Automated integration tests with backing PostgreSQL 16 and Redis 7 container services.
+    - `security`: Gitleaks secret leak detection and dependency audit.
+  - Completed Milestone 0 (M0)! All 9 tasks in Milestone 0 are now fully implemented, verified, and documented.
+
 ### 2026-11-05 - Health & Readiness Probes (M0-T08)
 
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)

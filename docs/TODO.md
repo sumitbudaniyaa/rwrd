@@ -13,17 +13,17 @@ Status values:
 
 ## Milestone 0: Foundation, Tooling, Docs & Environment Setup (M0)
 
-| ID         | Task Description                                                                                                      | Status    | Owner              | Date Completed | Ref / Notes                 |
-| :--------- | :-------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :-------------------------- |
-| **M0-T01** | Create project governance and shared memory documentation suite (`AGENTS.md` and `docs/*`).                           | `Done`    | Senior Staff Agent | 2026-11-05     | 10 governance files created |
-| **M0-T02** | Initialize pnpm monorepo root: workspace file, package.json, tooling scripts, and `.gitignore`.                       | `Done`    | Senior Staff Agent | 2026-11-05     | Monorepo root initialized   |
-| **M0-T03** | Configure shared tooling packages: `@tiptable/config` (TSConfig base, ESLint, Prettier presets).                      | `Done`    | Senior Staff Agent | 2026-11-05     | Config package created      |
-| **M0-T04** | Setup Git hooks with Husky and lint-staged (conventional commits, prettier, eslint, gitleaks).                        | `Done`    | Senior Staff Agent | 2026-11-05     | Husky and commitlint active |
-| **M0-T05** | Setup Docker Compose environment (PostgreSQL 16, Redis 7, MinIO local S3 storage).                                    | `Done`    | Senior Staff Agent | 2026-11-05     | Docker compose configured   |
-| **M0-T06** | Initialize `@tiptable/shared` package with initial domain schemas, types, and UPI helpers.                            | `Done`    | Senior Staff Agent | 2026-11-05     | Shared schemas & UPI tested |
-| **M0-T07** | Scaffold `apps/api` with strict Zod environment config parsing (fail-fast), Pino logging, and RFC 7807 error handler. | `Done`    | Senior Staff Agent | 2026-11-05     | API foundation & RFC 7807   |
-| **M0-T08** | Implement `/healthz` and `/readyz` endpoints with DB and Redis ping checks in `apps/api`.                             | `Done`    | Senior Staff Agent | 2026-11-05     | Health & readiness probes   |
-| **M0-T09** | Setup GitHub Actions CI workflow (lint, typecheck, test, build, audit, gitleaks check).                               | `Backlog` | -                  | -              | Automated CI                |
+| ID         | Task Description                                                                                                      | Status | Owner              | Date Completed | Ref / Notes                 |
+| :--------- | :-------------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :-------------------------- |
+| **M0-T01** | Create project governance and shared memory documentation suite (`AGENTS.md` and `docs/*`).                           | `Done` | Senior Staff Agent | 2026-11-05     | 10 governance files created |
+| **M0-T02** | Initialize pnpm monorepo root: workspace file, package.json, tooling scripts, and `.gitignore`.                       | `Done` | Senior Staff Agent | 2026-11-05     | Monorepo root initialized   |
+| **M0-T03** | Configure shared tooling packages: `@tiptable/config` (TSConfig base, ESLint, Prettier presets).                      | `Done` | Senior Staff Agent | 2026-11-05     | Config package created      |
+| **M0-T04** | Setup Git hooks with Husky and lint-staged (conventional commits, prettier, eslint, gitleaks).                        | `Done` | Senior Staff Agent | 2026-11-05     | Husky and commitlint active |
+| **M0-T05** | Setup Docker Compose environment (PostgreSQL 16, Redis 7, MinIO local S3 storage).                                    | `Done` | Senior Staff Agent | 2026-11-05     | Docker compose configured   |
+| **M0-T06** | Initialize `@tiptable/shared` package with initial domain schemas, types, and UPI helpers.                            | `Done` | Senior Staff Agent | 2026-11-05     | Shared schemas & UPI tested |
+| **M0-T07** | Scaffold `apps/api` with strict Zod environment config parsing (fail-fast), Pino logging, and RFC 7807 error handler. | `Done` | Senior Staff Agent | 2026-11-05     | API foundation & RFC 7807   |
+| **M0-T08** | Implement `/healthz` and `/readyz` endpoints with DB and Redis ping checks in `apps/api`.                             | `Done` | Senior Staff Agent | 2026-11-05     | Health & readiness probes   |
+| **M0-T09** | Setup GitHub Actions CI workflow (lint, typecheck, test, build, audit, gitleaks check).                               | `Done` | Senior Staff Agent | 2026-11-05     | CI workflow active          |
 
 ---
 

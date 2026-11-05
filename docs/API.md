@@ -27,23 +27,25 @@ All error responses from the API strictly adhere to **RFC 7807 (`application/pro
 ```
 
 ### Standard Error Codes
-| HTTP Status | Code | Meaning |
-| :---: | :--- | :--- |
-| `400` | `BAD_REQUEST` | Malformed JSON or invalid parameter syntax. |
-| `401` | `UNAUTHORIZED` | Missing, expired, or invalid access token. |
-| `403` | `FORBIDDEN` | Insufficient role permissions or cross-tenant access violation. |
-| `404` | `NOT_FOUND` | Requested entity, restaurant token, or route does not exist. |
-| `409` | `CONFLICT` | Resource conflict (e.g. duplicate email or table number). |
-| `422` | `VALIDATION_FAILED` | Request schema validation failure (details in `invalidParams`). |
-| `429` | `RATE_LIMITED` | Rate limit threshold exceeded. Includes `Retry-After` header. |
-| `500` | `INTERNAL_SERVER_ERROR`| Unhandled internal exception (redacted in non-development). |
-| `503` | `SERVICE_UNAVAILABLE` | Database or Redis readiness probe failed. |
+
+| HTTP Status | Code                    | Meaning                                                         |
+| :---------: | :---------------------- | :-------------------------------------------------------------- |
+|    `400`    | `BAD_REQUEST`           | Malformed JSON or invalid parameter syntax.                     |
+|    `401`    | `UNAUTHORIZED`          | Missing, expired, or invalid access token.                      |
+|    `403`    | `FORBIDDEN`             | Insufficient role permissions or cross-tenant access violation. |
+|    `404`    | `NOT_FOUND`             | Requested entity, restaurant token, or route does not exist.    |
+|    `409`    | `CONFLICT`              | Resource conflict (e.g. duplicate email or table number).       |
+|    `422`    | `VALIDATION_FAILED`     | Request schema validation failure (details in `invalidParams`). |
+|    `429`    | `RATE_LIMITED`          | Rate limit threshold exceeded. Includes `Retry-After` header.   |
+|    `500`    | `INTERNAL_SERVER_ERROR` | Unhandled internal exception (redacted in non-development).     |
+|    `503`    | `SERVICE_UNAVAILABLE`   | Database or Redis readiness probe failed.                       |
 
 ---
 
 ## 2. Authentication Realms
 
 The API supports three distinct authentication contexts:
+
 1. **Public Context**: No auth header required. Protected by strict sliding-window Redis rate limiters.
 2. **Restaurant Admin Realm (`/api/v1/admin`)**:
    - `Authorization: Bearer <access_token>` (15-minute JWT).
@@ -57,10 +59,12 @@ The API supports three distinct authentication contexts:
 ## 3. Public Endpoints (`/api/v1/public`)
 
 ### 3.1 Resolve QR Token
+
 - **Method**: `GET /api/v1/public/restaurants/token/:token`
 - **Rate Limit**: 60 requests / minute / IP
 - **Description**: Resolves a customer table QR code token to retrieve restaurant branding and table info.
 - **Response `200 OK`**:
+
 ```json
 {
   "restaurant": {
@@ -82,10 +86,12 @@ The API supports three distinct authentication contexts:
 ```
 
 ### 3.2 List Active Waitstaff
+
 - **Method**: `GET /api/v1/public/restaurants/:id/staff`
 - **Rate Limit**: 60 requests / minute / IP
 - **Description**: Returns the active waitstaff roster for a restaurant. **VPAs are strictly excluded.**
 - **Response `200 OK`**:
+
 ```json
 {
   "staff": [
@@ -100,10 +106,12 @@ The API supports three distinct authentication contexts:
 ```
 
 ### 3.3 Create Tip Intent & Build UPI Link
+
 - **Method**: `POST /api/v1/public/tips/intent`
 - **Rate Limit**: 10 requests / minute / IP; 5 requests / minute / waiter
 - **Description**: Validates tip amount, decrypts waiter VPA, logs intent, and returns formatted UPI deep link.
 - **Request Body**:
+
 ```json
 {
   "token": "qr_tok_9b2c7b1e92b5...",
@@ -111,7 +119,9 @@ The API supports three distinct authentication contexts:
   "amountInr": 100
 }
 ```
+
 - **Response `201 Created`**:
+
 ```json
 {
   "intentId": "018f2d5e-9a2c-7b1e-92b5-444444444444",
@@ -122,21 +132,26 @@ The API supports three distinct authentication contexts:
 ```
 
 ### 3.4 Track Google Review Tap
+
 - **Method**: `POST /api/v1/public/restaurants/:id/review-tap`
 - **Rate Limit**: 30 requests / minute / IP
 - **Request Body**:
+
 ```json
 {
   "token": "qr_tok_9b2c7b1e92b5...",
   "source": "home_card"
 }
 ```
+
 - **Response `204 No Content`**
 
 ### 3.5 Submit Landing Demo Lead
+
 - **Method**: `POST /api/v1/public/leads`
 - **Rate Limit**: 5 requests / hour / IP
 - **Request Body**:
+
 ```json
 {
   "contactName": "Vikram Malhotra",
@@ -148,46 +163,46 @@ The API supports three distinct authentication contexts:
   "turnstileToken": "0.cf-dummy-token"
 }
 ```
+
 - **Response `201 Created`**
 
 ---
 
 ## 4. Restaurant Admin Endpoints (`/api/v1/admin`)
 
-| Method | Path | Auth | Description |
-| :--- | :--- | :---: | :--- |
-| `POST` | `/admin/auth/login` | None | Initial email + password authentication; triggers MFA if enabled. |
-| `POST` | `/admin/auth/mfa/verify`| Temp Token | Verify 6-digit TOTP code and issue session cookies + JWT. |
-| `POST` | `/admin/auth/refresh` | Cookie | Rotate refresh token and issue new 15m access token. |
-| `POST` | `/admin/auth/logout` | Bearer | Revoke current session. |
-| `POST` | `/admin/auth/logout-all`| Bearer | Revoke all active sessions for this admin user. |
-| `GET` | `/admin/restaurant` | Bearer | Get current tenant profile and configurations. |
-| `PATCH` | `/admin/restaurant` | Bearer (Owner) | Update name, logo, Google review link, and tip presets. |
-| `GET` | `/admin/staff` | Bearer | List all staff members (includes masked VPAs like `r***@okaxis`). |
-| `POST` | `/admin/staff` | Bearer | Add staff member (display name, role, photo upload, VPA). |
-| `PATCH` | `/admin/staff/:id` | Bearer | Update staff details, active status, or VPA. |
-| `DELETE`| `/admin/staff/:id` | Bearer | Soft delete staff member. |
-| `GET` | `/admin/tables` | Bearer | List all physical tables and assigned QR tokens. |
-| `POST` | `/admin/tables` | Bearer | Create a new table. |
-| `POST` | `/admin/qr/rotate` | Bearer (Owner) | Invalidate current QR token and issue a new high-entropy token. |
-| `GET` | `/admin/analytics` | Bearer | Aggregated metrics: scans, staff views, tip intents, review taps. |
-| `GET` | `/admin/analytics/export`| Bearer | Download CSV export of tip intents and review metrics. |
-| `GET` | `/admin/audit-logs` | Bearer (Owner) | Query immutable audit logs for this restaurant. |
+| Method   | Path                      |      Auth      | Description                                                       |
+| :------- | :------------------------ | :------------: | :---------------------------------------------------------------- |
+| `POST`   | `/admin/auth/login`       |      None      | Initial email + password authentication; triggers MFA if enabled. |
+| `POST`   | `/admin/auth/mfa/verify`  |   Temp Token   | Verify 6-digit TOTP code and issue session cookies + JWT.         |
+| `POST`   | `/admin/auth/refresh`     |     Cookie     | Rotate refresh token and issue new 15m access token.              |
+| `POST`   | `/admin/auth/logout`      |     Bearer     | Revoke current session.                                           |
+| `POST`   | `/admin/auth/logout-all`  |     Bearer     | Revoke all active sessions for this admin user.                   |
+| `GET`    | `/admin/restaurant`       |     Bearer     | Get current tenant profile and configurations.                    |
+| `PATCH`  | `/admin/restaurant`       | Bearer (Owner) | Update name, logo, Google review link, and tip presets.           |
+| `GET`    | `/admin/staff`            |     Bearer     | List all staff members (includes masked VPAs like `r***@okaxis`). |
+| `POST`   | `/admin/staff`            |     Bearer     | Add staff member (display name, role, photo upload, VPA).         |
+| `PATCH`  | `/admin/staff/:id`        |     Bearer     | Update staff details, active status, or VPA.                      |
+| `DELETE` | `/admin/staff/:id`        |     Bearer     | Soft delete staff member.                                         |
+| `GET`    | `/admin/tables`           |     Bearer     | List all physical tables and assigned QR tokens.                  |
+| `POST`   | `/admin/tables`           |     Bearer     | Create a new table.                                               |
+| `POST`   | `/admin/qr/rotate`        | Bearer (Owner) | Invalidate current QR token and issue a new high-entropy token.   |
+| `GET`    | `/admin/analytics`        |     Bearer     | Aggregated metrics: scans, staff views, tip intents, review taps. |
+| `GET`    | `/admin/analytics/export` |     Bearer     | Download CSV export of tip intents and review metrics.            |
+| `GET`    | `/admin/audit-logs`       | Bearer (Owner) | Query immutable audit logs for this restaurant.                   |
 
 ---
 
 ## 5. Company Portal Endpoints (`/api/v1/portal`)
 
-| Method | Path | Auth | Description |
-| :--- | :--- | :---: | :--- |
-| `POST` | `/portal/auth/login` | None | Platform staff email + password login. |
-| `POST` | `/portal/auth/mfa/verify`| Temp Token | Mandatory TOTP MFA challenge. |
-| `GET` | `/portal/restaurants` | Bearer | Search and filter all restaurants across the platform. |
-| `POST` | `/portal/restaurants` | Bearer (Super Admin) | Onboard and provision a new restaurant tenant. |
-| `PATCH` | `/portal/restaurants/:id/status`| Bearer (Super Admin) | Suspend or reactivate restaurant account. |
-| `POST` | `/portal/restaurants/:id/impersonate`| Bearer (Support) | Generate temporary support delegation token with full audit trail. |
-| `GET` | `/portal/metrics` | Bearer | Global system metrics, MRR, active scans, and health aggregates. |
-| `GET` | `/portal/leads` | Bearer | Review incoming landing demo requests and update pipeline status. |
-| `PATCH` | `/portal/leads/:id` | Bearer | Update lead status (`contacted`, `won`, `lost`). |
-| `GET` | `/portal/audit-logs` | Bearer (Super Admin) | Search immutable platform-wide audit log. |
-
+| Method  | Path                                  |         Auth         | Description                                                        |
+| :------ | :------------------------------------ | :------------------: | :----------------------------------------------------------------- |
+| `POST`  | `/portal/auth/login`                  |         None         | Platform staff email + password login.                             |
+| `POST`  | `/portal/auth/mfa/verify`             |      Temp Token      | Mandatory TOTP MFA challenge.                                      |
+| `GET`   | `/portal/restaurants`                 |        Bearer        | Search and filter all restaurants across the platform.             |
+| `POST`  | `/portal/restaurants`                 | Bearer (Super Admin) | Onboard and provision a new restaurant tenant.                     |
+| `PATCH` | `/portal/restaurants/:id/status`      | Bearer (Super Admin) | Suspend or reactivate restaurant account.                          |
+| `POST`  | `/portal/restaurants/:id/impersonate` |   Bearer (Support)   | Generate temporary support delegation token with full audit trail. |
+| `GET`   | `/portal/metrics`                     |        Bearer        | Global system metrics, MRR, active scans, and health aggregates.   |
+| `GET`   | `/portal/leads`                       |        Bearer        | Review incoming landing demo requests and update pipeline status.  |
+| `PATCH` | `/portal/leads/:id`                   |        Bearer        | Update lead status (`contacted`, `won`, `lost`).                   |
+| `GET`   | `/portal/audit-logs`                  | Bearer (Super Admin) | Search immutable platform-wide audit log.                          |

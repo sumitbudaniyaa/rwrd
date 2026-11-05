@@ -58,7 +58,9 @@ erDiagram
 ## 3. Table Definitions
 
 ### 3.1 `restaurants`
+
 Stores restaurant tenant accounts.
+
 ```sql
 CREATE TABLE restaurants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -83,7 +85,9 @@ CREATE INDEX idx_restaurants_active ON restaurants(is_active) WHERE is_suspended
 ```
 
 ### 3.2 `restaurant_users`
+
 Admin users belonging to a specific restaurant.
+
 ```sql
 CREATE TABLE restaurant_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -108,7 +112,9 @@ CREATE INDEX idx_restaurant_users_lookup ON restaurant_users(email) WHERE delete
 ```
 
 ### 3.3 `platform_users`
+
 Internal platform operators (TipTable staff only).
+
 ```sql
 CREATE TABLE platform_users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -128,7 +134,9 @@ CREATE TABLE platform_users (
 ```
 
 ### 3.4 `sessions`
+
 Unified session tracking for rotating refresh tokens.
+
 ```sql
 CREATE TABLE sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -149,7 +157,9 @@ CREATE INDEX idx_sessions_lookup ON sessions(user_type, user_id) WHERE is_revoke
 ```
 
 ### 3.5 `staff`
+
 Waitstaff who receive tips directly into their personal bank accounts via UPI.
+
 ```sql
 CREATE TABLE staff (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -173,7 +183,9 @@ CREATE INDEX idx_staff_tenant_active ON staff(restaurant_id, is_active) WHERE de
 ```
 
 ### 3.6 `tables`
+
 Physical tables in a restaurant.
+
 ```sql
 CREATE TABLE tables (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -190,7 +202,9 @@ CREATE INDEX idx_tables_restaurant ON tables(restaurant_id) WHERE is_active = TR
 ```
 
 ### 3.7 `qr_tokens`
+
 Cryptographic lookup tokens embedded in printed table QR codes.
+
 ```sql
 CREATE TABLE qr_tokens (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -207,7 +221,9 @@ CREATE INDEX idx_qr_tokens_restaurant ON qr_tokens(restaurant_id);
 ```
 
 ### 3.8 `tip_intents`
+
 Recorded when a customer initiates a tip via the "Spread happiness" button.
+
 ```sql
 CREATE TABLE tip_intents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -227,7 +243,9 @@ CREATE INDEX idx_tip_intents_staff ON tip_intents(staff_id, created_at DESC);
 ```
 
 ### 3.9 `review_taps`
+
 Logged when a customer taps the "Review us" card or button.
+
 ```sql
 CREATE TABLE review_taps (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -241,7 +259,9 @@ CREATE INDEX idx_review_taps_tenant_time ON review_taps(restaurant_id, created_a
 ```
 
 ### 3.10 `page_events`
+
 Aggregate telemetry (QR scans, staff menu views).
+
 ```sql
 CREATE TABLE page_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -256,7 +276,9 @@ CREATE INDEX idx_page_events_tenant_time ON page_events(restaurant_id, event_typ
 ```
 
 ### 3.11 `leads`
+
 Demo requests and inquiries from the public landing site.
+
 ```sql
 CREATE TABLE leads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -276,7 +298,9 @@ CREATE INDEX idx_leads_status ON leads(status, created_at DESC);
 ```
 
 ### 3.12 `billing_plans`, `subscriptions`, & `invoices`
+
 SaaS flat-rate subscription management.
+
 ```sql
 CREATE TABLE billing_plans (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -315,7 +339,9 @@ CREATE TABLE invoices (
 ```
 
 ### 3.13 `audit_logs`
+
 Immutable compliance and security audit record.
+
 ```sql
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -337,7 +363,9 @@ CREATE INDEX idx_audit_logs_actor ON audit_logs(actor_id, created_at DESC);
 ```
 
 ### 3.14 `feature_flags`
+
 Per-restaurant configuration flags.
+
 ```sql
 CREATE TABLE feature_flags (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -350,4 +378,3 @@ CREATE TABLE feature_flags (
     CONSTRAINT uq_restaurant_flag_key UNIQUE (restaurant_id, key)
 );
 ```
-

@@ -101,13 +101,13 @@ sequenceDiagram
     API->>DB: Query active restaurant and table context
     DB-->>API: Restaurant details & theme
     API-->>Browser: 200 OK (Name, Logo, Review URL, Tip Presets)
-    
+
     Diner->>Browser: Selects "Make the people who fed you happy"
     Browser->>API: GET /public/restaurants/:id/staff
     API->>DB: Query active staff (photo, display name, role)
     DB-->>API: Active staff list (VPAs excluded)
     API-->>Browser: 200 OK (Render Staff Grid)
-    
+
     Diner->>Browser: Selects Staff + Selects Amount (e.g., ₹50)
     Diner->>Browser: Clicks "Spread happiness"
     Browser->>API: POST /public/tips/intent (staff_id, amount, restaurant_token)
@@ -115,7 +115,7 @@ sequenceDiagram
     API->>DB: Fetch staff record & decrypt VPA (AES-256-GCM)
     API->>DB: Insert record into tip_intents (status: initiated)
     API-->>Browser: 201 Created { upiLink: "upi://pay?pa=...&pn=...&am=50&cu=INR" }
-    
+
     Browser->>UPIApp: window.location.href = upiLink
     Note over Browser: Page visibility event listener registered
     Diner->>UPIApp: Completes payment in UPI app
@@ -199,13 +199,12 @@ To ensure strict separation of concerns, testability, and enterprise maintainabi
 
 ## 5. Technology Decisions & Rationale
 
-| Layer | Choice | Rationale |
-| :--- | :--- | :--- |
-| **Monorepo Manager** | `pnpm` workspaces | Fast, deterministic disk space savings, native workspace isolation, strict dependency graph. |
-| **Database ORM** | Drizzle ORM | High-performance, lightweight, SQL-like type safety, zero runtime overhead, native migration engine (`drizzle-kit`). |
-| **Backend Framework** | Node.js + Express + TS | Industry standard, robust middleware ecosystem, enterprise observability support. |
-| **Cache & Queue** | Redis 7 + BullMQ | Low-latency rate limiting, token family revocation, and reliable background job handling. |
-| **Motion & UI** | `beUI` + `@hugeicons/react` | Product-grade micro-interactions, spring physics, accessibility (reduced-motion tokens), cohesive SVG stroke icons. |
-| **Customer Typography** | Self-hosted Newsreader / Fraunces | Warm, sophisticated editorial tone matching Claude's aesthetic without runtime CDN calls or third-party cookies. |
-| **Data Protection** | AES-256-GCM + Argon2id | Industry gold standard for column encryption (VPAs) and credential hashing. |
-
+| Layer                   | Choice                            | Rationale                                                                                                            |
+| :---------------------- | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
+| **Monorepo Manager**    | `pnpm` workspaces                 | Fast, deterministic disk space savings, native workspace isolation, strict dependency graph.                         |
+| **Database ORM**        | Drizzle ORM                       | High-performance, lightweight, SQL-like type safety, zero runtime overhead, native migration engine (`drizzle-kit`). |
+| **Backend Framework**   | Node.js + Express + TS            | Industry standard, robust middleware ecosystem, enterprise observability support.                                    |
+| **Cache & Queue**       | Redis 7 + BullMQ                  | Low-latency rate limiting, token family revocation, and reliable background job handling.                            |
+| **Motion & UI**         | `beUI` + `@hugeicons/react`       | Product-grade micro-interactions, spring physics, accessibility (reduced-motion tokens), cohesive SVG stroke icons.  |
+| **Customer Typography** | Self-hosted Newsreader / Fraunces | Warm, sophisticated editorial tone matching Claude's aesthetic without runtime CDN calls or third-party cookies.     |
+| **Data Protection**     | AES-256-GCM + Argon2id            | Industry gold standard for column encryption (VPAs) and credential hashing.                                          |
