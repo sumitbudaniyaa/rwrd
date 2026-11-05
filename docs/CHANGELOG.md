@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - RBAC Middleware & Tenancy Authorization (M1-T08)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T08`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented role-based access control and multi-tenancy authorization middleware in `apps/api/src/middleware/rbac.ts`:
+    - `requireAuth(realm)`: validates Bearer token claims matching the designated auth realm (`admin` vs `portal`), attaching `req.user` (`id`, `role`, `realm`, `restaurantId`).
+    - `requireRole(allowedRoles)`: enforces discrete role gates across Restaurant Admin (`owner`, `manager`) and Company Portal (`super_admin`, `support`, `finance`), throwing RFC 7807 403 Forbidden on violations.
+    - `requireTenant(paramKey)`: mandates restaurant tenant boundary isolation. Rejects cross-tenant administrative tampering with 403 Forbidden while permitting authorized portal administrative inspection.
+  - Ambient type declarations extended for `Express.Request.user`.
+  - Added unit and HTTP integration test suite in `apps/api/tests/rbac.test.ts` (11 tests, 100% pass rate).
+
 ### 2026-11-05 - TOTP MFA Onboarding, Verification & Recovery Codes (M1-T07)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
