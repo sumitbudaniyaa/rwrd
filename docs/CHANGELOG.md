@@ -6,6 +6,21 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Customer Mobile App Scaffolding (M2-T04)
+
+- **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)
+- **Task**: `M2-T04`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Scaffolded mobile-first customer application (`@tiptable/customer`) in `apps/customer`:
+    - Vite 6 + React 18 + TypeScript in strict mode.
+    - Tailwind CSS configuration optimized for a 375px primary mobile viewport with warm hospitality palette (cream, sand, charcoal).
+    - Self-hosted typography definitions for Newsreader (Claude-style elegant serif) and Inter (UI sans-serif) with system fallbacks in `src/styles/fonts.css`.
+    - Integrated TanStack Query v5, React Router v6, and typed API service client (`src/services/api.ts`) consuming `@tiptable/shared` schemas and RFC 7807 error envelopes.
+    - Zero secrets invariant enforced via strict `clientEnv` Zod validation in `src/config/env.ts`.
+  - Added unit test in `apps/customer/tests/scaffold.test.tsx` verifying component tree rendering.
+  - Production build verification: 62.1 kB gzipped bundle built in 512ms.
+
 ### 2026-11-05 - Google Review Tap Telemetry Endpoint (M2-T03)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

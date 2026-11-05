@@ -1,0 +1,44 @@
+@font-face {
+  font-family: 'Newsreader';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Newsreader'),
+    local('Newsreader 16pt'),
+    local('Georgia'),
+    url('/fonts/Newsreader-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Newsreader-Italic'),
+    local('Georgia-Italic'),
+    url('/fonts/Newsreader-Italic.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src:
+    local('Inter'),
+    local('-apple-system'),
+    url('/fonts/Inter-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src:
+    local('Inter SemiBold'),
+    url('/fonts/Inter-SemiBold.woff2') format('woff2');
+}
+
