@@ -6,6 +6,29 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Restaurant Admin Authentication Flow, TOTP MFA Challenge & Session Management (M3-T02)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T02`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented complete backend authentication flow for Restaurant Admin in `apps/api`:
+    - Updated `POST /api/v1/admin/auth/login` to inspect `user.totpEnabled`. If enabled, issues an ephemeral signed JWT `tempToken` (5-minute expiry, `type: 'mfa_pending'`) without setting session cookies.
+    - Implemented `POST /api/v1/admin/auth/mfa/challenge` validating 6-digit TOTP codes (via otplib with AES-256 decrypted secrets) or single-use recovery codes, promoting the session to fully authenticated with rotating `tiptable_admin_rf` refresh cookie.
+    - Implemented `POST /api/v1/admin/auth/logout-all` revoking all active sessions across devices for the authenticated admin user.
+    - Implemented `GET /api/v1/admin/auth/me` returning current user profile and tenant details.
+  - Implemented frontend authentication architecture in `apps/admin`:
+    - Created API client (`apps/admin/src/services/api.ts`) with silent 401 token refresh interceptor and double-submit CSRF headers.
+    - Created `AuthContext` (`apps/admin/src/context/AuthContext.tsx`) managing in-memory access tokens, user state, silent session restoration, and login/MFA/logout actions.
+    - Created `ProtectedRoute` (`apps/admin/src/components/ProtectedRoute.tsx`) gating `/admin/*` views behind active sessions.
+    - Built minimal `LoginScreen` (`apps/admin/src/screens/LoginScreen.tsx`) with work email and password inputs, show/hide toggle, and RFC 7807 error problem detail alerts.
+    - Built `MfaChallengeScreen` (`apps/admin/src/screens/MfaChallengeScreen.tsx`) supporting 6-digit TOTP input with auto-formatting and single-use emergency recovery code fallback.
+    - Updated `AdminLayout` with real user initials, role badges, single-session logout, and "Log out of all devices" actions.
+  - Added unit and integration tests:
+    - `apps/api/tests/adminAuth.test.ts` (6 tests covering login, MFA challenge, invalid TOTP, cookie revocation, and logout-all).
+    - `apps/admin/tests/auth.test.tsx` (4 tests covering login rendering, protected route redirection, direct authentication, and MFA challenge).
+  - All 113 tests passing across the monorepo with 100% clean typecheck.
+
 ### 2026-11-05 - Restaurant Admin App Scaffolding & Minimal Design System (M3-T01)
 
 - **Milestone**: M3 (Restaurant Admin App)

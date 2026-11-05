@@ -6,6 +6,8 @@ import { db } from '../db/index.js';
 import { restaurantUsers, platformUsers, restaurants, sessions } from '../db/schema/index.js';
 import { env } from '../config/env.js';
 import { verifyPassword, generateSecureToken, hashToken } from '../utils/authCrypto.js';
+import { mfaService } from './mfaService.js';
+import { decryptSecret } from './crypto.js';
 import { UnauthorizedError } from '../errors/appError.js';
 import { logger } from '../utils/logger.js';
 
@@ -22,6 +24,13 @@ export interface AuthTokens {
   accessToken: string;
   refreshToken: string;
   expiresInSeconds: number;
+}
+
+export interface AdminLoginResult {
+  mfaRequired: boolean;
+  tempToken?: string | undefined;
+  tokens?: AuthTokens | undefined;
+  user: AuthenticatedUser;
 }
 
 export interface AuthenticatedUser {
@@ -81,7 +90,7 @@ export class AuthService {
     email: string,
     plainPassword: string,
     metadata?: { ipAddress?: string | undefined; userAgent?: string | undefined } | undefined,
-  ): Promise<{ tokens: AuthTokens; user: AuthenticatedUser }> {
+  ): Promise<AdminLoginResult> {
     const [user] = await db
       .select({
         user: restaurantUsers,
@@ -104,6 +113,36 @@ export class AuthService {
     const isValidPassword = await verifyPassword(plainPassword, user.user.passwordHash);
     if (!isValidPassword) {
       throw new UnauthorizedError('Invalid email or password');
+    }
+
+    // If user has MFA enabled, return temporary token for 2FA challenge
+    if (user.user.totpEnabled) {
+      const tempToken = jwt.sign(
+        {
+          sub: user.user.id,
+          type: 'mfa_pending',
+          realm: 'admin',
+          restaurantId: user.restaurant.id,
+        },
+        env.ADMIN_JWT_SECRET,
+        {
+          expiresIn: '5m',
+          issuer: 'tiptable-api',
+          audience: 'tiptable-admin-mfa',
+        },
+      );
+
+      return {
+        mfaRequired: true,
+        tempToken,
+        user: {
+          id: user.user.id,
+          email: user.user.email,
+          fullName: user.user.fullName,
+          role: user.user.role,
+          restaurantId: user.restaurant.id,
+        },
+      };
     }
 
     // Create session family & tokens
@@ -131,6 +170,7 @@ export class AuthService {
     });
 
     return {
+      mfaRequired: false,
       tokens: {
         accessToken,
         refreshToken: rawRefreshToken,
@@ -142,6 +182,107 @@ export class AuthService {
         fullName: user.user.fullName,
         role: user.user.role,
         restaurantId: user.restaurant.id,
+      },
+    };
+  }
+
+  /**
+   * Verifies an MFA TOTP or single-use recovery code challenge for Restaurant Admin.
+   */
+  async verifyAdminMfa(
+    tempToken: string,
+    code: string,
+    isRecoveryCode = false,
+    metadata?: { ipAddress?: string | undefined; userAgent?: string | undefined } | undefined,
+  ): Promise<{ tokens: AuthTokens; user: AuthenticatedUser }> {
+    let decoded: { sub: string; type: string; realm: string; restaurantId: string };
+    try {
+      decoded = jwt.verify(tempToken, env.ADMIN_JWT_SECRET, {
+        issuer: 'tiptable-api',
+        audience: 'tiptable-admin-mfa',
+      }) as { sub: string; type: string; realm: string; restaurantId: string };
+    } catch {
+      throw new UnauthorizedError('Invalid or expired MFA session token');
+    }
+
+    if (decoded.type !== 'mfa_pending' || decoded.realm !== 'admin') {
+      throw new UnauthorizedError('Invalid MFA token payload');
+    }
+
+    const [record] = await db
+      .select({
+        user: restaurantUsers,
+        restaurant: restaurants,
+      })
+      .from(restaurantUsers)
+      .innerJoin(restaurants, eq(restaurantUsers.restaurantId, restaurants.id))
+      .where(and(eq(restaurantUsers.id, decoded.sub), eq(restaurantUsers.isActive, true)))
+      .limit(1);
+
+    if (!record || record.restaurant.isSuspended || !record.restaurant.isActive) {
+      throw new UnauthorizedError('User account not found or suspended');
+    }
+
+    if (isRecoveryCode) {
+      const recoveryResult = mfaService.verifyAndConsumeRecoveryCode(
+        code,
+        record.user.totpRecoveryCodesHash || [],
+      );
+      if (!recoveryResult.isValid) {
+        throw new UnauthorizedError('Invalid recovery code');
+      }
+
+      await db
+        .update(restaurantUsers)
+        .set({ totpRecoveryCodesHash: recoveryResult.remainingHashedCodes })
+        .where(eq(restaurantUsers.id, record.user.id));
+    } else {
+      if (!record.user.totpSecretEncrypted) {
+        throw new UnauthorizedError('MFA is not configured for this user');
+      }
+
+      const secret = decryptSecret(record.user.totpSecretEncrypted);
+      const isValid = mfaService.verifyTotpCode(code, secret);
+      if (!isValid) {
+        throw new UnauthorizedError('Invalid TOTP verification code');
+      }
+    }
+
+    const familyId = randomUUID();
+    const rawRefreshToken = generateSecureToken(32);
+    const refreshTokenHash = hashToken(rawRefreshToken);
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+
+    await db.insert(sessions).values({
+      userType: 'restaurant_user',
+      userId: record.user.id,
+      restaurantId: record.restaurant.id,
+      refreshTokenHash,
+      familyId,
+      ipAddress: metadata?.ipAddress,
+      userAgent: metadata?.userAgent,
+      expiresAt,
+    });
+
+    const accessToken = this.generateAccessToken({
+      sub: record.user.id,
+      role: record.user.role,
+      realm: 'admin',
+      restaurantId: record.restaurant.id,
+    });
+
+    return {
+      tokens: {
+        accessToken,
+        refreshToken: rawRefreshToken,
+        expiresInSeconds: 900,
+      },
+      user: {
+        id: record.user.id,
+        email: record.user.email,
+        fullName: record.user.fullName,
+        role: record.user.role,
+        restaurantId: record.restaurant.id,
       },
     };
   }

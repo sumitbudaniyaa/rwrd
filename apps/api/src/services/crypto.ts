@@ -116,3 +116,22 @@ export function reEncryptVpa(data: {
   const plaintext = decryptVpa(data);
   return encryptVpa(plaintext);
 }
+
+/**
+ * Encrypts a string secret (e.g., TOTP secret) returning a compact "iv:tag:ciphertext" string.
+ */
+export function encryptSecret(plaintext: string): string {
+  const res = encryptVpa(plaintext);
+  return `${res.iv}:${res.tag}:${res.ciphertext}`;
+}
+
+/**
+ * Decrypts a compact "iv:tag:ciphertext" string secret.
+ */
+export function decryptSecret(payload: string): string {
+  const [iv, tag, ciphertext] = payload.split(':');
+  if (!iv || !tag || !ciphertext) {
+    throw new Error('Invalid encrypted payload format');
+  }
+  return decryptVpa({ iv, tag, ciphertext });
+}
