@@ -6,6 +6,29 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Table & QR Management, PNG/SVG Download, Token Rotation & Print Placards (M3-T06)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T06`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend QR code and table management routes in `apps/api/src/routes/adminQr.ts`:
+    - `GET /api/v1/admin/restaurants/:restaurantId/qr`: Fetches active QR tokens and dining tables; provisions the universal/standing root QR token automatically if none exists.
+    - `POST /api/v1/admin/restaurants/:restaurantId/qr/rotate`: Cryptographically rotates a target QR token, invalidating previous tokens and recording `QR_TOKEN_ROTATED` in audit logs.
+    - `POST /api/v1/admin/restaurants/:restaurantId/tables`: Adds dining table with auto-provisioned unique table QR token and records `TABLE_CREATED` in audit logs.
+  - Implemented frontend QR management interface in `apps/admin`:
+    - Added API client methods (`getQrList`, `rotateQrToken`, `createTable`) in `apps/admin/src/services/api.ts`.
+    - Built `QrManagementScreen` (`apps/admin/src/screens/QrManagementScreen.tsx`):
+      - Renders General Restaurant QR card and table placards grid with live canvas preview via `qrcode`.
+      - High-resolution PNG download (`toDataURL(1024x1024)`) and scalable SVG vector download.
+      - "Add Dining Table" modal capturing table number (e.g. Table 4) and section (e.g. Terrace).
+      - "Rotate Token" confirmation dialog alerting the user that previous printed placards are immediately invalidated.
+      - Printable Table Placard modal with bilingual copy (English & Hindi) and print preview calling `window.print()` for physical acrylic/cardboard table displays.
+  - Added comprehensive test suites:
+    - `apps/api/tests/adminQr.test.ts` (4 tests covering token listing, tenant isolation, token rotation, and table creation).
+    - `apps/admin/tests/qrManagement.test.tsx` (5 tests covering QR listing, PNG/SVG download generation, table addition, token rotation, and printable placard modal).
+  - 100% clean typecheck and all 156 tests passing across monorepo packages.
+
 ### 2026-11-05 - Restaurant Settings, Google Review URL Validation & Tipping Bounds (M3-T05)
 
 - **Milestone**: M3 (Restaurant Admin App)

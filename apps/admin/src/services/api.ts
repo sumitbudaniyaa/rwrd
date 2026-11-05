@@ -101,6 +101,28 @@ export interface UpdateRestaurantSettingsInput {
   maxTipInr?: number;
 }
 
+export interface QrTokenItem {
+  id: string;
+  restaurantId: string;
+  tableId: string | null;
+  tableNumber: string | null;
+  sectionName: string | null;
+  token: string;
+  customerUrl: string;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface QrListResponse {
+  restaurant: {
+    id: string;
+    name: string;
+    slug: string;
+    logoUrl: string | null;
+  };
+  tokens: QrTokenItem[];
+}
+
 let inMemoryToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
@@ -289,5 +311,34 @@ export const api = {
         body: JSON.stringify(data),
       },
     );
+  },
+
+  getQrList(restaurantId: string): Promise<QrListResponse> {
+    return request<QrListResponse>(`/admin/restaurants/${restaurantId}/qr`, {
+      method: 'GET',
+    });
+  },
+
+  rotateQrToken(restaurantId: string, tableId?: string | null): Promise<{ token: QrTokenItem }> {
+    return request<{ token: QrTokenItem }>(`/admin/restaurants/${restaurantId}/qr/rotate`, {
+      method: 'POST',
+      body: JSON.stringify({ tableId: tableId || null }),
+    });
+  },
+
+  createTable(
+    restaurantId: string,
+    data: { tableNumber: string; sectionName?: string },
+  ): Promise<{
+    table: { id: string; tableNumber: string; sectionName: string | null };
+    token: QrTokenItem;
+  }> {
+    return request<{
+      table: { id: string; tableNumber: string; sectionName: string | null };
+      token: QrTokenItem;
+    }>(`/admin/restaurants/${restaurantId}/tables`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
   },
 };

@@ -39,6 +39,15 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
         updatedAt: '2026-01-01T00:00:00Z',
       },
     });
+    vi.spyOn(api, 'getQrList').mockResolvedValue({
+      restaurant: {
+        id: 'rest-1',
+        name: 'The Bombay Canteen',
+        slug: 'the-bombay-canteen',
+        logoUrl: null,
+      },
+      tokens: [],
+    });
   });
 
   it('renders admin shell with sidebar navigation, tenant pill, and metrics overview', async () => {

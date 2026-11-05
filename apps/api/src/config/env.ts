@@ -9,6 +9,7 @@ const EnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(4000),
   API_BASE_URL: z.string().url().default('http://localhost:4000'),
+  CUSTOMER_APP_URL: z.string().url().default('http://localhost:3000'),
 
   // Database & Cache
   DATABASE_URL: z.string().url('DATABASE_URL must be a valid PostgreSQL connection string'),

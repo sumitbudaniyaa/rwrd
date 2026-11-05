@@ -9,6 +9,7 @@ import { MfaChallengeScreen } from './screens/MfaChallengeScreen.js';
 import { DashboardOverview } from './screens/DashboardOverview.js';
 import { StaffManagementScreen } from './screens/StaffManagementScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
+import { QrManagementScreen } from './screens/QrManagementScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,17 +36,7 @@ export const App: React.FC = () => {
               <Route element={<AdminLayout />}>
                 <Route index element={<DashboardOverview />} />
                 <Route path="staff" element={<StaffManagementScreen />} />
-                <Route
-                  path="qr"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">QR Management</h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Generate and rotate table QR tokens.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="qr" element={<QrManagementScreen />} />
                 <Route
                   path="analytics"
                   element={
