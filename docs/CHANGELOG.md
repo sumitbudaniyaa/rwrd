@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Backend API Foundation & RFC 7807 Error Handling (M0-T07)
+
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T07`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Scaffolded `apps/api` with Express and strict TypeScript.
+  - Implemented fail-fast environment validation via Zod in `apps/api/src/config/env.ts`.
+  - Configured structured Pino logger (`apps/api/src/utils/logger.ts`) with automated redaction for passwords, secrets, tokens, and VPAs.
+  - Built `requestIdMiddleware` injecting unique correlation IDs and child loggers.
+  - Implemented centralized RFC 7807 problem details error handler (`errorHandler.ts`) supporting `ZodError`, `AppError`, and syntax errors with `application/problem+json`.
+  - Added Supertest integration test suite with 100% pass rate.
+
 ### 2026-11-05 - Shared Domain Schemas & UPI Helpers (M0-T06)
 
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
