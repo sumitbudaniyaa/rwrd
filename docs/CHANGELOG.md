@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - AES-256-GCM VPA Encryption Service (M1-T03)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented cryptographic service in `apps/api/src/services/crypto.ts` for waitstaff financial protection.
+  - Utilized AES-256-GCM authenticated encryption with 12-byte random IVs and 16-byte authentication tags.
+  - Implemented zero-downtime key rotation support with automatic fallback to `VPA_ENCRYPTION_KEY_PREV`.
+  - Implemented tamper detection ensuring manipulated ciphertexts or tags throw immediate errors.
+  - Implemented `maskVpa` utility for safe display in administrative portals without exposing bank details.
+  - Implemented `reEncryptVpa` for background key migration workflows.
+  - Unit test suite added in `apps/api/tests/crypto.test.ts` (100% pass rate).
+
 ### 2026-11-05 - Drizzle Migrations & Development Seeder (M1-T02)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
