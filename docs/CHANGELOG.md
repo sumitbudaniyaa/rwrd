@@ -6,6 +6,18 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Argon2id Password Hashing & Secure Tokens (M1-T05)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented Argon2id password hashing and verification in `apps/api/src/utils/authCrypto.ts` using `@node-rs/argon2` following OWASP parameters (19 MiB memory, 2 iterations, 32 bytes output).
+  - Built high-entropy cryptographically secure token generator (`generateSecureToken`) producing URL-safe base64 strings.
+  - Implemented SHA-256 token hashing (`hashToken`) to protect refresh tokens before database storage.
+  - Built constant-time string comparison (`timingSafeHashMatch`) using `crypto.timingSafeEqual` against timing side-channel attacks.
+  - Added unit test suite in `apps/api/tests/authCrypto.test.ts` (100% pass rate).
+
 ### 2026-11-05 - Multi-Tenant Repositories & RLS Isolation (M1-T04)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
