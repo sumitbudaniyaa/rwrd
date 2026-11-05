@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Docker Compose Environment Setup (M0-T05)
+
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Configured `docker-compose.yml` defining services:
+    - `postgres:16-alpine`: PostgreSQL 16 with persistent volume `postgres_data` and `pg_isready` healthcheck.
+    - `redis:7-alpine`: Redis 7 with persistent volume `redis_data` and `redis-cli ping` healthcheck.
+    - `minio/minio`: MinIO S3-compatible object storage with API (`:9000`), Console (`:9001`), and live healthcheck.
+    - `minio-init`: Automates bucket creation (`tiptable-media`) and public download policies for staff photos.
+  - Authored `docker/postgres/init.sql` provisioning `uuid-ossp` and `pgcrypto` extensions.
+  - Completed 5 tasks milestone check: pushing commit history to `origin main`.
+
 ### 2026-11-05 - Git Hooks & Commit Hygiene Setup (M0-T04)
 
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
