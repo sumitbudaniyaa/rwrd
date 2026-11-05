@@ -6,6 +6,18 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Shared Tooling Package Configuration (M0-T03)
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Created `@tiptable/config` shared package in `packages/config/`.
+  - Configured strict base TypeScript configuration (`tsconfig.base.json`) enforcing `strict: true`, `noImplicitAny: true`, `noUncheckedIndexedAccess: true`, `exactOptionalPropertyTypes: true`.
+  - Authored specialized configurations for Node.js (`tsconfig.node.json`) and React frontends (`tsconfig.react.json`).
+  - Authored shared Prettier formatting preset (`prettier.config.js`) and root config.
+  - Authored shared base ESLint flat configuration (`eslint.base.js`).
+  - Created root `tsconfig.json` referencing `@tiptable/config`.
+
 ### 2026-11-05 - Monorepo Root Initialization (M0-T02)
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
 - **Task**: `M0-T02`

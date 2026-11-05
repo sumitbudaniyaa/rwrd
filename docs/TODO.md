@@ -16,7 +16,7 @@ Status values:
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **M0-T01** | Create project governance and shared memory documentation suite (`AGENTS.md` and `docs/*`). | `Done` | Senior Staff Agent | 2026-11-05 | 10 governance files created |
 | **M0-T02** | Initialize pnpm monorepo root: workspace file, package.json, tooling scripts, and `.gitignore`. | `Done` | Senior Staff Agent | 2026-11-05 | Monorepo root initialized |
-| **M0-T03** | Configure shared tooling packages: `@tiptable/config` (TSConfig base, ESLint, Prettier presets). | `Backlog` | - | - | Shared config |
+| **M0-T03** | Configure shared tooling packages: `@tiptable/config` (TSConfig base, ESLint, Prettier presets). | `Done` | Senior Staff Agent | 2026-11-05 | Config package created |
 | **M0-T04** | Setup Git hooks with Husky and lint-staged (conventional commits, prettier, eslint, gitleaks). | `Backlog` | - | - | Git hygiene |
 | **M0-T05** | Setup Docker Compose environment (PostgreSQL 16, Redis 7, MinIO local S3 storage). | `Backlog` | - | - | Local dev infra |
 | **M0-T06** | Initialize `@tiptable/shared` package with initial domain schemas, types, and UPI helpers. | `Backlog` | - | - | Shared models |
