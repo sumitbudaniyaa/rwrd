@@ -7,3 +7,4 @@ CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Grant privileges
 GRANT ALL PRIVILEGES ON DATABASE tiptable_dev TO postgres;
+

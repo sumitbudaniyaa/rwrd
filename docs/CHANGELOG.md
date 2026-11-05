@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Shared Domain Schemas & UPI Helpers (M0-T06)
+
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T06`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Initialized `@tiptable/shared` package in `packages/shared/`.
+  - Implemented core business boundary constants (`CURRENCY = 'INR'`, `TIP_BOUNDS`, `VPA_REGEX`).
+  - Authored RFC 7807 problem details Zod schema (`ProblemDetailsSchema`).
+  - Built UPI deep link generator (`buildUpiDeepLink`) and QR text parser (`parseUpiQrString`).
+  - Created domain schemas for restaurants, staff, tip intents, and landing leads.
+  - Added unit test suite in `packages/shared/tests/upi.test.ts` with 100% pass rate.
+
 ### 2026-11-05 - Docker Compose Environment Setup (M0-T05)
 
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
