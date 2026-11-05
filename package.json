@@ -1,0 +1,27 @@
+{
+  "name": "tiptable-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@12.16.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter \"@tiptable/*\" --parallel dev",
+    "build": "pnpm --filter \"@tiptable/*\" --recursive build",
+    "lint": "pnpm --filter \"@tiptable/*\" --recursive lint",
+    "lint:fix": "pnpm --filter \"@tiptable/*\" --recursive lint:fix",
+    "typecheck": "pnpm --filter \"@tiptable/*\" --recursive typecheck",
+    "test": "pnpm --filter \"@tiptable/*\" --recursive test",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
+    "db:migrate": "pnpm --filter @tiptable/api db:migrate",
+    "db:generate": "pnpm --filter @tiptable/api db:generate",
+    "db:seed": "pnpm --filter @tiptable/api db:seed"
+  },
+  "devDependencies": {
+    "prettier": "^3.5.0",
+    "typescript": "^5.7.3"
+  }
+}
