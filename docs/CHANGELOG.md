@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Drizzle Migrations & Development Seeder (M1-T02)
+
+- **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)
+- **Task**: `M1-T02`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Generated initial SQL schema migrations (`apps/api/src/db/migrations/0000_ordinary_aqueduct.sql`) covering all 16 core PostgreSQL tables.
+  - Implemented programmatic migration runner (`apps/api/src/db/migrate.ts`) using `drizzle-orm/postgres-js/migrator`.
+  - Built comprehensive development seeder (`apps/api/src/db/seed.ts`):
+    - Default billing plans (`pro`).
+    - Demo restaurant "The Bombay Canteen" with active subscription.
+    - Owner and manager users with Argon2id hashed credentials (`@node-rs/argon2`).
+    - Platform super admin account (`admin@tiptable.in`).
+    - 4 dining tables with linked high-entropy QR lookup tokens.
+    - 3 waitstaff records with encrypted VPA fixtures and India DPDP consent timestamps.
+    - System audit log entries.
+  - Added unit test suite in `apps/api/tests/db.test.ts` (100% pass rate).
+
 ### 2026-11-05 - Drizzle ORM Schema Definitions (M1-T01)
 
 - **Milestone**: M1 (Database Schema, Security Middleware & Authentication Engine)

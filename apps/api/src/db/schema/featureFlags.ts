@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, boolean, jsonb, timestamp, unique } from 'drizzle-orm/pg-core';
-import { restaurants } from './restaurants.js';
+import { restaurants } from './restaurants';
 
 export const featureFlags = pgTable(
   'feature_flags',

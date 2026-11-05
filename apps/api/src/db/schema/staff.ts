@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, text, boolean, timestamp, index } from 'drizzle-orm/pg-core';
-import { restaurants } from './restaurants.js';
+import { restaurants } from './restaurants';
 
 export const staff = pgTable(
   'staff',

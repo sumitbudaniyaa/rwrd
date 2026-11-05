@@ -9,7 +9,7 @@ import {
   index,
   unique,
 } from 'drizzle-orm/pg-core';
-import { restaurants } from './restaurants.js';
+import { restaurants } from './restaurants';
 
 export const restaurantUsers = pgTable(
   'restaurant_users',

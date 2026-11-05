@@ -1,7 +1,7 @@
 import { pgTable, uuid, integer, varchar, timestamp, index } from 'drizzle-orm/pg-core';
-import { restaurants } from './restaurants.js';
-import { staff } from './staff.js';
-import { tables } from './tables.js';
+import { restaurants } from './restaurants';
+import { staff } from './staff';
+import { tables } from './tables';
 
 export const tipIntents = pgTable(
   'tip_intents',
