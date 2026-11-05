@@ -7,6 +7,7 @@ import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
 import { requestIdMiddleware } from './middleware/requestId.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { healthRouter } from './routes/health.js';
 import { NotFoundError } from './errors/appError.js';
 
 export function createApp(): Express {
@@ -72,6 +73,9 @@ export function createApp(): Express {
       status: 'operational',
     });
   });
+
+  // Health and Readiness Checks
+  app.use(healthRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

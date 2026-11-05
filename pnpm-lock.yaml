@@ -246,12 +246,18 @@ importers:
       hpp:
         specifier: ^0.2.3
         version: 0.2.3
+      ioredis:
+        specifier: ^5.5.0
+        version: 5.11.1
       pino:
         specifier: ^9.6.0
         version: 9.14.0
       pino-http:
         specifier: ^10.4.0
         version: 10.5.0
+      postgres:
+        specifier: ^3.4.5
+        version: 3.4.9
       zod:
         specifier: ^3.24.2
         version: 3.25.76
@@ -695,6 +701,12 @@ packages:
     engines: { node: '>=18' }
     cpu: [x64]
     os: [win32]
+
+  '@ioredis/commands@1.10.0':
+    resolution:
+      {
+        integrity: sha512-UmeW7z4LfctwoQ5wkhVzgq8tXkreED2xZGpX+Bg+zA+WJFZCT6c062AfCK/Dfk81xZnnwdhJCUMkitihRaoC2Q==,
+      }
 
   '@jridgewell/sourcemap-codec@1.6.0':
     resolution:
@@ -1267,6 +1279,13 @@ packages:
       }
     engines: { node: '>=20' }
 
+  cluster-key-slot@1.1.1:
+    resolution:
+      {
+        integrity: sha512-rwHwUfXL40Chm1r08yrhU3qpUvdVlgkKNeyeGPOxnW8/SyVDvgRaed/Uz54AqWNaTCAThlj6QAs3TZcKI0xDEw==,
+      }
+    engines: { node: '>=0.10.0' }
+
   combined-stream@1.0.8:
     resolution:
       {
@@ -1397,6 +1416,13 @@ packages:
         integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==,
       }
     engines: { node: '>=0.4.0' }
+
+  denque@2.1.0:
+    resolution:
+      {
+        integrity: sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw==,
+      }
+    engines: { node: '>=0.10' }
 
   depd@2.0.0:
     resolution:
@@ -1750,6 +1776,13 @@ packages:
       }
     engines: { node: ^20.17.0 || >=22.9.0 }
 
+  ioredis@5.11.1:
+    resolution:
+      {
+        integrity: sha512-ehuGcf94bQXhfagULNXrJdfnWO38v070jxSx/qE87Kjzmu2fU7ro5EFAb+OPituLqgfyuQaym5DlrNydW2sJ9A==,
+      }
+    engines: { node: '>=12.22.0' }
+
   ipaddr.js@1.9.1:
     resolution:
       {
@@ -2043,6 +2076,13 @@ packages:
       }
     engines: { node: ^10 || ^12 || >=14 }
 
+  postgres@3.4.9:
+    resolution:
+      {
+        integrity: sha512-GD3qdB0x1z9xgFI6cdRD6xu2Sp2WCOEoe3mtnyB5Ee0XrrL5Pe+e4CCnJrRMnL1zYtRDZmQQVbvOttLnKDLnaw==,
+      }
+    engines: { node: '>=12' }
+
   prettier@3.9.10:
     resolution:
       {
@@ -2104,6 +2144,20 @@ packages:
         integrity: sha512-57frrGM/OCTLqLOAh0mhVA9VBMHd+9U7Zb2THMGdBUoZVOtGbJzjxsYGDJ3A9AYYCP4hn6y1TVbaOfzWtm5GFg==,
       }
     engines: { node: '>= 12.13.0' }
+
+  redis-errors@1.2.0:
+    resolution:
+      {
+        integrity: sha512-1qny3OExCf0UvUV/5wpYKf2YwPcOqXzkwKKSmKHiE6ZMQs5heeE/c8eXK+PNllPvmjgAbfnsbpkGZWy8cBpn9w==,
+      }
+    engines: { node: '>=4' }
+
+  redis-parser@3.0.0:
+    resolution:
+      {
+        integrity: sha512-DJnGAeenTdpMEH6uAJRK/uiyEIH9WVsUmoLwzudwGJUwZPp80PDBWPHXSAGNPwNvIXAbe7MSUB1zQFugFml66A==,
+      }
+    engines: { node: '>=4' }
 
   require-from-string@2.0.2:
     resolution:
@@ -2239,6 +2293,12 @@ packages:
     resolution:
       {
         integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==,
+      }
+
+  standard-as-callback@2.1.0:
+    resolution:
+      {
+        integrity: sha512-qoRRSyROncaz1z0mvYqIE4lCd9p2R90i6GxW3uZv5ucSu8tU7B5HXUP1gG8pVZsYNVaXjk8ClXHPttLyxAL48A==,
       }
 
   statuses@2.0.2:
@@ -2761,6 +2821,8 @@ snapshots:
   '@esbuild/win32-x64@0.28.2':
     optional: true
 
+  '@ioredis/commands@1.10.0': {}
+
   '@jridgewell/sourcemap-codec@1.6.0': {}
 
   '@noble/hashes@1.8.0': {}
@@ -3059,6 +3121,8 @@ snapshots:
       strip-ansi: 7.2.0
       wrap-ansi: 9.0.2
 
+  cluster-key-slot@1.1.1: {}
+
   combined-stream@1.0.8:
     dependencies:
       delayed-stream: 1.0.0
@@ -3117,6 +3181,8 @@ snapshots:
   deep-eql@5.0.2: {}
 
   delayed-stream@1.0.0: {}
+
+  denque@2.1.0: {}
 
   depd@2.0.0: {}
 
@@ -3356,6 +3422,18 @@ snapshots:
 
   ini@6.0.0: {}
 
+  ioredis@5.11.1:
+    dependencies:
+      '@ioredis/commands': 1.10.0
+      cluster-key-slot: 1.1.1
+      debug: 4.4.3
+      denque: 2.1.0
+      redis-errors: 1.2.0
+      redis-parser: 3.0.0
+      standard-as-callback: 2.1.0
+    transitivePeerDependencies:
+      - supports-color
+
   ipaddr.js@1.9.1: {}
 
   is-arrayish@0.2.1: {}
@@ -3490,6 +3568,8 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.2
 
+  postgres@3.4.9: {}
+
   prettier@3.9.10: {}
 
   process-warning@5.1.1: {}
@@ -3521,6 +3601,12 @@ snapshots:
       unpipe: 1.0.0
 
   real-require@0.2.0: {}
+
+  redis-errors@1.2.0: {}
+
+  redis-parser@3.0.0:
+    dependencies:
+      redis-errors: 1.2.0
 
   require-from-string@2.0.2: {}
 
@@ -3636,6 +3722,8 @@ snapshots:
   split2@4.2.0: {}
 
   stackback@0.0.2: {}
+
+  standard-as-callback@2.1.0: {}
 
   statuses@2.0.2: {}
 

@@ -6,6 +6,18 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Health & Readiness Probes (M0-T08)
+
+- **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)
+- **Task**: `M0-T08`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented lazy database client with ping verification (`checkDbConnection`) in `apps/api/src/db/client.ts`.
+  - Implemented Redis client with ping verification (`checkRedisConnection`) in `apps/api/src/cache/redis.ts`.
+  - Added `/healthz` liveness route returning 200 OK for process health.
+  - Added `/readyz` readiness route concurrently probing PostgreSQL and Redis with graceful 503 RFC 7807 degradation on dependency failure.
+  - Added Supertest integration test suite with mock degradation testing (100% pass rate).
+
 ### 2026-11-05 - Backend API Foundation & RFC 7807 Error Handling (M0-T07)
 
 - **Milestone**: M0 (Foundation, Tooling, Docs & Environment Setup)

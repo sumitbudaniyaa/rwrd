@@ -22,7 +22,7 @@ Status values:
 | **M0-T05** | Setup Docker Compose environment (PostgreSQL 16, Redis 7, MinIO local S3 storage).                                    | `Done`    | Senior Staff Agent | 2026-11-05     | Docker compose configured   |
 | **M0-T06** | Initialize `@tiptable/shared` package with initial domain schemas, types, and UPI helpers.                            | `Done`    | Senior Staff Agent | 2026-11-05     | Shared schemas & UPI tested |
 | **M0-T07** | Scaffold `apps/api` with strict Zod environment config parsing (fail-fast), Pino logging, and RFC 7807 error handler. | `Done`    | Senior Staff Agent | 2026-11-05     | API foundation & RFC 7807   |
-| **M0-T08** | Implement `/healthz` and `/readyz` endpoints with DB and Redis ping checks in `apps/api`.                             | `Backlog` | -                  | -              | Health checks               |
+| **M0-T08** | Implement `/healthz` and `/readyz` endpoints with DB and Redis ping checks in `apps/api`.                             | `Done`    | Senior Staff Agent | 2026-11-05     | Health & readiness probes   |
 | **M0-T09** | Setup GitHub Actions CI workflow (lint, typecheck, test, build, audit, gitleaks check).                               | `Backlog` | -                  | -              | Automated CI                |
 
 ---
