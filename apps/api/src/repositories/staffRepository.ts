@@ -22,6 +22,17 @@ export class StaffRepository {
   }
 
   /**
+   * Retrieves all non-deleted waitstaff for a restaurant (including inactive).
+   */
+  async findAllByRestaurant(restaurantId: string): Promise<Staff[]> {
+    return await this.database
+      .select()
+      .from(staff)
+      .where(and(eq(staff.restaurantId, restaurantId), isNull(staff.deletedAt)))
+      .orderBy(staff.createdAt);
+  }
+
+  /**
    * Retrieves a staff member by ID, strictly scoped to the tenant.
    * Cross-tenant requests will safely return null.
    */

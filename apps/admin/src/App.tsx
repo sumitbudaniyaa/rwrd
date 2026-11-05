@@ -7,6 +7,7 @@ import { AdminLayout } from './layouts/AdminLayout.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { MfaChallengeScreen } from './screens/MfaChallengeScreen.js';
 import { DashboardOverview } from './screens/DashboardOverview.js';
+import { StaffManagementScreen } from './screens/StaffManagementScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,17 +33,7 @@ export const App: React.FC = () => {
             <Route path="/admin" element={<ProtectedRoute />}>
               <Route element={<AdminLayout />}>
                 <Route index element={<DashboardOverview />} />
-                <Route
-                  path="staff"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">Staff Management</h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Manage waitstaff roster and UPI VPAs.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="staff" element={<StaffManagementScreen />} />
                 <Route
                   path="qr"
                   element={

@@ -13,6 +13,7 @@ import { setCsrfCookie, verifyCsrf } from './middleware/csrf.js';
 import { healthRouter } from './routes/health.js';
 import { publicRouter } from './routes/public.js';
 import { authAdminRouter } from './routes/authAdmin.js';
+import { adminStaffRouter } from './routes/adminStaff.js';
 import { authPortalRouter } from './routes/authPortal.js';
 import { NotFoundError } from './errors/appError.js';
 
@@ -133,6 +134,9 @@ export function createApp(): Express {
   // Auth Routes with rate limiting
   app.use('/api/v1', authRateLimiter, authAdminRouter);
   app.use('/api/v1', authRateLimiter, authPortalRouter);
+
+  // Admin Tenant Routes
+  app.use('/api/v1', adminStaffRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

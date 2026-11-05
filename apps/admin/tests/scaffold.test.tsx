@@ -23,6 +23,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
         slug: 'the-bombay-canteen',
       },
     });
+    vi.spyOn(api, 'getStaffList').mockResolvedValue({ staff: [] });
   });
 
   it('renders admin shell with sidebar navigation, tenant pill, and metrics overview', async () => {
@@ -67,7 +68,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     fireEvent.click(staffTab);
 
     expect(screen.getByText('Staff Management')).toBeInTheDocument();
-    expect(screen.getByText('Manage waitstaff roster and UPI VPAs.')).toBeInTheDocument();
+    expect(screen.getByText(/Manage your waitstaff roster/i)).toBeInTheDocument();
 
     // Click Settings
     const settingsTab = screen.getByText('Settings');

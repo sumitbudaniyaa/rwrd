@@ -51,6 +51,33 @@ export interface MeResponse {
   restaurant: AdminRestaurant;
 }
 
+export interface StaffAdminItem {
+  id: string;
+  restaurantId: string;
+  displayName: string;
+  roleLabel: string | null;
+  maskedVpa: string;
+  photoUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateStaffInput {
+  displayName: string;
+  roleLabel?: string;
+  vpa: string;
+  photoUrl?: string;
+}
+
+export interface UpdateStaffInput {
+  displayName?: string;
+  roleLabel?: string;
+  vpa?: string;
+  photoUrl?: string | null;
+  isActive?: boolean;
+}
+
 let inMemoryToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
@@ -175,5 +202,47 @@ export const api = {
     return request<MeResponse>('/admin/auth/me', {
       method: 'GET',
     });
+  },
+
+  getStaffList(restaurantId: string): Promise<{ staff: StaffAdminItem[] }> {
+    return request<{ staff: StaffAdminItem[] }>(`/admin/restaurants/${restaurantId}/staff`, {
+      method: 'GET',
+    });
+  },
+
+  createStaff(restaurantId: string, data: CreateStaffInput): Promise<{ staff: StaffAdminItem }> {
+    return request<{ staff: StaffAdminItem }>(`/admin/restaurants/${restaurantId}/staff`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateStaff(
+    restaurantId: string,
+    staffId: string,
+    data: UpdateStaffInput,
+  ): Promise<{ staff: StaffAdminItem }> {
+    return request<{ staff: StaffAdminItem }>(
+      `/admin/restaurants/${restaurantId}/staff/${staffId}`,
+      {
+        method: 'PUT',
+        body: JSON.stringify(data),
+      },
+    );
+  },
+
+  deleteStaff(restaurantId: string, staffId: string): Promise<{ message: string }> {
+    return request<{ message: string }>(`/admin/restaurants/${restaurantId}/staff/${staffId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  toggleStaffActive(restaurantId: string, staffId: string): Promise<{ staff: StaffAdminItem }> {
+    return request<{ staff: StaffAdminItem }>(
+      `/admin/restaurants/${restaurantId}/staff/${staffId}/toggle-active`,
+      {
+        method: 'POST',
+      },
+    );
   },
 };

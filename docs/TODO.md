@@ -67,7 +67,7 @@ Status values:
 | :--------- | :-------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :--------------- |
 | **M3-T01** | Scaffold `apps/admin` (Vite + React + TS strict, Tailwind CSS, `beUI` motion primitives, Hugeicons).            | `Done`    | Senior Staff Agent | 2026-11-05     | Admin app setup  |
 | **M3-T02** | Implement Admin Authentication: Email/password, TOTP MFA challenge, session management, logout all sessions.    | `Done`    | Senior Staff Agent | 2026-11-05     | Admin auth UI    |
-| **M3-T03** | Build Staff Management: Add, edit, soft delete, active toggle, photo crop/compression, role display labels.     | `Backlog` | -                  | -              | Staff CRUD       |
+| **M3-T03** | Build Staff Management: Add, edit, soft delete, active toggle, photo crop/compression, role display labels.     | `Done`    | Senior Staff Agent | 2026-11-05     | Staff CRUD & VPA |
 | **M3-T04** | Build VPA Capture & QR Scanner: QR code parser extracting `pa=`, VPA regex validation, typo safeguard warnings. | `Backlog` | -                  | -              | VPA verification |
 | **M3-T05** | Build Restaurant Settings: Name, logo upload, Google review URL validator, tip preset amounts, min/max limits.  | `Backlog` | -                  | -              | Settings UI      |
 | **M3-T06** | Build Table QR Code Generator: Downloadable PNG/SVG/Printable PDF with table numbers and token rotation.        | `Backlog` | -                  | -              | QR generator     |

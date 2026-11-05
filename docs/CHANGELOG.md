@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Restaurant Admin Waitstaff Roster Management, VPA Encryption & Photo Crop (M3-T03)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend administrative staff management API endpoints in `apps/api/src/routes/adminStaff.ts`:
+    - `GET /api/v1/admin/restaurants/:restaurantId/staff`: Lists tenant waitstaff with masked VPAs (`r***a@okaxis`), protected by `requireAuth('admin')` and `requireTenant('restaurantId')`.
+    - `POST /api/v1/admin/restaurants/:restaurantId/staff`: Validates input with Zod, validates UPI VPA format, encrypts VPA at rest via AES-256-GCM authenticated encryption, computes masked VPA, records DPDP consent timestamp, and records `STAFF_CREATED` audit log.
+    - `PUT /api/v1/admin/restaurants/:restaurantId/staff/:staffId`: Updates display name, role label, and optional photo or VPA; re-encrypts VPA and triggers `STAFF_VPA_UPDATED` or `STAFF_UPDATED` audit events with before/after state diffs.
+    - `DELETE /api/v1/admin/restaurants/:restaurantId/staff/:staffId`: Soft deletes staff member within tenant isolation boundary, setting `deletedAt` and `isActive = false`, and records `STAFF_DELETED` audit log.
+    - `POST /api/v1/admin/restaurants/:restaurantId/staff/:staffId/toggle-active`: Toggles active status on/off and records `STAFF_STATUS_CHANGED` audit log.
+  - Implemented frontend waitstaff management UI in `apps/admin`:
+    - Added API client methods (`getStaffList`, `createStaff`, `updateStaff`, `deleteStaff`, `toggleStaffActive`) in `apps/admin/src/services/api.ts`.
+    - Built `StaffManagementScreen` (`apps/admin/src/screens/StaffManagementScreen.tsx`):
+      - Live search filtering by staff member name and role label.
+      - Staff roster table with photo/initials fallback avatar, masked VPAs, active/inactive badge toggles, and edit/delete actions.
+      - Add/Edit Team Member modal with explicit VPA safeguard alert: _"Double-check the VPA. A wrong VPA sends diner tips directly to the wrong person. TipTable does not hold or mediate funds."_
+      - Client-side photo upload with square center-crop and JPEG compression (256x256).
+      - Role label quick-tag chips ('Server', 'Head Waiter', 'Bartender', 'Host').
+      - Soft-delete confirmation dialog explaining historical intent data retention.
+  - Added comprehensive tests:
+    - `apps/api/tests/adminStaff.test.ts`: 7 tests verifying CRUD operations, tenant isolation (cross-tenant 403 Forbidden), VPA validation and encryption.
+    - `apps/admin/tests/staffManagement.test.tsx`: 5 tests covering roster rendering, masked VPA display, search query filtering, VPA warning presentation, create submission, status toggling, and soft deletion.
+  - 100% clean typecheck and 125 tests passing across monorepo packages.
+
 ### 2026-11-05 - Restaurant Admin Authentication Flow, TOTP MFA Challenge & Session Management (M3-T02)
 
 - **Milestone**: M3 (Restaurant Admin App)
