@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-05 - Restaurant Admin App Scaffolding & Minimal Design System (M3-T01)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T01`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Created shared UI and motion primitives package `@tiptable/ui` in `packages/ui`:
+    - Implemented `beUI` motion primitives (`FadeIn`, `SlideUp`, `ScaleIn`, `StaggerList`, `MotionButton`, `MotionCard`, `Badge`) with `prefers-reduced-motion` detection hook (`useReducedMotion`).
+    - Standardized minimal design tokens: pure white background (`#FFFFFF`), single secondary accent (`#4F46E5`), solid light surface tints (`#F9FAFB`), subtle borders (`#E5E7EB`), and zero heavy shadows or gradients.
+  - Scaffolded `@tiptable/admin` in `apps/admin`:
+    - Setup Vite 6, React 18, TypeScript strict mode, Tailwind CSS, TanStack Query v5, and React Router v6.
+    - Implemented `AdminLayout` (`apps/admin/src/layouts/AdminLayout.tsx`) featuring brand navigation, live tenant indicator, route tabs (Overview, Staff Roster, QR Management, Analytics, Settings, Audit Log), owner profile footer, and Hugeicons iconography.
+    - Implemented `DashboardOverview` (`apps/admin/src/screens/DashboardOverview.tsx`) with metric cards (QR Scans, Staff Views, Tips Initiated, Google Review Taps) strictly adhering to the "tips initiated, never tips received" business invariant.
+    - Setup Zod-validated environment configuration in `apps/admin/src/config/env.ts`.
+  - Added unit test suite in `apps/admin/tests/scaffold.test.tsx` (2 tests verifying shell rendering, navigation, and invariant copy).
+  - Monorepo typecheck 100% clean across all 5 workspace projects (`@tiptable/config`, `@tiptable/shared`, `@tiptable/ui`, `@tiptable/api`, `@tiptable/customer`, `@tiptable/admin`).
+
 ### 2026-11-05 - Customer App Internationalization: English & Hindi Support (M2-T10)
 
 - **Milestone**: M2 (Public Customer Flow & UPI Deep-Link Engine)

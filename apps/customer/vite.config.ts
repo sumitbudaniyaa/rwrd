@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite';
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
@@ -7,7 +7,6 @@ export default defineConfig({
     port: 3000,
     host: true,
   },
-  // @ts-expect-error vitest test configuration property
   test: {
     globals: true,
     environment: 'jsdom',
