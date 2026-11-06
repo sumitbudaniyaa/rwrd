@@ -95,7 +95,7 @@ Status values:
 | ID         | Task Description                                                                                            | Status    | Owner              | Date Completed | Ref / Notes     |
 | :--------- | :---------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :-------------- |
 | **M5-T01** | Scaffold `apps/landing` (SEO-optimized SSG/pre-rendered React landing site).                                | `Done`    | Senior Staff Agent | 2026-11-06     | Landing setup   |
-| **M5-T02** | Build Landing Sections: Hero pitch & CTA, 3-step explainer, restaurant benefits, interactive flow demo.     | `Backlog` | -                  | -              | Landing content |
+| **M5-T02** | Build Landing Sections: Hero pitch & CTA, 3-step explainer, restaurant benefits, interactive flow demo.     | `Done`    | Senior Staff Agent | 2026-11-06     | Landing content |
 | **M5-T03** | Build Pricing & FAQ sections: Flat monthly fee breakdown, zero tip cut clarity, no money custody guarantee. | `Backlog` | -                  | -              | Pricing & FAQ   |
 | **M5-T04** | Build Demo Request Form: Rate-limited submission, Turnstile/hCaptcha verification, lead creation API.       | `Backlog` | -                  | -              | Lead capture    |
 | **M5-T05** | Build Privacy Policy & Terms of Service pages (DPDP Act compliance & Google Review policy alignment).       | `Backlog` | -                  | -              | Legal pages     |

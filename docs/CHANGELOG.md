@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Landing Sections & Interactive Flow Demo (M5-T02)
+
+- **Milestone**: M5 (Landing Site & Lead Funnel)
+- **Task**: `M5-T02`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented interactive smartphone demo simulator (`apps/landing/src/components/InteractiveFlowDemo.tsx`):
+    - Realistic mobile device mockup enabling restaurateurs and visitors to test the entire diner experience on the landing page.
+    - Step 1: Simulated QR code scan on Table 4 with server assignment preview.
+    - Step 2: Server selection (Ramesh Kumar, Priya Sharma, Amit Patel) and quick-preset tip selection (₹50, ₹100, ₹200 or custom) with direct UPI VPA preview.
+    - Step 3: Out-of-band UPI payment launch simulation (`upi://pay?pa=...`) and 1-tap Google Review 5-star booster button complying with Google anti-gating policies.
+  - Enhanced `apps/landing/src/screens/HomeScreen.tsx`:
+    - Responsive hero section with high-contrast badge ("Zero Escrow. Zero Commission. 100% Direct Staff P2P UPI.").
+    - 3-step hospitality workflow explainer cards with numeric tags and clear step-by-step guidance.
+    - 6-item hospitality benefits grid highlighting:
+      1. Zero Escrow & Custody Liability (RBI PPI exemption & direct P2P UPI transfers).
+      2. 35% Waitstaff Turnover Reduction (direct immediate diner gratification).
+      3. Google Review Flywheel (un-gated 1-tap review redirect after tipping).
+      4. 100% Tax & Accounting Cleanliness (funds bypass restaurant balance sheets).
+      5. Bank-Grade Security & Encrypted VPAs (AES-256-GCM encrypted staff identifiers).
+      6. Studio-Quality Table Placards (ready-to-print vector PDF/SVG table QR codes).
+  - Added unit test suite `apps/landing/tests/homeSections.test.tsx` (2 tests verifying all 6 benefits and full step-by-step interactive simulator progression).
+  - 100% clean typecheck and test verification across landing app.
+
 ### 2026-11-06 - Scaffold Landing Site & Lead Funnel Application (M5-T01)
 
 - **Milestone**: M5 (Landing Site & Lead Funnel)

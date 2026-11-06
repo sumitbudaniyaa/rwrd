@@ -6,9 +6,13 @@ import {
   ArrowRight01Icon,
   CheckmarkCircle02Icon,
   UserGroupIcon,
+  Shield01Icon,
+  Store01Icon,
+  QrCodeIcon,
 } from '@hugeicons/core-free-icons';
 import { SlideUp, Badge } from '@tiptable/ui';
 import { landingEnv } from '../config/env.js';
+import { InteractiveFlowDemo } from '../components/InteractiveFlowDemo.js';
 
 export const HomeScreen: React.FC = () => {
   return (
@@ -87,7 +91,14 @@ export const HomeScreen: React.FC = () => {
         </SlideUp>
       </section>
 
-      {/* 2. Three-Step Flow Preview Anchor */}
+      {/* 2. Interactive Flow Demo Simulator Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <SlideUp delay={0.3}>
+          <InteractiveFlowDemo />
+        </SlideUp>
+      </section>
+
+      {/* 3. Three-Step Flow Section */}
       <section id="how-it-works" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-2">
           <Badge variant="neutral">The 3-Step Flow</Badge>
@@ -100,36 +111,37 @@ export const HomeScreen: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="p-6 bg-stone-50 border border-stone-200 rounded-2xl space-y-3">
+          <div className="p-6 bg-stone-50 border border-stone-200 rounded-2xl space-y-3 hover:border-stone-300 transition-colors">
             <span className="text-xs font-bold text-stone-400 font-mono">STEP 01</span>
             <h3 className="text-base font-bold text-stone-900">Scan Table Placard</h3>
             <p className="text-xs text-stone-600 leading-relaxed">
-              Diners point their phone camera at the customized acrylic table placard. The browser
-              instantly opens the restaurant greeting without downloading an app.
+              Diners point their standard phone camera at the customized acrylic table placard. The
+              browser instantly opens the restaurant greeting without downloading an app or signing
+              in.
             </p>
           </div>
 
-          <div className="p-6 bg-stone-50 border border-stone-200 rounded-2xl space-y-3">
+          <div className="p-6 bg-stone-50 border border-stone-200 rounded-2xl space-y-3 hover:border-stone-300 transition-colors">
             <span className="text-xs font-bold text-stone-400 font-mono">STEP 02</span>
             <h3 className="text-base font-bold text-stone-900">Tip Directly via UPI</h3>
             <p className="text-xs text-stone-600 leading-relaxed">
               Diners pick their server, choose a preset amount (₹20, ₹50, ₹100, ₹200), and tap pay.
-              Standard UPI deep link routes funds directly into the staff's private VPA.
+              Standard NPCI UPI deep link routes funds directly into the staff's private VPA.
             </p>
           </div>
 
-          <div className="p-6 bg-stone-50 border border-stone-200 rounded-2xl space-y-3">
+          <div className="p-6 bg-stone-50 border border-stone-200 rounded-2xl space-y-3 hover:border-stone-300 transition-colors">
             <span className="text-xs font-bold text-stone-400 font-mono">STEP 03</span>
             <h3 className="text-base font-bold text-stone-900">1-Tap 5-Star Review</h3>
             <p className="text-xs text-stone-600 leading-relaxed">
               Happy diners are seamlessly redirected to your Google Maps review page with pre-filled
-              5-star rating intent, completely un-gated for full policy compliance.
+              5-star rating intent, completely un-gated for full Google policy compliance.
             </p>
           </div>
         </div>
       </section>
 
-      {/* 3. Restaurant Benefits Anchor */}
+      {/* 4. Restaurant Benefits Grid */}
       <section id="benefits" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-2">
           <Badge variant="accent">Hospitality Advantages</Badge>
@@ -137,23 +149,26 @@ export const HomeScreen: React.FC = () => {
             Why leading dining establishments choose TipTable
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 max-w-xl mx-auto">
-            Retain top floor staff and outrank competitors on Google Maps search.
+            Retain top floor staff, eliminate cash handling headaches, and outrank competitors on
+            Google Maps search.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2">
+          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2.5 hover:shadow-sm transition-all">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
               <HugeiconsIcon icon={SecurityCheckIcon} className="w-5 h-5" strokeWidth={1.5} />
             </div>
-            <h4 className="text-sm font-bold text-stone-900">Zero Escrow & Zero Payment Risk</h4>
+            <h4 className="text-sm font-bold text-stone-900">
+              Zero Escrow & Zero Payment Liability
+            </h4>
             <p className="text-xs text-stone-500 leading-relaxed">
-              Because TipTable never holds customer money, restaurants have zero payment gateway
+              Because TipTable never touches customer money, restaurants have zero payment gateway
               withholding, no escrow compliance liability, and zero chargeback overhead.
             </p>
           </div>
 
-          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2">
+          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2.5 hover:shadow-sm transition-all">
             <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-700 flex items-center justify-center">
               <HugeiconsIcon icon={UserGroupIcon} className="w-5 h-5" strokeWidth={1.5} />
             </div>
@@ -165,7 +180,7 @@ export const HomeScreen: React.FC = () => {
             </p>
           </div>
 
-          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2">
+          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2.5 hover:shadow-sm transition-all">
             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
               <HugeiconsIcon icon={StarIcon} className="w-5 h-5" strokeWidth={1.5} />
             </div>
@@ -175,10 +190,45 @@ export const HomeScreen: React.FC = () => {
               establishments see a 3x to 5x surge in weekly verified Google reviews.
             </p>
           </div>
+
+          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2.5 hover:shadow-sm transition-all">
+            <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-800 flex items-center justify-center">
+              <HugeiconsIcon icon={Store01Icon} className="w-5 h-5" strokeWidth={1.5} />
+            </div>
+            <h4 className="text-sm font-bold text-stone-900">100% Tax & Legal Cleanliness</h4>
+            <p className="text-xs text-stone-500 leading-relaxed">
+              Tips flow peer-to-peer from diner to waiter VPA. The restaurant's books remain
+              completely clean of tip accounting, GST liabilities, or pooled fund disputes.
+            </p>
+          </div>
+
+          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2.5 hover:shadow-sm transition-all">
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center">
+              <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" strokeWidth={1.5} />
+            </div>
+            <h4 className="text-sm font-bold text-stone-900">AES-256-GCM Encrypted VPAs</h4>
+            <p className="text-xs text-stone-500 leading-relaxed">
+              Staff VPAs are never exposed in bulk listings or public HTML. All account identifiers
+              are stored encrypted at rest with hardware-accelerated AES-256-GCM.
+            </p>
+          </div>
+
+          <div className="p-6 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2.5 hover:shadow-sm transition-all">
+            <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center">
+              <HugeiconsIcon icon={QrCodeIcon} className="w-5 h-5" strokeWidth={1.5} />
+            </div>
+            <h4 className="text-sm font-bold text-stone-900">
+              High-Res Placards & Granular Analytics
+            </h4>
+            <p className="text-xs text-stone-500 leading-relaxed">
+              Generate ready-to-print SVG and PDF placards for every table. Track scans, tip
+              intents, and review conversions per dining area and service shift.
+            </p>
+          </div>
         </div>
       </section>
 
-      {/* 4. Pricing Anchor */}
+      {/* 5. Pricing Section Anchor */}
       <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
           <Badge variant="success">Predictable SaaS Pricing</Badge>
@@ -254,7 +304,7 @@ export const HomeScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Demo Request Form Anchor */}
+      {/* 6. Demo Request Form Anchor */}
       <section id="demo-form" className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="text-center space-y-2">
           <Badge variant="accent">Schedule Walkthrough</Badge>
@@ -273,7 +323,7 @@ export const HomeScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. FAQ Anchor */}
+      {/* 7. FAQ Anchor */}
       <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         <div className="text-center space-y-2">
           <Badge variant="neutral">Frequently Asked Questions</Badge>
@@ -299,7 +349,7 @@ export const HomeScreen: React.FC = () => {
               Is review gating compliant with Google Maps policies?
             </h4>
             <p className="text-xs text-stone-600 leading-relaxed">
-              TipTable strictly follows Google's Anti-Gating policy. All diners are offered the
+              TipTable strictly follows Google&apos;s Anti-Gating policy. All diners are offered the
               opportunity to leave a Google review regardless of tip status or rating, ensuring 100%
               compliance.
             </p>
