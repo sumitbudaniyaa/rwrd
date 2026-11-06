@@ -201,6 +201,71 @@ export interface PlatformMetricsResponse {
   timeline30d: DailyPlatformMetric[];
 }
 
+export interface BillingPlanItem {
+  id: string;
+  code: string;
+  name: string;
+  monthlyFeeInr: number;
+  isActive: boolean;
+}
+
+export interface SubscriptionItem {
+  id: string;
+  restaurantId: string;
+  restaurantName: string;
+  restaurantSlug: string;
+  isRestaurantSuspended: boolean;
+  planId: string;
+  planName: string;
+  planCode: string;
+  monthlyFeeInr: number;
+  status: 'trial' | 'active' | 'past_due' | 'cancelled';
+  trialEndsAt: string | null;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface InvoiceItem {
+  id: string;
+  invoiceNumber: string;
+  restaurantId: string;
+  restaurantName: string;
+  subscriptionId: string;
+  amountInr: number;
+  status: 'unpaid' | 'paid' | 'void';
+  dueDate: string;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+export interface InvoicesResponse {
+  invoices: InvoiceItem[];
+  pagination: {
+    limit: number;
+    offset: number;
+    count: number;
+  };
+}
+
+export interface CreateInvoiceInput {
+  restaurantId: string;
+  amountInr: number;
+  dueDate: string;
+  notes?: string;
+}
+
+export interface AutoSuspendSweepResult {
+  evaluatedInvoicesCount: number;
+  newlySuspendedCount: number;
+  suspendedEstablishments: Array<{
+    restaurantId: string;
+    restaurantName: string;
+    invoiceNumber: string;
+  }>;
+}
+
 export const api = {
   login(email: string, password: string): Promise<PortalLoginResponse> {
     return request<PortalLoginResponse>('/portal/auth/login', {
@@ -288,6 +353,55 @@ export const api = {
   getGlobalMetrics(): Promise<PlatformMetricsResponse> {
     return request<PlatformMetricsResponse>('/portal/metrics', {
       method: 'GET',
+    });
+  },
+
+  getBillingPlans(): Promise<{ plans: BillingPlanItem[] }> {
+    return request<{ plans: BillingPlanItem[] }>('/portal/billing/plans', {
+      method: 'GET',
+    });
+  },
+
+  getSubscriptions(): Promise<{ subscriptions: SubscriptionItem[] }> {
+    return request<{ subscriptions: SubscriptionItem[] }>('/portal/billing/subscriptions', {
+      method: 'GET',
+    });
+  },
+
+  getInvoices(params?: {
+    status?: string;
+    restaurantId?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<InvoicesResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.restaurantId) searchParams.set('restaurantId', params.restaurantId);
+    if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+    if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+    const qs = searchParams.toString();
+    return request<InvoicesResponse>(`/portal/billing/invoices${qs ? `?${qs}` : ''}`, {
+      method: 'GET',
+    });
+  },
+
+  createInvoice(data: CreateInvoiceInput): Promise<{ invoice: InvoiceItem }> {
+    return request<{ invoice: InvoiceItem }>('/portal/billing/invoices', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateInvoiceStatus(id: string, action: 'mark_paid' | 'void'): Promise<{ invoice: InvoiceItem }> {
+    return request<{ invoice: InvoiceItem }>(`/portal/billing/invoices/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ action }),
+    });
+  },
+
+  runAutoSuspendCheck(): Promise<AutoSuspendSweepResult> {
+    return request<AutoSuspendSweepResult>('/portal/billing/auto-suspend-check', {
+      method: 'POST',
     });
   },
 };

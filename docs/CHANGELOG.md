@@ -6,6 +6,35 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Billing & Subscription Management with Automated Grace Period Rules (M4-T05)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend billing and subscription endpoints in `apps/api/src/routes/portalBilling.ts`:
+    - `GET /api/v1/portal/billing/plans`: Lists all active platform subscription tiers (flat monthly ₹999 SaaS fee).
+    - `GET /api/v1/portal/billing/subscriptions`: Returns tenant subscriptions joined with restaurant details, plan tiers, and overdue statuses.
+    - `GET /api/v1/portal/billing/invoices`: Paginated invoice ledger with status filtering (`all`, `unpaid`, `paid`, `void`) and restaurant scoping.
+    - `POST /api/v1/portal/billing/invoices`: Issues manual/recurring invoices with unique `INV-xxxxxx-xxxx` numbers and audit logging (`INVOICE_CREATED`).
+    - `PATCH /api/v1/portal/billing/invoices/:id/status`: Updates invoice payment state (`mark_paid`, `void`) and records audit event (`INVOICE_STATUS_UPDATED`).
+    - `POST /api/v1/portal/billing/auto-suspend-check`: Grace period sweep evaluating unpaid invoices older than 7 days. Delinquent dining establishments are automatically flagged with `isSuspended: true`, subscriptions marked `past_due`, QR table placards deactivated, and immutable audit logs recorded with `actorType: 'system'` and `action: 'RESTAURANT_SUSPENDED'`.
+    - Protected by `portalIpAllowlist()` and RBAC (`super_admin` & `finance` for mutations; `support` read-only). Mounted in `apps/api/src/app.ts`.
+  - Implemented frontend Billing Management screen in `apps/portal`:
+    - Added billing DTOs and client endpoints in `apps/portal/src/services/api.ts`.
+    - Created `apps/portal/src/screens/BillingManagementScreen.tsx`:
+      - KPI summary metrics: Active Subscriptions, Past Due / Delinquent, Pending Invoices, Unpaid INR Volume.
+      - Tabbed navigation: "Subscriptions" and "Invoices Ledger".
+      - "Create Invoice" modal with restaurant dropdown, amount in INR, and due date picker.
+      - "Run Grace Period Sweep" modal with explanation of 7-day threshold and confirmation flow.
+      - Inline actions on unpaid invoices: "Mark Paid" and "Void".
+      - RBAC awareness: mutation actions hidden for `support` role with "Read-only Finance Access" badge.
+    - Wired route `/portal/billing` in `apps/portal/src/App.tsx`.
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalBilling.test.ts` (9 tests covering plans, subscriptions, invoice creation/status mutations, RBAC restrictions, 7-day auto-suspend sweep, and realm validation).
+    - `apps/portal/tests/billingManagement.test.tsx` (5 tests covering subscriptions table, invoices ledger, mark paid action, sweep execution, and support role read-only behavior).
+  - 100% clean typecheck and all 227 tests passing across the monorepo.
+
 ### 2026-11-06 - Platform Operations Dashboard & Global Telemetry (M4-T04)
 
 - **Milestone**: M4 (Company Portal)

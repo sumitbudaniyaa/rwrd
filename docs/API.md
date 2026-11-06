@@ -282,23 +282,29 @@ The API supports three distinct authentication contexts:
 
 ## 5. Company Portal Endpoints (`/api/v1/portal`)
 
-| Method   | Path                                  |         Auth         | Description                                                        |
-| :------- | :------------------------------------ | :------------------: | :----------------------------------------------------------------- |
-| `POST`   | `/portal/auth/login`                  |         None         | Platform staff email + password login (IP allowlist checked).      |
-| `POST`   | `/portal/auth/refresh`                |        Cookie        | Rotate portal refresh token and return new 15m access token.       |
-| `GET`    | `/portal/auth/me`                     |   Bearer (Portal)    | Retrieve currently authenticated platform staff profile.           |
-| `POST`   | `/portal/auth/logout`                 |   Bearer (Portal)    | Invalidate portal session and clear refresh cookie.                |
-| `POST`   | `/portal/auth/mfa/verify`             |      Temp Token      | Mandatory TOTP MFA challenge.                                      |
-| `GET`    | `/portal/restaurants`                 |   Bearer (Portal)    | Search and filter all restaurants across the platform.             |
-| `POST`   | `/portal/restaurants`                 | Bearer (Super Admin) | Onboard and provision a new restaurant tenant with owner & QR.     |
-| `GET`    | `/portal/restaurants/:id`             |   Bearer (Portal)    | Retrieve full restaurant profile with staff and tables count.      |
-| `PATCH`  | `/portal/restaurants/:id/status`      | Bearer (Super Admin) | Suspend or reactivate restaurant account with audit reason.        |
-| `DELETE` | `/portal/restaurants/:id`             | Bearer (Super Admin) | Soft-delete restaurant and invalidate access.                      |
-| `POST`   | `/portal/restaurants/:id/impersonate` |   Bearer (Support)   | Generate temporary support delegation token with full audit trail. |
-| `GET`    | `/portal/metrics`                     |        Bearer        | Global system metrics, MRR, active scans, and health aggregates.   |
-| `GET`    | `/portal/leads`                       |        Bearer        | Review incoming landing demo requests and update pipeline status.  |
-| `PATCH`  | `/portal/leads/:id`                   |        Bearer        | Update lead status (`contacted`, `won`, `lost`).                   |
-| `GET`    | `/portal/audit-logs`                  | Bearer (Super Admin) | Search immutable platform-wide audit log.                          |
+| Method   | Path                                  |          Auth          | Description                                                        |
+| :------- | :------------------------------------ | :--------------------: | :----------------------------------------------------------------- |
+| `POST`   | `/portal/auth/login`                  |          None          | Platform staff email + password login (IP allowlist checked).      |
+| `POST`   | `/portal/auth/refresh`                |         Cookie         | Rotate portal refresh token and return new 15m access token.       |
+| `GET`    | `/portal/auth/me`                     |    Bearer (Portal)     | Retrieve currently authenticated platform staff profile.           |
+| `POST`   | `/portal/auth/logout`                 |    Bearer (Portal)     | Invalidate portal session and clear refresh cookie.                |
+| `POST`   | `/portal/auth/mfa/verify`             |       Temp Token       | Mandatory TOTP MFA challenge.                                      |
+| `GET`    | `/portal/restaurants`                 |    Bearer (Portal)     | Search and filter all restaurants across the platform.             |
+| `POST`   | `/portal/restaurants`                 |  Bearer (Super Admin)  | Onboard and provision a new restaurant tenant with owner & QR.     |
+| `GET`    | `/portal/restaurants/:id`             |    Bearer (Portal)     | Retrieve full restaurant profile with staff and tables count.      |
+| `PATCH`  | `/portal/restaurants/:id/status`      |  Bearer (Super Admin)  | Suspend or reactivate restaurant account with audit reason.        |
+| `DELETE` | `/portal/restaurants/:id`             |  Bearer (Super Admin)  | Soft-delete restaurant and invalidate access.                      |
+| `POST`   | `/portal/restaurants/:id/impersonate` |    Bearer (Support)    | Generate temporary support delegation token with full audit trail. |
+| `GET`    | `/portal/metrics`                     |         Bearer         | Global system metrics, MRR, active scans, and health aggregates.   |
+| `GET`    | `/portal/billing/plans`               |    Bearer (Portal)     | List active platform subscription plan tiers.                      |
+| `GET`    | `/portal/billing/subscriptions`       |    Bearer (Portal)     | List restaurant subscriptions with joined plan and status.         |
+| `GET`    | `/portal/billing/invoices`            |    Bearer (Portal)     | Paginated invoices ledger with status/restaurant filtering.        |
+| `POST`   | `/portal/billing/invoices`            | Bearer (Finance/Admin) | Generate and issue an invoice for a dining establishment.          |
+| `PATCH`  | `/portal/billing/invoices/:id/status` | Bearer (Finance/Admin) | Update invoice payment state (`mark_paid`, `void`).                |
+| `POST`   | `/portal/billing/auto-suspend-check`  | Bearer (Finance/Admin) | Run 7-day grace period sweep to auto-suspend delinquent accounts.  |
+| `GET`    | `/portal/leads`                       |         Bearer         | Review incoming landing demo requests and update pipeline status.  |
+| `PATCH`  | `/portal/leads/:id`                   |         Bearer         | Update lead status (`contacted`, `won`, `lost`).                   |
+| `GET`    | `/portal/audit-logs`                  |  Bearer (Super Admin)  | Search immutable platform-wide audit log.                          |
 
 ### Platform Restaurant Management Contracts
 

@@ -7,6 +7,7 @@ import { PortalLayout } from './layouts/PortalLayout.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { DashboardOverview } from './screens/DashboardOverview.js';
 import { RestaurantManagementScreen } from './screens/RestaurantManagementScreen.js';
+import { BillingManagementScreen } from './screens/BillingManagementScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,19 +33,7 @@ export const App: React.FC = () => {
               <Route element={<PortalLayout />}>
                 <Route index element={<DashboardOverview />} />
                 <Route path="restaurants" element={<RestaurantManagementScreen />} />
-                <Route
-                  path="billing"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">
-                        Billing & Subscription Plans
-                      </h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Flat monthly fee tracking, invoicing, and subscription states.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="billing" element={<BillingManagementScreen />} />
                 <Route
                   path="leads"
                   element={
