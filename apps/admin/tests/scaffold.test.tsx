@@ -61,8 +61,6 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
 
     // Brand and header
     expect(screen.getByText('Restaurant Admin')).toBeInTheDocument();
-    expect(screen.getByText('The Bombay Canteen')).toBeInTheDocument();
-    expect(screen.getByText('Production Mode')).toBeInTheDocument();
 
     // Navigation items
     expect(screen.getByText('Overview')).toBeInTheDocument();

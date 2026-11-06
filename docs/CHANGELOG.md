@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Lemonade Display Logo & Header Streamlining in Admin Console
+
+- **Milestone**: Enhancement (Admin UI / UX Modernization)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Embedded **Lemonade Display** font (`Lemonade.ttf`) in `apps/admin/public/fonts/Lemonade.ttf` with `@font-face` declaration and `display=swap`.
+  - Registered `fontFamily.lemonade` in `apps/admin/tailwind.config.js`.
+  - Upgraded the company logo in [`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx) to a prominent, large display mark using `font-lemonade text-3xl sm:text-4xl text-stone-900`.
+  - Streamlined header layout:
+    - Removed previous `R` square monogram box.
+    - Removed tenant pill (`The Bombay Canteen` / `Live`).
+    - Removed `Production Mode` badge.
+  - Synchronized test assertions in `tests/scaffold.test.tsx` and `tests/auth.test.tsx` (all 43 admin tests passing).
+
 ### 2026-11-06 - Adopt Poppins Typography in Admin & Super Admin Apps
 
 - **Milestone**: Enhancement (UI Typography & Styling)

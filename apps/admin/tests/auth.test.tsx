@@ -75,7 +75,6 @@ describe('Admin Authentication Flow', () => {
       expect(screen.getByText('Restaurant Admin')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('The Bombay Canteen')).toBeInTheDocument();
     expect(screen.getByText('Sarah Miller')).toBeInTheDocument();
   });
 

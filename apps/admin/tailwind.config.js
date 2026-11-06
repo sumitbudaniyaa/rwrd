@@ -17,6 +17,7 @@ export default {
           'Roboto',
           'sans-serif',
         ],
+        lemonade: ['"Lemonade"', '"Lemonada"', 'cursive', 'sans-serif'],
       },
       colors: {
         admin: {

@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Logout01Icon } from '@hugeicons/core-free-icons';
-import { Badge, MotionButton } from '@tiptable/ui';
+import { MotionButton } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
 import { FloatingMenu, type MenuItem } from '../components/ui/liquid-morph-floating-menu.js';
 
 export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, restaurant, logout, logoutAll, impersonation, exitImpersonation } = useAuth();
+  const { user, logout, logoutAll, impersonation, exitImpersonation } = useAuth();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const handleLogout = async () => {
@@ -97,37 +97,18 @@ export const AdminLayout: React.FC = () => {
 
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 px-6 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
-        {/* Left: Brand & Tenant Context */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg shadow-xs font-mono">
-              R
-            </div>
-            <div>
-              <span className="font-bold text-stone-900 text-sm tracking-tight block lowercase">
-                rwrd
-              </span>
-              <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block">
-                Restaurant Admin
-              </span>
-            </div>
-          </div>
-
-          <div className="h-6 w-px bg-stone-200 hidden sm:block" />
-
-          {/* Restaurant Tenant Selector Pill */}
-          <div className="px-3 py-1.5 rounded-xl bg-stone-50 border border-stone-200/80 flex items-center gap-2">
-            <span className="text-xs font-semibold text-stone-900">
-              {restaurant?.name || 'The Bombay Canteen'}
-            </span>
-            <Badge variant="success">Live</Badge>
-          </div>
+        {/* Left: Brand */}
+        <div className="flex items-baseline gap-3">
+          <span className="font-lemonade text-3xl sm:text-4xl text-stone-900 tracking-wide select-none lowercase leading-none">
+            rwrd
+          </span>
+          <span className="text-[11px] font-medium text-stone-400 uppercase tracking-wider hidden sm:inline-block">
+            Restaurant Admin
+          </span>
         </div>
 
-        {/* Right: Environment Badge & User Session */}
+        {/* Right: User Session */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <Badge variant="accent">Production Mode</Badge>
-
           <div className="relative">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-stone-200 flex items-center justify-center text-xs font-semibold text-stone-700">
