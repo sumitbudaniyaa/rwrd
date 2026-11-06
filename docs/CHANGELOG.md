@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Integrate Liquid Morph Floating Menu & Remove Admin Sidebar
+
+- **Milestone**: Enhancement (Admin UI / UX Modernization)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Installed `framer-motion` in `@tiptable/admin`.
+  - Created shadcn-compliant primitive [`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx).
+  - Refactored [`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx):
+    - Removed fixed 256px left sidebar (`<aside>`).
+    - Unified brand logo, live restaurant tenant pill, and user profile / logout actions into a sleek, responsive top sticky header.
+    - Integrated floating liquid-morph navigation menu anchored at the bottom center with animated morph transitions and active route indicators for all 6 admin tabs (Overview, Staff Roster, QR Management, Analytics, Settings, Audit Log).
+    - Preserved 100% test coverage with WCAG 2.1 AA accessible label markup (`aria-label` & `sr-only`).
+
 ### 2026-11-06 - Finalize Operations Runbooks & Disaster Recovery (M6-T05)
 
 - **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)

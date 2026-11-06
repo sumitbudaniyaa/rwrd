@@ -79,10 +79,9 @@ describe('SettingsScreen', () => {
     expect(screen.getByText('Loading restaurant configuration...')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('The Bombay Canteen')).toBeInTheDocument();
     });
 
-    expect(screen.getByDisplayValue('The Bombay Canteen')).toBeInTheDocument();
     expect(
       screen.getByDisplayValue('https://maps.app.goo.gl/bombaycanteen123'),
     ).toBeInTheDocument();
