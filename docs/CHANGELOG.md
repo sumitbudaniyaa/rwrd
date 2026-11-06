@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Inbound Demo Request Form & Lead Capture (M5-T04)
+
+- **Milestone**: M5 (Landing Site & Lead Funnel)
+- **Task**: `M5-T04`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented client-side demo request & lead capture component (`apps/landing/src/components/DemoRequestForm.tsx`):
+    - Validated form fields with Zod schema (`leadFormSchema`) for Restaurant/Outlet Name, City, Contact Person Name, Work Email, Phone/WhatsApp (+91 format validation), Dining Table Count, Special Requirements/POS notes, and mandatory DPDP compliance consent checkbox.
+    - Inline real-time field validation errors mapped to each form input.
+    - Rate limit & server error handling parsing RFC 7807 problem details (`detail`, `title`, and `errors`).
+    - Connects directly to backend `POST /api/v1/public/leads` with JSON payload.
+    - Interactive success screen with personalized confirmation, requested outlet metrics recap, and reset capability to submit additional inquiries.
+  - Integrated `DemoRequestForm` into `apps/landing/src/screens/HomeScreen.tsx` under `#demo-form` section.
+  - Added unit test suite in `apps/landing/tests/demoForm.test.tsx` (4 tests verifying full form rendering, client-side validation failures, RFC 7807 error banners, and successful API submission + success view).
+  - 100% clean typecheck and test suite passes in landing workspace.
+
 ### 2026-11-06 - Pricing Calculator & Comprehensive FAQ Accordion (M5-T03)
 
 - **Milestone**: M5 (Landing Site & Lead Funnel)

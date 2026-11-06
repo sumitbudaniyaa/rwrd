@@ -15,6 +15,7 @@ import { landingEnv } from '../config/env.js';
 import { InteractiveFlowDemo } from '../components/InteractiveFlowDemo.js';
 import { PricingCalculator } from '../components/PricingCalculator.js';
 import { FaqAccordion } from '../components/FaqAccordion.js';
+import { DemoRequestForm } from '../components/DemoRequestForm.js';
 
 export const HomeScreen: React.FC = () => {
   return (
@@ -257,11 +258,7 @@ export const HomeScreen: React.FC = () => {
           </p>
         </div>
 
-        <div className="p-8 bg-stone-50 border border-stone-200 rounded-3xl">
-          <p className="text-xs text-center text-stone-500">
-            Demo request form interface will be enhanced in Milestone 5 (M5-T04).
-          </p>
-        </div>
+        <DemoRequestForm />
       </section>
 
       {/* 7. FAQ Accordion Section */}
