@@ -6,6 +6,38 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Playwright End-to-End Test Suite (M6-T02)
+
+- **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)
+- **Task**: `M6-T02`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Configured Playwright E2E test harness at monorepo root:
+    - Installed `@playwright/test` and downloaded Chromium browser binaries.
+    - Built [`playwright.config.ts`](file:///Users/Sumit/Desktop/rwrd/playwright.config.ts) configuring dedicated projects:
+      - `Mobile Customer (375px)` project using iPhone 13 device profile (375x812 viewport) strictly matching mobile-first customer requirements.
+      - `Desktop Admin & Portal` project using Desktop Chrome profile (1280x800 viewport).
+    - Added `"test:e2e": "playwright test"` script in root `package.json`.
+  - Implemented 3 comprehensive end-to-end user journey test specifications in `e2e/`:
+    1. **Customer Scan-to-Intent Journey (`e2e/customer-flow.spec.ts`)**:
+       - Screen 1: Scan table placard (`/t/:token`), welcome greeting, restaurant branding ("The Bombay Canteen"), Table 4 badge, server assignment.
+       - Dynamic bilingual language switching (English to Hindi).
+       - Screen 2: Waitstaff directory, roster listing, selecting server (Ramesh Kumar).
+       - Screen 3: Tip amount selection, quick presets (₹50, ₹100, ₹200), choosing ₹100 preset.
+       - Screen 4: Payment trigger, non-custodial copy, triggering native UPI handoff via `POST /api/v1/public/tips/intent`.
+       - Screen 5: Post-payment thank-you screen ("Tips initiated" invariant), and un-gated Google Review 5-star booster button redirecting to public Google Maps review listing without screening.
+    2. **Admin Operations Journey (`e2e/admin-flow.spec.ts`)**:
+       - Restaurant admin authentication with email, password, and TOTP.
+       - Waitstaff roster management: inspecting masked VPAs (`r***l@okaxis`), adding new staff ("Vikram Malhotra"), and shift toggle controls.
+       - Table QR Placards management: listing tables, viewing vector QR codes, and downloading print-ready SVG/PDF table placards.
+       - Realtime Analytics: inspecting scans, tip conversion rate, total tips initiated, and staff leaderboard.
+    3. **Platform Portal Operations Journey (`e2e/portal-flow.spec.ts`)**:
+       - Portal staff authentication with `super_admin` credentials.
+       - Restaurant tenant onboarding: full submission of new restaurant outlet ("Trattoria Bella", slug, owner email, review URL).
+       - Support Impersonation Mode: initiating a 1-hour session delegation with mandatory audit ticket reason and verifying persistent amber delegation banner.
+       - Multi-tenant billing overview and inbound demo request CRM pipeline inspection.
+  - 100% clean typecheck and test discovery verified across all workspaces.
+
 ### 2026-11-06 - Comprehensive Supertest API Integration Suite (M6-T01)
 
 - **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)
