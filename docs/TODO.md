@@ -121,3 +121,13 @@ Status values:
 | **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).        | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant |
 | **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role). | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant |
 | **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).           | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul        |
+
+---
+
+## Milestone 7: Architectural Streamlining & Auth Modernization (M7)
+
+| ID         | Task Description                                                                                               | Status | Owner              | Date Completed | Ref / Notes             |
+| :--------- | :------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :---------------------- |
+| **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).        | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant |
+| **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role). | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant |
+| **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).           | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul        |
