@@ -13,7 +13,7 @@ import {
   Store01Icon,
 } from '@hugeicons/core-free-icons';
 import { Input } from '../components/motion/input.js';
-import { StatefulButton, MotionButton, type ButtonState } from '../components/motion/button.js';
+import { StatefulButton, type ButtonState } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { ApiError } from '../services/api.js';
 import bgImage from '../assets/bg.png';
@@ -195,15 +195,8 @@ export const LoginScreen: React.FC = () => {
             </span>
           </Link>
 
-          {/* Top-Right: Remember password reminder + Save button */}
-          <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-block text-xs text-stone-400 font-medium">
-              Remember your password
-            </span>
-            <MotionButton type="button" variant="secondary" size="sm" onClick={() => {}}>
-              Save
-            </MotionButton>
-
+          {/* Top-Right: Sign up / Sign in Toggle */}
+          <div className="flex items-center">
             {mode !== 'forgot' && (
               <button
                 type="button"

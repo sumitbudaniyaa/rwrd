@@ -6,6 +6,16 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Admin Header Streamlining: Removal of Unused Remember Password & Save Button (M7-T06)
+
+- **Milestone**: Milestone 7 (Auth Modernization & UI Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Removed unused `"Remember your password"` text and `"Save"` button from the top-right header in [`apps/admin/src/screens/LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/LoginScreen.tsx).
+  - Streamlined the top-right area to cleanly present only the mode switch button (`"Sign up"` / `"Sign in"` with `ArrowRight01Icon`).
+  - Removed unused `MotionButton` import from `LoginScreen.tsx`.
+  - All 44 tests in `@tiptable/admin` passing, zero typecheck or lint errors.
+
 ### 2026-11-07 - Editorial Sign-In Page with beUI Input, StatefulButton & Landscape Artwork (M7-T05)
 
 - **Milestone**: Milestone 7 (Auth Modernization & Editorial UI)

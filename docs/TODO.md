@@ -116,10 +116,11 @@ Status values:
 
 ## Milestone 7: Architectural Streamlining & Auth Modernization (M7)
 
-| ID         | Task Description                                                                                                   | Status | Owner              | Date Completed | Ref / Notes             |
-| :--------- | :----------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :---------------------- |
-| **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).            | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant |
-| **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role).     | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant |
-| **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).               | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul        |
-| **M7-T04** | Admin Auth UI Refinements (4-corner alignment, email-only label, hero cleanup) & Forgot Password with beUI Motion. | `Done` | Senior Staff Agent | 2026-11-07     | beUI motion components  |
-| **M7-T05** | Editorial Sign-In Page with beUI Input, StatefulButton, Touched Validation & Landscape Artwork.                    | `Done` | Senior Staff Agent | 2026-11-07     | Editorial auth page     |
+| ID         | Task Description                                                                                                   | Status | Owner              | Date Completed | Ref / Notes              |
+| :--------- | :----------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :----------------------- |
+| **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).            | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant  |
+| **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role).     | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant  |
+| **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).               | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul         |
+| **M7-T04** | Admin Auth UI Refinements (4-corner alignment, email-only label, hero cleanup) & Forgot Password with beUI Motion. | `Done` | Senior Staff Agent | 2026-11-07     | beUI motion components   |
+| **M7-T05** | Editorial Sign-In Page with beUI Input, StatefulButton, Touched Validation & Landscape Artwork.                    | `Done` | Senior Staff Agent | 2026-11-07     | Editorial auth page      |
+| **M7-T06** | Admin Header Streamlining: Removed "Remember your password" label and "Save" button.                               | `Done` | Senior Staff Agent | 2026-11-07     | Top-right header cleanup |
