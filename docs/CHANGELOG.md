@@ -6,6 +6,37 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Admin Auth Minimalist Redesign, Forgot Password Flow & beUI Motion Components (M7-T04)
+
+- **Milestone**: Milestone 7 (Auth Modernization & UI Streamlining)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **beUI Motion Integration (`https://beui.dev/components/motion`)**:
+    - Created `apps/admin/src/components/motion/ease.ts` with beUI easing curve `[0.22, 1, 0.36, 1]` and spring physics tokens.
+    - Implemented `beUI Motion Button` (`apps/admin/src/components/motion/button.tsx`) with spring tap scaling (`whileTap={{ scale: 0.98 }}`), accessible tap targets, and loading spinner feedback.
+    - Implemented `beUI Animated Alert` (`apps/admin/src/components/motion/alert.tsx`) supporting `info`, `destructive`, `success`, and `warning` variants with `AnimatePresence` spring entrances/exits.
+  - **4-Corner Anchored Peripheral Layout**:
+    - Top-Left: Zomato-style heavy italic lowercase wordmark `rwrd` + `Admin` pill badge.
+    - Top-Right: `"Remember your password"` text + beUI MotionButton `"Save"`.
+    - Bottom-Left: `© 2026 rwrd` flush at the corner with no horizontal divider line.
+    - Bottom-Right: Language selector (`ENG ⌵` & globe icon) completely removed.
+  - **Auth Form Minimalist Streamlining**:
+    - Removed squircle lock icon emblem.
+    - Removed password helper subtitle text (_"You'll use this password to login to rwrd"_).
+    - Simplified email field label to strictly `Email` across all auth views.
+  - **Hero Panel Cleanup**:
+    - Removed the 3 floating live transaction cards stack (_Table 04_, _Table 12_, _Floor Shift_), retaining the clean typography and glowing 3D isometric glass tiles.
+  - **Forgot Password Flow (`mode === 'forgot'`)**:
+    - Added `"Forgot password?"` toggle link below password field in login mode.
+    - Dedicated view with _"Reset your password"_ heading, email field, and beUI motion submit button _"Send reset link"_.
+    - Dispatches a privacy-preserving success alert via beUI `Alert` without leaking account existence, with a `"Back to sign in"` toggle.
+    - Wrapped auth mode switching in `AnimatePresence mode="wait"` with smooth beUI transitions.
+  - **Verification & Testing**:
+    - Updated `apps/admin/tests/auth.test.tsx` to match `Email` label and verified the full Forgot Password flow.
+    - All 44 tests in `@tiptable/admin` passing.
+    - `pnpm typecheck` passed with zero errors across all 7 workspaces.
+    - `pnpm lint` and `pnpm format:check` passed with zero warnings.
+
 ### 2026-11-07 - Anonymous Diner Flow, Single Restaurant Admin Architecture & Login/Sign-Up Redesign
 
 - **Milestone**: Core Architectural Evolution & UI Modernization

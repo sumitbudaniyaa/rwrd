@@ -15,9 +15,10 @@ describe('Admin Authentication Flow', () => {
     render(<App />);
 
     expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
-    expect(screen.getByLabelText(/work email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /forgot password\?/i })).toBeInTheDocument();
   });
 
   it('redirects unauthenticated user from protected /admin route to /admin/login', async () => {
@@ -62,7 +63,7 @@ describe('Admin Authentication Flow', () => {
 
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText(/work email/i), {
+    fireEvent.change(screen.getByLabelText(/^email/i), {
       target: { value: 'owner@restaurant.com' },
     });
     fireEvent.change(screen.getByLabelText(/^password/i), {
@@ -95,7 +96,7 @@ describe('Admin Authentication Flow', () => {
 
     render(<App />);
 
-    fireEvent.change(screen.getByLabelText(/work email/i), {
+    fireEvent.change(screen.getByLabelText(/^email/i), {
       target: { value: 'owner@restaurant.com' },
     });
     fireEvent.change(screen.getByLabelText(/^password/i), {
@@ -116,5 +117,43 @@ describe('Admin Authentication Flow', () => {
 
     expect(screen.getByText('Enter Recovery Code')).toBeInTheDocument();
     expect(screen.getByLabelText(/emergency recovery code/i)).toBeInTheDocument();
+  });
+
+  it('toggles to forgot password screen and handles reset link request', async () => {
+    vi.spyOn(api, 'refresh').mockRejectedValue(new Error('No session'));
+    window.history.pushState({}, 'Login', '/admin/login');
+
+    render(<App />);
+
+    expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
+
+    // Click Forgot password?
+    fireEvent.click(screen.getByRole('button', { name: /forgot password\?/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Reset your password')).toBeInTheDocument();
+    });
+    expect(screen.getByLabelText(/^email/i)).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/^email/i), {
+      target: { value: 'admin@restaurant.com' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /send reset link/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /if an account exists for this email, password reset instructions have been sent/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    // Navigate back to sign in
+    fireEvent.click(screen.getByRole('button', { name: /back to sign in/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
+    });
   });
 });
