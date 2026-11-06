@@ -78,15 +78,15 @@ Status values:
 
 ## Milestone 4: Company Portal (M4)
 
-| ID         | Task Description                                                                                                        | Status    | Owner              | Date Completed | Ref / Notes        |
-| :--------- | :---------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :----------------- |
-| **M4-T01** | Scaffold `apps/portal` (Platform staff app, isolated auth realm, IP allowlist middleware).                              | `Done`    | Senior Staff Agent | 2026-11-06     | Portal app setup   |
-| **M4-T02** | Build Restaurant Management: List, create, onboard, suspend, reactivate, and soft-delete restaurants.                   | `Done`    | Senior Staff Agent | 2026-11-06     | Restaurant admin   |
-| **M4-T03** | Build Support Impersonation Mode: Session delegation with persistent banner and strict audit logging.                   | `Done`    | Senior Staff Agent | 2026-11-06     | Support tooling    |
-| **M4-T04** | Build Platform Dashboard: Global metrics, active restaurants, aggregate scans, intents, churn indicators.               | `Done`    | Senior Staff Agent | 2026-11-06     | Platform analytics |
-| **M4-T05** | Build Billing & Subscription Management: Flat monthly fee tracker, invoice records, payment status, auto-suspend rules. | `Done`    | Senior Staff Agent | 2026-11-06     | Billing tracker    |
-| **M4-T06** | Build Leads Management: Submissions pipeline from landing site demo request form.                                       | `Done`    | Senior Staff Agent | 2026-11-06     | Lead CRM           |
-| **M4-T07** | Build System Health & Feature Flags: API status, error rates, BullMQ worker status, per-restaurant flags.               | `Backlog` | -                  | -              | System ops         |
+| ID         | Task Description                                                                                                        | Status | Owner              | Date Completed | Ref / Notes        |
+| :--------- | :---------------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :----------------- |
+| **M4-T01** | Scaffold `apps/portal` (Platform staff app, isolated auth realm, IP allowlist middleware).                              | `Done` | Senior Staff Agent | 2026-11-06     | Portal app setup   |
+| **M4-T02** | Build Restaurant Management: List, create, onboard, suspend, reactivate, and soft-delete restaurants.                   | `Done` | Senior Staff Agent | 2026-11-06     | Restaurant admin   |
+| **M4-T03** | Build Support Impersonation Mode: Session delegation with persistent banner and strict audit logging.                   | `Done` | Senior Staff Agent | 2026-11-06     | Support tooling    |
+| **M4-T04** | Build Platform Dashboard: Global metrics, active restaurants, aggregate scans, intents, churn indicators.               | `Done` | Senior Staff Agent | 2026-11-06     | Platform analytics |
+| **M4-T05** | Build Billing & Subscription Management: Flat monthly fee tracker, invoice records, payment status, auto-suspend rules. | `Done` | Senior Staff Agent | 2026-11-06     | Billing tracker    |
+| **M4-T06** | Build Leads Management: Submissions pipeline from landing site demo request form.                                       | `Done` | Senior Staff Agent | 2026-11-06     | Lead CRM           |
+| **M4-T07** | Build System Health & Feature Flags: API status, error rates, BullMQ worker status, per-restaurant flags.               | `Done` | Senior Staff Agent | 2026-11-06     | System ops         |
 
 ---
 

@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - System Health & Tenant Feature Flags (M4-T07)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T07`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend system health diagnostics and per-tenant feature flag routes in `apps/api/src/routes/portalHealth.ts`:
+    - `GET /api/v1/portal/system/health`: Live infrastructure diagnostics probing API runtime, memory RSS/heap, PostgreSQL 16 latency, Redis 7 ping, and queue worker status.
+    - `GET /api/v1/portal/system/feature-flags`: Lists per-restaurant feature flag overrides joined with restaurant metadata.
+    - `POST /api/v1/portal/system/feature-flags`: Upserts tenant-level feature flags with JSON configs and audit logging (`FEATURE_FLAG_CREATED` / `FEATURE_FLAG_UPDATED`).
+    - `PATCH /api/v1/portal/system/feature-flags/:id`: Toggles feature flag state with audit logging (`FEATURE_FLAG_UPDATED`).
+    - `DELETE /api/v1/portal/system/feature-flags/:id`: Removes feature flag override with audit logging (`FEATURE_FLAG_DELETED`).
+    - Protected by `portalIpAllowlist()` and RBAC (`super_admin` only for mutations; `support` & `finance` read-only). Mounted in `apps/api/src/app.ts`.
+  - Implemented frontend System Health & Feature Flags screen in `apps/portal`:
+    - Added health and feature flag DTOs and client endpoints in `apps/portal/src/services/api.ts`.
+    - Created `apps/portal/src/screens/SystemHealthScreen.tsx`:
+      - "Infrastructure Diagnostics" tab: Real-time status cards for API Gateway, PostgreSQL DB, Redis Cache & Rate Limiters, and Background Queue Workers with memory, uptime, latency, and job counters.
+      - "Tenant Feature Flags" tab: Preset flag definitions documentation (`google_reviews_booster`, `multi_staff_tips`, `custom_tip_presets`, `instant_payout_webhooks`), interactive state toggle switches, config JSON preview, and override deletion.
+      - "Configure Flag Override" modal for provisioning per-tenant feature flags.
+      - RBAC awareness: read-only view for `support` and `finance` roles.
+    - Wired route `/portal/health` in `apps/portal/src/App.tsx`.
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalHealth.test.ts` (9 tests covering health breakdown, flag list, upsert, toggle, delete, audit trail, and RBAC enforcement).
+    - `apps/portal/tests/systemHealth.test.tsx` (4 tests covering component cards, flags table, toggle action, and support role read-only behavior).
+  - Milestone 4 100% completed! 100% clean typecheck and all 253 tests passing across the monorepo.
+
 ### 2026-11-06 - Inbound Leads Pipeline & CRM Management (M4-T06)
 
 - **Milestone**: M4 (Company Portal)

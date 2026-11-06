@@ -306,6 +306,11 @@ The API supports three distinct authentication contexts:
 | `GET`    | `/portal/leads/:id`                   |         Bearer         | View single lead contact and discussion details.                   |
 | `PATCH`  | `/portal/leads/:id/status`            |    Bearer (Support)    | Update lead status (`contacted`, `demo_scheduled`, `won`, `lost`). |
 | `POST`   | `/public/leads`                       |          None          | Inbound landing page demo request form submission.                 |
+| `GET`    | `/portal/system/health`               |    Bearer (Portal)     | Live operational status of API, database, redis, and queues.       |
+| `GET`    | `/portal/system/feature-flags`        |    Bearer (Portal)     | List all tenant-specific feature flag overrides.                   |
+| `POST`   | `/portal/system/feature-flags`        |  Bearer (Super Admin)  | Create or upsert a per-restaurant feature flag override.           |
+| `PATCH`  | `/portal/system/feature-flags/:id`    |  Bearer (Super Admin)  | Toggle or update an existing feature flag override.                |
+| `DELETE` | `/portal/system/feature-flags/:id`    |  Bearer (Super Admin)  | Remove a per-restaurant feature flag override.                     |
 | `GET`    | `/portal/audit-logs`                  |  Bearer (Super Admin)  | Search immutable platform-wide audit log.                          |
 
 ### Platform Restaurant Management Contracts

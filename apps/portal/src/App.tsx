@@ -9,6 +9,7 @@ import { DashboardOverview } from './screens/DashboardOverview.js';
 import { RestaurantManagementScreen } from './screens/RestaurantManagementScreen.js';
 import { BillingManagementScreen } from './screens/BillingManagementScreen.js';
 import { LeadsManagementScreen } from './screens/LeadsManagementScreen.js';
+import { SystemHealthScreen } from './screens/SystemHealthScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,17 +50,7 @@ export const App: React.FC = () => {
                     </div>
                   }
                 />
-                <Route
-                  path="health"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">System Ops & Health</h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        API status, Redis latency, BullMQ workers, and feature flags.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="health" element={<SystemHealthScreen />} />
               </Route>
             </Route>
 

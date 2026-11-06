@@ -296,6 +296,58 @@ export interface UpdateLeadStatusInput {
   notes?: string;
 }
 
+export interface SystemHealthResponse {
+  status: 'healthy' | 'degraded';
+  timestamp: string;
+  environment: string;
+  components: {
+    api: {
+      status: string;
+      uptimeSeconds: number;
+      memoryUsageMb: number;
+      heapUsedMb: number;
+      version: string;
+      nodeVersion: string;
+    };
+    database: {
+      status: string;
+      engine: string;
+      latencyMs: number;
+    };
+    redis: {
+      status: string;
+      engine: string;
+      latencyMs: number;
+    };
+    workers: {
+      status: string;
+      queue: string;
+      activeJobs: number;
+      completedJobs: number;
+      failedJobs: number;
+    };
+  };
+}
+
+export interface FeatureFlagItem {
+  id: string;
+  restaurantId: string;
+  restaurantName: string;
+  restaurantSlug: string;
+  key: string;
+  enabled: boolean;
+  configJson: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UpsertFeatureFlagInput {
+  restaurantId: string;
+  key: string;
+  enabled: boolean;
+  configJson?: Record<string, unknown>;
+}
+
 export const api = {
   login(email: string, password: string): Promise<PortalLoginResponse> {
     return request<PortalLoginResponse>('/portal/auth/login', {
@@ -462,6 +514,51 @@ export const api = {
     return request<{ lead: LeadItem }>(`/portal/leads/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify(data),
+    });
+  },
+
+  getSystemHealth(): Promise<SystemHealthResponse> {
+    return request<SystemHealthResponse>('/portal/system/health', {
+      method: 'GET',
+    });
+  },
+
+  getFeatureFlags(params?: {
+    restaurantId?: string;
+    key?: string;
+  }): Promise<{ flags: FeatureFlagItem[] }> {
+    const searchParams = new URLSearchParams();
+    if (params?.restaurantId) searchParams.set('restaurantId', params.restaurantId);
+    if (params?.key) searchParams.set('key', params.key);
+    const qs = searchParams.toString();
+    return request<{ flags: FeatureFlagItem[] }>(
+      `/portal/system/feature-flags${qs ? `?${qs}` : ''}`,
+      {
+        method: 'GET',
+      },
+    );
+  },
+
+  upsertFeatureFlag(data: UpsertFeatureFlagInput): Promise<{ flag: FeatureFlagItem }> {
+    return request<{ flag: FeatureFlagItem }>('/portal/system/feature-flags', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateFeatureFlag(
+    id: string,
+    data: { enabled?: boolean; configJson?: Record<string, unknown> },
+  ): Promise<{ flag: FeatureFlagItem }> {
+    return request<{ flag: FeatureFlagItem }>(`/portal/system/feature-flags/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteFeatureFlag(id: string): Promise<{ message: string }> {
+    return request<{ message: string }>(`/portal/system/feature-flags/${id}`, {
+      method: 'DELETE',
     });
   },
 };
