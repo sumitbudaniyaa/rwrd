@@ -82,3 +82,14 @@ All frontend variables must be prefixed with `VITE_` and contain **zero sensitiv
 | `VITE_API_BASE_URL`       |   Yes    | String (URL) | Base URL for the TipTable REST API     | `http://localhost:4000`           |
 | `VITE_TURNSTILE_SITE_KEY` |    No    | String       | Cloudflare Turnstile public widget key | `0x4AAAAAAABBBBBB_dummy_site_key` |
 | `VITE_APP_ENV`            |   Yes    | Enum         | Application environment                | `development`                     |
+
+---
+
+## 4. Landing App Environment Variables (`apps/landing`)
+
+| Variable                | Required | Type         | Purpose                                   | Example Value           |
+| :---------------------- | :------: | :----------- | :---------------------------------------- | :---------------------- |
+| `VITE_API_BASE_URL`     |   Yes    | String (URL) | Base URL for TipTable API demo submission | `http://localhost:4000` |
+| `VITE_CUSTOMER_APP_URL` |   Yes    | String (URL) | Public customer tipping demo experience   | `http://localhost:3000` |
+| `VITE_ADMIN_APP_URL`    |   Yes    | String (URL) | Restaurant admin login portal redirect    | `http://localhost:3001` |
+| `VITE_PORTAL_APP_URL`   |   Yes    | String (URL) | Company platform staff portal redirect    | `http://localhost:3002` |

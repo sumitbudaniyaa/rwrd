@@ -6,6 +6,35 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Scaffold Landing Site & Lead Funnel Application (M5-T01)
+
+- **Milestone**: M5 (Landing Site & Lead Funnel)
+- **Task**: `M5-T01`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Scaffolded `apps/landing` (@tiptable/landing) within the pnpm monorepo workspace:
+    - Vite 6, React 18, TypeScript strict mode (zero `any`), Tailwind CSS, and `beUI` motion primitives (`@tiptable/ui`).
+    - Configured `apps/landing/vite.config.ts` running on local development port 3003.
+    - Added environment configuration (`src/config/env.ts`) with validated Zod schema (`VITE_API_BASE_URL`, `VITE_CUSTOMER_APP_URL`, `VITE_ADMIN_APP_URL`, `VITE_PORTAL_APP_URL`).
+    - Built comprehensive SEO HTML shell (`index.html`) featuring:
+      - Title and meta tags for organic Google search discovery.
+      - OpenGraph and Twitter cards preview metadata.
+      - JSON-LD structured data schema (`SoftwareApplication`, ₹999/month pricing offer, non-custodial UPI platform classification).
+      - Font imports for Inter and Newsreader serif typography.
+    - Built `LandingLayout.tsx`:
+      - Top non-custodial compliance guarantee badge: "100% Non-Custodial: We never touch diner funds or take a percentage cut of staff tips".
+      - Sticky navigation bar with responsive mobile menu, brand logo, section anchors, Sign In link, and "Request Demo" CTA button.
+      - Multi-column footer with product links, console access links, DPDP compliance legal links, and detailed non-custodial invariant disclaimer.
+    - Built `HomeScreen.tsx` initial landing page with:
+      - Hero pitch section ("Empower your waitstaff. Skyrocket 5-star reviews.").
+      - 3-step explainer section ("Scan Table Placard", "Tip Directly via UPI", "1-Tap 5-Star Review").
+      - Restaurant benefits grid.
+      - Predictable SaaS pricing card (₹999/month, 0% commission guarantee).
+      - FAQ anchor section emphasizing zero tip commission and Google review anti-gating compliance.
+    - Added `LegalScreen.tsx` placeholder for DPDP Privacy Policy and Terms of Service.
+  - Added unit test suite in `apps/landing/tests/scaffold.test.tsx` (5 tests covering header, hero value proposition, 3-step section, pricing card, and footer compliance disclaimers).
+  - 100% clean typecheck across all 7 packages and all 258 tests passing across the monorepo.
+
 ### 2026-11-06 - System Health & Tenant Feature Flags (M4-T07)
 
 - **Milestone**: M4 (Company Portal)
