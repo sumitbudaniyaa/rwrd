@@ -6,6 +6,35 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Admin Analytics Dashboard, Waitstaff Breakdown & CSV Export (M3-T07)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T07`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented multi-tenant analytics repository in `apps/api/src/repositories/analyticsRepository.ts`:
+    - Aggregates tenant metrics: QR scans (`pageEvents` where `eventType = 'qr_scan'`), staff page views (`pageEvents` where `eventType = 'staff_view'`), tip intents initiated count and volume in INR (`tipIntents`), Google review taps (`reviewTaps`), and chronological daily timeline data points.
+    - Computes waitstaff initiated performance breakdown (`staffBreakdown`) with tip count, volume in INR, and average tip amount.
+    - Implemented joined tip intents query (`getTipIntentsForExport`) for RFC 4180 CSV generation.
+  - Implemented backend analytics API routes in `apps/api/src/routes/adminAnalytics.ts`:
+    - `GET /api/v1/admin/restaurants/:restaurantId/analytics`: Returns telemetry metrics, daily timeline, and per-waiter initiated tip metrics with flexible date range filters (`startDate`, `endDate`). Enforces tenant boundary (`requireAuth('admin')`, `requireTenant('restaurantId')`).
+    - `GET /api/v1/admin/restaurants/:restaurantId/analytics/export`: Generates downloadable RFC 4180 compliant CSV stream containing all tip intents initiated within the date window.
+  - Implemented frontend analytics dashboard in `apps/admin`:
+    - Added API client methods (`getAnalytics`, `downloadAnalyticsCsv`) in `apps/admin/src/services/api.ts`.
+    - Built `AnalyticsScreen` (`apps/admin/src/screens/AnalyticsScreen.tsx`):
+      - Strict non-custodial payment copy invariant: All metrics labeled as "Tips initiated", never "Tips received".
+      - Period filter pills: "Today", "Last 7 Days", "Last 30 Days", and "Custom" date inputs.
+      - Metric cards with `beUI` motion primitives: Total Scans, Staff Views, Tips Initiated (count & ₹ volume), Review Taps.
+      - Daily activity timeline breakdown.
+      - Waitstaff performance breakdown table with per-waiter initiated tip volume and counts.
+      - 1-click "Export CSV" file download.
+      - Non-custodial UPI compliance disclosure banner.
+    - Wired route `/analytics` in `apps/admin/src/App.tsx`.
+  - Added comprehensive test suites:
+    - `apps/api/tests/adminAnalytics.test.ts` (7 integration tests covering analytics metrics, date filtering, validation errors, tenant isolation 403, and RFC 4180 CSV export).
+    - `apps/admin/tests/analytics.test.tsx` (6 unit tests covering metric rendering, copy invariant, waiter table, period switching, and CSV download).
+  - 100% clean typecheck and all 169 tests passing across monorepo packages.
+
 ### 2026-11-05 - Table & QR Management, PNG/SVG Download, Token Rotation & Print Placards (M3-T06)
 
 - **Milestone**: M3 (Restaurant Admin App)

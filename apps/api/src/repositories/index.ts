@@ -4,3 +4,4 @@ export * from './tableRepository.js';
 export * from './qrTokenRepository.js';
 export * from './tipIntentRepository.js';
 export * from './reviewTapRepository.js';
+export * from './analyticsRepository.js';

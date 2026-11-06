@@ -71,7 +71,7 @@ Status values:
 | **M3-T04** | Build VPA Capture & QR Scanner: QR code parser extracting `pa=`, VPA regex validation, typo safeguard warnings. | `Done`    | Senior Staff Agent | 2026-11-05     | VPA scanner & QR   |
 | **M3-T05** | Build Restaurant Settings: Name, logo upload, Google review URL validator, tip preset amounts, min/max limits.  | `Done`    | Senior Staff Agent | 2026-11-05     | Settings UI & API  |
 | **M3-T06** | Build Table QR Code Generator: Downloadable PNG/SVG/Printable PDF with table numbers and token rotation.        | `Done`    | Senior Staff Agent | 2026-11-05     | QR generator & PDF |
-| **M3-T07** | Build Admin Analytics Dashboard: Scans, staff views, tip intents, review taps, waiter breakdown, CSV export.    | `Backlog` | -                  | -              | Analytics UI       |
+| **M3-T07** | Build Admin Analytics Dashboard: Scans, staff views, tip intents, review taps, waiter breakdown, CSV export.    | `Done`    | Senior Staff Agent | 2026-11-06     | Analytics UI & CSV |
 | **M3-T08** | Build Audit Log Viewer: History of changes made within the tenant account.                                      | `Backlog` | -                  | -              | Tenant audit UI    |
 
 ---

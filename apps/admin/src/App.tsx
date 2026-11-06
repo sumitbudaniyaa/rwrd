@@ -10,6 +10,7 @@ import { DashboardOverview } from './screens/DashboardOverview.js';
 import { StaffManagementScreen } from './screens/StaffManagementScreen.js';
 import { SettingsScreen } from './screens/SettingsScreen.js';
 import { QrManagementScreen } from './screens/QrManagementScreen.js';
+import { AnalyticsScreen } from './screens/AnalyticsScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -37,17 +38,7 @@ export const App: React.FC = () => {
                 <Route index element={<DashboardOverview />} />
                 <Route path="staff" element={<StaffManagementScreen />} />
                 <Route path="qr" element={<QrManagementScreen />} />
-                <Route
-                  path="analytics"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">Analytics</h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Scans, staff views, and tips initiated.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="analytics" element={<AnalyticsScreen />} />
                 <Route path="settings" element={<SettingsScreen />} />
                 <Route
                   path="audit"

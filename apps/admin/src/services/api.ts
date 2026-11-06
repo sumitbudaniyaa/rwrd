@@ -123,6 +123,42 @@ export interface QrListResponse {
   tokens: QrTokenItem[];
 }
 
+export interface AnalyticsMetrics {
+  scans: number;
+  staffViews: number;
+  tipsInitiatedCount: number;
+  tipsInitiatedVolumeInr: number;
+  reviewTaps: number;
+}
+
+export interface AnalyticsTimelinePoint {
+  date: string;
+  scans: number;
+  staffViews: number;
+  tipsInitiatedCount: number;
+  tipsInitiatedVolumeInr: number;
+  reviewTaps: number;
+}
+
+export interface AnalyticsStaffItem {
+  staffId: string;
+  displayName: string;
+  roleLabel: string;
+  tipsInitiatedCount: number;
+  tipsInitiatedVolumeInr: number;
+  averageTipInr: number;
+}
+
+export interface AnalyticsResponse {
+  dateRange: {
+    startDate: string;
+    endDate: string;
+  };
+  metrics: AnalyticsMetrics;
+  dailyTimeline: AnalyticsTimelinePoint[];
+  staffBreakdown: AnalyticsStaffItem[];
+}
+
 let inMemoryToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
@@ -340,5 +376,52 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+
+  getAnalytics(
+    restaurantId: string,
+    params?: { startDate?: string; endDate?: string },
+  ): Promise<AnalyticsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.startDate) searchParams.set('startDate', params.startDate);
+    if (params?.endDate) searchParams.set('endDate', params.endDate);
+    const qs = searchParams.toString();
+    return request<AnalyticsResponse>(
+      `/admin/restaurants/${restaurantId}/analytics${qs ? `?${qs}` : ''}`,
+      { method: 'GET' },
+    );
+  },
+
+  async downloadAnalyticsCsv(
+    restaurantId: string,
+    params?: { startDate?: string; endDate?: string },
+  ): Promise<void> {
+    const searchParams = new URLSearchParams();
+    if (params?.startDate) searchParams.set('startDate', params.startDate);
+    if (params?.endDate) searchParams.set('endDate', params.endDate);
+    const qs = searchParams.toString();
+    const token = getAccessToken();
+    const res = await fetch(
+      `${adminEnv.VITE_API_BASE_URL}/api/v1/admin/restaurants/${restaurantId}/analytics/export${qs ? `?${qs}` : ''}`,
+      {
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'include',
+      },
+    );
+    if (!res.ok) {
+      throw new Error(`Failed to download CSV (${res.status})`);
+    }
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `tiptable-tips-initiated-${restaurantId}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
   },
 };

@@ -170,25 +170,74 @@ The API supports three distinct authentication contexts:
 
 ## 4. Restaurant Admin Endpoints (`/api/v1/admin`)
 
-| Method   | Path                      |      Auth      | Description                                                       |
-| :------- | :------------------------ | :------------: | :---------------------------------------------------------------- |
-| `POST`   | `/admin/auth/login`       |      None      | Initial email + password authentication; triggers MFA if enabled. |
-| `POST`   | `/admin/auth/mfa/verify`  |   Temp Token   | Verify 6-digit TOTP code and issue session cookies + JWT.         |
-| `POST`   | `/admin/auth/refresh`     |     Cookie     | Rotate refresh token and issue new 15m access token.              |
-| `POST`   | `/admin/auth/logout`      |     Bearer     | Revoke current session.                                           |
-| `POST`   | `/admin/auth/logout-all`  |     Bearer     | Revoke all active sessions for this admin user.                   |
-| `GET`    | `/admin/restaurant`       |     Bearer     | Get current tenant profile and configurations.                    |
-| `PATCH`  | `/admin/restaurant`       | Bearer (Owner) | Update name, logo, Google review link, and tip presets.           |
-| `GET`    | `/admin/staff`            |     Bearer     | List all staff members (includes masked VPAs like `r***@okaxis`). |
-| `POST`   | `/admin/staff`            |     Bearer     | Add staff member (display name, role, photo upload, VPA).         |
-| `PATCH`  | `/admin/staff/:id`        |     Bearer     | Update staff details, active status, or VPA.                      |
-| `DELETE` | `/admin/staff/:id`        |     Bearer     | Soft delete staff member.                                         |
-| `GET`    | `/admin/tables`           |     Bearer     | List all physical tables and assigned QR tokens.                  |
-| `POST`   | `/admin/tables`           |     Bearer     | Create a new table.                                               |
-| `POST`   | `/admin/qr/rotate`        | Bearer (Owner) | Invalidate current QR token and issue a new high-entropy token.   |
-| `GET`    | `/admin/analytics`        |     Bearer     | Aggregated metrics: scans, staff views, tip intents, review taps. |
-| `GET`    | `/admin/analytics/export` |     Bearer     | Download CSV export of tip intents and review metrics.            |
-| `GET`    | `/admin/audit-logs`       | Bearer (Owner) | Query immutable audit logs for this restaurant.                   |
+| Method   | Path                                                |      Auth      | Description                                                                    |
+| :------- | :-------------------------------------------------- | :------------: | :----------------------------------------------------------------------------- |
+| `POST`   | `/admin/auth/login`                                 |      None      | Initial email + password authentication; triggers MFA if enabled.              |
+| `POST`   | `/admin/auth/mfa/verify`                            |   Temp Token   | Verify 6-digit TOTP code and issue session cookies + JWT.                      |
+| `POST`   | `/admin/auth/refresh`                               |     Cookie     | Rotate refresh token and issue new 15m access token.                           |
+| `POST`   | `/admin/auth/logout`                                |     Bearer     | Revoke current session.                                                        |
+| `POST`   | `/admin/auth/logout-all`                            |     Bearer     | Revoke all active sessions for this admin user.                                |
+| `GET`    | `/admin/restaurant`                                 |     Bearer     | Get current tenant profile and configurations.                                 |
+| `PATCH`  | `/admin/restaurant`                                 | Bearer (Owner) | Update name, logo, Google review link, and tip presets.                        |
+| `GET`    | `/admin/staff`                                      |     Bearer     | List all staff members (includes masked VPAs like `r***@okaxis`).              |
+| `POST`   | `/admin/staff`                                      |     Bearer     | Add staff member (display name, role, photo upload, VPA).                      |
+| `PATCH`  | `/admin/staff/:id`                                  |     Bearer     | Update staff details, active status, or VPA.                                   |
+| `DELETE` | `/admin/staff/:id`                                  |     Bearer     | Soft delete staff member.                                                      |
+| `GET`    | `/admin/tables`                                     |     Bearer     | List all physical tables and assigned QR tokens.                               |
+| `POST`   | `/admin/tables`                                     |     Bearer     | Create a new table.                                                            |
+| `POST`   | `/admin/qr/rotate`                                  | Bearer (Owner) | Invalidate current QR token and issue a new high-entropy token.                |
+| `GET`    | `/admin/restaurants/:restaurantId/analytics`        |     Bearer     | Aggregated metrics: scans, staff views, tips initiated, review taps, timeline. |
+| `GET`    | `/admin/restaurants/:restaurantId/analytics/export` |     Bearer     | RFC 4180 CSV export of tip intents and telemetry.                              |
+| `GET`    | `/admin/audit-logs`                                 | Bearer (Owner) | Query immutable audit logs for this restaurant.                                |
+
+### Admin Analytics (`GET /api/v1/admin/restaurants/:restaurantId/analytics`)
+
+- **Query Parameters**:
+  - `startDate` (optional, ISO-8601 or YYYY-MM-DD): defaults to 30 days prior.
+  - `endDate` (optional, ISO-8601 or YYYY-MM-DD): defaults to now.
+- **Response `200 OK`**:
+
+```json
+{
+  "dateRange": {
+    "startDate": "2026-10-01T00:00:00.000Z",
+    "endDate": "2026-10-31T23:59:59.999Z"
+  },
+  "metrics": {
+    "scans": 1429,
+    "staffViews": 984,
+    "tipsInitiatedCount": 432,
+    "tipsInitiatedVolumeInr": 34850,
+    "reviewTaps": 187
+  },
+  "dailyTimeline": [
+    {
+      "date": "2026-10-30",
+      "scans": 48,
+      "staffViews": 32,
+      "tipsInitiatedCount": 15,
+      "tipsInitiatedVolumeInr": 1250,
+      "reviewTaps": 7
+    }
+  ],
+  "staffBreakdown": [
+    {
+      "staffId": "33333333-3333-3333-3333-333333333333",
+      "displayName": "Rahul Sharma",
+      "roleLabel": "Head Captain",
+      "tipsInitiatedCount": 180,
+      "tipsInitiatedVolumeInr": 16500,
+      "averageTipInr": 92
+    }
+  ]
+}
+```
+
+### Admin Analytics CSV Export (`GET /api/v1/admin/restaurants/:restaurantId/analytics/export`)
+
+- **Query Parameters**: `startDate`, `endDate`
+- **Response `200 OK`**: `Content-Type: text/csv; charset=utf-8` stream adhering to RFC 4180.
+- **Headers**: `Content-Disposition: attachment; filename="tiptable-tips-initiated-<restaurantId>-<date>.csv"`
 
 ---
 
