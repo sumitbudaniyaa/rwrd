@@ -134,11 +134,11 @@ export const LoginScreen: React.FC = () => {
         </div>
 
         {/* Center Form Container */}
-        <div className="max-w-md w-full mx-auto my-auto py-8">
+        <div className="max-w-sm w-full mx-auto my-auto py-6">
           {/* Squircle Lock Icon matching the uploaded inspiration */}
-          <div className="w-14 h-14 rounded-2xl bg-stone-100/90 border border-stone-200/80 shadow-sm flex items-center justify-center mx-auto mb-6 text-stone-800">
+          <div className="w-11 h-11 rounded-xl bg-stone-100/90 border border-stone-200/80 shadow-sm flex items-center justify-center mx-auto mb-4 text-stone-800">
             <svg
-              className="w-6 h-6"
+              className="w-5 h-5"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -155,10 +155,10 @@ export const LoginScreen: React.FC = () => {
           </div>
 
           {/* Header Titles */}
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-stone-900 text-center mb-2">
+          <h1 className="text-xl sm:text-2xl font-semibold tracking-tight text-stone-900 text-center mb-1.5">
             {mode === 'login' ? 'Sign in to rwrd Admin' : 'Create an account'}
           </h1>
-          <p className="text-xs sm:text-sm text-stone-500 text-center mb-7">
+          <p className="text-xs text-stone-500 text-center mb-5">
             {mode === 'login'
               ? "You'll use this password to login to rwrd"
               : 'Set up your restaurant and primary admin account'}
@@ -168,7 +168,7 @@ export const LoginScreen: React.FC = () => {
           {errorMessage && (
             <div
               role="alert"
-              className="mb-5 p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium leading-relaxed animate-fadeIn"
+              className="mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium leading-relaxed animate-fadeIn"
             >
               {errorMessage}
             </div>
@@ -178,7 +178,7 @@ export const LoginScreen: React.FC = () => {
           {successMessage && (
             <div
               role="status"
-              className="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-medium leading-relaxed animate-fadeIn"
+              className="mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-medium leading-relaxed animate-fadeIn"
             >
               {successMessage}
             </div>
@@ -186,9 +186,12 @@ export const LoginScreen: React.FC = () => {
 
           {/* Form */}
           {mode === 'login' ? (
-            <form onSubmit={handleLoginSubmit} className="space-y-4" noValidate>
+            <form onSubmit={handleLoginSubmit} className="space-y-3" noValidate>
               <div>
-                <label htmlFor="email" className="block text-xs font-medium text-stone-700 mb-1.5">
+                <label
+                  htmlFor="email"
+                  className="block text-[11px] font-medium text-stone-600 mb-1"
+                >
                   Work email
                 </label>
                 <input
@@ -199,14 +202,14 @@ export const LoginScreen: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@restaurant.com"
-                  className="w-full px-4 py-3 rounded-2xl bg-stone-50/80 border border-stone-200/90 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50/80 border border-stone-200/90 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-xs font-medium text-stone-700 mb-1.5"
+                  className="block text-[11px] font-medium text-stone-600 mb-1"
                 >
                   Password
                 </label>
@@ -219,17 +222,17 @@ export const LoginScreen: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter password"
-                    className="w-full px-4 py-3 pr-12 rounded-2xl bg-stone-50/80 border border-stone-200/90 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-stone-50/80 border border-stone-200/90 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
                   >
                     <HugeiconsIcon
                       icon={showPassword ? ViewOffIcon : ViewIcon}
-                      className="w-4 h-4"
+                      className="w-3.5 h-3.5"
                       strokeWidth={1.5}
                     />
                   </button>
@@ -239,21 +242,21 @@ export const LoginScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 py-3.5 px-6 rounded-2xl bg-stone-950 hover:bg-black text-white font-medium text-sm transition-all shadow-md shadow-stone-900/10 hover:shadow-lg hover:shadow-stone-900/20 active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full mt-1.5 py-2.5 px-5 rounded-xl bg-stone-950 hover:bg-black text-white font-medium text-xs sm:text-sm transition-all shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20 active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   'Sign in'
                 )}
               </button>
             </form>
           ) : (
-            <form onSubmit={handleRegisterSubmit} className="space-y-3.5" noValidate>
+            <form onSubmit={handleRegisterSubmit} className="space-y-3" noValidate>
               <div>
                 <label
                   htmlFor="restaurantName"
-                  className="block text-xs font-medium text-stone-700 mb-1.5"
+                  className="block text-[11px] font-medium text-stone-600 mb-1"
                 >
                   Restaurant legal name
                 </label>
@@ -264,14 +267,14 @@ export const LoginScreen: React.FC = () => {
                   value={restaurantName}
                   onChange={(e) => setRestaurantName(e.target.value)}
                   placeholder="e.g. The Bombay Canteen"
-                  className="w-full px-4 py-3 rounded-2xl bg-stone-50/80 border border-stone-200/90 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50/80 border border-stone-200/90 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="fullName"
-                  className="block text-xs font-medium text-stone-700 mb-1.5"
+                  className="block text-[11px] font-medium text-stone-600 mb-1"
                 >
                   Admin full name
                 </label>
@@ -282,14 +285,14 @@ export const LoginScreen: React.FC = () => {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   placeholder="e.g. Sarah Miller"
-                  className="w-full px-4 py-3 rounded-2xl bg-stone-50/80 border border-stone-200/90 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50/80 border border-stone-200/90 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="regEmail"
-                  className="block text-xs font-medium text-stone-700 mb-1.5"
+                  className="block text-[11px] font-medium text-stone-600 mb-1"
                 >
                   Work email
                 </label>
@@ -301,14 +304,14 @@ export const LoginScreen: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="name@restaurant.com"
-                  className="w-full px-4 py-3 rounded-2xl bg-stone-50/80 border border-stone-200/90 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-stone-50/80 border border-stone-200/90 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="regPassword"
-                  className="block text-xs font-medium text-stone-700 mb-1.5"
+                  className="block text-[11px] font-medium text-stone-600 mb-1"
                 >
                   Password
                 </label>
@@ -321,17 +324,17 @@ export const LoginScreen: React.FC = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 8 characters"
-                    className="w-full px-4 py-3 pr-12 rounded-2xl bg-stone-50/80 border border-stone-200/90 text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
+                    className="w-full px-3.5 py-2.5 pr-10 rounded-xl bg-stone-50/80 border border-stone-200/90 text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-stone-600 focus:outline-none"
                   >
                     <HugeiconsIcon
                       icon={showPassword ? ViewOffIcon : ViewIcon}
-                      className="w-4 h-4"
+                      className="w-3.5 h-3.5"
                       strokeWidth={1.5}
                     />
                   </button>
@@ -341,10 +344,10 @@ export const LoginScreen: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full mt-2 py-3.5 px-6 rounded-2xl bg-stone-950 hover:bg-black text-white font-medium text-sm transition-all shadow-md shadow-stone-900/10 hover:shadow-lg hover:shadow-stone-900/20 active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
+                className="w-full mt-1.5 py-2.5 px-5 rounded-xl bg-stone-950 hover:bg-black text-white font-medium text-xs sm:text-sm transition-all shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20 active:scale-[0.99] disabled:opacity-60 flex items-center justify-center gap-2"
               >
                 {isLoading ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
                   'Create restaurant account'
                 )}
@@ -353,9 +356,9 @@ export const LoginScreen: React.FC = () => {
           )}
 
           {/* Subtle Divider */}
-          <div className="flex items-center my-5 gap-3">
+          <div className="flex items-center my-4 gap-2.5">
             <div className="flex-1 h-px bg-stone-200" />
-            <span className="text-xs text-stone-400 font-medium">Or</span>
+            <span className="text-[11px] text-stone-400 font-medium">Or</span>
             <div className="flex-1 h-px bg-stone-200" />
           </div>
 
@@ -363,13 +366,13 @@ export const LoginScreen: React.FC = () => {
           <button
             type="button"
             onClick={() => toggleMode(mode === 'login' ? 'register' : 'login')}
-            className="w-full py-3 px-6 rounded-2xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 font-medium text-xs sm:text-sm transition-colors text-center"
+            className="w-full py-2.5 px-4 rounded-xl bg-stone-100 hover:bg-stone-200/80 text-stone-800 font-medium text-xs transition-colors text-center"
           >
             {mode === 'login' ? 'Create a restaurant account' : 'Already have an account? Sign in'}
           </button>
 
           {/* Terms & Privacy Links */}
-          <div className="mt-6 text-center text-xs text-stone-400 space-x-1.5">
+          <div className="mt-4 text-center text-[11px] text-stone-400 space-x-1.5">
             <a href="#terms" className="hover:text-stone-600 transition-colors">
               Terms of Use
             </a>
