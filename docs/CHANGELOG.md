@@ -6,6 +6,17 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Adopt Poppins Typography in Admin & Super Admin Apps
+
+- **Milestone**: Enhancement (UI Typography & Styling)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Configured **Poppins** as the primary `font-sans` family across the Restaurant Admin Console (`apps/admin`) and Super Admin / Operations Portal (`apps/portal`).
+  - Updated [`apps/admin/index.html`](file:///Users/Sumit/Desktop/rwrd/apps/admin/index.html) and [`apps/portal/index.html`](file:///Users/Sumit/Desktop/rwrd/apps/portal/index.html) to preconnect and load Poppins (weights 300, 400, 500, 600, 700) with `display=swap`.
+  - Updated [`apps/admin/tailwind.config.js`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tailwind.config.js) and [`apps/portal/tailwind.config.js`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tailwind.config.js) to prepend `'Poppins'` to `fontFamily.sans`.
+  - Integrated `'Poppins'` into font fallback stacks in `liquid-morph-floating-menu.tsx`.
+  - Verified 100% typecheck pass, 0 lint errors, and 100% test suite pass (43/43 admin tests, 27/27 portal tests).
+
 ### 2026-11-06 - Brand Evolution: Rename Platform to "rwrd"
 
 - **Milestone**: Enhancement (Brand Evolution & UI Styling)

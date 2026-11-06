@@ -65,7 +65,7 @@ function MenuButton({
         active ? 'text-[#FFE862] font-black' : 'text-[#f7f1ed] font-semibold hover:text-white'
       }`}
       style={{
-        fontFamily: "'Trobika', 'Bebas Neue', 'Inter', sans-serif",
+        fontFamily: "'Trobika', 'Bebas Neue', 'Poppins', 'Inter', sans-serif",
         letterSpacing: '-0.01em',
         height: '1.2em',
       }}
@@ -150,7 +150,7 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
           if (!isOpen) setIsOpen(true);
         }}
         style={{
-          fontFamily: "'Aeonik TRIAL', 'Inter', sans-serif",
+          fontFamily: "'Aeonik TRIAL', 'Poppins', 'Inter', sans-serif",
           letterSpacing: '-0.02em',
           cursor: isOpen ? 'default' : 'pointer',
         }}
