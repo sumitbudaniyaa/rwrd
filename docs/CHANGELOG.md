@@ -6,6 +6,38 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Brand Evolution: Rename Platform to "rwrd"
+
+- **Milestone**: Enhancement (Brand Evolution & UI Styling)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Rebranded the platform name from "TipTable" to **"rwrd"** (stylized as `rwrd`, with logomark initial `R`) across all customer, admin, portal, and landing applications.
+  - **`apps/landing`**:
+    - Updated navigation and footer logomarks to `R` and text to `rwrd`.
+    - Updated SEO title, OpenGraph tags, JSON-LD metadata, and canonical links to `rwrd` and `https://rwrd.in`.
+    - Updated home page hero, advantages, demo form, and interactive simulator copy.
+    - Updated Terms of Service & Privacy Policy to `rwrd Hospitality Technologies Private Limited` and DPO contact to `grievance@rwrd.in`.
+    - Updated all test assertions in `tests/scaffold.test.tsx`, `tests/pricingFaq.test.tsx`, and `tests/legal.test.tsx`.
+  - **`apps/admin`**:
+    - Updated page title to `rwrd Admin`.
+    - Updated navigation logomark initial `R` and brand header to `rwrd`.
+    - Updated sign-in screen, analytics disclaimers, QR placards copy, and test assertions.
+  - **`apps/customer`**:
+    - Updated page title to `rwrd`.
+    - Updated English and Hindi i18n locales (`powered_by`, `disclaimer`, `footer`) to `rwrd`.
+    - Updated customer i18n test assertions.
+  - **`apps/portal`**:
+    - Updated page title to `rwrd Control Plane — Company Portal`.
+    - Updated navigation logomark initial `R` and brand header to `rwrd Control Plane`.
+    - Updated authentication screen and test assertions.
+  - **`apps/api`**:
+    - Updated startup log banner in `src/server.ts` to `🚀 rwrd API server listening on port ${env.PORT}`.
+  - **Monorepo Health**:
+    - 100% typecheck pass (`pnpm typecheck`).
+    - 100% lint pass (`pnpm lint`).
+    - 100% test pass across all 57 test files and 290+ tests (`pnpm test`).
+    - 100% clean production build (`pnpm build`).
+
 ### 2026-11-06 - Integrate Liquid Morph Floating Menu & Remove Admin Sidebar
 
 - **Milestone**: Enhancement (Admin UI / UX Modernization)

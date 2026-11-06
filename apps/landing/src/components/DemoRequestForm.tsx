@@ -192,7 +192,7 @@ export const DemoRequestForm: React.FC = () => {
         <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider bg-white/10 text-white rounded-md">
           VIP Hospitality Trial
         </span>
-        <h3 className="text-lg sm:text-xl font-bold">Experience TipTable in Your Restaurant</h3>
+        <h3 className="text-lg sm:text-xl font-bold">Experience rwrd in Your Restaurant</h3>
         <p className="text-xs text-stone-300">
           We&apos;ll prepare custom printed sample placards for your dining tables and guide your
           staff through the 15-minute setup.
@@ -410,7 +410,7 @@ export const DemoRequestForm: React.FC = () => {
               className="mt-0.5 w-4 h-4 rounded-md border-stone-300 text-stone-900 focus:ring-stone-900 cursor-pointer"
             />
             <span className="text-[11px] text-stone-500 leading-tight">
-              I agree to receive a demo walkthrough and consent to TipTable processing my contact
+              I agree to receive a demo walkthrough and consent to rwrd processing my contact
               information in compliance with the Digital Personal Data Protection (DPDP) Act 2023.
             </span>
           </label>

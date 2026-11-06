@@ -221,7 +221,7 @@ describe('AnalyticsScreen Component', () => {
     });
 
     expect(
-      screen.getByText(/TipTable never holds, intercepts, or settles customer funds./i),
+      screen.getByText(/rwrd never holds, intercepts, or settles customer funds./i),
     ).toBeDefined();
   });
 });

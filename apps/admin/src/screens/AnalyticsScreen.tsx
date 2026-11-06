@@ -386,7 +386,7 @@ export const AnalyticsScreen: React.FC = () => {
               <div>
                 <strong className="text-stone-700">Direct Non-Custodial UPI Invariant: </strong>
                 All tip numbers represent payment intents initiated by diners directly to staff UPI
-                VPAs using deep links. TipTable never holds, intercepts, or settles customer funds.
+                VPAs using deep links. rwrd never holds, intercepts, or settles customer funds.
               </div>
             </div>
           </SlideUp>

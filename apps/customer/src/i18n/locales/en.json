@@ -1,7 +1,7 @@
 {
   "common": {
     "back": "Back",
-    "powered_by": "Powered by TipTable • 100% of tips go directly to waitstaff",
+    "powered_by": "Powered by rwrd • 100% of tips go directly to waitstaff",
     "error_table_unavailable": "Table unavailable",
     "error_table_unavailable_desc": "This QR code is either invalid, expired, or the restaurant is currently closed.",
     "error_ask_server": "Please ask your server for assistance."
@@ -43,7 +43,7 @@
     "copied": "✓ Copied",
     "reopen": "Try Opening UPI App Again",
     "completed_btn": "I have completed payment",
-    "disclaimer": "TipTable never touches your funds • Direct peer-to-peer UPI transfer"
+    "disclaimer": "rwrd never touches your funds • Direct peer-to-peer UPI transfer"
   },
   "thanks": {
     "title": "You came so far...",
@@ -53,6 +53,6 @@
     "review_desc": "Your review on Google helps other diners find us and helps our team continue to grow.",
     "review_btn": "Leave a Google Review",
     "home_btn": "Back to Table Home",
-    "footer": "TipTable • Thank you for dining with us"
+    "footer": "rwrd • Thank you for dining with us"
   }
 }

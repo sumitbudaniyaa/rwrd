@@ -68,7 +68,7 @@ describe('Portal App Scaffolding & Layout', () => {
   it('renders portal navigation sidebar with realm badge and nav links', () => {
     renderWithProviders(<PortalLayout />);
 
-    expect(screen.getByText('TipTable')).toBeDefined();
+    expect(screen.getByText('rwrd')).toBeDefined();
     expect(screen.getByText('Control Plane')).toBeDefined();
     expect(screen.getByText('Platform Staff Realm')).toBeDefined();
 

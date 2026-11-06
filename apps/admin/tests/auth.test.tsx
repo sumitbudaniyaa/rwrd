@@ -14,7 +14,7 @@ describe('Admin Authentication Flow', () => {
 
     render(<App />);
 
-    expect(screen.getByText('Sign in to TipTable Admin')).toBeInTheDocument();
+    expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
     expect(screen.getByLabelText(/work email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
@@ -27,7 +27,7 @@ describe('Admin Authentication Flow', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('Sign in to TipTable Admin')).toBeInTheDocument();
+      expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
     });
   });
 

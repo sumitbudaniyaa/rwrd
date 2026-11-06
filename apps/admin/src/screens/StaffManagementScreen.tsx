@@ -411,7 +411,7 @@ export const StaffManagementScreen: React.FC = () => {
                 />
                 <p className="text-[11px] text-amber-800 leading-relaxed font-medium">
                   Double-check the VPA. A wrong VPA sends diner tips directly to the wrong person.
-                  TipTable does not hold or mediate funds.
+                  rwrd does not hold or mediate funds.
                 </p>
               </div>
 

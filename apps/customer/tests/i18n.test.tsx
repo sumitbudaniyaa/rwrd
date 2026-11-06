@@ -63,7 +63,7 @@ describe('Customer App i18n: English & Hindi Support', () => {
     expect(screen.getByText('जिन्होंने आपको भोजन कराया उन्हें खुश करें')).toBeInTheDocument();
     expect(screen.getByText('समीक्षा दें')).toBeInTheDocument();
     expect(
-      screen.getByText('TipTable द्वारा संचालित • 100% टिप सीधे वेटर को जाती है'),
+      screen.getByText('rwrd द्वारा संचालित • 100% टिप सीधे वेटर को जाती है'),
     ).toBeInTheDocument();
 
     // Switch back to English

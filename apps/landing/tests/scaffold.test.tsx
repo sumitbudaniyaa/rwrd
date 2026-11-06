@@ -6,7 +6,7 @@ describe('Landing App Scaffolding & Layout', () => {
   it('renders landing header with compliance guarantee and brand logo', () => {
     render(<App />);
 
-    expect(screen.getAllByText('TipTable').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('rwrd').length).toBeGreaterThan(0);
     expect(screen.getByText(/100% Non-Custodial:/i)).toBeInTheDocument();
     expect(
       screen.getByText(/We never touch diner funds or take a percentage cut of staff tips/i),

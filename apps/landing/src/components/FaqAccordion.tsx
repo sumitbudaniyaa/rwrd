@@ -15,36 +15,35 @@ const FAQ_ITEMS: FaqItem[] = [
     category: 'Billing & Custody',
     question: 'How does the 0% commission model work? Do you take any cut of staff tips?',
     answer:
-      'TipTable takes exactly zero percentage cut of your staff tips. When a diner tips ₹100, the staff member receives ₹100 in their personal bank account. We facilitate direct peer-to-peer (P2P) transfers using standard NPCI UPI deep links (upi://pay). We only charge the restaurant a flat SaaS subscription of ₹999/month per outlet.',
+      'rwrd takes exactly zero percentage cut of your staff tips. When a diner tips ₹100, the staff member receives ₹100 in their personal bank account. We facilitate direct peer-to-peer (P2P) transfers using standard NPCI UPI deep links (upi://pay). We only charge the restaurant a flat SaaS subscription of ₹999/month per outlet.',
   },
   {
     id: 'rbi-compliance',
     category: 'Compliance & Legal',
-    question:
-      'Is TipTable compliant with Reserve Bank of India (RBI) payment aggregator regulations?',
+    question: 'Is rwrd compliant with Reserve Bank of India (RBI) payment aggregator regulations?',
     answer:
-      'Yes, 100% compliant by design. Under RBI master directions for Payment Aggregators and Payment Gateways (PA/PG), an entity that handles customer funds in an escrow or nodal account must be licensed by the RBI. Because TipTable never touches, pools, holds, or routes diner money through any company account, we are fully exempt from payment aggregator licensing mandates.',
+      'Yes, 100% compliant by design. Under RBI master directions for Payment Aggregators and Payment Gateways (PA/PG), an entity that handles customer funds in an escrow or nodal account must be licensed by the RBI. Because rwrd never touches, pools, holds, or routes diner money through any company account, we are fully exempt from payment aggregator licensing mandates.',
   },
   {
     id: 'google-anti-gating',
     category: 'Compliance & Legal',
     question: 'Does review redirection violate Google Maps Anti-Gating policies?',
     answer:
-      'Not at all. Google strictly prohibits "review gating"—the practice of selectively filtering diners by showing a Google review prompt only to positive reviewers while hiding it from negative ones. TipTable offers a completely un-gated review redirect to all diners regardless of tip amount or rating, in strict accordance with Google Maps content guidelines.',
+      'Not at all. Google strictly prohibits "review gating"—the practice of selectively filtering diners by showing a Google review prompt only to positive reviewers while hiding it from negative ones. rwrd offers a completely un-gated review redirect to all diners regardless of tip amount or rating, in strict accordance with Google Maps content guidelines.',
   },
   {
     id: 'tax-accounting',
     category: 'Billing & Custody',
     question: 'Do restaurant owners have to manage tip pooling, payroll taxation, or GST?',
     answer:
-      'No. In traditional tip pooling or credit-card gratuity additions, funds pass through the restaurant’s merchant account, creating payroll complexity, potential GST disputes on service charges, and accounting reconciliation overhead. With TipTable, tips are direct P2P diner-to-server transfers. They never touch restaurant ledgers or bank statements.',
+      'No. In traditional tip pooling or credit-card gratuity additions, funds pass through the restaurant’s merchant account, creating payroll complexity, potential GST disputes on service charges, and accounting reconciliation overhead. With rwrd, tips are direct P2P diner-to-server transfers. They never touch restaurant ledgers or bank statements.',
   },
   {
     id: 'pos-integration',
     category: 'Operations & Setup',
     question: 'What hardware, kitchen displays, or POS integrations are required?',
     answer:
-      'Zero hardware is needed. TipTable operates independently alongside any existing POS system (such as Petpooja, POSist, Toast, or standard cash registers). We generate high-resolution QR placards that you print and display on dining tables. Diners scan with their standard phone camera without downloading any mobile app.',
+      'Zero hardware is needed. rwrd operates independently alongside any existing POS system (such as Petpooja, POSist, Toast, or standard cash registers). We generate high-resolution QR placards that you print and display on dining tables. Diners scan with their standard phone camera without downloading any mobile app.',
   },
   {
     id: 'setup-speed',

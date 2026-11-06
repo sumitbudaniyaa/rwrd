@@ -48,11 +48,11 @@ export const LoginScreen: React.FC = () => {
         <div className="w-full max-w-md">
           {/* Brand header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-stone-900 text-white font-bold text-lg shadow-sm mb-4">
-              TT
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-stone-900 text-white font-bold text-lg shadow-sm mb-4 font-mono">
+              R
             </div>
             <h1 className="text-xl font-semibold text-stone-900 tracking-tight">
-              TipTable Control Plane
+              rwrd Control Plane
             </h1>
             <p className="mt-1 text-xs text-stone-500">
               Restricted internal management realm for platform administrators.

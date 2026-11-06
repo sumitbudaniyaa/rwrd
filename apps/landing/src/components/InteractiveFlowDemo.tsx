@@ -101,8 +101,7 @@ export const InteractiveFlowDemo: React.FC = () => {
               <h4 className="text-lg font-bold text-white">Select Server & Amount</h4>
               <p className="text-xs text-stone-300 leading-relaxed">
                 The diner sees active floor waitstaff and pre-configured tip denominations (₹50,
-                ₹100, ₹200). 100% of the funds go straight to the server—TipTable deducts ₹0
-                commission.
+                ₹100, ₹200). 100% of the funds go straight to the server—rwrd deducts ₹0 commission.
               </p>
               <ul className="text-xs text-stone-400 space-y-2">
                 <li className="flex items-center gap-2">

@@ -59,12 +59,12 @@ export const PortalLayout: React.FC = () => {
         {/* Brand Header */}
         <div className="p-6 border-b border-stone-200">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-stone-900 flex items-center justify-center text-white font-semibold text-sm tracking-tight shadow-xs">
-              TT
+            <div className="w-8 h-8 rounded-lg bg-stone-900 flex items-center justify-center text-white font-bold text-sm tracking-tight shadow-xs font-mono">
+              R
             </div>
             <div>
-              <span className="font-semibold text-sm tracking-tight text-stone-900 block">
-                TipTable
+              <span className="font-bold text-sm tracking-tight text-stone-900 block lowercase">
+                rwrd
               </span>
               <span className="text-[11px] font-medium text-stone-400 block tracking-wider uppercase">
                 Control Plane

@@ -11,7 +11,7 @@ const server = app.listen(env.PORT, () => {
       env: env.NODE_ENV,
       url: env.API_BASE_URL,
     },
-    `🚀 TipTable API server listening on port ${env.PORT}`,
+    `🚀 rwrd API server listening on port ${env.PORT}`,
   );
 });
 

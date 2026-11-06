@@ -100,12 +100,12 @@ export const AdminLayout: React.FC = () => {
         {/* Left: Brand & Tenant Context */}
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-lg shadow-xs">
-              T
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg shadow-xs font-mono">
+              R
             </div>
             <div>
-              <span className="font-semibold text-stone-900 text-sm tracking-tight block">
-                TipTable
+              <span className="font-bold text-stone-900 text-sm tracking-tight block lowercase">
+                rwrd
               </span>
               <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block">
                 Restaurant Admin

@@ -609,7 +609,7 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
               अपने वेटर को सीधे UPI द्वारा टिप देने के लिए स्कैन करें
             </p>
             <p className="text-[10px] text-stone-400 pt-2 border-t border-stone-100">
-              Powered by TipTable • Safe & Direct Peer-to-Peer
+              Powered by rwrd • Safe & Direct Peer-to-Peer
             </p>
           </div>
         </div>

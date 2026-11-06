@@ -39,7 +39,7 @@ describe('Portal Authentication Screen', () => {
   it('renders login screen with security disclosure and form fields', () => {
     renderWithProviders(<LoginScreen />);
 
-    expect(screen.getByText('TipTable Control Plane')).toBeDefined();
+    expect(screen.getByText('rwrd Control Plane')).toBeDefined();
     expect(screen.getByText(/Authorized access only. Connections are IP-monitored/i)).toBeDefined();
     expect(screen.getByPlaceholderText('staff@tiptable.in')).toBeDefined();
     expect(screen.getByPlaceholderText('••••••••••••')).toBeDefined();

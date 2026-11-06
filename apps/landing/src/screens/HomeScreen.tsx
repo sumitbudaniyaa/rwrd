@@ -40,7 +40,7 @@ export const HomeScreen: React.FC = () => {
 
         <SlideUp delay={0.15}>
           <p className="text-base sm:text-lg text-stone-600 max-w-2xl mx-auto leading-relaxed">
-            TipTable is the non-custodial hospitality platform where diners scan table QR codes, tip
+            rwrd is the non-custodial hospitality platform where diners scan table QR codes, tip
             service staff directly via UPI with{' '}
             <strong className="text-stone-900 font-semibold">0% platform commission</strong>, and
             leave authentic Google reviews.
@@ -149,7 +149,7 @@ export const HomeScreen: React.FC = () => {
         <div className="text-center space-y-2">
           <Badge variant="accent">Hospitality Advantages</Badge>
           <h2 className="text-2xl sm:text-3xl font-bold text-stone-900">
-            Why leading dining establishments choose TipTable
+            Why leading dining establishments choose rwrd
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 max-w-xl mx-auto">
             Retain top floor staff, eliminate cash handling headaches, and outrank competitors on
@@ -166,7 +166,7 @@ export const HomeScreen: React.FC = () => {
               Zero Escrow & Zero Payment Liability
             </h4>
             <p className="text-xs text-stone-500 leading-relaxed">
-              Because TipTable never touches customer money, restaurants have zero payment gateway
+              Because rwrd never touches customer money, restaurants have zero payment gateway
               withholding, no escrow compliance liability, and zero chargeback overhead.
             </p>
           </div>
@@ -254,7 +254,7 @@ export const HomeScreen: React.FC = () => {
             Request an In-Person or Virtual Demo
           </h2>
           <p className="text-xs sm:text-sm text-stone-500">
-            See how TipTable fits seamlessly into your dining room operations.
+            See how rwrd fits seamlessly into your dining room operations.
           </p>
         </div>
 

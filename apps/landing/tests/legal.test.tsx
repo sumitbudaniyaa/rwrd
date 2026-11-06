@@ -29,7 +29,7 @@ describe('LegalScreen Component (M5-T05)', () => {
 
     // Grievance Redressal Officer
     expect(screen.getByText(/Ananya Deshmukh • Grievance Redressal Officer/i)).toBeInTheDocument();
-    expect(screen.getByText('grievance@tiptable.in')).toBeInTheDocument();
+    expect(screen.getByText('grievance@rwrd.in')).toBeInTheDocument();
   });
 
   it('renders Terms of Service content for /terms route', () => {

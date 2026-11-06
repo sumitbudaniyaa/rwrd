@@ -33,11 +33,9 @@ export const LandingLayout: React.FC = () => {
           {/* Brand Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-lg bg-stone-900 text-white flex items-center justify-center font-bold text-sm tracking-tight shadow-sm group-hover:scale-105 transition-transform">
-              TT
+              R
             </div>
-            <span className="font-serif text-xl font-bold tracking-tight text-stone-900">
-              TipTable
-            </span>
+            <span className="font-serif text-xl font-bold tracking-tight text-stone-900">rwrd</span>
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -151,11 +149,9 @@ export const LandingLayout: React.FC = () => {
             <div className="space-y-3 md:col-span-1">
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded bg-white text-stone-900 flex items-center justify-center font-bold text-xs">
-                  TT
+                  R
                 </div>
-                <span className="font-serif text-lg font-bold text-white tracking-tight">
-                  TipTable
-                </span>
+                <span className="font-serif text-lg font-bold text-white tracking-tight">rwrd</span>
               </div>
               <p className="text-stone-400 text-[11px] leading-relaxed">
                 Empowering restaurant service staff with direct, zero-cut UPI tipping while
@@ -245,17 +241,14 @@ export const LandingLayout: React.FC = () => {
           {/* Legal Non-Custodial Disclaimer */}
           <div className="pt-8 border-t border-stone-800 text-[11px] text-stone-500 space-y-2 leading-relaxed">
             <p>
-              <strong>Non-Custodial Invariant:</strong> TipTable operates strictly as a technology
-              facilitator and communication protocol provider. TipTable never holds, aggregates,
-              routes, or exercises custody over diner tips or customer funds. All financial
-              transfers occur directly between the diner's personal UPI application and the
-              designated waitstaff member's verified Virtual Payment Address (VPA) through standard
-              NPCI UPI rails.
+              <strong>Non-Custodial Invariant:</strong> rwrd operates strictly as a technology
+              facilitator and communication protocol provider. rwrd never holds, aggregates, routes,
+              or exercises custody over diner tips or customer funds. All financial transfers occur
+              directly between the diner's personal UPI application and the designated waitstaff
+              member's verified Virtual Payment Address (VPA) through standard NPCI UPI rails.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-between pt-4 text-stone-500">
-              <p>
-                &copy; {new Date().getFullYear()} TipTable Technologies India. All rights reserved.
-              </p>
+              <p>&copy; {new Date().getFullYear()} rwrd Technologies India. All rights reserved.</p>
               <p className="mt-2 sm:mt-0">
                 Built for hospitality in India &bull; Zero commission forever
               </p>

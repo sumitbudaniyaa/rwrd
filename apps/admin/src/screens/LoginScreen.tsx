@@ -58,7 +58,7 @@ export const LoginScreen: React.FC = () => {
             T
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">
-            Sign in to TipTable Admin
+            Sign in to rwrd Admin
           </h1>
           <p className="mt-2 text-xs text-stone-500">
             Enter your credentials to access your restaurant management portal
@@ -140,7 +140,7 @@ export const LoginScreen: React.FC = () => {
           </MotionCard>
 
           <p className="mt-6 text-center text-xs text-stone-400">
-            Protected by TipTable dual-realm auth & AES-256 encrypted storage
+            Protected by rwrd dual-realm auth & AES-256 encrypted storage
           </p>
         </div>
       </SlideUp>

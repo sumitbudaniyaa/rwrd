@@ -91,7 +91,7 @@ describe('Pricing & FAQ Components (M5-T03)', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByText(
-          /Is TipTable compliant with Reserve Bank of India \(RBI\) payment aggregator regulations\?/i,
+          /Is rwrd compliant with Reserve Bank of India \(RBI\) payment aggregator regulations\?/i,
         ),
       ).toBeInTheDocument();
       expect(
@@ -109,7 +109,7 @@ describe('Pricing & FAQ Components (M5-T03)', () => {
 
       // Zero commission answer should be visible
       expect(
-        screen.getByText(/TipTable takes exactly zero percentage cut of your staff tips/i),
+        screen.getByText(/rwrd takes exactly zero percentage cut of your staff tips/i),
       ).toBeInTheDocument();
     });
 

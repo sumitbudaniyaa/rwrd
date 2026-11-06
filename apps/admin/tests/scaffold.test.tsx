@@ -56,7 +56,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('TipTable')).toBeInTheDocument();
+      expect(screen.getByText('rwrd')).toBeInTheDocument();
     });
 
     // Brand and header

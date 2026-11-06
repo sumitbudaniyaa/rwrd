@@ -53,7 +53,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               Terms of Service & Non-Custodial Facilitator Agreement
             </h1>
             <p className="text-xs sm:text-sm text-stone-500 mt-1.5">
-              Governing use of the TipTable platform, flat SaaS subscription terms, 0% tip cut
+              Governing use of the rwrd platform, flat SaaS subscription terms, 0% tip cut
               guarantee, and P2P UPI execution.
             </p>
             <div className="flex items-center gap-4 text-[11px] text-stone-400 mt-2">
@@ -99,17 +99,17 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
                 Zero Escrow, Zero Money Transmission, Zero Custody
               </p>
               <p className="text-xs text-emerald-900 leading-relaxed">
-                TipTable Hospitality Technologies Private Limited (&ldquo;TipTable&rdquo;) is an
-                information technology provider and digital directory interface. TipTable is NOT a
-                bank, non-banking financial company (NBFC), payment aggregator (PA), payment gateway
-                (PG), prepaid payment instrument (PPI) issuer, or money transmission business under
-                the Reserve Bank of India (RBI) regulations.
+                rwrd Hospitality Technologies Private Limited (&ldquo;rwrd&rdquo;) is an information
+                technology provider and digital directory interface. rwrd is NOT a bank, non-banking
+                financial company (NBFC), payment aggregator (PA), payment gateway (PG), prepaid
+                payment instrument (PPI) issuer, or money transmission business under the Reserve
+                Bank of India (RBI) regulations.
               </p>
             </div>
             <p>
-              TipTable never touches, holds, pools, settles, or routes customer tip funds through
-              any corporate, escrow, or nodal bank account. When a diner initiates a gratuity,
-              TipTable constructs a standardized NPCI UPI deep link (
+              rwrd never touches, holds, pools, settles, or routes customer tip funds through any
+              corporate, escrow, or nodal bank account. When a diner initiates a gratuity, rwrd
+              constructs a standardized NPCI UPI deep link (
               <code className="text-[11px] bg-stone-100 px-1 py-0.5 rounded font-mono">
                 upi://pay?pa=...
               </code>
@@ -125,11 +125,11 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               Zero Commission Policy on Staff Gratuities
             </h2>
             <p>
-              TipTable guarantees a <strong>0.00% commission rate</strong> on all gratuities paid by
+              rwrd guarantees a <strong>0.00% commission rate</strong> on all gratuities paid by
               diners to waitstaff. Unlike conventional payment aggregators or tipping apps that
-              charge 2% to 5% plus per-transaction interchange fees, TipTable retains exactly ₹0
-              from diner tips. Staff receive 100% of the funds transferred by customers directly
-              into their bank accounts.
+              charge 2% to 5% plus per-transaction interchange fees, rwrd retains exactly ₹0 from
+              diner tips. Staff receive 100% of the funds transferred by customers directly into
+              their bank accounts.
             </p>
           </section>
 
@@ -193,11 +193,11 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               Google Maps Anti-Gating Compliance
             </h2>
             <p>
-              TipTable strictly abides by Google Maps user-generated content policies prohibiting
-              review gating. TipTable provides an un-gated, unfiltered redirect to the
-              restaurant&apos;s public Google Maps review listing. Neither the restaurant nor
-              TipTable screens, filters, incentivizes, or conditions review submission based on
-              positive or negative diner sentiment.
+              rwrd strictly abides by Google Maps user-generated content policies prohibiting review
+              gating. rwrd provides an un-gated, unfiltered redirect to the restaurant&apos;s public
+              Google Maps review listing. Neither the restaurant nor rwrd screens, filters,
+              incentivizes, or conditions review submission based on positive or negative diner
+              sentiment.
             </p>
           </section>
 
@@ -208,12 +208,12 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               Disclaimer of Warranties & Limitation of Liability
             </h2>
             <p className="text-stone-600">
-              TipTable provides the service &ldquo;as is&rdquo; and &ldquo;as available&rdquo;.
-              Because UPI payment confirmation and execution occur out-of-band in third-party
-              banking apps (e.g., Google Pay, PhonePe, Paytm, BHIM), TipTable shall not be liable
-              for bank server outages, NPCI latency, or failed bank settlements. In no event shall
-              TipTable&apos;s cumulative liability exceed the total subscription fees paid by the
-              restaurant in the three (3) months preceding the claim.
+              rwrd provides the service &ldquo;as is&rdquo; and &ldquo;as available&rdquo;. Because
+              UPI payment confirmation and execution occur out-of-band in third-party banking apps
+              (e.g., Google Pay, PhonePe, Paytm, BHIM), rwrd shall not be liable for bank server
+              outages, NPCI latency, or failed bank settlements. In no event shall rwrd&apos;s
+              cumulative liability exceed the total subscription fees paid by the restaurant in the
+              three (3) months preceding the claim.
             </p>
           </section>
 
@@ -241,10 +241,10 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               Data Fiduciary & Digital Personal Data Protection (DPDP) Act 2023
             </h2>
             <p>
-              TipTable Hospitality Technologies Private Limited (&ldquo;TipTable&rdquo;,
-              &ldquo;we&rdquo;, &ldquo;us&rdquo;) operates as a <strong>Data Fiduciary</strong>{' '}
-              under the Digital Personal Data Protection Act, 2023 (&ldquo;DPDP Act&rdquo;). This
-              Privacy Policy explains how personal data of restaurant personnel (&ldquo;Staff Data
+              rwrd Hospitality Technologies Private Limited (&ldquo;rwrd&rdquo;, &ldquo;we&rdquo;,
+              &ldquo;us&rdquo;) operates as a <strong>Data Fiduciary</strong> under the Digital
+              Personal Data Protection Act, 2023 (&ldquo;DPDP Act&rdquo;). This Privacy Policy
+              explains how personal data of restaurant personnel (&ldquo;Staff Data
               Principals&rdquo;), administrators (&ldquo;Admin Data Principals&rdquo;), and diners
               (&ldquo;Customer Data Principals&rdquo;) is collected, processed, and safeguarded.
             </p>
@@ -263,17 +263,17 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               <ul className="list-disc pl-5 space-y-1 text-stone-600 text-xs">
                 <li>
                   <strong>No Account Required:</strong> Diners scan a table QR code and interact
-                  with TipTable without registering an account, providing a phone number, or
-                  entering an email address.
+                  with rwrd without registering an account, providing a phone number, or entering an
+                  email address.
                 </li>
                 <li>
-                  <strong>Zero Tracking Cookies:</strong> TipTable does not use persistent tracking
+                  <strong>Zero Tracking Cookies:</strong> rwrd does not use persistent tracking
                   cookies, cross-site trackers, or advertising pixels on customer-facing screens.
                 </li>
                 <li>
                   <strong>Ephemeral Sessions:</strong> Table QR tokens are strictly validated for
-                  active dining sessions. When a diner clicks a tip preset, TipTable hands off to
-                  the native UPI application immediately.
+                  active dining sessions. When a diner clicks a tip preset, rwrd hands off to the
+                  native UPI application immediately.
                 </li>
               </ul>
             </div>
@@ -339,7 +339,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
                 <span className="font-bold text-stone-900 text-xs">Right to Access</span>
                 <p className="text-[11px] text-stone-500">
-                  Request a summary of your personal data processed by TipTable.
+                  Request a summary of your personal data processed by rwrd.
                 </p>
               </div>
               <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl space-y-1">
@@ -374,7 +374,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
               Grievance Redressal & Data Protection Officer (DPO)
             </h2>
             <p>
-              In accordance with the DPDP Act 2023, TipTable has designated a dedicated Grievance
+              In accordance with the DPDP Act 2023, rwrd has designated a dedicated Grievance
               Redressal Officer:
             </p>
             <div className="p-5 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-3">
@@ -387,7 +387,7 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
                     Ananya Deshmukh &bull; Grievance Redressal Officer
                   </h4>
                   <p className="text-[11px] text-stone-500">
-                    TipTable Hospitality Technologies Private Limited
+                    rwrd Hospitality Technologies Private Limited
                   </p>
                 </div>
               </div>
@@ -395,10 +395,10 @@ export const LegalScreen: React.FC<LegalScreenProps> = () => {
                 <p>
                   <strong>Email:</strong>{' '}
                   <a
-                    href="mailto:grievance@tiptable.in"
+                    href="mailto:grievance@rwrd.in"
                     className="text-stone-900 underline font-semibold"
                   >
-                    grievance@tiptable.in
+                    grievance@rwrd.in
                   </a>
                 </p>
                 <p>
