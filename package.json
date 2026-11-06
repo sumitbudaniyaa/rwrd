@@ -16,6 +16,7 @@
     "typecheck": "pnpm --filter \"@tiptable/*\" --if-present --recursive typecheck",
     "test": "pnpm --filter \"@tiptable/*\" --if-present --recursive test",
     "test:e2e": "playwright test",
+    "test:load": "k6 run load-tests/smoke-test.js",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,yml,yaml}\"",
     "db:migrate": "pnpm --filter @tiptable/api db:migrate",
