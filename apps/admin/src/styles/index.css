@@ -10,6 +10,15 @@
   font-family: 'Lemonade', 'Lemonada', cursive, sans-serif !important;
 }
 
+.font-brand-logo,
+.font-zomato {
+  font-family: 'Metropolis', 'Montserrat', 'Poppins', sans-serif !important;
+  font-weight: 900 !important;
+  font-style: italic !important;
+  letter-spacing: -0.05em !important;
+  text-transform: lowercase !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

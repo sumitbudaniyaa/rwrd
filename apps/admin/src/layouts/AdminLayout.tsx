@@ -98,10 +98,15 @@ export const AdminLayout: React.FC = () => {
       {/* Top Header Navigation */}
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 px-6 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
         {/* Left: Brand */}
-        <div className="flex items-baseline gap-3">
+        <div className="flex items-center gap-2.5">
           <span
-            className="font-lemonade text-4xl sm:text-5xl text-stone-900 tracking-wide select-none lowercase leading-none"
-            style={{ fontFamily: "'Lemonade', 'Lemonada', cursive, sans-serif" }}
+            className="font-zomato font-black italic tracking-tighter text-3xl sm:text-4xl text-stone-950 select-none lowercase leading-none"
+            style={{
+              fontFamily: "'Montserrat', 'Poppins', 'Inter', sans-serif",
+              fontStyle: 'italic',
+              fontWeight: 900,
+              letterSpacing: '-0.06em',
+            }}
           >
             rwrd
           </span>

@@ -18,6 +18,7 @@ export default {
           'sans-serif',
         ],
         lemonade: ['"Lemonade"', '"Lemonada"', 'cursive', 'sans-serif'],
+        brand: ['"Montserrat"', '"Poppins"', '"Inter"', 'sans-serif'],
       },
       colors: {
         admin: {

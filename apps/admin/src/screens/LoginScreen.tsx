@@ -107,10 +107,15 @@ export const LoginScreen: React.FC = () => {
       <div className="w-full min-h-screen flex flex-col justify-between p-6 sm:p-12 lg:p-14 xl:p-20 bg-white">
         {/* Top Brand Bar */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <span
-              className="font-lemonade text-3xl sm:text-4xl tracking-tight text-stone-950 select-none"
-              style={{ fontFamily: "'Lemonade', 'Lemonada', cursive, sans-serif" }}
+              className="font-zomato font-black italic tracking-tighter text-3xl sm:text-4xl text-stone-950 select-none lowercase leading-none"
+              style={{
+                fontFamily: "'Montserrat', 'Poppins', 'Inter', sans-serif",
+                fontStyle: 'italic',
+                fontWeight: 900,
+                letterSpacing: '-0.06em',
+              }}
             >
               rwrd
             </span>
