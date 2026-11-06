@@ -122,3 +122,4 @@ Status values:
 | **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role).     | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant |
 | **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).               | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul        |
 | **M7-T04** | Admin Auth UI Refinements (4-corner alignment, email-only label, hero cleanup) & Forgot Password with beUI Motion. | `Done` | Senior Staff Agent | 2026-11-07     | beUI motion components  |
+| **M7-T05** | Editorial Sign-In Page with beUI Input, StatefulButton, Touched Validation & Landscape Artwork.                    | `Done` | Senior Staff Agent | 2026-11-07     | Editorial auth page     |

@@ -15,10 +15,10 @@ describe('Admin Authentication Flow', () => {
     render(<App />);
 
     expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
+    expect(screen.getByText('welcome back')).toBeInTheDocument();
     expect(screen.getByLabelText(/^email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /forgot password\?/i })).toBeInTheDocument();
   });
 
   it('redirects unauthenticated user from protected /admin route to /admin/login', async () => {
@@ -125,13 +125,13 @@ describe('Admin Authentication Flow', () => {
 
     render(<App />);
 
-    expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
+    expect(screen.getByText('welcome back')).toBeInTheDocument();
 
-    // Click Forgot password?
-    fireEvent.click(screen.getByRole('button', { name: /forgot password\?/i }));
+    // Click Forgot?
+    fireEvent.click(screen.getByRole('button', { name: /forgot\?/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Reset your password')).toBeInTheDocument();
+      expect(screen.getByText('reset password')).toBeInTheDocument();
     });
     expect(screen.getByLabelText(/^email/i)).toBeInTheDocument();
 
@@ -153,7 +153,7 @@ describe('Admin Authentication Flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /back to sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
+      expect(screen.getByText('welcome back')).toBeInTheDocument();
     });
   });
 });
