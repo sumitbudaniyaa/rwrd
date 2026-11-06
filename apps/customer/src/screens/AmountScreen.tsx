@@ -178,7 +178,7 @@ export const AmountScreen: React.FC = () => {
                   key={preset}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
-                  className={`py-3 rounded-xl text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
+                  className={`py-3 min-h-[48px] flex items-center justify-center rounded-xl text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
                     isSelected
                       ? 'bg-charcoal-900 text-white shadow-sm scale-[1.02]'
                       : 'bg-white border border-cream-300 text-charcoal-800 hover:border-brand-accent/50 active:scale-95'

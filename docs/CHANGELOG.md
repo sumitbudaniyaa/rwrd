@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Automated Accessibility Audit Suite & WCAG 2.1 AA Compliance (M6-T03)
+
+- **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)
+- **Task**: `M6-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Integrated `@axe-core/playwright` accessibility testing framework at monorepo root:
+    - Configured automated accessibility analysis targeting WCAG 2.0, WCAG 2.1 Level A and AA criteria (`wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa`).
+  - Implemented comprehensive accessibility test suite in [`e2e/accessibility.spec.ts`](file:///Users/Sumit/Desktop/rwrd/e2e/accessibility.spec.ts):
+    - **Customer Mobile Screens (375px)**:
+      - Validated zero critical or serious accessibility violations across customer greeting, staff selection, and payment trigger views.
+      - Explicit touch target size verification ensuring mobile interactive buttons, preset amount chips, and primary CTAs strictly satisfy the minimum 48x48px touch target standard (`boundingBox().height >= 48`).
+      - Verified explicit `min-h-[48px] flex items-center justify-center` styling on preset chips in `AmountScreen.tsx`.
+    - **Landing Site & Marketing Funnel**:
+      - Verified WCAG 2.1 AA compliance for homepage, DPDP Act Privacy Policy (`/privacy`), and Non-Custodial Terms of Service (`/terms`).
+      - Confirmed accessible names and ARIA roles on interactive ROI calculator sliders (`role="slider"`) and billing switch (`role="switch"`).
+      - Confirmed associated `<label>` attributes and aria error announcements on inbound Demo Request Form inputs.
+    - **Admin & Platform Consoles (Desktop 1280px)**:
+      - Validated zero critical or serious accessibility violations on Admin and Portal authentication and operational screens.
+  - 100% clean typecheck and test discovery across monorepo.
+
 ### 2026-11-06 - Playwright End-to-End Test Suite (M6-T02)
 
 - **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)

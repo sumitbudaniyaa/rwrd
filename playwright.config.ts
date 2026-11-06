@@ -18,7 +18,7 @@ export default defineConfig({
   projects: [
     {
       name: 'Mobile Customer (375px)',
-      testMatch: /customer-flow\.spec\.ts/,
+      testMatch: /(customer-flow|accessibility)\.spec\.ts/,
       use: {
         ...devices['iPhone 13'],
         viewport: { width: 375, height: 812 },
