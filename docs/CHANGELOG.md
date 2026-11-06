@@ -6,6 +6,39 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Platform Restaurant Management & Tenant Lifecycle (M4-T02)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T02`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend Platform Restaurant Management routes in `apps/api/src/routes/portalRestaurants.ts`:
+    - `GET /api/v1/portal/restaurants`: Search by establishment name or slug with status filtering (`all`, `active`, `suspended`, `deleted`) and pagination.
+    - `POST /api/v1/portal/restaurants`: Atomic multi-resource onboarding transaction provisioning:
+      - Restaurant profile with Google review write link.
+      - Default universal dining table and cryptographic QR token.
+      - Initial restaurant owner user with Argon2id hashed temporary password.
+      - Restricted to `super_admin` (`403 Forbidden` for support role).
+      - Tamper-evident audit log with action `RESTAURANT_CREATED`.
+    - `GET /api/v1/portal/restaurants/:id`: Detailed restaurant profile with live counts of active waitstaff and dining tables.
+    - `PATCH /api/v1/portal/restaurants/:id/status`: Suspend or reactivate establishment with recorded reason, audited under `RESTAURANT_SUSPENDED` / `RESTAURANT_REACTIVATED`.
+    - `DELETE /api/v1/portal/restaurants/:id`: Soft-delete restaurant (sets `deletedAt`), audited under `RESTAURANT_DELETED`.
+    - Mounted under `/api/v1/portal/restaurants` in `apps/api/src/app.ts`.
+  - Implemented frontend Restaurant Management in `apps/portal`:
+    - Added API client methods (`getRestaurants`, `onboardRestaurant`, `updateRestaurantStatus`, `deleteRestaurant`) in `apps/portal/src/services/api.ts`.
+    - Built `RestaurantManagementScreen` (`apps/portal/src/screens/RestaurantManagementScreen.tsx`):
+      - Search input with status filter pills (`All`, `Active`, `Suspended`).
+      - Establishment directory displaying status badges, table/staff counts, and creation timestamps.
+      - "Onboard New Restaurant" modal with auto-slugification and Google review URL validation.
+      - Account suspension modal requiring reason input.
+      - Soft-delete confirmation dialog.
+      - Support role RBAC restrictions (hides mutation triggers for read-only staff).
+    - Wired route `/restaurants` in `apps/portal/src/App.tsx`.
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalRestaurants.test.ts` (6 integration tests covering listing, search, status filtering, onboarding transaction, suspension, soft deletion, and RBAC rejection).
+    - `apps/portal/tests/restaurantManagement.test.tsx` (4 tests covering directory view, onboarding modal flow, suspension workflow, and support role authorization bounds).
+  - 100% clean typecheck and all 196 tests passing across all 5 workspace projects.
+
 ### 2026-11-06 - Scaffold Company Portal & Isolated Realm IP Allowlist (M4-T01)
 
 - **Milestone**: M4 (Company Portal)

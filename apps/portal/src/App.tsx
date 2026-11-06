@@ -6,6 +6,7 @@ import { ProtectedRoute } from './components/ProtectedRoute.js';
 import { PortalLayout } from './layouts/PortalLayout.js';
 import { LoginScreen } from './screens/LoginScreen.js';
 import { DashboardOverview } from './screens/DashboardOverview.js';
+import { RestaurantManagementScreen } from './screens/RestaurantManagementScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,19 +31,7 @@ export const App: React.FC = () => {
             <Route path="/portal" element={<ProtectedRoute />}>
               <Route element={<PortalLayout />}>
                 <Route index element={<DashboardOverview />} />
-                <Route
-                  path="restaurants"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">
-                        Restaurant Management
-                      </h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        List, onboard, suspend, reactivate, and impersonate tenant accounts.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="restaurants" element={<RestaurantManagementScreen />} />
                 <Route
                   path="billing"
                   element={

@@ -19,6 +19,7 @@ import { adminQrRouter } from './routes/adminQr.js';
 import { adminAnalyticsRouter } from './routes/adminAnalytics.js';
 import { adminAuditRouter } from './routes/adminAudit.js';
 import { authPortalRouter } from './routes/authPortal.js';
+import { portalRestaurantsRouter } from './routes/portalRestaurants.js';
 import { NotFoundError } from './errors/appError.js';
 
 export function createApp(): Express {
@@ -145,6 +146,9 @@ export function createApp(): Express {
   app.use('/api/v1', adminQrRouter);
   app.use('/api/v1', adminAnalyticsRouter);
   app.use('/api/v1', adminAuditRouter);
+
+  // Portal Management Routes
+  app.use('/api/v1', portalRestaurantsRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

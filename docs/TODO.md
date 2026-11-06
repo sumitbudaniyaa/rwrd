@@ -81,7 +81,7 @@ Status values:
 | ID         | Task Description                                                                                                        | Status    | Owner              | Date Completed | Ref / Notes        |
 | :--------- | :---------------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :----------------- |
 | **M4-T01** | Scaffold `apps/portal` (Platform staff app, isolated auth realm, IP allowlist middleware).                              | `Done`    | Senior Staff Agent | 2026-11-06     | Portal app setup   |
-| **M4-T02** | Build Restaurant Management: List, create, onboard, suspend, reactivate, and soft-delete restaurants.                   | `Backlog` | -                  | -              | Restaurant admin   |
+| **M4-T02** | Build Restaurant Management: List, create, onboard, suspend, reactivate, and soft-delete restaurants.                   | `Done`    | Senior Staff Agent | 2026-11-06     | Restaurant admin   |
 | **M4-T03** | Build Support Impersonation Mode: Session delegation with persistent banner and strict audit logging.                   | `Backlog` | -                  | -              | Support tooling    |
 | **M4-T04** | Build Platform Dashboard: Global metrics, active restaurants, aggregate scans, intents, churn indicators.               | `Backlog` | -                  | -              | Platform analytics |
 | **M4-T05** | Build Billing & Subscription Management: Flat monthly fee tracker, invoice records, payment status, auto-suspend rules. | `Backlog` | -                  | -              | Billing tracker    |

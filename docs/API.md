@@ -282,18 +282,129 @@ The API supports three distinct authentication contexts:
 
 ## 5. Company Portal Endpoints (`/api/v1/portal`)
 
-| Method  | Path                                  |         Auth         | Description                                                        |
-| :------ | :------------------------------------ | :------------------: | :----------------------------------------------------------------- |
-| `POST`  | `/portal/auth/login`                  |         None         | Platform staff email + password login (IP allowlist checked).      |
-| `POST`  | `/portal/auth/refresh`                |        Cookie        | Rotate portal refresh token and return new 15m access token.       |
-| `GET`   | `/portal/auth/me`                     |   Bearer (Portal)    | Retrieve currently authenticated platform staff profile.           |
-| `POST`  | `/portal/auth/logout`                 |   Bearer (Portal)    | Invalidate portal session and clear refresh cookie.                |
-| `POST`  | `/portal/auth/mfa/verify`             |      Temp Token      | Mandatory TOTP MFA challenge.                                      |
-| `GET`   | `/portal/restaurants`                 |        Bearer        | Search and filter all restaurants across the platform.             |
-| `POST`  | `/portal/restaurants`                 | Bearer (Super Admin) | Onboard and provision a new restaurant tenant.                     |
-| `PATCH` | `/portal/restaurants/:id/status`      | Bearer (Super Admin) | Suspend or reactivate restaurant account.                          |
-| `POST`  | `/portal/restaurants/:id/impersonate` |   Bearer (Support)   | Generate temporary support delegation token with full audit trail. |
-| `GET`   | `/portal/metrics`                     |        Bearer        | Global system metrics, MRR, active scans, and health aggregates.   |
-| `GET`   | `/portal/leads`                       |        Bearer        | Review incoming landing demo requests and update pipeline status.  |
-| `PATCH` | `/portal/leads/:id`                   |        Bearer        | Update lead status (`contacted`, `won`, `lost`).                   |
-| `GET`   | `/portal/audit-logs`                  | Bearer (Super Admin) | Search immutable platform-wide audit log.                          |
+| Method   | Path                                  |         Auth         | Description                                                        |
+| :------- | :------------------------------------ | :------------------: | :----------------------------------------------------------------- |
+| `POST`   | `/portal/auth/login`                  |         None         | Platform staff email + password login (IP allowlist checked).      |
+| `POST`   | `/portal/auth/refresh`                |        Cookie        | Rotate portal refresh token and return new 15m access token.       |
+| `GET`    | `/portal/auth/me`                     |   Bearer (Portal)    | Retrieve currently authenticated platform staff profile.           |
+| `POST`   | `/portal/auth/logout`                 |   Bearer (Portal)    | Invalidate portal session and clear refresh cookie.                |
+| `POST`   | `/portal/auth/mfa/verify`             |      Temp Token      | Mandatory TOTP MFA challenge.                                      |
+| `GET`    | `/portal/restaurants`                 |   Bearer (Portal)    | Search and filter all restaurants across the platform.             |
+| `POST`   | `/portal/restaurants`                 | Bearer (Super Admin) | Onboard and provision a new restaurant tenant with owner & QR.     |
+| `GET`    | `/portal/restaurants/:id`             |   Bearer (Portal)    | Retrieve full restaurant profile with staff and tables count.      |
+| `PATCH`  | `/portal/restaurants/:id/status`      | Bearer (Super Admin) | Suspend or reactivate restaurant account with audit reason.        |
+| `DELETE` | `/portal/restaurants/:id`             | Bearer (Super Admin) | Soft-delete restaurant and invalidate access.                      |
+| `POST`   | `/portal/restaurants/:id/impersonate` |   Bearer (Support)   | Generate temporary support delegation token with full audit trail. |
+| `GET`    | `/portal/metrics`                     |        Bearer        | Global system metrics, MRR, active scans, and health aggregates.   |
+| `GET`    | `/portal/leads`                       |        Bearer        | Review incoming landing demo requests and update pipeline status.  |
+| `PATCH`  | `/portal/leads/:id`                   |        Bearer        | Update lead status (`contacted`, `won`, `lost`).                   |
+| `GET`    | `/portal/audit-logs`                  | Bearer (Super Admin) | Search immutable platform-wide audit log.                          |
+
+### Platform Restaurant Management Contracts
+
+#### Search & List Restaurants (`GET /api/v1/portal/restaurants`)
+
+- **Query Parameters**:
+  - `search` (optional string): Case-insensitive match on name or slug.
+  - `status` (optional): `all` (default), `active`, `suspended`, `deleted`.
+  - `limit` (optional integer, default 20, max 100).
+  - `offset` (optional integer, default 0).
+- **Response `200 OK`**:
+
+```json
+{
+  "restaurants": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "The Bombay Canteen",
+      "slug": "the-bombay-canteen",
+      "googleReviewUrl": "https://maps.app.goo.gl/tbc123",
+      "isSuspended": false,
+      "suspensionReason": null,
+      "deletedAt": null,
+      "createdAt": "2026-11-01T10:00:00.000Z",
+      "updatedAt": "2026-11-01T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "limit": 20,
+    "offset": 0,
+    "total": 1
+  }
+}
+```
+
+#### Onboard Restaurant (`POST /api/v1/portal/restaurants`)
+
+- **Role Requirement**: `super_admin` (`403 Forbidden` for support role).
+- **Request Body**:
+
+```json
+{
+  "name": "The Bombay Canteen",
+  "slug": "the-bombay-canteen",
+  "googleReviewUrl": "https://maps.app.goo.gl/tbc123",
+  "ownerFullName": "Sameer Seth",
+  "ownerEmail": "sameer@thebombaycanteen.com",
+  "ownerPassword": "SecurePassword123!"
+}
+```
+
+- **Response `201 Created`**:
+
+```json
+{
+  "restaurant": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "name": "The Bombay Canteen",
+    "slug": "the-bombay-canteen",
+    "googleReviewUrl": "https://maps.app.goo.gl/tbc123",
+    "isSuspended": false,
+    "createdAt": "2026-11-06T10:00:00.000Z"
+  },
+  "owner": {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "email": "sameer@thebombaycanteen.com",
+    "fullName": "Sameer Seth",
+    "role": "owner"
+  },
+  "rootQrToken": "9a7f3b8c2d1e0f4a..."
+}
+```
+
+#### Update Restaurant Status (`PATCH /api/v1/portal/restaurants/:id/status`)
+
+- **Role Requirement**: `super_admin`.
+- **Request Body**:
+
+```json
+{
+  "action": "suspend",
+  "reason": "Overdue monthly subscription invoice"
+}
+```
+
+- **Response `200 OK`**:
+
+```json
+{
+  "restaurant": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "isSuspended": true,
+    "suspensionReason": "Overdue monthly subscription invoice",
+    "updatedAt": "2026-11-06T10:00:00.000Z"
+  }
+}
+```
+
+#### Soft-Delete Restaurant (`DELETE /api/v1/portal/restaurants/:id`)
+
+- **Role Requirement**: `super_admin`.
+- **Response `200 OK`**:
+
+```json
+{
+  "message": "Restaurant soft-deleted successfully",
+  "restaurantId": "11111111-1111-1111-1111-111111111111"
+}
+```

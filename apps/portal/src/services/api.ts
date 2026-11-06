@@ -36,6 +36,44 @@ export interface MeResponse {
   user: PlatformUser;
 }
 
+export interface PortalRestaurantItem {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl: string | null;
+  googleReviewUrl: string;
+  tipPresets: number[];
+  minTipInr: number;
+  maxTipInr: number;
+  isActive: boolean;
+  isSuspended: boolean;
+  suspensionReason: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface PortalRestaurantsResponse {
+  restaurants: PortalRestaurantItem[];
+  pagination: {
+    limit: number;
+    offset: number;
+    count: number;
+  };
+}
+
+export interface OnboardRestaurantInput {
+  name: string;
+  slug: string;
+  googleReviewUrl: string;
+  ownerFullName: string;
+  ownerEmail: string;
+  ownerPassword: string;
+  tipPresets?: number[];
+  minTipInr?: number;
+  maxTipInr?: number;
+}
+
 let inMemoryToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
@@ -137,6 +175,55 @@ export const api = {
   logout(): Promise<{ message: string }> {
     return request<{ message: string }>('/portal/auth/logout', {
       method: 'POST',
+    });
+  },
+
+  getRestaurants(params?: {
+    search?: string;
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<PortalRestaurantsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+    if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+    const qs = searchParams.toString();
+    return request<PortalRestaurantsResponse>(`/portal/restaurants${qs ? `?${qs}` : ''}`, {
+      method: 'GET',
+    });
+  },
+
+  onboardRestaurant(data: OnboardRestaurantInput): Promise<{
+    restaurant: PortalRestaurantItem;
+    owner: { id: string; email: string; fullName: string; role: string };
+    rootQrToken: string;
+  }> {
+    return request<{
+      restaurant: PortalRestaurantItem;
+      owner: { id: string; email: string; fullName: string; role: string };
+      rootQrToken: string;
+    }>('/portal/restaurants', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateRestaurantStatus(
+    id: string,
+    action: 'suspend' | 'reactivate',
+    reason?: string,
+  ): Promise<{ restaurant: PortalRestaurantItem }> {
+    return request<{ restaurant: PortalRestaurantItem }>(`/portal/restaurants/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ action, reason }),
+    });
+  },
+
+  deleteRestaurant(id: string): Promise<{ message: string }> {
+    return request<{ message: string }>(`/portal/restaurants/${id}`, {
+      method: 'DELETE',
     });
   },
 };
