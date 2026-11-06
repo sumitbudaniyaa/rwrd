@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Finalize Operations Runbooks & Disaster Recovery (M6-T05)
+
+- **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)
+- **Task**: `M6-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Overhauled and finalized operational runbook [`docs/RUNBOOK.md`](file:///Users/Sumit/Desktop/rwrd/docs/RUNBOOK.md):
+    - **Disaster Recovery (DR) & Business Continuity**:
+      - Defined explicit RTO (&le; 15 mins) and RPO (&le; 5 mins) commitments.
+      - Documented multi-region standby architecture (Primary: AWS `ap-south-1` Mumbai, DR: AWS `ap-south-2` Hyderabad).
+      - Step-by-step continuous WAL archiving to WORM-locked S3 and Point-in-Time Recovery (PITR) procedures.
+    - **Cryptographic Key & Secret Rotation**:
+      - Master VPA Encryption Key (`VPA_ENCRYPTION_KEY`) zero-downtime rotation protocol with dual-key fallback (`VPA_ENCRYPTION_KEY_PREV`) and automated batch re-encryption.
+      - JWT Secret rotation protocol with dual-verification grace period.
+    - **24/7 Incident Response Playbook**:
+      - Defined P1/P2/P3 severity matrix with SLA response targets (P1 &le; 5 mins, P2 &le; 15 mins).
+      - Immediate incident response checklist (Incident Commander role, war room protocol, mitigation, communication).
+      - Standardized restaurant partner communication templates emphasizing the non-custodial guarantee (funds never held or impacted during downtime).
+  - Milestone 6 (Hardening, Testing, Performance & Launch Readiness) is now 100% complete! (5 of 5 tasks done).
+  - All 6 milestones in `docs/TODO.md` are now fully complete!
+
 ### 2026-11-06 - k6 Load Testing Suite & Latency Benchmarks (M6-T04)
 
 - **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)

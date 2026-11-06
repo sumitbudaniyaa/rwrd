@@ -1,6 +1,6 @@
-# TipTable Operational Runbook
+# TipTable Operational Runbook & SRE Manual
 
-This runbook provides step-by-step procedures for local development setup, database migrations, seeding, production operations, disaster recovery, and key rotation.
+This runbook defines the verified, step-by-step procedures for local development, production operations, database backups, disaster recovery, cryptographic key rotation, and 24/7 incident response.
 
 ---
 
@@ -9,22 +9,29 @@ This runbook provides step-by-step procedures for local development setup, datab
 ### 1.1 Prerequisites
 
 - **Node.js**: `v20.x` or `v22.x` (LTS)
-- **Package Manager**: `pnpm` (v9.x)
-- **Container Engine**: Docker Desktop or Colima with `docker-compose`
+- **Package Manager**: `pnpm` (v9.x or v12.x)
+- **Container Engine**: Docker Desktop, OrbStack, or Colima with `docker-compose`
+- **Testing Runtimes**: Playwright Chromium (`pnpm exec playwright install chromium`), k6 (`brew install k6`)
 
 ### 1.2 Initial Setup
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/sumitbudaniyaa/rwrd.git
    cd rwrd
    ```
-   _Remote:_ `origin -> https://github.com/sumitbudaniyaa/rwrd.git` (Push cadence: every 5 completed tasks).
+
+   _Remote Cadence:_ Push to `origin main` systematically every 5 completed tasks.
+
 2. **Install all workspace dependencies**:
+
    ```bash
    pnpm install
    ```
-3. **Configure environment files**:
+
+3. **Configure environment files from templates**:
+
    ```bash
    cp .env.example .env
    cp apps/api/.env.example apps/api/.env
@@ -33,6 +40,7 @@ This runbook provides step-by-step procedures for local development setup, datab
    cp apps/portal/.env.example apps/portal/.env
    cp apps/landing/.env.example apps/landing/.env
    ```
+
 4. **Start local backing services**:
 
    ```bash
@@ -44,140 +52,210 @@ This runbook provides step-by-step procedures for local development setup, datab
    - Redis 7 on `localhost:6379`
    - MinIO Object Storage on `localhost:9000` (Console: `localhost:9001`)
 
-5. **Execute database migrations**:
+5. **Execute database migrations & seed fixtures**:
 
    ```bash
-   pnpm --filter @tiptable/api db:migrate
+   pnpm db:migrate
+   pnpm db:seed
    ```
 
-6. **Seed development fixtures (dev only)**:
+   _Creates demo restaurants ("The Bombay Canteen"), tables, active staff, and test credentials._
 
-   ```bash
-   pnpm --filter @tiptable/api db:seed
-   ```
-
-   _Creates a demo restaurant, test tables, active waitstaff, and admin/portal test accounts._
-
-7. **Start all services in development mode**:
+6. **Start all services in development mode**:
    ```bash
    pnpm dev
    ```
-   - API: `http://localhost:4000`
    - Customer App: `http://localhost:3000`
    - Restaurant Admin: `http://localhost:3001`
    - Company Portal: `http://localhost:3002`
    - Landing Site: `http://localhost:3003`
+   - API Backend: `http://localhost:3000/api/v1`
 
 ---
 
-## 2. Verification Commands
+## 2. Verification Commands & CI Pipeline
 
-Run these checks before submitting any commit:
+Run these commands prior to committing any change:
 
 ```bash
-# 1. Typecheck all workspaces
+# 1. Strict TypeScript compilation across all 7 packages
 pnpm typecheck
 
-# 2. Run linter across all workspaces
+# 2. ESLint across all packages with zero warnings
 pnpm lint
 
-# 3. Format check
+# 3. Code formatting verification
 pnpm format:check
 
-# 4. Run unit and integration test suite
+# 4. Full Vitest unit & integration test suite (57+ files, 288+ tests)
 pnpm test
 
-# 5. Secret audit
-pnpm audit:secrets
+# 5. Playwright E2E test suite (Customer mobile, Admin desktop, Portal)
+pnpm test:e2e
+
+# 6. k6 performance smoke test
+pnpm test:load
 ```
 
 ---
 
 ## 3. Database Migration Procedures
 
-We use **Drizzle Kit** for schema versioning.
+We use **Drizzle ORM & Drizzle Kit** for schema versioning.
 
-### 3.1 Generating a New Migration
+### 3.1 Creating a Schema Migration
 
-When modifying schema definitions in `apps/api/src/db/schema/`:
+When updating PostgreSQL schemas in `apps/api/src/db/schema/`:
 
 ```bash
-pnpm --filter @tiptable/api db:generate
+pnpm db:generate
 ```
 
-Review the generated SQL file in `apps/api/src/db/migrations/` before committing.
+Review the resulting SQL migration file in `apps/api/src/db/migrations/` before committing.
 
 ### 3.2 Applying Migrations
 
-- **Local / CI**:
+- **Local Development**:
   ```bash
-  pnpm --filter @tiptable/api db:migrate
+  pnpm db:migrate
   ```
-- **Production**:
-  Executed as a pre-deploy release job in CI/CD before rolling out new application containers. Never run dev seed scripts in production.
+- **Production Deployment**:
+  Executed as an immutable pre-deploy task in the CI/CD pipeline. Application containers do not start until the migration exit code is `0`.
 
 ---
 
-## 4. Production Health & Observability
+## 4. Production Health, Telemetry & Observability
 
-### 4.1 Health Check Endpoints
+### 4.1 Health Check Probes
 
 - **Liveness (`GET /healthz`)**:
-  Returns `200 OK` if the Express process is accepting HTTP traffic.
+  Returns `200 OK` as long as Node.js HTTP event loop is responsive.
 - **Readiness (`GET /readyz`)**:
-  Verifies active connections to PostgreSQL (`SELECT 1;`) and Redis (`PING`). Returns `200 OK` only when both backing services respond within 2000ms. Returns `503 Service Unavailable` otherwise.
+  Probes active PostgreSQL (`SELECT 1;`) and Redis (`PING`) connections. If either dependency exceeds 2000ms, returns `503 Service Unavailable`.
+- **System Diagnostics (`GET /api/v1/portal/system/health`)**:
+  Provides platform operators with memory RSS/heap breakdown, DB connection pool health, and Redis latency. Protected by portal IP allowlist.
 
 ### 4.2 Logging Standards
 
-- All logs are formatted as single-line JSON via **Pino**.
-- Every request carries a unique `x-request-id` header which is injected into all log entries and child loggers.
-- Sensitive fields (`password`, `vpa`, `token`, `totpSecret`, `authorization`) are automatically redacted before stream output.
+- Single-line JSON formatted via **Pino**.
+- Every request is tagged with a UUID `x-request-id` passed downstream.
+- Sensitive fields (`password`, `vpaEncrypted`, `totpSecret`, `authorization`) are automatically redacted at serialization.
 
 ---
 
-## 5. Disaster Recovery & Backups
+## 5. Disaster Recovery (DR) Plan & Business Continuity
 
-### 5.1 Automated PostgreSQL Backup
+### 5.1 Objectives & Architecture
 
-Create a compressed binary dump of the production database:
+- **Recovery Time Objective (RTO)**: &le; 15 minutes (time to restore service).
+- **Recovery Point Objective (RPO)**: &le; 5 minutes (maximum permissible data loss window).
+- **Primary Region**: AWS `ap-south-1` (Mumbai).
+- **Standby DR Region**: AWS `ap-south-2` (Hyderabad).
 
-```bash
-pg_dump -h $PGHOST -U $PGUSER -d $PGDATABASE -F c -b -v -f /backups/tiptable_$(date +%Y%m%d_%H%M%S).dump
-```
+### 5.2 Automated Continuous Backup Architecture
 
-### 5.2 Restoration Procedure
-
-In the event of database corruption or hardware failure:
-
-1. Ensure the API is in maintenance mode.
-2. Terminate existing client connections:
-   ```sql
-   SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = 'tiptable_prod' AND pid <> pg_backend_pid();
-   ```
-3. Restore from the latest verified snapshot:
+1. **WAL Archiving**: PostgreSQL Write-Ahead Logs (WAL) are streamed continuously to an Amazon S3 bucket with Object Lock (WORM compliance) in `ap-south-2`:
    ```bash
-   pg_restore -h $PGHOST -U $PGUSER -d tiptable_prod -v --clean --if-exists /backups/verified_backup.dump
+   archive_command = 'aws s3 cp %p s3://tiptable-wal-archives-hyd/%f'
    ```
-4. Verify data integrity and run `GET /readyz` before re-enabling traffic.
+2. **Daily Logical Dumps**: Compressed database snapshots taken daily at 02:00 IST:
+   ```bash
+   pg_dump -h $PGHOST -U $PGUSER -d tiptable_prod -F c -b -v -f /backups/tiptable_$(date +%Y%m%d_%H%M%S).dump
+   ```
+
+### 5.3 Point-in-Time Recovery (PITR) Procedure
+
+In the event of accidental data deletion or hardware failure:
+
+1. Place the public API in maintenance mode:
+   ```bash
+   fly scale count 0 --app tiptable-api-prod
+   ```
+2. Identify the target timestamp prior to the incident (e.g. `2026-11-06 14:15:00 IST`).
+3. Restore base backup to standby server:
+   ```bash
+   pg_restore -h $DR_PGHOST -U $PGUSER -d tiptable_prod --clean --if-exists /backups/base_backup.dump
+   ```
+4. Configure `recovery.signal` and `postgresql.conf`:
+   ```ini
+   restore_command = 'aws s3 cp s3://tiptable-wal-archives-hyd/%f %p'
+   recovery_target_time = '2026-11-06 14:15:00+05:30'
+   recovery_target_action = 'promote'
+   ```
+5. Start PostgreSQL and verify logs confirm target replay reached:
+   ```bash
+   tail -n 100 /var/log/postgresql/postgresql.log
+   ```
+6. Update application connection string `DATABASE_URL` and restart API instances.
 
 ---
 
-## 6. Security Runbook: Master VPA Key Rotation
+## 6. Security Runbook: Master VPA & Secret Rotation
 
-When rotating the `VPA_ENCRYPTION_KEY`:
+### 6.1 AES-256-GCM Master VPA Key Rotation (Zero Downtime)
 
-1. Generate a new 32-byte hexadecimal key:
+When rotating the staff VPA encryption key (`VPA_ENCRYPTION_KEY`):
+
+1. **Generate a new 32-byte cryptographically secure hex key**:
    ```bash
    openssl rand -hex 32
    ```
-2. Update the environment variables:
-   - Set `VPA_ENCRYPTION_KEY` to the **new key**.
-   - Set `VPA_ENCRYPTION_KEY_PREV` to the **old key**.
-3. Deploy the application with both keys configured. The encryption service will:
-   - Decrypt existing records using `VPA_ENCRYPTION_KEY_PREV`.
-   - Encrypt any new or updated records using `VPA_ENCRYPTION_KEY`.
-4. Trigger the background re-encryption job via CLI:
+2. **Configure dual-key fallback in environment**:
+   - `VPA_ENCRYPTION_KEY`: Set to the **newly generated key**.
+   - `VPA_ENCRYPTION_KEY_PREV`: Set to the **current active key**.
+3. **Deploy API backend**:
+   - New staff records and updates will immediately encrypt using the new key.
+   - Decryption transparently falls back to `VPA_ENCRYPTION_KEY_PREV` if the auth tag fails on the new key.
+4. **Execute background batch re-encryption script**:
    ```bash
    pnpm --filter @tiptable/api cli:re-encrypt-vpas
    ```
-5. Once all records are re-encrypted under the new key, remove `VPA_ENCRYPTION_KEY_PREV`.
+5. **Verify zero records remain under previous key**, then remove `VPA_ENCRYPTION_KEY_PREV` and redeploy.
+
+### 6.2 JWT Secret Rotation
+
+1. Deploy updated JWT verification middleware supporting both `JWT_SECRET_NEW` and `JWT_SECRET_CURRENT`.
+2. Issue all new tokens using `JWT_SECRET_NEW`.
+3. Allow 24 hours for short-lived access tokens (15m expiry) and refresh tokens (7d) to cycle naturally.
+4. Promote `JWT_SECRET_NEW` to primary `JWT_SECRET` and deprecate old secret.
+
+---
+
+## 7. 24/7 Incident Response Checklist & Playbook
+
+### 7.1 Severity Matrix
+
+| Severity | Definition                                                           | Initial Response | Escalation Target       |
+| :------- | :------------------------------------------------------------------- | :--------------- | :---------------------- |
+| **P1**   | Diners unable to scan or generate UPI links; API down; DB failure.   | &le; 5 minutes   | On-call Lead + VP Eng   |
+| **P2**   | Restaurant Admin or Portal inaccessible; elevated error rate (> 2%). | &le; 15 minutes  | SRE On-call + Tech Lead |
+| **P3**   | Analytics delay; non-critical UI bug; minor portal reporting glitch. | &le; 2 hours     | Next business sprint    |
+
+### 7.2 Immediate Incident Checklist (P1 / P2)
+
+```text
+[ ] 1. TRIAGE: Confirm incident status via /healthz, /readyz, and CloudWatch/Pino logs.
+[ ] 2. ROLES: Designate Incident Commander (IC) and Communications Lead.
+[ ] 3. WAR ROOM: Open dedicated Slack/Meet channel #incident-YYYYMMDD-triage.
+[ ] 4. MITIGATE:
+      - If rogue deployment: Roll back to previous Git SHA immediately.
+      - If DB connection exhaustion: Increase pool or reboot read replica.
+      - If UPI deep link generation failure: Check VPA encryption key integrity.
+[ ] 5. NOTIFY: Post public status update at status.tiptable.in ("Investigating QR link latency").
+[ ] 6. POST-INCIDENT: Draft Blameless RCA within 24 hours (root cause, timeline, action items).
+```
+
+### 7.3 Restaurant Partner Communication Template
+
+> **Subject**: [Resolved] TipTable Service Update - Table QR Placard Resolution
+>
+> Dear Restaurant Partner,
+>
+> Between 19:42 IST and 19:54 IST today, our table QR resolution system experienced intermittent latency affecting diner scan redirects.
+>
+> **Impact on Funds**: Because TipTable is 100% non-custodial and never holds diner funds, no staff tips were held, diverted, or lost. All completed UPI transfers settled directly into your waitstaff's bank accounts.
+>
+> Our engineering team has resolved the underlying dependency issue and full performance has been restored.
+>
+> Warm regards,  
+> TipTable Operations Team
