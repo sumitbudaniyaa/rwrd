@@ -159,6 +159,32 @@ export interface AnalyticsResponse {
   staffBreakdown: AnalyticsStaffItem[];
 }
 
+export interface AuditLogItem {
+  id: string;
+  restaurantId: string | null;
+  actorId: string;
+  actorType: 'restaurant_user' | 'platform_user' | 'system';
+  actorName: string;
+  actorEmail?: string | null;
+  action: string;
+  entityType: string;
+  entityId: string;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
+export interface AuditLogsResponse {
+  logs: AuditLogItem[];
+  pagination: {
+    limit: number;
+    offset: number;
+    count: number;
+  };
+}
+
 let inMemoryToken: string | null = null;
 
 export function setAccessToken(token: string | null): void {
@@ -423,5 +449,20 @@ export const api = {
     a.click();
     a.remove();
     window.URL.revokeObjectURL(url);
+  },
+
+  getAuditLogs(
+    restaurantId: string,
+    params?: { limit?: number; offset?: number; entityType?: string },
+  ): Promise<AuditLogsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+    if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+    if (params?.entityType) searchParams.set('entityType', params.entityType);
+    const qs = searchParams.toString();
+    return request<AuditLogsResponse>(
+      `/admin/restaurants/${restaurantId}/audit${qs ? `?${qs}` : ''}`,
+      { method: 'GET' },
+    );
   },
 };

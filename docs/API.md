@@ -239,6 +239,45 @@ The API supports three distinct authentication contexts:
 - **Response `200 OK`**: `Content-Type: text/csv; charset=utf-8` stream adhering to RFC 4180.
 - **Headers**: `Content-Disposition: attachment; filename="tiptable-tips-initiated-<restaurantId>-<date>.csv"`
 
+### Tenant Audit Logs (`GET /api/v1/admin/restaurants/:restaurantId/audit`)
+
+- **Query Parameters**:
+  - `limit` (optional, default 50, max 100)
+  - `offset` (optional, default 0)
+  - `entityType` (optional): `staff`, `restaurant`, `qr_token`, `table`
+- **Response `200 OK`**:
+
+```json
+{
+  "logs": [
+    {
+      "id": "99999999-9999-9999-9999-999999999999",
+      "restaurantId": "11111111-1111-1111-1111-111111111111",
+      "actorId": "33333333-3333-3333-3333-333333333333",
+      "actorType": "restaurant_user",
+      "actorName": "Sameer Seth",
+      "actorEmail": "owner@bombaycanteen.com",
+      "action": "STAFF_CREATED",
+      "entityType": "staff",
+      "entityId": "44444444-4444-4444-4444-444444444444",
+      "beforeState": null,
+      "afterState": {
+        "displayName": "Aarav Patel",
+        "roleLabel": "Captain"
+      },
+      "ipAddress": "127.0.0.1",
+      "userAgent": "Mozilla/5.0",
+      "createdAt": "2026-11-01T10:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "count": 1
+  }
+}
+```
+
 ---
 
 ## 5. Company Portal Endpoints (`/api/v1/portal`)

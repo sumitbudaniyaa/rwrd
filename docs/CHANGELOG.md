@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Tenant Audit Log Viewer & State Diff Inspector (M3-T08)
+
+- **Milestone**: M3 (Restaurant Admin App)
+- **Task**: `M3-T08`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend tenant audit log endpoint in `apps/api/src/routes/adminAudit.ts`:
+    - `GET /api/v1/admin/restaurants/:restaurantId/audit`: Returns paginated, tenant-scoped audit records filtered by `entityType` (`staff`, `restaurant`, `qr_token`, `table`) with actor enrichment resolving restaurant user names, emails, system daemon, and platform support identities. Enforces tenant boundary (`requireAuth('admin')`, `requireTenant('restaurantId')`).
+  - Implemented frontend audit log viewer in `apps/admin`:
+    - Added API client methods (`getAuditLogs`, `AuditLogItem`, `AuditLogsResponse`) in `apps/admin/src/services/api.ts`.
+    - Built `AuditLogScreen` (`apps/admin/src/screens/AuditLogScreen.tsx`):
+      - Immutable audit trail indicator with timeline view.
+      - Action badges categorized by risk level (created, updated, deleted, rotated).
+      - Category filter tabs (`All Events`, `Staff`, `Settings`, `QR Tokens`, `Tables`).
+      - State Diff Modal with side-by-side JSON comparison of before and after states.
+      - Sensitive credential automated redaction notice (ensuring zero password/token/key leaks).
+      - Paginated browsing with page size limit controls.
+    - Wired route `/audit` in `apps/admin/src/App.tsx`.
+  - Added comprehensive test suites:
+    - `apps/api/tests/adminAudit.test.ts` (5 integration tests covering pagination, actor enrichment, entity filtering, tenant boundary 403, and authentication).
+    - `apps/admin/tests/auditLog.test.tsx` (3 unit tests covering audit table rendering, category filtering, and diff modal opening/closing).
+  - Milestone 3 is now 100% complete with all 8 tasks delivered and verified.
+  - 100% clean typecheck and all 177 tests passing across monorepo packages.
+
 ### 2026-11-06 - Admin Analytics Dashboard, Waitstaff Breakdown & CSV Export (M3-T07)
 
 - **Milestone**: M3 (Restaurant Admin App)

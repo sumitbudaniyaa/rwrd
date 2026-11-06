@@ -63,16 +63,16 @@ Status values:
 
 ## Milestone 3: Restaurant Admin App (M3)
 
-| ID         | Task Description                                                                                                | Status    | Owner              | Date Completed | Ref / Notes        |
-| :--------- | :-------------------------------------------------------------------------------------------------------------- | :-------- | :----------------- | :------------- | :----------------- |
-| **M3-T01** | Scaffold `apps/admin` (Vite + React + TS strict, Tailwind CSS, `beUI` motion primitives, Hugeicons).            | `Done`    | Senior Staff Agent | 2026-11-05     | Admin app setup    |
-| **M3-T02** | Implement Admin Authentication: Email/password, TOTP MFA challenge, session management, logout all sessions.    | `Done`    | Senior Staff Agent | 2026-11-05     | Admin auth UI      |
-| **M3-T03** | Build Staff Management: Add, edit, soft delete, active toggle, photo crop/compression, role display labels.     | `Done`    | Senior Staff Agent | 2026-11-05     | Staff CRUD & VPA   |
-| **M3-T04** | Build VPA Capture & QR Scanner: QR code parser extracting `pa=`, VPA regex validation, typo safeguard warnings. | `Done`    | Senior Staff Agent | 2026-11-05     | VPA scanner & QR   |
-| **M3-T05** | Build Restaurant Settings: Name, logo upload, Google review URL validator, tip preset amounts, min/max limits.  | `Done`    | Senior Staff Agent | 2026-11-05     | Settings UI & API  |
-| **M3-T06** | Build Table QR Code Generator: Downloadable PNG/SVG/Printable PDF with table numbers and token rotation.        | `Done`    | Senior Staff Agent | 2026-11-05     | QR generator & PDF |
-| **M3-T07** | Build Admin Analytics Dashboard: Scans, staff views, tip intents, review taps, waiter breakdown, CSV export.    | `Done`    | Senior Staff Agent | 2026-11-06     | Analytics UI & CSV |
-| **M3-T08** | Build Audit Log Viewer: History of changes made within the tenant account.                                      | `Backlog` | -                  | -              | Tenant audit UI    |
+| ID         | Task Description                                                                                                | Status | Owner              | Date Completed | Ref / Notes        |
+| :--------- | :-------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :----------------- |
+| **M3-T01** | Scaffold `apps/admin` (Vite + React + TS strict, Tailwind CSS, `beUI` motion primitives, Hugeicons).            | `Done` | Senior Staff Agent | 2026-11-05     | Admin app setup    |
+| **M3-T02** | Implement Admin Authentication: Email/password, TOTP MFA challenge, session management, logout all sessions.    | `Done` | Senior Staff Agent | 2026-11-05     | Admin auth UI      |
+| **M3-T03** | Build Staff Management: Add, edit, soft delete, active toggle, photo crop/compression, role display labels.     | `Done` | Senior Staff Agent | 2026-11-05     | Staff CRUD & VPA   |
+| **M3-T04** | Build VPA Capture & QR Scanner: QR code parser extracting `pa=`, VPA regex validation, typo safeguard warnings. | `Done` | Senior Staff Agent | 2026-11-05     | VPA scanner & QR   |
+| **M3-T05** | Build Restaurant Settings: Name, logo upload, Google review URL validator, tip preset amounts, min/max limits.  | `Done` | Senior Staff Agent | 2026-11-05     | Settings UI & API  |
+| **M3-T06** | Build Table QR Code Generator: Downloadable PNG/SVG/Printable PDF with table numbers and token rotation.        | `Done` | Senior Staff Agent | 2026-11-05     | QR generator & PDF |
+| **M3-T07** | Build Admin Analytics Dashboard: Scans, staff views, tip intents, review taps, waiter breakdown, CSV export.    | `Done` | Senior Staff Agent | 2026-11-06     | Analytics UI & CSV |
+| **M3-T08** | Build Audit Log Viewer: History of changes made within the tenant account.                                      | `Done` | Senior Staff Agent | 2026-11-06     | Tenant audit UI    |
 
 ---
 
