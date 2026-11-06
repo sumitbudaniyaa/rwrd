@@ -1,9 +1,17 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
+import { db } from '../db/index.js';
+import { platformUsers } from '../db/schema/index.js';
 import { authService } from '../services/authService.js';
-import { UnauthorizedError } from '../errors/appError.js';
+import { requireAuth } from '../middleware/rbac.js';
+import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
+import { UnauthorizedError, NotFoundError } from '../errors/appError.js';
 
 export const authPortalRouter = Router();
+
+// Apply IP allowlist protection to all Company Portal auth endpoints
+authPortalRouter.use(portalIpAllowlist());
 
 const LoginSchema = z.object({
   email: z.string().trim().email(),
@@ -63,6 +71,39 @@ authPortalRouter.post(
         accessToken: tokens.accessToken,
         expiresInSeconds: tokens.expiresInSeconds,
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * GET /api/v1/portal/auth/me
+ * Restores session profile for authenticated platform users.
+ */
+authPortalRouter.get(
+  '/portal/auth/me',
+  requireAuth('portal'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = req.user!.id;
+      const [user] = await db
+        .select({
+          id: platformUsers.id,
+          email: platformUsers.email,
+          fullName: platformUsers.fullName,
+          role: platformUsers.role,
+          isActive: platformUsers.isActive,
+        })
+        .from(platformUsers)
+        .where(eq(platformUsers.id, userId))
+        .limit(1);
+
+      if (!user) {
+        throw new NotFoundError('Platform user account not found');
+      }
+
+      res.status(200).json({ user });
     } catch (error) {
       next(error);
     }

@@ -6,6 +6,33 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Scaffold Company Portal & Isolated Realm IP Allowlist (M4-T01)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T01`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend IP allowlisting middleware in `apps/api/src/middleware/ipAllowlist.ts`:
+    - Normalizes client IP addresses (handling IPv4-mapped IPv6 like `::ffff:192.168.1.1` and `::1`).
+    - Enforces strict IP allowlist when `PORTAL_ALLOWED_IPS` is configured in the validated environment, rejecting unauthorized callers with `403 Forbidden`.
+  - Updated Portal authentication routes in `apps/api/src/routes/authPortal.ts`:
+    - Wired `portalIpAllowlist` across all platform staff endpoints.
+    - Added `GET /api/v1/portal/auth/me`: Restores session profile (`id`, `email`, `fullName`, `role`) for authenticated platform users (`requireAuth('portal')`).
+  - Scaffolded `@tiptable/portal` (`apps/portal`):
+    - React 18, Vite 6, TypeScript (strict mode, zero `any`), TanStack Query v5, React Router v6.
+    - Minimalist design aesthetic with dark slate accents (`#0F172A`), subtle borders (`#E2E8F0`), Inter typography, and `beUI` motion primitives (`SlideUp`, `StaggerList`, `MotionCard`, `Badge`, `MotionButton`).
+    - `src/config/env.ts`: Fail-fast Zod environment loader (`VITE_API_BASE_URL`).
+    - `src/services/api.ts`: API client with silent session refresh on 401 and double-submit CSRF protection (`login`, `refresh`, `getMe`, `logout`).
+    - `src/context/AuthContext.tsx`: Session context maintaining platform user profile and authentication state.
+    - `src/layouts/PortalLayout.tsx`: Platform staff shell with sidebar navigation, realm badge (`Platform Staff Realm`), user role pill (`Super Admin`, `Support`, `Finance`), and sign out.
+    - `src/screens/LoginScreen.tsx`: Internal control plane authentication with IP monitoring disclosure banner.
+    - `src/screens/DashboardOverview.tsx`: Global operations dashboard with KPI metric cards (Active Restaurants, Global Scans, Tips Initiated, Inbound Demo Leads) and quick links.
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalAuth.test.ts` (4 integration tests covering portal login, session profile `me`, unauthorized IP rejection, and authorized IP pass-through).
+    - `apps/portal/tests/scaffold.test.tsx` (2 tests covering sidebar layout, realm badge, and dashboard overview metrics).
+    - `apps/portal/tests/auth.test.tsx` (3 tests covering login screen rendering, credential submission, and error alerts).
+  - 100% clean typecheck and all 182 tests passing across all monorepo packages.
+
 ### 2026-11-06 - Tenant Audit Log Viewer & State Diff Inspector (M3-T08)
 
 - **Milestone**: M3 (Restaurant Admin App)

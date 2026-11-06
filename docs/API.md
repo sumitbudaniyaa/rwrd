@@ -284,7 +284,10 @@ The API supports three distinct authentication contexts:
 
 | Method  | Path                                  |         Auth         | Description                                                        |
 | :------ | :------------------------------------ | :------------------: | :----------------------------------------------------------------- |
-| `POST`  | `/portal/auth/login`                  |         None         | Platform staff email + password login.                             |
+| `POST`  | `/portal/auth/login`                  |         None         | Platform staff email + password login (IP allowlist checked).      |
+| `POST`  | `/portal/auth/refresh`                |        Cookie        | Rotate portal refresh token and return new 15m access token.       |
+| `GET`   | `/portal/auth/me`                     |   Bearer (Portal)    | Retrieve currently authenticated platform staff profile.           |
+| `POST`  | `/portal/auth/logout`                 |   Bearer (Portal)    | Invalidate portal session and clear refresh cookie.                |
 | `POST`  | `/portal/auth/mfa/verify`             |      Temp Token      | Mandatory TOTP MFA challenge.                                      |
 | `GET`   | `/portal/restaurants`                 |        Bearer        | Search and filter all restaurants across the platform.             |
 | `POST`  | `/portal/restaurants`                 | Bearer (Super Admin) | Onboard and provision a new restaurant tenant.                     |
