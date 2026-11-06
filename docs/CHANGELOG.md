@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Pricing Calculator & Comprehensive FAQ Accordion (M5-T03)
+
+- **Milestone**: M5 (Landing Site & Lead Funnel)
+- **Task**: `M5-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented interactive restaurant ROI & impact calculator (`apps/landing/src/components/PricingCalculator.tsx`):
+    - Sliders for dining table count (5–100), daily covers per table (4–30), average tip amount (₹20–₹250), and diner tip initiation percentage (5–40%).
+    - Realtime reactive calculations projecting monthly staff tip distributions (100% direct via UPI) and monthly organic Google 5-star review boosts.
+    - Monthly vs Annual billing toggle with 17% savings badge (₹833/month vs ₹999/month, 2 months free).
+    - Cost savings callout comparing TipTable's flat ₹999/month SaaS against legacy 3% commission payment gateways and escrow aggregators.
+    - Standard Platform License feature matrix detailing 0% tip cut, unlimited waitstaff profiles with AES-256 encrypted VPAs, vector SVG/PDF placards, and zero hardware requirements.
+  - Implemented authoritative FAQ accordion (`apps/landing/src/components/FaqAccordion.tsx`):
+    - 6 expandable category-tagged FAQ questions covering zero commission guarantees, RBI payment aggregator (PA/PG) exemption by virtue of non-custodial architecture, Google Maps anti-gating compliance, payroll/GST tax insulation, POS independence, and 15-minute rapid onboarding.
+    - Accessible accordion pattern with `aria-expanded` and `aria-controls` bindings.
+  - Integrated both components into `apps/landing/src/screens/HomeScreen.tsx` under `#pricing` and `#faq`.
+  - Added unit test suite in `apps/landing/tests/pricingFaq.test.tsx` (5 tests verifying initial metrics, slider reactiveness, billing cycle toggles, question rendering, and accordion expansion).
+  - 100% clean typecheck and test passes across landing workspace.
+
 ### 2026-11-06 - Landing Sections & Interactive Flow Demo (M5-T02)
 
 - **Milestone**: M5 (Landing Site & Lead Funnel)

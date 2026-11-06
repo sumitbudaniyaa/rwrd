@@ -13,6 +13,8 @@ import {
 import { SlideUp, Badge } from '@tiptable/ui';
 import { landingEnv } from '../config/env.js';
 import { InteractiveFlowDemo } from '../components/InteractiveFlowDemo.js';
+import { PricingCalculator } from '../components/PricingCalculator.js';
+import { FaqAccordion } from '../components/FaqAccordion.js';
 
 export const HomeScreen: React.FC = () => {
   return (
@@ -228,80 +230,19 @@ export const HomeScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Pricing Section Anchor */}
-      <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      {/* 5. Pricing Section & ROI Calculator */}
+      <section id="pricing" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="text-center space-y-2">
           <Badge variant="success">Predictable SaaS Pricing</Badge>
           <h2 className="text-2xl sm:text-3xl font-bold text-stone-900">
             Simple, transparent, flat monthly pricing
           </h2>
           <p className="text-xs sm:text-sm text-stone-500 max-w-xl mx-auto">
-            Zero setup fees. Zero commission on tips. 14-day free trial.
+            Zero setup fees. Zero commission on tips. 14-day free trial on all features.
           </p>
         </div>
 
-        <div className="max-w-md mx-auto p-8 bg-white border-2 border-stone-900 rounded-3xl shadow-lg space-y-6">
-          <div className="space-y-2 text-center">
-            <h3 className="text-lg font-bold text-stone-900">Standard Platform License</h3>
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-4xl font-extrabold text-stone-900">₹999</span>
-              <span className="text-xs font-semibold text-stone-500">/ month per outlet</span>
-            </div>
-            <p className="text-xs text-stone-400">Billed monthly &bull; Cancel anytime</p>
-          </div>
-
-          <ul className="space-y-3 text-xs text-stone-700 pt-2 border-t border-stone-100">
-            <li className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>
-                <strong>0% commission</strong> on all staff tips forever
-              </span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>Unlimited waitstaff profiles & table QR placards</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>Google review redirect acceleration</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>Real-time restaurant analytics dashboard & CSV export</span>
-            </li>
-            <li className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>Printable high-resolution table placard designs (PDF/SVG)</span>
-            </li>
-          </ul>
-
-          <a
-            href="#demo-form"
-            className="block text-center w-full py-3 text-xs font-semibold text-white bg-stone-900 hover:bg-stone-800 rounded-xl transition-colors shadow-sm"
-          >
-            Get Started with 14-Day Trial
-          </a>
-        </div>
+        <PricingCalculator />
       </section>
 
       {/* 6. Demo Request Form Anchor */}
@@ -323,38 +264,20 @@ export const HomeScreen: React.FC = () => {
         </div>
       </section>
 
-      {/* 7. FAQ Anchor */}
-      <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+      {/* 7. FAQ Accordion Section */}
+      <section id="faq" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center space-y-2">
           <Badge variant="neutral">Frequently Asked Questions</Badge>
           <h2 className="text-2xl sm:text-3xl font-bold text-stone-900">
             Common questions from restaurateurs
           </h2>
+          <p className="text-xs sm:text-sm text-stone-500 max-w-xl mx-auto">
+            Everything you need to know about our non-custodial architecture, RBI compliance, and
+            operational setup.
+          </p>
         </div>
 
-        <div className="space-y-4">
-          <div className="p-5 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2">
-            <h4 className="text-sm font-bold text-stone-900">
-              Does TipTable take any cut or percentage of customer tips?
-            </h4>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              No. TipTable takes exactly 0% commission. When a diner sends ₹100, the staff member
-              receives ₹100 directly into their bank account via UPI. TipTable only charges the
-              restaurant a flat ₹999/month subscription fee.
-            </p>
-          </div>
-
-          <div className="p-5 bg-white border border-stone-200 rounded-2xl shadow-xs space-y-2">
-            <h4 className="text-sm font-bold text-stone-900">
-              Is review gating compliant with Google Maps policies?
-            </h4>
-            <p className="text-xs text-stone-600 leading-relaxed">
-              TipTable strictly follows Google&apos;s Anti-Gating policy. All diners are offered the
-              opportunity to leave a Google review regardless of tip status or rating, ensuring 100%
-              compliance.
-            </p>
-          </div>
-        </div>
+        <FaqAccordion />
       </section>
     </div>
   );
