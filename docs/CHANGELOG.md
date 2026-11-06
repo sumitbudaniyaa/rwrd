@@ -6,6 +6,33 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Comprehensive Supertest API Integration Suite (M6-T01)
+
+- **Milestone**: M6 (Hardening, Testing, Performance & Launch Readiness)
+- **Task**: `M6-T01`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented comprehensive end-to-end integration test suite (`apps/api/tests/e2eSupertestApi.test.ts`):
+    - **Cross-Tenant Data Isolation Invariants**:
+      - Verified that Tenant Alpha's authenticated owner/manager is strictly prohibited from reading, adding, modifying, or deleting Tenant Beta's staff roster (`GET /api/v1/admin/restaurants/:betaId/staff` -> 403 Forbidden RFC 7807 with `cross-tenant` problem detail).
+      - Verified that Tenant Alpha cannot modify Tenant Beta's restaurant operational settings (`PUT /api/v1/admin/restaurants/:betaId/settings` -> 403 Forbidden).
+      - Verified that Tenant Alpha cannot inspect Tenant Beta's security audit logs (`GET /api/v1/admin/restaurants/:betaId/audit` -> 403 Forbidden).
+      - Verified that admin users without an active restaurant assignment cannot access tenant routes.
+      - Verified that authorized owners and managers of Tenant Alpha are permitted to access Tenant Alpha's staff roster with masked VPAs (`a***v@okaxis`).
+    - **Authentication & Authorization Flows**:
+      - Verified rejection of unauthenticated requests with 401 Unauthorized (`title: 'Unauthorized'`).
+      - Verified rejection of malformed or invalid Bearer tokens with 401 Unauthorized.
+      - Verified cross-realm authentication rejection (admin JWT token attempting to access portal management routes `/api/v1/portal/restaurants` -> 401 Unauthorized).
+      - Verified RBAC role boundaries (portal `finance` role blocked from mutating restaurants with 403 Forbidden).
+      - Verified portal `super_admin` role authorized to manage platform restaurants.
+    - **Request Validation & RFC 7807 Problem Details Conformance**:
+      - Verified `POST /api/v1/public/leads` invalid input rejection returning 422 Unprocessable Entity with `invalid-params` array containing field names and constraint descriptions.
+      - Verified non-existent route `GET /api/v1/undefined-subsystem-endpoint` returning 404 Not Found RFC 7807 problem document.
+    - **Security Headers & Defense-in-Depth**:
+      - Verified Helmet security headers attached to all API responses (`nosniff`, `DENY`, HSTS).
+      - Verified standard `RateLimit-Limit`, `RateLimit-Remaining`, and `RateLimit-Reset` headers.
+  - All 16 integration tests passing in `e2eSupertestApi.test.ts`. Monorepo test suite now stands at **288 passing tests across 57 test files** with 0 errors on strict TypeScript typecheck.
+
 ### 2026-11-06 - DPDP Act 2023 Privacy Policy & Non-Custodial Terms of Service (M5-T05)
 
 - **Milestone**: M5 (Landing Site & Lead Funnel)

@@ -104,10 +104,10 @@ Status values:
 
 ## Milestone 6: Hardening, Testing, Performance & Launch Readiness (M6)
 
-| ID         | Task Description                                                                                                    | Status    | Owner | Date Completed | Ref / Notes              |
-| :--------- | :------------------------------------------------------------------------------------------------------------------ | :-------- | :---- | :------------- | :----------------------- |
-| **M6-T01** | Write Supertest API test suite: Cross-tenant isolation verification, auth flows, rate limiting, validation.         | `Backlog` | -     | -              | API test coverage        |
-| **M6-T02** | Implement Playwright E2E tests: Customer scan-to-intent flow, Admin staff & QR flow, Portal onboarding flow.        | `Backlog` | -     | -              | End-to-end testing       |
-| **M6-T03** | Execute automated accessibility audit (axe-core / Lighthouse) ensuring WCAG 2.1 AA compliance (48px tap targets).   | `Backlog` | -     | -              | A11y verification        |
-| **M6-T04** | Perform k6 load testing on public endpoints (`/token/:token`, `/staff`, `/tips/intent`) and document p95 latencies. | `Backlog` | -     | -              | Performance verification |
-| **M6-T05** | Finalize runbooks: Disaster recovery, database backup/restore, key rotation, incident response checklist.           | `Backlog` | -     | -              | Operational readiness    |
+| ID         | Task Description                                                                                                    | Status    | Owner              | Date Completed | Ref / Notes              |
+| :--------- | :------------------------------------------------------------------------------------------------------------------ | :-------- | :----------------- | :------------- | :----------------------- |
+| **M6-T01** | Write Supertest API test suite: Cross-tenant isolation verification, auth flows, rate limiting, validation.         | `Done`    | Senior Staff Agent | 2026-11-06     | API test coverage        |
+| **M6-T02** | Implement Playwright E2E tests: Customer scan-to-intent flow, Admin staff & QR flow, Portal onboarding flow.        | `Backlog` | -                  | -              | End-to-end testing       |
+| **M6-T03** | Execute automated accessibility audit (axe-core / Lighthouse) ensuring WCAG 2.1 AA compliance (48px tap targets).   | `Backlog` | -                  | -              | A11y verification        |
+| **M6-T04** | Perform k6 load testing on public endpoints (`/token/:token`, `/staff`, `/tips/intent`) and document p95 latencies. | `Backlog` | -                  | -              | Performance verification |
+| **M6-T05** | Finalize runbooks: Disaster recovery, database backup/restore, key rotation, incident response checklist.           | `Backlog` | -                  | -              | Operational readiness    |
