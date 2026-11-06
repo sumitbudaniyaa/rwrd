@@ -208,3 +208,17 @@ To ensure strict separation of concerns, testability, and enterprise maintainabi
 | **Motion & UI**         | `beUI` + `@hugeicons/react`       | Product-grade micro-interactions, spring physics, accessibility (reduced-motion tokens), cohesive SVG stroke icons.  |
 | **Customer Typography** | Self-hosted Newsreader / Fraunces | Warm, sophisticated editorial tone matching Claude's aesthetic without runtime CDN calls or third-party cookies.     |
 | **Data Protection**     | AES-256-GCM + Argon2id            | Industry gold standard for column encryption (VPAs) and credential hashing.                                          |
+
+---
+
+## 6. Core Architectural Invariants
+
+### 6.1 100% Anonymous Diner Tipping Flow
+
+- **Zero Diner Identification**: Diners are completely anonymous. No customer name, email, phone number, or payment card data is ever requested, captured, or stored anywhere in the application or database.
+- **Direct UPI Intent**: Diners interact solely with waiter selection and amount presets before launching out-of-band UPI deep links (`upi://pay`).
+
+### 6.2 Single Restaurant Admin Model
+
+- **Strictly One Admin User per Tenant**: A PostgreSQL unique constraint (`uq_restaurant_users_restaurant_id`) enforces that every restaurant has at most one administrator account.
+- **Unified Role**: The previous two-tier `owner` vs `manager` role hierarchy is replaced with a single unified `admin` role with full administrative authority over their restaurant's profile, staff roster, and QR placements.

@@ -35,6 +35,20 @@ export interface LoginResponse {
   user: AdminUser;
 }
 
+export interface RegisterInput {
+  restaurantName: string;
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+export interface RegisterResponse {
+  message: string;
+  accessToken?: string;
+  expiresInSeconds?: number;
+  user: AdminUser;
+}
+
 export interface MfaChallengeResponse {
   accessToken: string;
   expiresInSeconds: number;
@@ -232,6 +246,7 @@ async function request<T>(
     response.status === 401 &&
     !isRetry &&
     !endpoint.includes('/auth/login') &&
+    !endpoint.includes('/auth/register') &&
     !endpoint.includes('/auth/refresh')
   ) {
     try {
@@ -280,6 +295,13 @@ export const api = {
     return request<LoginResponse>('/admin/auth/login', {
       method: 'POST',
       body: JSON.stringify({ email, password }),
+    });
+  },
+
+  register(input: RegisterInput): Promise<RegisterResponse> {
+    return request<RegisterResponse>('/admin/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(input),
     });
   },
 

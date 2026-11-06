@@ -37,6 +37,7 @@ const renderLayoutWithAuth = (
     isAuthenticated: true,
     impersonation,
     login: vi.fn(),
+    register: vi.fn(),
     verifyMfa: vi.fn(),
     logout: vi.fn(),
     logoutAll: vi.fn(),

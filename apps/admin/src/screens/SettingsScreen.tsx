@@ -8,7 +8,6 @@ import {
   ImageUpload01Icon,
   Add01Icon,
   Cancel01Icon,
-  Shield01Icon,
 } from '@hugeicons/core-free-icons';
 import { MotionCard, MotionButton, Badge, SlideUp } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
@@ -18,7 +17,6 @@ export const SettingsScreen: React.FC = () => {
   const { user, restaurant } = useAuth();
   const queryClient = useQueryClient();
   const restaurantId = user?.restaurantId || restaurant?.id || '';
-  const isOwner = user?.role === 'owner';
 
   // Form states
   const [name, setName] = useState('');
@@ -173,7 +171,7 @@ export const SettingsScreen: React.FC = () => {
       maxTipInr,
     };
 
-    if (isOwner && name.trim()) {
+    if (name.trim()) {
       payload.name = name.trim();
     }
 
@@ -262,26 +260,11 @@ export const SettingsScreen: React.FC = () => {
                 <input
                   type="text"
                   required
-                  disabled={!isOwner}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. The Bombay Canteen"
-                  className={`w-full px-3 py-2 rounded-xl text-xs border transition-colors ${
-                    !isOwner
-                      ? 'bg-stone-50 border-stone-200 text-stone-500 cursor-not-allowed'
-                      : 'bg-white border-stone-300 text-stone-900 focus:outline-none focus:border-indigo-600'
-                  }`}
+                  className="w-full px-3 py-2 rounded-xl text-xs border border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-indigo-600 transition-colors"
                 />
-                {!isOwner && (
-                  <p className="text-[10px] text-stone-400 flex items-center gap-1 mt-1">
-                    <HugeiconsIcon
-                      icon={Shield01Icon}
-                      className="w-3 h-3 text-stone-400"
-                      strokeWidth={1.5}
-                    />
-                    <span>Managers cannot modify entity legal name. Contact owner.</span>
-                  </p>
-                )}
               </div>
 
               {/* Logo Upload */}

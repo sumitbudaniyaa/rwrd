@@ -5,6 +5,7 @@ import {
   type AdminUser,
   type AdminRestaurant,
   type LoginResponse,
+  type RegisterInput,
   type ImpersonationDetails,
 } from '../services/api.js';
 
@@ -17,6 +18,7 @@ interface AuthContextValue {
   isLoading: boolean;
   impersonation: ImpersonationDetails | null;
   login: (email: string, password: string) => Promise<LoginResponse>;
+  register: (input: RegisterInput) => Promise<void>;
   verifyMfa: (code: string, isRecoveryCode?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
@@ -121,6 +123,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return res;
   }, []);
 
+  const register = useCallback(async (input: RegisterInput): Promise<void> => {
+    const res = await api.register(input);
+    if (res.accessToken) {
+      setAccessToken(res.accessToken);
+      setAccessTokenState(res.accessToken);
+      setUser(res.user);
+      setTempToken(null);
+
+      try {
+        const meRes = await api.getMe();
+        setRestaurant(meRes.restaurant);
+      } catch {
+        // Fallback
+      }
+    }
+  }, []);
+
   const verifyMfa = useCallback(
     async (code: string, isRecoveryCode = false): Promise<void> => {
       if (!tempToken) {
@@ -202,6 +221,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isLoading,
     impersonation,
     login,
+    register,
     verifyMfa,
     logout,
     logoutAll,

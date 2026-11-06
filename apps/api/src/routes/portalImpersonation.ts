@@ -50,14 +50,14 @@ portalImpersonationRouter.post(
         throw new NotFoundError('Restaurant not found or deleted');
       }
 
-      // 2. Locate active owner or first active user for context
-      const [ownerUser] = await db
+      // 2. Locate active admin user for context
+      const [adminUser] = await db
         .select()
         .from(restaurantUsers)
         .where(
           and(
             eq(restaurantUsers.restaurantId, restaurantId),
-            eq(restaurantUsers.role, 'owner'),
+            eq(restaurantUsers.role, 'admin'),
             eq(restaurantUsers.isActive, true),
           ),
         )
@@ -74,8 +74,8 @@ portalImpersonationRouter.post(
 
       // 4. Generate 1-hour ephemeral Admin JWT
       const impersonationToken = authService.generateAccessToken({
-        sub: ownerUser ? ownerUser.id : req.user!.id,
-        role: 'owner',
+        sub: adminUser ? adminUser.id : req.user!.id,
+        role: 'admin',
         realm: 'admin',
         restaurantId: targetRestaurant.id,
         isImpersonated: true,

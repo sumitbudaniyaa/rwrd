@@ -111,3 +111,13 @@ Status values:
 | **M6-T03** | Execute automated accessibility audit (axe-core / Lighthouse) ensuring WCAG 2.1 AA compliance (48px tap targets).   | `Done` | Senior Staff Agent | 2026-11-06     | A11y verification        |
 | **M6-T04** | Perform k6 load testing on public endpoints (`/token/:token`, `/staff`, `/tips/intent`) and document p95 latencies. | `Done` | Senior Staff Agent | 2026-11-06     | Performance verification |
 | **M6-T05** | Finalize runbooks: Disaster recovery, database backup/restore, key rotation, incident response checklist.           | `Done` | Senior Staff Agent | 2026-11-06     | Operational readiness    |
+
+---
+
+## Milestone 7: Architectural Streamlining & Auth Modernization (M7)
+
+| ID         | Task Description                                                                                               | Status | Owner              | Date Completed | Ref / Notes             |
+| :--------- | :------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :---------------------- |
+| **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).        | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant |
+| **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role). | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant |
+| **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).           | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul        |

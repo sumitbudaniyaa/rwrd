@@ -82,22 +82,14 @@ export async function seed(): Promise<void> {
     parallelism: 1,
   });
 
-  // Owner & Manager
+  // Restaurant Admin (Single admin account per restaurant)
   await db.insert(restaurantUsers).values([
     {
       restaurantId,
-      email: 'owner@bombaycanteen.in',
+      email: 'admin@bombaycanteen.in',
       passwordHash,
       fullName: 'Sameer Seth',
-      role: 'owner',
-      isActive: true,
-    },
-    {
-      restaurantId,
-      email: 'manager@bombaycanteen.in',
-      passwordHash,
-      fullName: 'Yash Sharma',
-      role: 'manager',
+      role: 'admin',
       isActive: true,
     },
   ]);

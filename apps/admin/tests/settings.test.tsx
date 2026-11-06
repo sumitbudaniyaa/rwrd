@@ -21,10 +21,10 @@ const mockRestaurantSettings: RestaurantSettings = {
   updatedAt: '2026-01-01T00:00:00Z',
 };
 
-const createMockAuthContext = (role = 'owner') => ({
+const createMockAuthContext = (role = 'admin') => ({
   user: {
     id: 'usr-1',
-    email: 'user@bombaycanteen.com',
+    email: 'admin@bombaycanteen.com',
     fullName: 'Sameer Seth',
     role,
     restaurantId: 'rest-123',
@@ -40,6 +40,7 @@ const createMockAuthContext = (role = 'owner') => ({
   isAuthenticated: true,
   impersonation: null,
   login: vi.fn(),
+  register: vi.fn(),
   verifyMfa: vi.fn(),
   logout: vi.fn(),
   logoutAll: vi.fn(),
@@ -47,7 +48,7 @@ const createMockAuthContext = (role = 'owner') => ({
   exitImpersonation: vi.fn(),
 });
 
-const renderWithProviders = (ui: React.ReactElement, role = 'owner') => {
+const renderWithProviders = (ui: React.ReactElement, role = 'admin') => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false, gcTime: 0 },
@@ -91,22 +92,19 @@ describe('SettingsScreen', () => {
     expect(screen.getByText('₹200')).toBeInTheDocument();
   });
 
-  it('disables restaurant legal name when user has manager role', async () => {
+  it('allows restaurant admin to edit restaurant legal name', async () => {
     vi.spyOn(api, 'getRestaurantSettings').mockResolvedValueOnce({
       restaurant: mockRestaurantSettings,
     });
 
-    renderWithProviders(<SettingsScreen />, 'manager');
+    renderWithProviders(<SettingsScreen />, 'admin');
 
     await waitFor(() => {
       expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
     });
 
     const nameInput = screen.getByDisplayValue('The Bombay Canteen');
-    expect(nameInput).toBeDisabled();
-    expect(
-      screen.getByText(/Managers cannot modify entity legal name. Contact owner./i),
-    ).toBeInTheDocument();
+    expect(nameInput).not.toBeDisabled();
   });
 
   it('validates Google review URL and displays warning for non-Google links', async () => {

@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Anonymous Diner Flow, Single Restaurant Admin Architecture & Login/Sign-Up Redesign
+
+- **Milestone**: Core Architectural Evolution & UI Modernization
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **100% Anonymous Diner Tipping**: Enforced zero diner PII collection across database schemas (`tip_intents`) and customer screens. Diners interact strictly via waiter selection, amount presets, and direct UPI intent generation (`upi://pay`).
+  - **Single Restaurant Admin Architecture**:
+    - Added `UNIQUE(restaurant_id)` database constraint on `restaurant_users` table in `apps/api/src/db/schema/restaurantUsers.ts`, guaranteeing strictly one admin account per restaurant.
+    - Simplified RBAC: replaced `owner` and `manager` roles with a unified `admin` role across `apps/api/src/middleware/rbac.ts`, `apps/api/src/routes/`, and `apps/api/src/db/seed.ts`.
+    - Removed manager-specific settings gates in `apps/api/src/routes/adminRestaurant.ts` and `apps/admin/src/screens/SettingsScreen.tsx`, providing the restaurant admin full management of settings and branding.
+    - Added self-serve restaurant onboarding endpoint `POST /api/v1/admin/auth/register` provisioning a restaurant, initial root QR token, and single admin user atomically.
+  - **Login & Sign-Up UI Redesign (Screenshot Inspiration)**:
+    - Overhauled [`apps/admin/src/screens/LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/LoginScreen.tsx) into a modern split-card design.
+    - Left Panel: **rwrd** Lemonade display logo, squircle lock emblem, smooth tabbed toggle between Sign In and Sign Up modes, rounded inputs with accessible labels, solid black pill action button (`Continue` / `Sign in`), terms/privacy links, and locale pill (`ENG ⌵`).
+    - Right Panel: Hero card with blue-indigo glassmorphism gradient, bold headline _"Direct, 100% Transparent Staff Tips"_, 3D isometric floating glass tiles with glowing brand emblem, and translucent floating activity cards with live status pulses.
+  - **Verification & Testing**:
+    - All 174 API tests passing across 27 test suites.
+    - All 43 Admin app tests passing across 9 test suites.
+    - `pnpm typecheck` passed with 0 errors across all 7 workspace packages.
+    - `pnpm lint` passed with 0 errors.
+    - Updated documentation in `docs/DATA_MODEL.md`, `docs/ARCHITECTURE.md`, `docs/DECISIONS.md`, and `docs/TODO.md`.
+
 ### 2026-11-06 - Lemonade Display Logo & Header Streamlining in Admin Console
 
 - **Milestone**: Enhancement (Admin UI / UX Modernization)

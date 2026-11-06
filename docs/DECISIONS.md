@@ -148,3 +148,37 @@ This document records the architectural and design decisions made for **TipTable
 - **Consequences**:
   - Positive: Seamless post-payment transition without fragile polling.
   - Negative: Cannot know if the diner paid or cancelled; copy must graciously say "Thank you for spreading happiness" and "Don't forget to review us".
+
+---
+
+## ADR-009: Single Restaurant Admin Model & Elimination of Multi-Login Roles
+
+- **Status**: Accepted
+- **Date**: 2026-11-07
+- **Context**:
+  Previously, the restaurant tier supported multiple accounts per restaurant with split roles (`owner` vs `manager`). In practice, restaurants operate with a single designated administrator, and managing multiple logins introduced friction, role conflict, and security footprint without added value.
+- **Alternatives Considered**:
+  1. _Retain multi-user schema with permissions matrix_: Unnecessary complexity for SMB restaurants.
+  2. _Enforce single admin at DB layer with `UNIQUE(restaurant_id)`_: Enforces at the database engine level that each restaurant can have strictly one administrator account.
+- **Decision**:
+  Add `UNIQUE(restaurant_id)` constraint on `restaurant_users`, replace `owner`/`manager` roles with a unified `admin` role, and grant full settings/staff/QR control to this single admin account.
+- **Consequences**:
+  - Positive: Drastically simplified RBAC logic and data integrity. Zero ambiguity in restaurant ownership.
+  - Positive: Clean self-service onboarding provisioning 1 restaurant and 1 admin user atomically.
+
+---
+
+## ADR-010: 100% Anonymous Diner Tipping Architecture
+
+- **Status**: Accepted
+- **Date**: 2026-11-07
+- **Context**:
+  To protect consumer privacy and eliminate regulatory friction under the Digital Personal Data Protection (DPDP) Act, diners tipping restaurant staff must not be required to authenticate, provide their name, phone, or email.
+- **Alternatives Considered**:
+  1. _Optional diner phone/name for digital receipt via SMS/WhatsApp_: Requires SMS gateway integration, PII storage, consent management, and data breach liability.
+  2. _100% Anonymous flow_: Diner scans QR, selects staff, selects tip amount, and triggers native UPI app. Zero personal data stored in `tip_intents`.
+- **Decision**:
+  Enforce 100% anonymous diner flow across customer frontend and backend database schemas. Only coarse client environment metadata (device OS/browser) is recorded strictly for rate limiting and fraud deterrence.
+- **Consequences**:
+  - Positive: Zero PII storage; complete immunity from customer data breach liability.
+  - Positive: Frictionless, fastest checkout experience (< 5 seconds to initiate tip).

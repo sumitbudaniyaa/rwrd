@@ -10,19 +10,11 @@ describe('Admin Restaurant Settings Routes', () => {
   const app = createApp();
   const restaurantId = '11111111-1111-1111-1111-111111111111';
   const otherRestaurantId = '22222222-2222-2222-2222-222222222222';
-  const ownerUserId = '33333333-3333-3333-3333-333333333333';
-  const managerUserId = '44444444-4444-4444-4444-444444444444';
+  const adminUserId = '33333333-3333-3333-3333-333333333333';
 
-  const ownerToken = authService.generateAccessToken({
-    sub: ownerUserId,
-    role: 'owner',
-    realm: 'admin',
-    restaurantId,
-  });
-
-  const managerToken = authService.generateAccessToken({
-    sub: managerUserId,
-    role: 'manager',
+  const adminToken = authService.generateAccessToken({
+    sub: adminUserId,
+    role: 'admin',
     realm: 'admin',
     restaurantId,
   });
@@ -53,7 +45,7 @@ describe('Admin Restaurant Settings Routes', () => {
 
     const res = await request(app)
       .get(`/api/v1/admin/restaurants/${restaurantId}/settings`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Authorization', `Bearer ${adminToken}`);
 
     expect(res.status).toBe(200);
     expect(res.body.restaurant.id).toBe(restaurantId);
@@ -67,7 +59,7 @@ describe('Admin Restaurant Settings Routes', () => {
   it('GET /api/v1/admin/restaurants/:id/settings strictly forbids cross-tenant access with 403', async () => {
     const res = await request(app)
       .get(`/api/v1/admin/restaurants/${otherRestaurantId}/settings`)
-      .set('Authorization', `Bearer ${ownerToken}`);
+      .set('Authorization', `Bearer ${adminToken}`);
 
     expect(res.status).toBe(403);
     expect(res.body.code).toBe('FORBIDDEN');
@@ -87,7 +79,7 @@ describe('Admin Restaurant Settings Routes', () => {
 
     const res = await request(app)
       .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
-      .set('Authorization', `Bearer ${ownerToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         name: 'The Bombay Canteen & Bar',
         googleReviewUrl: 'https://g.page/r/newreview123',
@@ -105,7 +97,7 @@ describe('Admin Restaurant Settings Routes', () => {
       expect.objectContaining({
         action: 'RESTAURANT_SETTINGS_UPDATED',
         restaurantId,
-        actorId: ownerUserId,
+        actorId: adminUserId,
       }),
     );
   });
@@ -115,7 +107,7 @@ describe('Admin Restaurant Settings Routes', () => {
 
     const res = await request(app)
       .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
-      .set('Authorization', `Bearer ${ownerToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         googleReviewUrl: 'https://yelp.com/biz/bombay-canteen',
       });
@@ -129,7 +121,7 @@ describe('Admin Restaurant Settings Routes', () => {
 
     const res = await request(app)
       .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
-      .set('Authorization', `Bearer ${ownerToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         minTipInr: 500,
         maxTipInr: 100,
@@ -139,23 +131,7 @@ describe('Admin Restaurant Settings Routes', () => {
     expect(res.body.code).toBe('VALIDATION_FAILED');
   });
 
-  it('PUT /api/v1/admin/restaurants/:id/settings forbids managers from altering restaurant name with 403', async () => {
-    vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
-
-    const res = await request(app)
-      .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
-      .set('Authorization', `Bearer ${managerToken}`)
-      .send({
-        name: 'Manager Renamed Restaurant',
-      });
-
-    expect(res.status).toBe(403);
-    expect(res.body.detail).toContain(
-      'Restaurant managers are not authorized to modify restaurant legal name',
-    );
-  });
-
-  it('PUT /api/v1/admin/restaurants/:id/settings permits managers to adjust operational tip presets', async () => {
+  it('PUT /api/v1/admin/restaurants/:id/settings allows admin to update operational tip presets', async () => {
     vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
     vi.spyOn(restaurantRepository, 'update').mockResolvedValueOnce({
       ...mockRestaurantRecord,
@@ -165,7 +141,7 @@ describe('Admin Restaurant Settings Routes', () => {
 
     const res = await request(app)
       .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
-      .set('Authorization', `Bearer ${managerToken}`)
+      .set('Authorization', `Bearer ${adminToken}`)
       .send({
         tipPresets: [25, 50, 75, 100],
       });

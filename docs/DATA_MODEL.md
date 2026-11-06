@@ -86,7 +86,7 @@ CREATE INDEX idx_restaurants_active ON restaurants(is_active) WHERE is_suspended
 
 ### 3.2 `restaurant_users`
 
-Admin users belonging to a specific restaurant.
+The primary administrator account belonging to a specific restaurant. Structurally enforced to allow **strictly one admin account per restaurant** via `uq_restaurant_users_restaurant_id`.
 
 ```sql
 CREATE TABLE restaurant_users (
@@ -95,7 +95,7 @@ CREATE TABLE restaurant_users (
     email VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL, -- Argon2id
     full_name VARCHAR(255) NOT NULL,
-    role VARCHAR(50) NOT NULL, -- 'owner', 'manager'
+    role VARCHAR(50) DEFAULT 'admin' NOT NULL, -- 'admin'
     is_active BOOLEAN DEFAULT TRUE NOT NULL,
     totp_secret_encrypted VARCHAR(512),
     totp_enabled BOOLEAN DEFAULT FALSE NOT NULL,
@@ -105,7 +105,8 @@ CREATE TABLE restaurant_users (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE,
-    CONSTRAINT uq_restaurant_user_email UNIQUE (restaurant_id, email)
+    CONSTRAINT uq_restaurant_users_restaurant_id UNIQUE (restaurant_id),
+    CONSTRAINT uq_restaurant_user_email UNIQUE (email)
 );
 
 CREATE INDEX idx_restaurant_users_lookup ON restaurant_users(email) WHERE deleted_at IS NULL;
@@ -222,7 +223,10 @@ CREATE INDEX idx_qr_tokens_restaurant ON qr_tokens(restaurant_id);
 
 ### 3.8 `tip_intents`
 
-Recorded when a customer initiates a tip via the "Spread happiness" button.
+Recorded when a diner initiates a tip via the "Spread happiness" button.
+
+> [!IMPORTANT]
+> **Diner Anonymity Invariant**: Diners are 100% anonymous. TipTable never requests, captures, or persists diner names, phone numbers, email addresses, or payment card details. Only coarse client environment metadata is retained for fraud detection and rate limiting.
 
 ```sql
 CREATE TABLE tip_intents (

@@ -173,7 +173,7 @@ portalRestaurantsRouter.post(
           isActive: true,
         });
 
-        // Register initial owner user
+        // Register initial admin user
         const [createdOwner] = await tx
           .insert(restaurantUsers)
           .values({
@@ -181,7 +181,7 @@ portalRestaurantsRouter.post(
             email: data.ownerEmail.toLowerCase().trim(),
             passwordHash,
             fullName: data.ownerFullName,
-            role: 'owner',
+            role: 'admin',
             isActive: true,
           })
           .returning();

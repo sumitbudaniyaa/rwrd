@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { authService, type AuthRealm } from '../services/authService.js';
 import { UnauthorizedError, ForbiddenError } from '../errors/appError.js';
 
-export type AdminRole = 'owner' | 'manager';
+export type AdminRole = 'admin';
 export type PortalRole = 'super_admin' | 'support' | 'finance';
 export type AppRole = AdminRole | PortalRole;
 

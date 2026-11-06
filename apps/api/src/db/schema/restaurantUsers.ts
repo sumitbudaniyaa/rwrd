@@ -21,7 +21,7 @@ export const restaurantUsers = pgTable(
     email: varchar('email', { length: 255 }).notNull(),
     passwordHash: varchar('password_hash', { length: 255 }).notNull(),
     fullName: varchar('full_name', { length: 255 }).notNull(),
-    role: varchar('role', { length: 50 }).notNull(), // 'owner', 'manager'
+    role: varchar('role', { length: 50 }).default('admin').notNull(), // 'admin'
     isActive: boolean('is_active').default(true).notNull(),
     totpSecretEncrypted: varchar('totp_secret_encrypted', { length: 512 }),
     totpEnabled: boolean('totp_enabled').default(false).notNull(),
@@ -33,7 +33,8 @@ export const restaurantUsers = pgTable(
     deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
   (table) => [
-    unique('uq_restaurant_user_email').on(table.restaurantId, table.email),
+    unique('uq_restaurant_users_restaurant_id').on(table.restaurantId),
+    unique('uq_restaurant_user_email').on(table.email),
     index('idx_restaurant_users_lookup').on(table.email),
   ],
 );

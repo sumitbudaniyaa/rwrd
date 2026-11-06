@@ -69,6 +69,7 @@ const createMockAuthContext = () => ({
   isAuthenticated: true,
   impersonation: null,
   login: vi.fn(),
+  register: vi.fn(),
   verifyMfa: vi.fn(),
   logout: vi.fn(),
   logoutAll: vi.fn(),

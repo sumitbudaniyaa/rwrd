@@ -3,7 +3,7 @@ import { UpdateRestaurantSettingsSchema } from '@tiptable/shared';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
-import { NotFoundError, ForbiddenError } from '../errors/appError.js';
+import { NotFoundError } from '../errors/appError.js';
 
 export const adminRestaurantRouter = Router();
 
@@ -62,13 +62,6 @@ adminRestaurantRouter.put(
       const existing = await restaurantRepository.findById(restaurantId);
       if (!existing || existing.deletedAt) {
         throw new NotFoundError('Restaurant not found');
-      }
-
-      // Role invariant: Manager cannot change owner entity identity settings
-      if (req.user?.role === 'manager' && body.name && body.name !== existing.name) {
-        throw new ForbiddenError(
-          'Restaurant managers are not authorized to modify restaurant legal name',
-        );
       }
 
       const updateData: Parameters<typeof restaurantRepository.update>[1] = {};
