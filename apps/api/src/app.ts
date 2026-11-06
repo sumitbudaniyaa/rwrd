@@ -23,6 +23,7 @@ import { portalRestaurantsRouter } from './routes/portalRestaurants.js';
 import { portalImpersonationRouter } from './routes/portalImpersonation.js';
 import { portalMetricsRouter } from './routes/portalMetrics.js';
 import { portalBillingRouter } from './routes/portalBilling.js';
+import { portalLeadsRouter } from './routes/portalLeads.js';
 import { NotFoundError } from './errors/appError.js';
 
 export function createApp(): Express {
@@ -155,6 +156,7 @@ export function createApp(): Express {
   app.use('/api/v1', portalImpersonationRouter);
   app.use('/api/v1', portalMetricsRouter);
   app.use('/api/v1', portalBillingRouter);
+  app.use('/api/v1', portalLeadsRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

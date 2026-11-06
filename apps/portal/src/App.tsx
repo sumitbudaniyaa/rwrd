@@ -8,6 +8,7 @@ import { LoginScreen } from './screens/LoginScreen.js';
 import { DashboardOverview } from './screens/DashboardOverview.js';
 import { RestaurantManagementScreen } from './screens/RestaurantManagementScreen.js';
 import { BillingManagementScreen } from './screens/BillingManagementScreen.js';
+import { LeadsManagementScreen } from './screens/LeadsManagementScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,17 +35,7 @@ export const App: React.FC = () => {
                 <Route index element={<DashboardOverview />} />
                 <Route path="restaurants" element={<RestaurantManagementScreen />} />
                 <Route path="billing" element={<BillingManagementScreen />} />
-                <Route
-                  path="leads"
-                  element={
-                    <div className="p-6 bg-white border border-stone-200 rounded-2xl">
-                      <h2 className="text-lg font-semibold text-stone-900">Inbound Leads CRM</h2>
-                      <p className="text-xs text-stone-500 mt-1">
-                        Marketing landing page demo requests and conversion pipeline.
-                      </p>
-                    </div>
-                  }
-                />
+                <Route path="leads" element={<LeadsManagementScreen />} />
                 <Route
                   path="audit"
                   element={

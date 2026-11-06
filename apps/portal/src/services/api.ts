@@ -266,6 +266,36 @@ export interface AutoSuspendSweepResult {
   }>;
 }
 
+export type LeadStatus = 'new' | 'contacted' | 'demo_scheduled' | 'won' | 'lost';
+
+export interface LeadItem {
+  id: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  restaurantName: string;
+  city: string;
+  notes: string | null;
+  status: LeadStatus;
+  captchaVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface LeadsResponse {
+  leads: LeadItem[];
+  pagination: {
+    limit: number;
+    offset: number;
+    count: number;
+  };
+}
+
+export interface UpdateLeadStatusInput {
+  status: LeadStatus;
+  notes?: string;
+}
+
 export const api = {
   login(email: string, password: string): Promise<PortalLoginResponse> {
     return request<PortalLoginResponse>('/portal/auth/login', {
@@ -402,6 +432,36 @@ export const api = {
   runAutoSuspendCheck(): Promise<AutoSuspendSweepResult> {
     return request<AutoSuspendSweepResult>('/portal/billing/auto-suspend-check', {
       method: 'POST',
+    });
+  },
+
+  getLeads(params?: {
+    status?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<LeadsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+    if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+    const qs = searchParams.toString();
+    return request<LeadsResponse>(`/portal/leads${qs ? `?${qs}` : ''}`, {
+      method: 'GET',
+    });
+  },
+
+  getLead(id: string): Promise<{ lead: LeadItem }> {
+    return request<{ lead: LeadItem }>(`/portal/leads/${id}`, {
+      method: 'GET',
+    });
+  },
+
+  updateLeadStatus(id: string, data: UpdateLeadStatusInput): Promise<{ lead: LeadItem }> {
+    return request<{ lead: LeadItem }>(`/portal/leads/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     });
   },
 };

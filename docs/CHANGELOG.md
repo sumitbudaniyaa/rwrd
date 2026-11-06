@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Inbound Leads Pipeline & CRM Management (M4-T06)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T06`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend public ingestion and portal lead management in `apps/api/src/routes/portalLeads.ts`:
+    - `POST /api/v1/public/leads`: Ingests inbound demo request forms with input validation for contact details, Indian phone format, restaurant, and notes.
+    - `GET /api/v1/portal/leads`: Pipeline listing with multi-field text search and stage filtering (`new`, `contacted`, `demo_scheduled`, `won`, `lost`).
+    - `GET /api/v1/portal/leads/:id`: Single lead profile view.
+    - `PATCH /api/v1/portal/leads/:id/status`: Updates stage transition and sales discussion notes with immutable audit log (`LEAD_STATUS_UPDATED`).
+    - Protected by `portalIpAllowlist()` and RBAC (`super_admin` & `support` for mutations; `finance` read-only). Mounted in `apps/api/src/app.ts`.
+  - Implemented frontend Leads CRM screen in `apps/portal`:
+    - Added lead DTOs and client endpoints in `apps/portal/src/services/api.ts`.
+    - Created `apps/portal/src/screens/LeadsManagementScreen.tsx`:
+      - Pipeline stage summary KPI cards: New Inquiries, In Pipeline, Won / Converted, Closed / Lost.
+      - Stage filter chips (`All`, `New`, `Contacted`, `Demo Set`, `Won`, `Lost`) and search toolbar.
+      - Inline stage transition dropdown.
+      - Lead Detail & Actions modal with direct `tel:` click-to-call, `mailto:` click-to-email, editable sales notes, and quick action to pre-fill restaurant onboarding.
+      - RBAC awareness: read-only sales view for `finance` role.
+    - Wired route `/portal/leads` in `apps/portal/src/App.tsx`.
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalLeads.test.ts` (9 tests covering public lead submission, portal query, ID lookup, 404, status patch, audit trail, and RBAC boundaries).
+    - `apps/portal/tests/leadsManagement.test.tsx` (4 tests covering KPI cards, modal opening, status dropdown mutation, and finance read-only constraints).
+  - 100% clean typecheck and all 240 tests passing across the monorepo.
+
 ### 2026-11-06 - Billing & Subscription Management with Automated Grace Period Rules (M4-T05)
 
 - **Milestone**: M4 (Company Portal)

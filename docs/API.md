@@ -303,7 +303,9 @@ The API supports three distinct authentication contexts:
 | `PATCH`  | `/portal/billing/invoices/:id/status` | Bearer (Finance/Admin) | Update invoice payment state (`mark_paid`, `void`).                |
 | `POST`   | `/portal/billing/auto-suspend-check`  | Bearer (Finance/Admin) | Run 7-day grace period sweep to auto-suspend delinquent accounts.  |
 | `GET`    | `/portal/leads`                       |         Bearer         | Review incoming landing demo requests and update pipeline status.  |
-| `PATCH`  | `/portal/leads/:id`                   |         Bearer         | Update lead status (`contacted`, `won`, `lost`).                   |
+| `GET`    | `/portal/leads/:id`                   |         Bearer         | View single lead contact and discussion details.                   |
+| `PATCH`  | `/portal/leads/:id/status`            |    Bearer (Support)    | Update lead status (`contacted`, `demo_scheduled`, `won`, `lost`). |
+| `POST`   | `/public/leads`                       |          None          | Inbound landing page demo request form submission.                 |
 | `GET`    | `/portal/audit-logs`                  |  Bearer (Super Admin)  | Search immutable platform-wide audit log.                          |
 
 ### Platform Restaurant Management Contracts
