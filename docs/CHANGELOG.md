@@ -6,6 +6,31 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - DPDP Act 2023 Privacy Policy & Non-Custodial Terms of Service (M5-T05)
+
+- **Milestone**: M5 (Landing Site & Lead Funnel)
+- **Task**: `M5-T05`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented comprehensive legal and regulatory disclosure screens (`apps/landing/src/screens/LegalScreen.tsx`):
+    - **Privacy Policy (`/privacy`)**:
+      - Explicit Digital Personal Data Protection (DPDP) Act 2023 compliance as Data Fiduciary.
+      - Diner Data Minimization guarantees: complete diner anonymity (no account registration, no phone numbers, no persistent cookies, zero cross-site tracking).
+      - Waitstaff cryptographic security disclosure: AES-256-GCM encryption at rest with tenant-isolated salt/IVs, rate-limited public intent decryption, and Argon2id / encrypted TOTP administrator credentials.
+      - Tamper-evident automated audit logs retention (180 days) and statutory 30-day staff data soft-delete window.
+      - Full enumeration of Data Principal statutory rights (Access, Correction, Erasure, Grievance Redressal, Nomination).
+      - Designated Grievance Redressal Officer contact details (`grievance@tiptable.in`, Bangalore office address, 24h acknowledgement SLA).
+    - **Terms of Service (`/terms`)**:
+      - 100% Non-Custodial Facilitator Invariant: clear statutory definition that TipTable is an IT directory interface, not an RBI payment aggregator (PA), gateway (PG), NBFC, or PPI money transmitter.
+      - 0% Commission Policy guarantee: ₹0 deductions on staff tips, 100% direct peer-to-peer (P2P) settlement via NPCI UPI protocol (`upi://pay`).
+      - Predictable SaaS subscription terms: flat ₹999/month per outlet, 14-day zero-risk trial, 7-day grace period, and 1-click cancellation.
+      - Google Maps Anti-Gating policy compliance clause: unconditional, un-gated review redirects without pre-screening.
+      - Restaurant partner warranties, limitation of liability, and jurisdiction under Bengaluru, Karnataka courts.
+    - Added interactive dual-tab navigation header linking `/privacy` and `/terms`.
+  - Added unit test suite in `apps/landing/tests/legal.test.tsx` (3 tests verifying DPDP Act sections, non-custodial and 0% commission terms, and interactive tab switching).
+  - Milestone 5 (Landing Site & Lead Funnel) is now 100% complete! (5 of 5 tasks done).
+  - 100% clean typecheck and 19 tests passing across landing workspace.
+
 ### 2026-11-06 - Inbound Demo Request Form & Lead Capture (M5-T04)
 
 - **Milestone**: M5 (Landing Site & Lead Funnel)
