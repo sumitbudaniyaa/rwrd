@@ -168,6 +168,39 @@ export interface ImpersonateResponse {
   };
 }
 
+export interface GlobalMetricsSummary {
+  activeRestaurants: number;
+  suspendedRestaurants: number;
+  totalRestaurants: number;
+  newRestaurants30d: number;
+  churnedRestaurants: number;
+  churnRatePercent: number;
+  scansToday: number;
+  scansAllTime: number;
+  tipsInitiatedTodayCount: number;
+  tipsInitiatedTodayVolumeInr: number;
+  tipsInitiatedAllTimeCount: number;
+  tipsInitiatedAllTimeVolumeInr: number;
+  reviewTapsToday: number;
+  reviewTapsAllTime: number;
+  estimatedMrrInr: number;
+  inboundLeadsCount: number;
+  pendingLeadsCount: number;
+}
+
+export interface DailyPlatformMetric {
+  date: string;
+  scans: number;
+  tipsInitiatedCount: number;
+  tipsInitiatedVolumeInr: number;
+  reviewTaps: number;
+}
+
+export interface PlatformMetricsResponse {
+  summary: GlobalMetricsSummary;
+  timeline30d: DailyPlatformMetric[];
+}
+
 export const api = {
   login(email: string, password: string): Promise<PortalLoginResponse> {
     return request<PortalLoginResponse>('/portal/auth/login', {
@@ -249,6 +282,12 @@ export const api = {
     return request<ImpersonateResponse>(`/portal/restaurants/${id}/impersonate`, {
       method: 'POST',
       body: JSON.stringify(payload),
+    });
+  },
+
+  getGlobalMetrics(): Promise<PlatformMetricsResponse> {
+    return request<PlatformMetricsResponse>('/portal/metrics', {
+      method: 'GET',
     });
   },
 };

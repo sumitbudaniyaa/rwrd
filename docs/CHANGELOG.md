@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Platform Operations Dashboard & Global Telemetry (M4-T04)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T04`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend platform telemetry aggregation in `apps/api/src/repositories/platformMetricsRepository.ts`:
+    - Summarizes platform health: active establishments, suspended accounts, soft-deleted churned count, 30-day retention/churn rate, estimated platform MRR (based on flat ₹999/mo fee), today's and all-time scans, initiated tips count and volume in INR, and Google review taps.
+    - Generates 30-day chronological daily activity timeline with per-day breakdown of scans, initiated tips, and review taps.
+    - Added route `GET /api/v1/portal/metrics` in `apps/api/src/routes/portalMetrics.ts` protected by IP allowlist and RBAC (`super_admin`, `support`, `finance`). Mounted in `apps/api/src/app.ts`.
+  - Implemented frontend Operations Dashboard in `apps/portal`:
+    - Added `getGlobalMetrics` to API client in `apps/portal/src/services/api.ts`.
+    - Rewrote `DashboardOverview` (`apps/portal/src/screens/DashboardOverview.tsx`):
+      - 6 live KPI cards: Active Establishments, Global Scans (Today), Tips Initiated (Today), Estimated Platform MRR, Google Review Taps, Inbound Demo Leads.
+      - 30-Day Activity Trends interactive micro-bar visualizer with date hover tooltips.
+      - Tenant Account Health breakdown card with active, suspended, churned counts, and retention percentage.
+      - Auto-refreshes telemetry every 60 seconds with manual "Refresh Telemetry" button.
+      - Strict compliance with non-custodial payment copy invariant (labeled as "Tips initiated").
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalMetrics.test.ts` (4 integration tests covering super_admin/support access, 401 unauthenticated rejection, and realm mismatch protection).
+    - `apps/portal/tests/dashboard.test.tsx` (3 unit tests covering KPI rendering, 30-day trend chart, and failure retry prompt).
+    - Updated `apps/portal/tests/scaffold.test.tsx` with metrics query mocking.
+  - 100% clean typecheck and all 213 tests passing across all monorepo packages.
+
 ### 2026-11-06 - Support Impersonation Mode & Delegated Session Banner (M4-T03)
 
 - **Milestone**: M4 (Company Portal)

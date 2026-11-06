@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import React from 'react';
+import type { ReactElement } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { PortalLayout } from '../src/layouts/PortalLayout.js';
 import { DashboardOverview } from '../src/screens/DashboardOverview.js';
 import { AuthContext } from '../src/context/AuthContext.js';
+import { api } from '../src/services/api.js';
 
 const mockSuperAdminContext = {
   user: {
@@ -21,7 +22,7 @@ const mockSuperAdminContext = {
   logout: vi.fn(),
 };
 
-const renderWithProviders = (ui: React.ReactElement) => {
+const renderWithProviders = (ui: ReactElement) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false, gcTime: 0 },
@@ -40,6 +41,28 @@ const renderWithProviders = (ui: React.ReactElement) => {
 describe('Portal App Scaffolding & Layout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(api, 'getGlobalMetrics').mockResolvedValue({
+      summary: {
+        activeRestaurants: 24,
+        suspendedRestaurants: 2,
+        totalRestaurants: 26,
+        newRestaurants30d: 3,
+        churnedRestaurants: 1,
+        churnRatePercent: 3.8,
+        scansToday: 4892,
+        scansAllTime: 128450,
+        tipsInitiatedTodayCount: 1280,
+        tipsInitiatedTodayVolumeInr: 142800,
+        tipsInitiatedAllTimeCount: 34120,
+        tipsInitiatedAllTimeVolumeInr: 3840000,
+        reviewTapsToday: 842,
+        reviewTapsAllTime: 21500,
+        estimatedMrrInr: 23976,
+        inboundLeadsCount: 7,
+        pendingLeadsCount: 3,
+      },
+      timeline30d: [],
+    });
   });
 
   it('renders portal navigation sidebar with realm badge and nav links', () => {

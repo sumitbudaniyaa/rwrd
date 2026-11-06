@@ -440,3 +440,41 @@ The API supports three distinct authentication contexts:
   }
 }
 ```
+
+#### Global Platform Telemetry & Metrics (`GET /api/v1/portal/metrics`)
+
+- **Role Requirement**: `super_admin`, `support`, `finance`.
+- **Response `200 OK`**:
+
+```json
+{
+  "summary": {
+    "activeRestaurants": 24,
+    "suspendedRestaurants": 2,
+    "totalRestaurants": 26,
+    "newRestaurants30d": 3,
+    "churnedRestaurants": 1,
+    "churnRatePercent": 3.7,
+    "scansToday": 4892,
+    "scansAllTime": 128450,
+    "tipsInitiatedTodayCount": 1280,
+    "tipsInitiatedTodayVolumeInr": 142800,
+    "tipsInitiatedAllTimeCount": 34120,
+    "tipsInitiatedAllTimeVolumeInr": 3840000,
+    "reviewTapsToday": 842,
+    "reviewTapsAllTime": 21500,
+    "estimatedMrrInr": 23976,
+    "inboundLeadsCount": 7,
+    "pendingLeadsCount": 3
+  },
+  "timeline30d": [
+    {
+      "date": "2026-11-06",
+      "scans": 4892,
+      "tipsInitiatedCount": 1280,
+      "tipsInitiatedVolumeInr": 142800,
+      "reviewTaps": 842
+    }
+  ]
+}
+```
