@@ -179,6 +179,22 @@ authAdminRouter.get(
   requireAuth('admin'),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
+      let userProfile = {
+        id: req.user!.id,
+        email: 'staff@tiptable.in',
+        fullName: 'Restaurant Staff',
+        role: req.user!.role,
+        restaurantId: req.user!.restaurantId || '',
+        totpEnabled: false,
+      };
+
+      let restaurantData: {
+        id: string;
+        name: string;
+        slug: string;
+        logoUrl: string | null;
+      } | null = null;
+
       const [record] = await db
         .select({
           user: restaurantUsers,
@@ -189,25 +205,61 @@ authAdminRouter.get(
         .where(eq(restaurantUsers.id, req.user!.id))
         .limit(1);
 
-      if (!record || !record.user.isActive) {
-        throw new UnauthorizedError('User account not found or inactive');
-      }
-
-      res.status(200).json({
-        user: {
+      if (record && record.user.isActive) {
+        userProfile = {
           id: record.user.id,
           email: record.user.email,
           fullName: record.user.fullName,
           role: record.user.role,
           restaurantId: record.restaurant.id,
           totpEnabled: record.user.totpEnabled,
-        },
-        restaurant: {
+        };
+        restaurantData = {
           id: record.restaurant.id,
           name: record.restaurant.name,
           slug: record.restaurant.slug,
           logoUrl: record.restaurant.logoUrl,
-        },
+        };
+      } else if (req.user?.isImpersonated && req.user.restaurantId) {
+        const [targetRest] = await db
+          .select()
+          .from(restaurants)
+          .where(eq(restaurants.id, req.user.restaurantId))
+          .limit(1);
+
+        if (!targetRest || !targetRest.isActive || targetRest.isSuspended) {
+          throw new UnauthorizedError('Restaurant account not found or suspended');
+        }
+
+        userProfile = {
+          id: req.user.id,
+          email: req.user.impersonatorEmail || 'support@tiptable.in',
+          fullName: 'Platform Support Staff',
+          role: 'owner',
+          restaurantId: targetRest.id,
+          totpEnabled: false,
+        };
+
+        restaurantData = {
+          id: targetRest.id,
+          name: targetRest.name,
+          slug: targetRest.slug,
+          logoUrl: targetRest.logoUrl,
+        };
+      } else {
+        throw new UnauthorizedError('User account not found or inactive');
+      }
+
+      res.status(200).json({
+        user: userProfile,
+        restaurant: restaurantData,
+        impersonation: req.user?.isImpersonated
+          ? {
+              isImpersonated: true,
+              impersonatorId: req.user.impersonatorId,
+              impersonatorEmail: req.user.impersonatorEmail,
+            }
+          : undefined,
       });
     } catch (error) {
       next(error);

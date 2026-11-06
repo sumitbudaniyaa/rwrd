@@ -6,6 +6,33 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-06 - Support Impersonation Mode & Delegated Session Banner (M4-T03)
+
+- **Milestone**: M4 (Company Portal)
+- **Task**: `M4-T03`
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Implemented backend Support Impersonation endpoint in `apps/api/src/routes/portalImpersonation.ts`:
+    - `POST /api/v1/portal/restaurants/:id/impersonate`: Generates a 1-hour ephemeral Admin JWT delegating platform staff into a restaurant account as owner.
+    - Restricted to `super_admin` and `support` roles via `requireRole` (`403 Forbidden` for finance).
+    - Checks target restaurant existence and non-deletion.
+    - Records immutable audit log with action `IMPERSONATION_STARTED`, actor type `platform_user`, and target restaurant context.
+    - Mounted in `apps/api/src/app.ts`.
+  - Updated `apps/api/src/routes/authAdmin.ts` (`GET /api/v1/admin/auth/me`):
+    - Added support for `isImpersonated` tokens, returning delegated session profile and `impersonation` metadata.
+  - Implemented frontend Impersonation flow in `apps/portal`:
+    - Added `impersonateRestaurant` client method in `apps/portal/src/services/api.ts`.
+    - Added `VITE_ADMIN_APP_URL` in `apps/portal/src/config/env.ts` and `docs/ENV.md`.
+    - Updated `RestaurantManagementScreen`: added Impersonation confirmation dialog with security disclosure and reason input, launching the admin console with token.
+  - Implemented persistent Impersonation Banner in `apps/admin`:
+    - Updated `AuthContext.tsx` to detect `?impersonate_token=` in URL or session storage, store in memory, populate impersonation state, and provide `exitImpersonation()`.
+    - Updated `AdminLayout.tsx` with high-visibility sticky banner: _"⚠️ Impersonation Mode: You are viewing this account as Platform Staff (Staff ID: ...). All actions are strictly audited. [Exit Impersonation]"_.
+  - Added comprehensive test suites:
+    - `apps/api/tests/portalImpersonation.test.ts` (5 tests covering super_admin / support delegation, finance rejection, 404 handling, and admin auth me profile resolution).
+    - `apps/portal/tests/impersonation.test.tsx` (2 tests covering modal opening and admin launch).
+    - `apps/admin/tests/impersonation.test.tsx` (3 tests covering sticky banner rendering, exit callback, and standard session exclusion).
+  - 100% clean typecheck and all 206 tests passing across all monorepo packages.
+
 ### 2026-11-06 - Platform Restaurant Management & Tenant Lifecycle (M4-T02)
 
 - **Milestone**: M4 (Company Portal)

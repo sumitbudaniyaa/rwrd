@@ -20,6 +20,7 @@ import { adminAnalyticsRouter } from './routes/adminAnalytics.js';
 import { adminAuditRouter } from './routes/adminAudit.js';
 import { authPortalRouter } from './routes/authPortal.js';
 import { portalRestaurantsRouter } from './routes/portalRestaurants.js';
+import { portalImpersonationRouter } from './routes/portalImpersonation.js';
 import { NotFoundError } from './errors/appError.js';
 
 export function createApp(): Express {
@@ -149,6 +150,7 @@ export function createApp(): Express {
 
   // Portal Management Routes
   app.use('/api/v1', portalRestaurantsRouter);
+  app.use('/api/v1', portalImpersonationRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

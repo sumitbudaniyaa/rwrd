@@ -18,6 +18,9 @@ export interface TokenPayload {
   role: string;
   realm: AuthRealm;
   restaurantId?: string | undefined;
+  isImpersonated?: boolean | undefined;
+  impersonatorId?: string | undefined;
+  impersonatorEmail?: string | undefined;
 }
 
 export interface AuthTokens {

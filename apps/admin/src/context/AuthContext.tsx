@@ -5,6 +5,7 @@ import {
   type AdminUser,
   type AdminRestaurant,
   type LoginResponse,
+  type ImpersonationDetails,
 } from '../services/api.js';
 
 interface AuthContextValue {
@@ -14,11 +15,13 @@ interface AuthContextValue {
   tempToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  impersonation: ImpersonationDetails | null;
   login: (email: string, password: string) => Promise<LoginResponse>;
   verifyMfa: (code: string, isRecoveryCode?: boolean) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
   cancelMfa: () => void;
+  exitImpersonation: () => void;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -28,14 +31,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [restaurant, setRestaurant] = useState<AdminRestaurant | null>(null);
   const [accessTokenState, setAccessTokenState] = useState<string | null>(null);
   const [tempToken, setTempToken] = useState<string | null>(null);
+  const [impersonation, setImpersonation] = useState<ImpersonationDetails | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Attempt silent session restoration on app load
+  // Attempt session restoration on app load (including support impersonation)
   useEffect(() => {
     let mounted = true;
 
     async function restoreSession() {
       try {
+        // Check for URL parameter ?impersonate_token= or stored impersonation token
+        const urlParams = new URLSearchParams(window.location.search);
+        const urlToken = urlParams.get('impersonate_token');
+        const storedToken = sessionStorage.getItem('tiptable_impersonate_token');
+        const tokenToUse = urlToken || storedToken;
+
+        if (tokenToUse) {
+          if (urlToken) {
+            sessionStorage.setItem('tiptable_impersonate_token', urlToken);
+            const cleanUrl = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, '', cleanUrl);
+          }
+          setAccessToken(tokenToUse);
+          setAccessTokenState(tokenToUse);
+
+          const meRes = await api.getMe();
+          if (mounted) {
+            setUser(meRes.user);
+            setRestaurant(meRes.restaurant);
+            setImpersonation(meRes.impersonation || { isImpersonated: true });
+          }
+          return;
+        }
+
         const refreshRes = await api.refresh();
         if (mounted && refreshRes.accessToken) {
           setAccessToken(refreshRes.accessToken);
@@ -45,10 +73,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (mounted) {
             setUser(meRes.user);
             setRestaurant(meRes.restaurant);
+            if (meRes.impersonation) {
+              setImpersonation(meRes.impersonation);
+            }
           }
         }
       } catch {
-        // No active session cookie
+        // No active session cookie or invalid token
+        sessionStorage.removeItem('tiptable_impersonate_token');
       } finally {
         if (mounted) {
           setIsLoading(false);
@@ -117,11 +149,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // Ignore
     } finally {
+      sessionStorage.removeItem('tiptable_impersonate_token');
       setAccessToken(null);
       setAccessTokenState(null);
       setUser(null);
       setRestaurant(null);
       setTempToken(null);
+      setImpersonation(null);
     }
   }, []);
 
@@ -131,16 +165,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // Ignore
     } finally {
+      sessionStorage.removeItem('tiptable_impersonate_token');
       setAccessToken(null);
       setAccessTokenState(null);
       setUser(null);
       setRestaurant(null);
       setTempToken(null);
+      setImpersonation(null);
     }
   }, []);
 
   const cancelMfa = useCallback(() => {
     setTempToken(null);
+  }, []);
+
+  const exitImpersonation = useCallback(() => {
+    sessionStorage.removeItem('tiptable_impersonate_token');
+    setAccessToken(null);
+    setAccessTokenState(null);
+    setUser(null);
+    setRestaurant(null);
+    setImpersonation(null);
+    if (window.opener) {
+      window.close();
+    } else {
+      window.location.href = '/admin/login';
+    }
   }, []);
 
   const value: AuthContextValue = {
@@ -150,11 +200,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     tempToken,
     isAuthenticated: Boolean(user && accessTokenState),
     isLoading,
+    impersonation,
     login,
     verifyMfa,
     logout,
     logoutAll,
     cancelMfa,
+    exitImpersonation,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

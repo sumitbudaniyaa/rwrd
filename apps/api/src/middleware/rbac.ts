@@ -11,6 +11,9 @@ export interface AuthUser {
   role: string;
   realm: AuthRealm;
   restaurantId?: string | undefined;
+  isImpersonated?: boolean | undefined;
+  impersonatorId?: string | undefined;
+  impersonatorEmail?: string | undefined;
 }
 
 declare global {
@@ -45,6 +48,9 @@ export function requireAuth(realm: AuthRealm): RequestHandler {
         role: payload.role,
         realm: payload.realm,
         restaurantId: payload.restaurantId,
+        isImpersonated: payload.isImpersonated,
+        impersonatorId: payload.impersonatorId,
+        impersonatorEmail: payload.impersonatorEmail,
       };
       next();
     } catch (err) {

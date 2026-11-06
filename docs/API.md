@@ -408,3 +408,35 @@ The API supports three distinct authentication contexts:
   "restaurantId": "11111111-1111-1111-1111-111111111111"
 }
 ```
+
+#### Support Impersonation Session (`POST /api/v1/portal/restaurants/:id/impersonate`)
+
+- **Role Requirement**: `super_admin`, `support` (`403 Forbidden` for finance).
+- **Security & Audit**: Generates a 1-hour ephemeral Admin JWT with `isImpersonated: true` and logs `IMPERSONATION_STARTED` event with actor and target context.
+- **Request Body** (optional):
+
+```json
+{
+  "reason": "Live customer support onboarding assistance (Ticket #4021)"
+}
+```
+
+- **Response `200 OK`**:
+
+```json
+{
+  "impersonationToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresInSeconds": 3600,
+  "restaurant": {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "name": "The Bombay Canteen",
+    "slug": "the-bombay-canteen",
+    "isSuspended": false
+  },
+  "impersonator": {
+    "id": "99999999-9999-9999-9999-999999999999",
+    "email": "support@tiptable.in",
+    "role": "support"
+  }
+}
+```

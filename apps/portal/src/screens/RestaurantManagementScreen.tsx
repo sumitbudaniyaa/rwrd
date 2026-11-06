@@ -12,6 +12,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { SlideUp, FadeIn, Badge, MotionButton } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
+import { portalEnv } from '../config/env.js';
 import { api, type PortalRestaurantItem, type OnboardRestaurantInput } from '../services/api.js';
 
 type StatusFilter = 'all' | 'active' | 'suspended';
@@ -25,6 +26,8 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<PortalRestaurantItem | null>(null);
   const [suspensionReason, setSuspensionReason] = useState('');
+  const [impersonateTarget, setImpersonateTarget] = useState<PortalRestaurantItem | null>(null);
+  const [impersonateReason, setImpersonateReason] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -104,6 +107,39 @@ export const RestaurantManagementScreen: React.FC = () => {
       setErrorMessage(err instanceof Error ? err.message : 'Failed to delete restaurant.');
     },
   });
+
+  // Impersonate Mutation
+  const impersonateMutation = useMutation({
+    mutationFn: (vars: { id: string; reason?: string }) =>
+      api.impersonateRestaurant(vars.id, vars.reason),
+    onSuccess: (res) => {
+      setImpersonateTarget(null);
+      setImpersonateReason('');
+      setSuccessMessage(
+        `Impersonation session established for ${res.restaurant.name}. Launching admin console...`,
+      );
+      const adminUrl = `${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
+        res.impersonationToken,
+      )}`;
+      window.open(adminUrl, '_blank', 'noopener,noreferrer');
+    },
+    onError: (err) => {
+      setErrorMessage(
+        err instanceof Error ? err.message : 'Failed to create impersonation session.',
+      );
+    },
+  });
+
+  const handleImpersonateConfirm = () => {
+    if (!impersonateTarget) return;
+    const payload: { id: string; reason?: string } = {
+      id: impersonateTarget.id,
+    };
+    if (impersonateReason.trim()) {
+      payload.reason = impersonateReason.trim();
+    }
+    impersonateMutation.mutate(payload);
+  };
 
   const resetForm = () => {
     setFormName('');
@@ -367,7 +403,8 @@ export const RestaurantManagementScreen: React.FC = () => {
                             {/* Impersonate button */}
                             <button
                               type="button"
-                              className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1"
+                              onClick={() => setImpersonateTarget(rest)}
+                              className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1 cursor-pointer"
                               title="Support Impersonation"
                             >
                               <HugeiconsIcon icon={UserCheck01Icon} className="w-3.5 h-3.5" />
@@ -628,6 +665,80 @@ export const RestaurantManagementScreen: React.FC = () => {
                   className="bg-amber-600 hover:bg-amber-700 text-white"
                 >
                   {statusMutation.isPending ? 'Suspending...' : 'Confirm Suspension'}
+                </MotionButton>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      )}
+
+      {/* Support Impersonation Modal */}
+      {impersonateTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs">
+          <FadeIn>
+            <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0">
+                  <HugeiconsIcon icon={UserCheck01Icon} className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-stone-900">
+                    Enter Support Impersonation Mode: &quot;{impersonateTarget.name}&quot;
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Delegated live session. All actions are strictly audited.
+                  </p>
+                </div>
+              </div>
+
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                <p className="font-semibold flex items-center gap-1.5">
+                  <HugeiconsIcon
+                    icon={AlertCircleIcon}
+                    className="w-4 h-4 text-amber-600 shrink-0"
+                  />
+                  <span>Support Delegation Security Notice</span>
+                </p>
+                <p className="text-[11px] leading-relaxed text-amber-700">
+                  You are entering this restaurant&apos;s administration account as a delegated
+                  owner. A high-visibility warning banner will be displayed throughout your session.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-stone-700 mb-1">
+                  Support Ticket Reference / Reason (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={impersonateReason}
+                  onChange={(e) => setImpersonateReason(e.target.value)}
+                  placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <MotionButton
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setImpersonateTarget(null);
+                    setImpersonateReason('');
+                  }}
+                >
+                  Cancel
+                </MotionButton>
+                <MotionButton
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={handleImpersonateConfirm}
+                  disabled={impersonateMutation.isPending}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                >
+                  {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
                 </MotionButton>
               </div>
             </div>

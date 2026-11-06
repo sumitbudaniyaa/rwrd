@@ -67,11 +67,13 @@ const mockAuthContext = {
   tempToken: null,
   isLoading: false,
   isAuthenticated: true,
+  impersonation: null,
   login: vi.fn(),
   verifyMfa: vi.fn(),
   logout: vi.fn(),
   logoutAll: vi.fn(),
   cancelMfa: vi.fn(),
+  exitImpersonation: vi.fn(),
 };
 
 const renderWithProviders = (ui: React.ReactElement) => {

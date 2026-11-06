@@ -46,9 +46,16 @@ export interface RefreshResponse {
   expiresInSeconds: number;
 }
 
+export interface ImpersonationDetails {
+  isImpersonated: boolean;
+  impersonatorId?: string;
+  impersonatorEmail?: string;
+}
+
 export interface MeResponse {
   user: AdminUser;
   restaurant: AdminRestaurant;
+  impersonation?: ImpersonationDetails;
 }
 
 export interface StaffAdminItem {

@@ -152,6 +152,22 @@ async function request<T>(
   return response.json() as Promise<T>;
 }
 
+export interface ImpersonateResponse {
+  impersonationToken: string;
+  expiresInSeconds: number;
+  restaurant: {
+    id: string;
+    name: string;
+    slug: string;
+    isSuspended: boolean;
+  };
+  impersonator: {
+    id: string;
+    email: string;
+    role: string;
+  };
+}
+
 export const api = {
   login(email: string, password: string): Promise<PortalLoginResponse> {
     return request<PortalLoginResponse>('/portal/auth/login', {
@@ -224,6 +240,15 @@ export const api = {
   deleteRestaurant(id: string): Promise<{ message: string }> {
     return request<{ message: string }>(`/portal/restaurants/${id}`, {
       method: 'DELETE',
+    });
+  },
+
+  impersonateRestaurant(id: string, reason?: string): Promise<ImpersonateResponse> {
+    const payload: { reason?: string } = {};
+    if (reason) payload.reason = reason;
+    return request<ImpersonateResponse>(`/portal/restaurants/${id}/impersonate`, {
+      method: 'POST',
+      body: JSON.stringify(payload),
     });
   },
 };

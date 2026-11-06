@@ -66,11 +66,12 @@ All frontend variables must be prefixed with `VITE_` and contain **zero sensitiv
 
 ## 4. Company Portal (`apps/portal`)
 
-| Variable            | Required | Type         | Purpose                            | Example Value                    |
-| :------------------ | :------: | :----------- | :--------------------------------- | :------------------------------- |
-| `VITE_API_BASE_URL` |   Yes    | String (URL) | Base URL for the TipTable REST API | `http://localhost:4000`          |
-| `VITE_APP_ENV`      |   Yes    | Enum         | Application environment            | `development`                    |
-| `VITE_SENTRY_DSN`   |    No    | String (URL) | Sentry DSN                         | `https://dummy@sentry.io/123456` |
+| Variable             | Required | Type         | Purpose                                            | Example Value                    |
+| :------------------- | :------: | :----------- | :------------------------------------------------- | :------------------------------- |
+| `VITE_API_BASE_URL`  |   Yes    | String (URL) | Base URL for the TipTable REST API                 | `http://localhost:4000`          |
+| `VITE_ADMIN_APP_URL` |    No    | String (URL) | Target location of Restaurant Admin for delegation | `http://localhost:5174`          |
+| `VITE_APP_ENV`       |   Yes    | Enum         | Application environment                            | `development`                    |
+| `VITE_SENTRY_DSN`    |    No    | String (URL) | Sentry DSN                                         | `https://dummy@sentry.io/123456` |
 
 ---
 
