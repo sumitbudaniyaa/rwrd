@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Calendar Range Highlight Styling & Single Date Selection Guidance in Custom Analytics (M7-T23)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Visible Calendar Range Highlighting** ([`apps/admin/src/components/motion/date-range-picker.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/date-range-picker.tsx)):
+    - Replaced undefined Tailwind utility classes (`bg-foreground/[0.08]` and `bg-foreground text-background`) with TipTable's warm palette tokens (`bg-stone-200/90` for the connected range highlight strip, `bg-stone-900 text-white font-semibold shadow-xs` for the start/end endpoint days, and `text-stone-900 font-medium` for days in range).
+    - Enabled `showSummary={true}` by default in `DateRangePickerDropdown` to clearly reflect start and end date selection state.
+  - **Single Date Selection Guidance & Error Prevention** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
+    - Added `isCustomIncomplete` check to detect when a user has clicked only a start or only an end date in custom range mode.
+    - Gated `useQuery` with `!isCustomIncomplete`, preventing premature queries with incomplete date parameters that previously triggered backend 422 errors.
+    - Added an intuitive selection prompt card (_"Please select an end date"_ / _"Please select a start date"_) displaying the chosen date and instructions to pick the second date.
+    - Guarded the error state (`isError && !isCustomIncomplete`) so "Failed to load analytics data" is never displayed while a user is actively picking dates.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-07 - Floating Menu Trigger Layout Alignment (M7-T22)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

@@ -505,7 +505,7 @@ export function DateRangePickerGrid({
                                 // Range scrubbing follows immediately: independent cell
                                 // fades leave stale highlights behind a moving pointer.
                                 className={cn(
-                                  'pointer-events-none absolute inset-y-0 rounded-[inherit] bg-foreground/[0.08]',
+                                  'pointer-events-none absolute inset-y-0 rounded-[inherit] bg-stone-200/90',
                                   inRange ? 'opacity-100' : 'opacity-0',
                                 )}
                                 style={{
@@ -540,11 +540,10 @@ export function DateRangePickerGrid({
                                 className={cn(
                                   'relative mx-auto flex h-8 w-full max-w-8 items-center justify-center rounded-full text-xs tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 disabled:opacity-30',
                                   endpoint
-                                    ? 'bg-foreground font-medium text-background'
-                                    : canHover &&
-                                        !unavailable(date) &&
-                                        !inRange &&
-                                        'hover:bg-stone-100',
+                                    ? 'bg-stone-900 font-semibold text-white shadow-xs z-10'
+                                    : inRange
+                                      ? 'text-stone-900 font-medium z-10'
+                                      : canHover && !unavailable(date) && 'hover:bg-stone-100',
                                   date === today &&
                                     !endpoint &&
                                     'font-semibold after:absolute after:bottom-1 after:size-0.75 after:rounded-full after:bg-current',
@@ -686,7 +685,7 @@ export function DateRangePickerPreset({
       className={cn(
         'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:opacity-40',
         selected
-          ? 'bg-foreground text-background'
+          ? 'bg-stone-900 text-white font-medium shadow-xs'
           : 'bg-stone-100/60 text-stone-500 hover:bg-stone-100 hover:text-stone-900',
         className,
       )}
@@ -842,7 +841,7 @@ export function DateRangePickerDropdown({
   triggerClassName,
   calendarClassName,
   autoFocus = true,
-  showSummary = false,
+  showSummary = true,
   ...props
 }: DateRangePickerDropdownProps) {
   return (
@@ -957,7 +956,7 @@ function CalendarChoices({
           className={cn(
             'flex h-13 items-center justify-center rounded-xl px-1 text-[13px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 disabled:opacity-25',
             choice.id === selected
-              ? 'bg-foreground font-medium text-background'
+              ? 'bg-stone-900 font-medium text-white shadow-xs'
               : 'bg-stone-50 hover:bg-stone-100',
           )}
         >

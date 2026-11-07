@@ -57,6 +57,10 @@ export const AnalyticsScreen: React.FC = () => {
 
   const activeRange = getDateRange();
 
+  // Incomplete custom range check (e.g., only start or only end is selected)
+  const isCustomIncomplete =
+    filterType === 'custom' && Boolean((customStart && !customEnd) || (!customStart && customEnd));
+
   const {
     data: analytics,
     isLoading,
@@ -71,11 +75,11 @@ export const AnalyticsScreen: React.FC = () => {
       if (activeRange.endDate) params.endDate = activeRange.endDate;
       return api.getAnalytics(restaurant.id, params);
     },
-    enabled: Boolean(restaurant?.id),
+    enabled: Boolean(restaurant?.id) && !isCustomIncomplete,
   });
 
   const handleExportCsv = async () => {
-    if (!restaurant?.id) return;
+    if (!restaurant?.id || isCustomIncomplete) return;
     try {
       setIsExporting(true);
       setExportError(null);
@@ -181,6 +185,7 @@ export const AnalyticsScreen: React.FC = () => {
                   setCustomEnd(range?.to ?? '');
                 }}
                 placeholder="Select date range"
+                showSummary={true}
                 triggerClassName="text-xs h-8 px-2.5 rounded-xl border-stone-200 bg-white hover:bg-stone-50"
                 calendarClassName="rounded-2xl border-stone-200/80 shadow-lg bg-white"
               />
@@ -198,8 +203,29 @@ export const AnalyticsScreen: React.FC = () => {
         </FadeIn>
       )}
 
+      {/* Incomplete Custom Date Range Guidance State */}
+      {isCustomIncomplete && (
+        <SlideUp>
+          <div className="p-12 text-center bg-white/90 backdrop-blur-xs border border-stone-200/70 rounded-2xl shadow-2xs">
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 border border-amber-200/70 flex items-center justify-center text-amber-700 mx-auto mb-3 shadow-2xs">
+              <HugeiconsIcon icon={Calendar01Icon} className="w-5 h-5" strokeWidth={1.5} />
+            </div>
+            <p className="text-base font-medium text-stone-900 font-serif">
+              {customStart && !customEnd
+                ? 'Please select an end date'
+                : 'Please select a start date'}
+            </p>
+            <p className="text-xs text-stone-500 mt-1 max-w-sm mx-auto">
+              {customStart && !customEnd
+                ? `Start date selected (${customStart}). Choose an end date in the calendar to load analytics.`
+                : `End date selected (${customEnd}). Choose a start date in the calendar to load analytics.`}
+            </p>
+          </div>
+        </SlideUp>
+      )}
+
       {/* Loading State */}
-      {isLoading && (
+      {!isCustomIncomplete && isLoading && (
         <div className="p-16 text-center text-stone-400 text-sm flex flex-col items-center justify-center">
           <div className="w-6 h-6 border-2 border-stone-900 border-t-transparent rounded-full animate-spin mb-2" />
           <span>Loading analytics metrics...</span>
@@ -207,7 +233,7 @@ export const AnalyticsScreen: React.FC = () => {
       )}
 
       {/* Error State */}
-      {isError && (
+      {!isCustomIncomplete && isError && (
         <div className="p-8 text-center bg-white/90 backdrop-blur-xs border border-rose-200/80 rounded-2xl shadow-2xs">
           <p className="text-sm font-medium text-rose-700">Failed to load analytics data.</p>
           <MotionButton variant="outline" size="sm" onClick={() => refetch()} className="mt-4">
@@ -217,7 +243,7 @@ export const AnalyticsScreen: React.FC = () => {
       )}
 
       {/* Metrics Grid */}
-      {analytics && (
+      {!isCustomIncomplete && analytics && (
         <>
           <StaggerList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Scans */}
