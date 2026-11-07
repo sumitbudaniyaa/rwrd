@@ -149,5 +149,5 @@ Status values:
 | **M7-T29** | Field-Wise Inline Edit & Save Controls in Admin Settings Screen.                                                            | `Done`     | Senior Staff Agent | 2026-11-08     | Settings inline edit & save   |
 | **M7-T30** | Remove Details Column & State Diff Inspection from Audit Log Table.                                                         | `Done`     | Senior Staff Agent | 2026-11-08     | Audit log table cleanup       |
 | **M7-T31** | Live Telemetry Engine — Record `qr_scan` & `staff_view` Page Events on Public Visits.                                       | `Done`     | Senior Staff Agent | 2026-11-08     | Live telemetry engine active  |
-| **M7-T32** | Add Emojis with Text to Table Action Buttons in QR Management Screen (`🖼️ PNG`, `⚡ SVG`, `🪧 Placard`).                    | `Approved` | Senior Staff Agent |                | QR action buttons polish      |
+| **M7-T32** | Add Emojis with Text to Table Action Buttons in QR Management Screen (`🖼️ PNG`, `⚡ SVG`, `🪧 Placard`).                    | `Done`     | Senior Staff Agent | 2026-11-08     | QR action buttons polish      |
 | **M7-T33** | Remove Subtitle Descriptions Across All Admin Screens & Remove "Real-time telemetry" Badge from Overview.                   | `Approved` | Senior Staff Agent |                | Header & badge cleanup        |

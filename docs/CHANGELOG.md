@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Add Emojis with Text to Table Action Buttons in QR Management Screen (M7-T32)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Table Action Buttons Polish** ([`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx)):
+    - Enhanced table card action buttons with expressive emojis alongside their text labels:
+      - `🖼️ PNG` for raster QR export.
+      - `⚡ SVG` for scalable vector graphics.
+      - `🪧 Placard` for dining table tent print preview.
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/qrManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/qrManagement.test.tsx) asserting all three emoji action buttons render on table cards.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Live Telemetry Engine — Record `qr_scan` & `staff_view` Page Events on Public Visits (M7-T31)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

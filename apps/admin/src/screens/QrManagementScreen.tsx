@@ -389,7 +389,7 @@ export const QrManagementScreen: React.FC = () => {
                         }
                         className="px-1 text-[11px]"
                       >
-                        PNG
+                        🖼️ PNG
                       </MotionButton>
                       <MotionButton
                         variant="outline"
@@ -402,7 +402,7 @@ export const QrManagementScreen: React.FC = () => {
                         }
                         className="px-1 text-[11px]"
                       >
-                        SVG
+                        ⚡ SVG
                       </MotionButton>
                       <MotionButton
                         variant="primary"
@@ -416,7 +416,7 @@ export const QrManagementScreen: React.FC = () => {
                         }
                         className="px-1 text-[11px]"
                       >
-                        Placard
+                        🪧 Placard
                       </MotionButton>
                     </div>
                   </div>
