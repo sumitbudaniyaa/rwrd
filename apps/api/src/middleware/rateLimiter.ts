@@ -140,11 +140,16 @@ export const globalRateLimiter = createRateLimiter({
   skip: (req) => req.path === '/healthz' || req.path === '/readyz',
 });
 
-/** Strict auth endpoints rate limiter (login / refresh) */
+/** Strict auth endpoints rate limiter (login / register / mfa) with session checks exempted */
 export const authRateLimiter = createRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20,
+  windowMs: env.RATE_LIMIT_AUTH_WINDOW_MS,
+  max: env.RATE_LIMIT_AUTH_MAX,
   keyPrefix: 'auth',
+  skip: (req) =>
+    req.method === 'GET' ||
+    req.path.endsWith('/me') ||
+    req.path.endsWith('/logout') ||
+    req.path.endsWith('/logout-all'),
 });
 
 /** Tip intent rate limiter (prevent mass scraping or spamming tip links) */

@@ -59,8 +59,14 @@ const EnvSchema = z.object({
   S3_FORCE_PATH_STYLE: z.coerce.boolean().default(true),
 
   // Rate Limiting
-  RATE_LIMIT_GLOBAL_MAX: z.coerce.number().int().positive().default(100),
+  RATE_LIMIT_GLOBAL_MAX: z.coerce.number().int().positive().default(1000),
   RATE_LIMIT_GLOBAL_WINDOW_MS: z.coerce.number().int().positive().default(60000),
+  RATE_LIMIT_AUTH_MAX: z.coerce.number().int().positive().default(100),
+  RATE_LIMIT_AUTH_WINDOW_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(15 * 60 * 1000),
   RATE_LIMIT_INTENT_MAX: z.coerce.number().int().positive().default(10),
   RATE_LIMIT_INTENT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
 

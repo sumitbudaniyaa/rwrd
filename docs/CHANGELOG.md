@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Admin & Global API Rate Limit Scaling (M7-T18)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Global Rate Limit Increase** ([`.env`](file:///Users/Sumit/Desktop/rwrd/.env), [`.env.example`](file:///Users/Sumit/Desktop/rwrd/.env.example), [`apps/api/src/config/env.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/config/env.ts)):
+    - Increased `RATE_LIMIT_GLOBAL_MAX` from 100 to 1,000 requests per 60s window across API endpoints.
+    - Prevents 429 Too Many Requests errors during rapid admin navigation, live metrics polling, and table roster updates.
+  - **Configurable Auth Limiter & Session Inspection Exemption** ([`apps/api/src/middleware/rateLimiter.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/middleware/rateLimiter.ts)):
+    - Introduced `RATE_LIMIT_AUTH_MAX` (default 100 requests per 15min window) and `RATE_LIMIT_AUTH_WINDOW_MS` (900,000 ms).
+    - Configured `skip` rule in `authRateLimiter` so lightweight authenticated session reads (`GET /admin/auth/me`, `GET /portal/auth/me`) and logouts do not consume brute-force login attempts.
+  - **Documentation & Environment Sync** ([`docs/ENV.md`](file:///Users/Sumit/Desktop/rwrd/docs/ENV.md)):
+    - Added `RATE_LIMIT_AUTH_MAX` and `RATE_LIMIT_AUTH_WINDOW_MS` to the environment dictionary with types and default values.
+  - **Verification & Testing**:
+    - All 174 backend tests in `@tiptable/api` passing.
+    - All 45 frontend tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-07 - Header Admin Badge Harmonization & Log Out Relocation to Floating Menu (M7-T17)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

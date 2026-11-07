@@ -35,8 +35,10 @@ This document specifies all environment variables utilized across the backend AP
 | `PORTAL_ALLOWED_IPS`          |    No    | CSV CIDRs     | Optional IP allowlist for internal portal API routes       | `192.168.1.0/24,10.0.0.0/8`                                                               |
 | `TURNSTILE_SECRET_KEY`        |    No    | String        | Cloudflare Turnstile secret key for demo lead capture      | `0x4AAAAAAABBBBBB_dummy_secret_key`                                                       |
 | `SENTRY_DSN`                  |    No    | String (URL)  | Sentry telemetry DSN for error reporting                   | `https://dummy@sentry.io/123456`                                                          |
-| `RATE_LIMIT_GLOBAL_MAX`       |   Yes    | Number        | Max requests per IP per window across all endpoints        | `100`                                                                                     |
+| `RATE_LIMIT_GLOBAL_MAX`       |   Yes    | Number        | Max requests per IP per window across all endpoints        | `1000`                                                                                    |
 | `RATE_LIMIT_GLOBAL_WINDOW_MS` |   Yes    | Number        | Sliding window duration in milliseconds                    | `60000`                                                                                   |
+| `RATE_LIMIT_AUTH_MAX`         |   Yes    | Number        | Max authentication attempts per IP per window              | `100`                                                                                     |
+| `RATE_LIMIT_AUTH_WINDOW_MS`   |   Yes    | Number        | Sliding window duration for authentication endpoints       | `900000`                                                                                  |
 | `RATE_LIMIT_INTENT_MAX`       |   Yes    | Number        | Max tip intent creations per IP per window                 | `10`                                                                                      |
 | `RATE_LIMIT_INTENT_WINDOW_MS` |   Yes    | Number        | Sliding window duration for tip intent endpoints           | `60000`                                                                                   |
 
