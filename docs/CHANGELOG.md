@@ -6,6 +6,33 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Live Telemetry Integration & Seed Data Elimination (M7-T12)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Dynamic Greeting & User Name** ([`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)):
+    - Removed hardcoded `"good morning, Sarah"`.
+    - Integrated dynamic salutation (`good morning`, `good afternoon`, `good evening`) computed from local time with user's first name via `useAuth()` (`${greeting}, ${firstName}`).
+  - **Live Analytics Telemetry Integration** ([`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)):
+    - Removed hardcoded mock metrics (`1,429` QR scans, `984` staff views, `432` / `₹34,850` tips initiated, `187` review taps).
+    - Connected `useQuery` querying `api.getAnalytics(restaurant.id)` to dynamically display real `scans`, `staffViews`, `tipsInitiatedCount`, `tipsInitiatedVolumeInr`, and `reviewTaps`.
+    - Added graceful zero-states (`No scans yet`, `No views yet`, `No taps yet`, `₹0 initiated volume`) when counts are zero.
+  - **Dynamic Recent Tips & Empty State** ([`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)):
+    - Removed hardcoded dummy staff rows (`Rahul Sharma`, `Priya Patel`, `Amit Kumar`).
+    - Added clean empty-state card for restaurants with zero tip activity: _"No tips initiated yet. Direct peer-to-peer UPI intents generated across tables will appear here in real time"_ with direct CTAs to export QR kit or add staff.
+    - If staff have initiated tips, dynamically displays active staff with initiated tip counts and volumes.
+  - **Admin Layout Fallback Clean-up** ([`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx)):
+    - Replaced hardcoded fallback `'Sarah Miller'` with `'Restaurant Admin'`.
+  - **Seed Fixtures Clean-up** ([`apps/api/src/db/seed.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/seed.ts)):
+    - Stripped out demo restaurant (_The Bombay Canteen_), demo admin (_Sameer Seth_), fake waitstaff (_Ramesh Kumar, Priya Sharma, Amit Patel_), fake tables (_T-01 to T-04_), and fake audit logs.
+    - Preserved only essential system billing tier (_Pro Plan_) and platform super admin operator needed for infrastructure.
+  - **Verification & Testing**:
+    - All 45 tests in `@tiptable/admin` passing.
+    - All 27 test files and 174 tests in `@tiptable/api` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Dashboard Aesthetic Overhaul & Auth Interaction Polish (M7-T11)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

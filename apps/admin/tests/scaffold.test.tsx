@@ -48,6 +48,18 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
       },
       tokens: [],
     });
+    vi.spyOn(api, 'getAnalytics').mockResolvedValue({
+      dateRange: { startDate: '2026-11-01', endDate: '2026-11-07' },
+      metrics: {
+        scans: 1429,
+        staffViews: 984,
+        tipsInitiatedCount: 432,
+        tipsInitiatedVolumeInr: 34850,
+        reviewTaps: 187,
+      },
+      dailyTimeline: [],
+      staffBreakdown: [],
+    });
   });
 
   it('renders admin shell with sidebar navigation, tenant pill, and metrics overview', async () => {

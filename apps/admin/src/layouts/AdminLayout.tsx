@@ -116,7 +116,7 @@ export const AdminLayout: React.FC = () => {
               </div>
               <div className="hidden md:block text-left">
                 <p className="text-xs font-semibold text-stone-900 truncate max-w-[120px]">
-                  {user?.fullName || 'Sarah Miller'}
+                  {user?.fullName || 'Restaurant Admin'}
                 </p>
                 <p className="text-[11px] text-stone-500 capitalize">{userRoleDisplay}</p>
               </div>

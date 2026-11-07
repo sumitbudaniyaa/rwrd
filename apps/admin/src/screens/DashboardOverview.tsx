@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import {
   QrCodeIcon,
@@ -10,6 +11,8 @@ import {
 } from '@hugeicons/core-free-icons';
 import { SlideUp, StaggerList, Badge } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
+import { useAuth } from '../context/AuthContext.js';
+import { api } from '../services/api.js';
 
 interface StatItem {
   title: string;
@@ -21,37 +24,62 @@ interface StatItem {
 
 export const DashboardOverview: React.FC = () => {
   const navigate = useNavigate();
+  const { user, restaurant } = useAuth();
+
+  const getSalutation = () => {
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 12) return 'good morning';
+    if (hour >= 12 && hour < 17) return 'good afternoon';
+    return 'good evening';
+  };
+
+  const firstName = user?.fullName?.trim() ? user.fullName.trim().split(' ')[0] : '';
+  const greeting = firstName ? `${getSalutation()}, ${firstName}` : getSalutation();
+
+  const { data: analytics, isLoading } = useQuery({
+    queryKey: ['admin-overview-analytics', restaurant?.id],
+    queryFn: () => {
+      if (!restaurant?.id) return Promise.reject(new Error('Restaurant not selected'));
+      return api.getAnalytics(restaurant.id, {});
+    },
+    enabled: Boolean(restaurant?.id),
+    staleTime: 30000,
+  });
 
   const stats: StatItem[] = [
     {
       title: 'QR Scans',
-      value: '1,429',
-      change: '+12% this week',
+      value: isLoading ? '...' : (analytics?.metrics?.scans ?? 0).toLocaleString('en-IN'),
+      change: (analytics?.metrics?.scans ?? 0) > 0 ? 'Live telemetry' : 'No scans yet',
       icon: QrCodeIcon,
       badgeVariant: 'neutral',
     },
     {
       title: 'Staff Views',
-      value: '984',
-      change: '+8% this week',
+      value: isLoading ? '...' : (analytics?.metrics?.staffViews ?? 0).toLocaleString('en-IN'),
+      change: (analytics?.metrics?.staffViews ?? 0) > 0 ? 'Live telemetry' : 'No views yet',
       icon: UserGroupIcon,
       badgeVariant: 'neutral',
     },
     {
       title: 'Tips Initiated', // Invariant: Label everything as "tips initiated", never "tips received"
-      value: '432',
-      change: '₹34,850 initiated volume',
+      value: isLoading
+        ? '...'
+        : (analytics?.metrics?.tipsInitiatedCount ?? 0).toLocaleString('en-IN'),
+      change: `₹${(analytics?.metrics?.tipsInitiatedVolumeInr ?? 0).toLocaleString('en-IN')} initiated volume`,
       icon: SentIcon,
       badgeVariant: 'success',
     },
     {
       title: 'Google Review Taps',
-      value: '187',
-      change: '+24% this week',
+      value: isLoading ? '...' : (analytics?.metrics?.reviewTaps ?? 0).toLocaleString('en-IN'),
+      change: (analytics?.metrics?.reviewTaps ?? 0) > 0 ? 'Live telemetry' : 'No taps yet',
       icon: StarIcon,
       badgeVariant: 'warning',
     },
   ];
+
+  const activeStaff = analytics?.staffBreakdown?.filter((s) => s.tipsInitiatedCount > 0) || [];
 
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
@@ -60,7 +88,7 @@ export const DashboardOverview: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-              good morning, Sarah
+              {greeting}
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Here is your restaurant&apos;s direct tipping and Google review performance overview.
@@ -129,51 +157,69 @@ export const DashboardOverview: React.FC = () => {
               <Badge variant="neutral">Real-time telemetry</Badge>
             </div>
 
-            <div className="divide-y divide-stone-100">
-              {[
-                {
-                  staff: 'Rahul Sharma',
-                  role: 'Head Server',
-                  amount: '₹100',
-                  table: 'Table 4',
-                  time: '2 mins ago',
-                },
-                {
-                  staff: 'Priya Patel',
-                  role: 'Server',
-                  amount: '₹50',
-                  table: 'Table 12',
-                  time: '14 mins ago',
-                },
-                {
-                  staff: 'Amit Kumar',
-                  role: 'Bartender',
-                  amount: '₹200',
-                  table: 'Bar 2',
-                  time: '28 mins ago',
-                },
-              ].map((row, idx) => (
-                <div key={idx} className="py-3 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-stone-100 border border-stone-200/50 flex items-center justify-center font-medium text-stone-700 text-xs">
-                      {row.staff.charAt(0)}
+            {isLoading ? (
+              <div className="py-12 text-center text-xs text-stone-400">Loading telemetry...</div>
+            ) : activeStaff.length > 0 ? (
+              <div className="divide-y divide-stone-100">
+                {activeStaff.slice(0, 5).map((row) => (
+                  <div key={row.staffId} className="py-3 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-stone-100 border border-stone-200/50 flex items-center justify-center font-medium text-stone-700 text-xs">
+                        {row.displayName.charAt(0)}
+                      </div>
+                      <div>
+                        <p className="font-medium text-stone-900 text-sm tracking-tight">
+                          {row.displayName}
+                        </p>
+                        <p className="text-[11px] text-stone-400">
+                          {row.roleLabel} • {row.tipsInitiatedCount} tip
+                          {row.tipsInitiatedCount === 1 ? '' : 's'} initiated
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-stone-900 text-sm tracking-tight">
-                        {row.staff}
+                    <div className="text-right">
+                      <p className="font-semibold text-stone-900 text-sm">
+                        ₹{row.tipsInitiatedVolumeInr.toLocaleString('en-IN')}
                       </p>
-                      <p className="text-[11px] text-stone-400">
-                        {row.role} • {row.table}
+                      <p className="text-[10px] text-stone-400">
+                        Avg ₹{row.averageTipInr.toLocaleString('en-IN')}
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-stone-900 text-sm">{row.amount}</p>
-                    <p className="text-[10px] text-stone-400">{row.time}</p>
-                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-10 px-4 flex flex-col items-center justify-center text-center">
+                <div className="w-10 h-10 rounded-2xl bg-stone-100 border border-stone-200/70 flex items-center justify-center text-stone-400 mb-3 shadow-2xs">
+                  <HugeiconsIcon icon={SentIcon} className="w-5 h-5" strokeWidth={1.5} />
                 </div>
-              ))}
-            </div>
+                <p className="font-medium text-stone-900 text-sm tracking-tight">
+                  No tips initiated yet
+                </p>
+                <p className="text-xs text-stone-500 mt-1 max-w-sm leading-relaxed">
+                  Direct peer-to-peer UPI intents generated across tables will appear here in real
+                  time.
+                </p>
+                <div className="mt-4 flex items-center gap-2">
+                  <MotionButton
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate('/admin/qr')}
+                    className="text-xs px-3 py-1.5"
+                  >
+                    Export QR Kit
+                  </MotionButton>
+                  <MotionButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => navigate('/admin/staff')}
+                    className="text-xs px-3 py-1.5"
+                  >
+                    Manage Staff
+                  </MotionButton>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick Onboarding & Tips Placard Card */}

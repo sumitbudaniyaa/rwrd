@@ -116,16 +116,17 @@ Status values:
 
 ## Milestone 7: Architectural Streamlining & Auth Modernization (M7)
 
-| ID         | Task Description                                                                                                        | Status | Owner              | Date Completed | Ref / Notes              |
-| :--------- | :---------------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :----------------------- |
-| **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).                 | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant  |
-| **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role).          | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant  |
-| **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).                    | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul         |
-| **M7-T04** | Admin Auth UI Refinements (4-corner alignment, email-only label, hero cleanup) & Forgot Password with beUI Motion.      | `Done` | Senior Staff Agent | 2026-11-07     | beUI motion components   |
-| **M7-T05** | Editorial Sign-In Page with beUI Input, StatefulButton, Touched Validation & Landscape Artwork.                         | `Done` | Senior Staff Agent | 2026-11-07     | Editorial auth page      |
-| **M7-T06** | Admin Header Streamlining: Removed "Remember your password" label and "Save" button.                                    | `Done` | Senior Staff Agent | 2026-11-07     | Top-right header cleanup |
-| **M7-T07** | Custom Hero Artwork Integration: Deployed uploaded 1536×1024 `bg.png` asset for Sign In/Sign Up screen.                 | `Done` | Senior Staff Agent | 2026-11-07     | Custom hero image        |
-| **M7-T08** | Multi-Step Interactive Sign-Up Flow with SharedLayoutBg & Right Tree Image Framing.                                     | `Done` | Senior Staff Agent | 2026-11-07     | Onboarding & framing     |
-| **M7-T09** | Brand Logo Integration: Official stylized `rwrd.png` asset deployed across Admin Login & App Shell.                     | `Done` | Senior Staff Agent | 2026-11-07     | Brand logo integration   |
-| **M7-T10** | Spring-Physics Gliding Motion in Onboarding Step 2: Integrated `SPRING_LAYOUT` & `SharedLayoutBg` hover indicator.      | `Done` | Senior Staff Agent | 2026-11-07     | Smooth hover animation   |
-| **M7-T11** | Dashboard Aesthetic Overhaul & Auth Interaction Polish (Zero button outline, smooth input focus, no-scroll onboarding). | `Done` | Senior Staff Agent | 2026-11-07     | Dashboard & auth polish  |
+| ID         | Task Description                                                                                                            | Status | Owner              | Date Completed | Ref / Notes                   |
+| :--------- | :-------------------------------------------------------------------------------------------------------------------------- | :----- | :----------------- | :------------- | :---------------------------- |
+| **M7-T01** | Enforce Anonymous Diner Tipping Architecture (Zero diner PII collection/storage in `tip_intents` & UI).                     | `Done` | Senior Staff Agent | 2026-11-07     | Diner privacy invariant       |
+| **M7-T02** | Restructure Restaurant Admin Model to Single User per Tenant (`UNIQUE(restaurant_id)` & unified `admin` role).              | `Done` | Senior Staff Agent | 2026-11-07     | Single admin per tenant       |
+| **M7-T03** | Overhaul Admin Login & Sign-Up UI with Modern Split-Screen Glassmorphic Hero Panel (Inspiration UI).                        | `Done` | Senior Staff Agent | 2026-11-07     | Auth UI overhaul              |
+| **M7-T04** | Admin Auth UI Refinements (4-corner alignment, email-only label, hero cleanup) & Forgot Password with beUI Motion.          | `Done` | Senior Staff Agent | 2026-11-07     | beUI motion components        |
+| **M7-T05** | Editorial Sign-In Page with beUI Input, StatefulButton, Touched Validation & Landscape Artwork.                             | `Done` | Senior Staff Agent | 2026-11-07     | Editorial auth page           |
+| **M7-T06** | Admin Header Streamlining: Removed "Remember your password" label and "Save" button.                                        | `Done` | Senior Staff Agent | 2026-11-07     | Top-right header cleanup      |
+| **M7-T07** | Custom Hero Artwork Integration: Deployed uploaded 1536×1024 `bg.png` asset for Sign In/Sign Up screen.                     | `Done` | Senior Staff Agent | 2026-11-07     | Custom hero image             |
+| **M7-T08** | Multi-Step Interactive Sign-Up Flow with SharedLayoutBg & Right Tree Image Framing.                                         | `Done` | Senior Staff Agent | 2026-11-07     | Onboarding & framing          |
+| **M7-T09** | Brand Logo Integration: Official stylized `rwrd.png` asset deployed across Admin Login & App Shell.                         | `Done` | Senior Staff Agent | 2026-11-07     | Brand logo integration        |
+| **M7-T10** | Spring-Physics Gliding Motion in Onboarding Step 2: Integrated `SPRING_LAYOUT` & `SharedLayoutBg` hover indicator.          | `Done` | Senior Staff Agent | 2026-11-07     | Smooth hover animation        |
+| **M7-T11** | Dashboard Aesthetic Overhaul & Auth Interaction Polish (Zero button outline, smooth input focus, no-scroll onboarding).     | `Done` | Senior Staff Agent | 2026-11-07     | Dashboard & auth polish       |
+| **M7-T12** | Live Telemetry Integration & Seed Data Elimination (Dynamic greetings, real analytics, clean empty states, zero demo seed). | `Done` | Senior Staff Agent | 2026-11-07     | Hardcoded & seed data removed |
