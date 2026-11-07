@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Remove "Download QR Kit" Button from Admin Overview Banner (M7-T27)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Overview Header Action Streamlining** ([`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)):
+    - Removed the secondary outline button `"Download QR Kit"` from the top welcome banner on the Overview dashboard screen.
+    - Preserved the primary `"Manage Staff"` action button, resulting in a cleaner and focused welcome header.
+    - Verified that QR generation and kit export remain completely accessible from the dedicated QR Tokens section (`/admin/qr`) via the floating navigation menu.
+  - **Verification & Testing**:
+    - All 45 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 warnings/errors (`pnpm lint`).
+
 ### 2026-11-08 - Customer QR Route Redirection (/r/:token), Fallback Screen & Audit Log Motion Sliding Filter Tabs (M7-T26)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

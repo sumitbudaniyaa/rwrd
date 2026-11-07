@@ -96,14 +96,6 @@ export const DashboardOverview: React.FC = () => {
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/admin/qr')}
-              className="px-3.5 py-2"
-            >
-              Download QR Kit
-            </MotionButton>
-            <MotionButton
               variant="primary"
               size="sm"
               onClick={() => navigate('/admin/staff')}
