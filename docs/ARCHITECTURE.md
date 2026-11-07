@@ -199,15 +199,15 @@ To ensure strict separation of concerns, testability, and enterprise maintainabi
 
 ## 5. Technology Decisions & Rationale
 
-| Layer                   | Choice                            | Rationale                                                                                                            |
-| :---------------------- | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------- |
-| **Monorepo Manager**    | `pnpm` workspaces                 | Fast, deterministic disk space savings, native workspace isolation, strict dependency graph.                         |
-| **Database ORM**        | Drizzle ORM                       | High-performance, lightweight, SQL-like type safety, zero runtime overhead, native migration engine (`drizzle-kit`). |
-| **Backend Framework**   | Node.js + Express + TS            | Industry standard, robust middleware ecosystem, enterprise observability support.                                    |
-| **Cache & Queue**       | Redis 7 + BullMQ                  | Low-latency rate limiting, token family revocation, and reliable background job handling.                            |
-| **Motion & UI**         | `beUI` + `@hugeicons/react`       | Product-grade micro-interactions, spring physics, accessibility (reduced-motion tokens), cohesive SVG stroke icons.  |
-| **Customer Typography** | Self-hosted Newsreader / Fraunces | Warm, sophisticated editorial tone matching Claude's aesthetic without runtime CDN calls or third-party cookies.     |
-| **Data Protection**     | AES-256-GCM + Argon2id            | Industry gold standard for column encryption (VPAs) and credential hashing.                                          |
+| Layer                   | Choice                                                      | Rationale                                                                                                                                                |
+| :---------------------- | :---------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Monorepo Manager**    | `pnpm` workspaces                                           | Fast, deterministic disk space savings, native workspace isolation, strict dependency graph.                                                             |
+| **Database ORM**        | Drizzle ORM                                                 | High-performance, lightweight, SQL-like type safety, zero runtime overhead, native migration engine (`drizzle-kit`).                                     |
+| **Backend Framework**   | Node.js + Express + TS                                      | Industry standard, robust middleware ecosystem, enterprise observability support.                                                                        |
+| **Cache & Queue**       | Redis 7 + BullMQ                                            | Low-latency rate limiting, token family revocation, and reliable background job handling.                                                                |
+| **Motion & UI**         | `beUI` + `ReactDrops Chromatic Shader` + `@hugeicons/react` | Product-grade micro-interactions, spring physics, accessibility (reduced-motion tokens), WebGL chromatic shader surfaces, and cohesive SVG stroke icons. |
+| **Customer Typography** | Self-hosted Newsreader / Fraunces                           | Warm, sophisticated editorial tone matching Claude's aesthetic without runtime CDN calls or third-party cookies.                                         |
+| **Data Protection**     | AES-256-GCM + Argon2id                                      | Industry gold standard for column encryption (VPAs) and credential hashing.                                                                              |
 
 ---
 
@@ -222,3 +222,13 @@ To ensure strict separation of concerns, testability, and enterprise maintainabi
 
 - **Strictly One Admin User per Tenant**: A PostgreSQL unique constraint (`uq_restaurant_users_restaurant_id`) enforces that every restaurant has at most one administrator account.
 - **Unified Role**: The previous two-tier `owner` vs `manager` role hierarchy is replaced with a single unified `admin` role with full administrative authority over their restaurant's profile, staff roster, and QR placements.
+
+### 6.3 Tactile Shader & Motion Architecture
+
+- **WebGL Chromatic Shader Layer** (`apps/admin/src/components/chromatic/`):
+  - Provides GPU-accelerated tactile feedback for persistent navigation elements (such as the bottom floating menu trigger) using periodic value noise, quantile rank mapping, feathered spherical specular reflections, and hue cycling.
+  - Automatically pauses rendering when out-of-viewport via `IntersectionObserver` or when `prefers-reduced-motion` is active.
+  - Includes a pure CSS radial-gradient fallback and headless environment guard for reliable CI/CD and Vitest test execution.
+- **Spring-Physics Motion Components** (`apps/admin/src/components/motion/`):
+  - Utilizes `beUI` spring physics (`stiffness: 245, damping: 36, mass: 1.2`) for seamless layout gliding across tabs (`SharedLayoutBg`) and menu items.
+  - Houses the composable `DateRangePickerDropdown` calendar popover with smooth month slide transitions, keyboard navigation, and year jump grid for analytics telemetry filtering.

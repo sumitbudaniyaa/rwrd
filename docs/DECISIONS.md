@@ -182,3 +182,24 @@ This document records the architectural and design decisions made for **TipTable
 - **Consequences**:
   - Positive: Zero PII storage; complete immunity from customer data breach liability.
   - Positive: Frictionless, fastest checkout experience (< 5 seconds to initiate tip).
+
+---
+
+## ADR-011: ReactDrops Chromatic WebGL Shader & beUI Motion Date Range Picker Integration
+
+- **Status**: Accepted
+- **Date**: 2026-11-07
+- **Context**:
+  The restaurant admin portal requires high aesthetic refinement and tactile physical feedback for core touchpoints: the persistent bottom floating navigation menu trigger, and date-range telemetry filtering in the analytics dashboard. Static buttons and native browser `<input type="date">` controls introduce jarring cross-browser style inconsistencies, lack spring physics, and degrade the premium feel.
+- **Alternatives Considered**:
+  1. _Standard CSS glow/hover states & native date inputs_: Functional but basic; native `<input type="date">` displays disparate system picker dialogs across Safari/Chrome/Firefox with no range context or month slide transitions.
+  2. _Heavy third-party UI libraries (e.g. Mantine, MUI, AntD)_: Introduce bundle bloat, styling collisions with Tailwind v4, and rigid DOM structures.
+  3. _Vendor-in ReactDrops Chromatic Shader & beUI Motion DateRangePicker_:
+     - **Chromatic Button**: High-performance WebGL shader suite (`chromatic-surface.tsx`, `chromatic-shaders.ts`, `chromatic-field.ts`) computing periodic value noise, quantile rank mapping, feathered spherical specular reflections, and hue cycling with graceful radial-gradient CSS fallback and IntersectionObserver pause.
+     - **beUI DateRangePicker**: Composable popover calendar (`DateRangePickerDropdown`, `MorphPopover`, `DateRangePickerCalendar`) with month slide motion, year jump grid, and accessibility keyboard navigation.
+- **Decision**:
+  Vendor both component suites into `apps/admin/src/components/chromatic/` and `apps/admin/src/components/motion/date-range-picker/`. Guard WebGL context creation and DOM observers against headless/JSDOM execution environments so automated test suites (`vitest`) run with 100% reliability.
+- **Consequences**:
+  - Positive: Distinctive tactile visual identity with smooth 60fps GPU-accelerated shader animations.
+  - Positive: Consistent custom date range selection across all browsers with immediate telemetry query updates.
+  - Positive: Graceful fallbacks for reduced-motion preferences, headless testing environments, and non-WebGL hardware.
