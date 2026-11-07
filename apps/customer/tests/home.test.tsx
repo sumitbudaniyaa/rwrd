@@ -80,4 +80,24 @@ describe('Customer Screen 1: Home', () => {
       'noopener,noreferrer',
     );
   });
+
+  it('redirects /r/:token QR link format directly to restaurant home screen', async () => {
+    vi.spyOn(api, 'resolveToken').mockResolvedValue(mockResolveData);
+    window.history.pushState({}, 'QR Link', '/r/valid-token-123');
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Bombay Canteen')).toBeInTheDocument();
+    });
+    expect(window.location.pathname).toBe('/t/valid-token-123');
+  });
+
+  it('renders NoTokenScreen fallback when visiting base domain without token', async () => {
+    window.history.pushState({}, 'Root', '/');
+
+    render(<App />);
+
+    expect(screen.getByText('scan table QR code')).toBeInTheDocument();
+  });
 });

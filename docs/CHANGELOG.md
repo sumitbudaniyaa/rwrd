@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Customer QR Route Redirection (/r/:token), Fallback Screen & Audit Log Motion Sliding Filter Tabs (M7-T26)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Customer QR Route Redirection (`/r/:token`)** ([`apps/customer/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/App.tsx)):
+    - Diagnosed the root cause of blank screen / redirection when opening links like `http://localhost:3000/r/KsKQjhUWjiG7SprbuAnJEQ`: the backend API generates QR tokens under `/r/:token`, but the customer SPA previously only declared `/t/:token`, causing React Router to fall through to a catch-all that redirected to `/` (which had no matching route, rendering blank).
+    - Added `<Route path="/r/:token/*" element={<RedirectQrRoute />} />` and `<Route path="/r/:token" element={<RedirectQrRoute />} />` to seamlessly forward QR token visits directly to `/t/:token/*`.
+    - Added [`apps/customer/src/screens/NoTokenScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/NoTokenScreen.tsx) fallback screen mounted at `/` with clear, branded guidance on how to scan a table QR code rather than showing an empty container.
+  - **Audit Log Motion Filter Tabs** ([`apps/admin/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AuditLogScreen.tsx)):
+    - Upgraded entity filter tabs (**All Events**, **Staff**, **Settings**, **QR Tokens**, **Tables**) with `<motion.div layoutRoot>` and a shared `<motion.span layoutId="audit-entity-filter-active-pill">` active background indicator.
+    - Matches the smooth spring-physics gliding motion (`stiffness: 245, damping: 36, mass: 1.2`) from the analytics period selector.
+  - **Scanner Modal Mode Tabs Polish** ([`apps/admin/src/components/VpaQrScannerModal.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/VpaQrScannerModal.tsx)):
+    - Transformed Camera vs Upload Image mode toggle into a smooth segmented control with `<motion.span layoutId="scanner-mode-active-pill">`.
+  - **Company Portal Dialog Backdrop Teleportation** ([`apps/portal/src/screens/RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx), [`apps/portal/src/screens/SystemHealthScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SystemHealthScreen.tsx), [`apps/portal/src/screens/LeadsManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/LeadsManagementScreen.tsx), [`apps/portal/src/screens/BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx)):
+    - Teleported all modals across `apps/portal` to `document.body` via `createPortal(..., document.body)` with `fixed inset-0 z-[200] bg-stone-900/50 backdrop-blur-sm animate-fade-in`.
+    - Eliminates backdrop clipping and guarantees 100% full-viewport dimming covering the sidebar navigation across all company control plane screens.
+  - **Verification & Testing**:
+    - Added unit test in [`apps/customer/tests/home.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/home.test.tsx) verifying `/r/:token` redirect to restaurant home and `/` fallback view.
+    - All 20 tests in `@tiptable/customer` passing.
+    - All 45 tests in `@tiptable/admin` passing.
+    - All 27 tests in `@tiptable/portal` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-08 - Database Text Expansion (staff.photo_url & restaurants.logo_url) & Full-Screen Dialog Backdrop Overlay (M7-T25)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

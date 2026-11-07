@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -597,184 +598,190 @@ export const BillingManagementScreen: React.FC = () => {
       )}
 
       {/* Create Invoice Modal */}
-      {isCreateInvoiceOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                  <HugeiconsIcon
-                    icon={Invoice01Icon}
-                    className="w-5 h-5 text-stone-800"
-                    strokeWidth={1.5}
-                  />
-                  Generate Invoice
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsCreateInvoiceOpen(false)}
-                  className="text-stone-400 hover:text-stone-600"
-                >
-                  <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
-                </button>
-              </div>
-
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!formRestaurantId) {
-                    setErrorMessage('Please select a restaurant');
-                    return;
-                  }
-                  const payload: CreateInvoiceInput = {
-                    restaurantId: formRestaurantId,
-                    amountInr: Number(formAmountInr),
-                    dueDate: formDueDate,
-                  };
-                  if (formNotes.trim()) {
-                    payload.notes = formNotes.trim();
-                  }
-                  createInvoiceMutation.mutate(payload);
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Select Restaurant
-                  </label>
-                  <select
-                    value={formRestaurantId}
-                    onChange={(e) => setFormRestaurantId(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
-                  >
-                    <option value="">-- Choose Restaurant --</option>
-                    {restaurantsData?.restaurants.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name} ({r.slug})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      Amount (INR)
-                    </label>
-                    <input
-                      type="number"
-                      min={1}
-                      value={formAmountInr}
-                      onChange={(e) => setFormAmountInr(Number(e.target.value))}
-                      required
-                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+      {isCreateInvoiceOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                  <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                    <HugeiconsIcon
+                      icon={Invoice01Icon}
+                      className="w-5 h-5 text-stone-800"
+                      strokeWidth={1.5}
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      Due Date
-                    </label>
-                    <input
-                      type="date"
-                      value={formDueDate}
-                      onChange={(e) => setFormDueDate(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Internal Notes (Optional)
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={formNotes}
-                    onChange={(e) => setFormNotes(e.target.value)}
-                    placeholder="Monthly billing notes or discount reference..."
-                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                    Generate Invoice
+                  </h3>
                   <button
                     type="button"
                     onClick={() => setIsCreateInvoiceOpen(false)}
-                    className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                    className="text-stone-400 hover:text-stone-600"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
+                </div>
+
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (!formRestaurantId) {
+                      setErrorMessage('Please select a restaurant');
+                      return;
+                    }
+                    const payload: CreateInvoiceInput = {
+                      restaurantId: formRestaurantId,
+                      amountInr: Number(formAmountInr),
+                      dueDate: formDueDate,
+                    };
+                    if (formNotes.trim()) {
+                      payload.notes = formNotes.trim();
+                    }
+                    createInvoiceMutation.mutate(payload);
+                  }}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Select Restaurant
+                    </label>
+                    <select
+                      value={formRestaurantId}
+                      onChange={(e) => setFormRestaurantId(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                    >
+                      <option value="">-- Choose Restaurant --</option>
+                      {restaurantsData?.restaurants.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name} ({r.slug})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Amount (INR)
+                      </label>
+                      <input
+                        type="number"
+                        min={1}
+                        value={formAmountInr}
+                        onChange={(e) => setFormAmountInr(Number(e.target.value))}
+                        required
+                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Due Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formDueDate}
+                        onChange={(e) => setFormDueDate(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Internal Notes (Optional)
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={formNotes}
+                      onChange={(e) => setFormNotes(e.target.value)}
+                      placeholder="Monthly billing notes or discount reference..."
+                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                    <button
+                      type="button"
+                      onClick={() => setIsCreateInvoiceOpen(false)}
+                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <MotionButton
+                      type="submit"
+                      variant="primary"
+                      disabled={createInvoiceMutation.isPending}
+                      className="!px-4 !py-2 !text-xs !bg-stone-900 hover:!bg-stone-800"
+                    >
+                      {createInvoiceMutation.isPending ? 'Generating...' : 'Issue Invoice'}
+                    </MotionButton>
+                  </div>
+                </form>
+              </div>
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
+
+      {/* Auto-Suspend Sweep Confirmation Modal */}
+      {isSweepModalOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                    <HugeiconsIcon icon={AlertSquareIcon} className="w-5 h-5" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900">
+                      Run Grace Period Enforcement Sweep
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Evaluates overdue invoices against the platform 7-day grace rule.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-700 space-y-2">
+                  <p className="font-semibold text-stone-900">How auto-suspension works:</p>
+                  <ul className="list-disc list-inside space-y-1 text-stone-600">
+                    <li>Checks all unpaid invoices whose due date has passed by &ge; 7 days.</li>
+                    <li>Delinquent restaurants are automatically flagged as suspended.</li>
+                    <li>Customer QR code placards are disabled immediately with an audit log.</li>
+                    <li>
+                      Subscriptions are marked as{' '}
+                      <span className="font-mono text-rose-600">past_due</span>.
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsSweepModalOpen(false)}
+                    className="px-3.5 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
                   >
                     Cancel
                   </button>
-                  <MotionButton
-                    type="submit"
-                    variant="primary"
-                    disabled={createInvoiceMutation.isPending}
-                    className="!px-4 !py-2 !text-xs !bg-stone-900 hover:!bg-stone-800"
+                  <button
+                    type="button"
+                    disabled={sweepMutation.isPending}
+                    onClick={() => sweepMutation.mutate()}
+                    className="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm"
                   >
-                    {createInvoiceMutation.isPending ? 'Generating...' : 'Issue Invoice'}
-                  </MotionButton>
-                </div>
-              </form>
-            </div>
-          </FadeIn>
-        </div>
-      )}
-
-      {/* Auto-Suspend Sweep Confirmation Modal */}
-      {isSweepModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <HugeiconsIcon icon={AlertSquareIcon} className="w-5 h-5" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-stone-900">
-                    Run Grace Period Enforcement Sweep
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Evaluates overdue invoices against the platform 7-day grace rule.
-                  </p>
+                    {sweepMutation.isPending ? 'Sweeping...' : 'Execute Sweep'}
+                  </button>
                 </div>
               </div>
-
-              <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-700 space-y-2">
-                <p className="font-semibold text-stone-900">How auto-suspension works:</p>
-                <ul className="list-disc list-inside space-y-1 text-stone-600">
-                  <li>Checks all unpaid invoices whose due date has passed by &ge; 7 days.</li>
-                  <li>Delinquent restaurants are automatically flagged as suspended.</li>
-                  <li>Customer QR code placards are disabled immediately with an audit log.</li>
-                  <li>
-                    Subscriptions are marked as{' '}
-                    <span className="font-mono text-rose-600">past_due</span>.
-                  </li>
-                </ul>
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsSweepModalOpen(false)}
-                  className="px-3.5 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  disabled={sweepMutation.isPending}
-                  onClick={() => sweepMutation.mutate()}
-                  className="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm"
-                >
-                  {sweepMutation.isPending ? 'Sweeping...' : 'Execute Sweep'}
-                </button>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      )}
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

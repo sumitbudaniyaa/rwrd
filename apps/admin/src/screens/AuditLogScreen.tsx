@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -99,8 +100,8 @@ export const AuditLogScreen: React.FC = () => {
       {/* Filter Tabs */}
       <SlideUp delay={50}>
         <div className="flex flex-wrap items-center justify-between gap-4 bg-white/90 backdrop-blur-xs p-3.5 rounded-2xl border border-stone-200/70 shadow-2xs">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-2 flex items-center gap-1">
+          <motion.div layoutRoot className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-2 flex items-center gap-1 select-none">
               <HugeiconsIcon icon={FilterIcon} className="w-3.5 h-3.5" />
               Filter By:
             </span>
@@ -112,24 +113,39 @@ export const AuditLogScreen: React.FC = () => {
                 { id: 'qr_token', label: 'QR Tokens' },
                 { id: 'table', label: 'Tables' },
               ] as const
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setEntityFilter(tab.id);
-                  setPage(0);
-                }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
-                  entityFilter === tab.id
-                    ? 'bg-stone-900 text-stone-50 shadow-2xs'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+            ).map((tab) => {
+              const isSelected = entityFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    setEntityFilter(tab.id);
+                    setPage(0);
+                  }}
+                  className={`relative px-3 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer select-none outline-none focus:outline-none ${
+                    isSelected
+                      ? 'text-stone-50'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.span
+                      layoutId="audit-entity-filter-active-pill"
+                      className="absolute inset-0 bg-stone-900 rounded-xl shadow-2xs -z-0"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 245,
+                        damping: 36,
+                        mass: 1.2,
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10 transition-colors duration-150">{tab.label}</span>
+                </button>
+              );
+            })}
+          </motion.div>
 
           <div className="text-xs text-stone-500">Showing page {page + 1}</div>
         </div>

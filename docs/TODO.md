@@ -143,3 +143,4 @@ Status values:
 | **M7-T23** | Calendar Range Highlight Styling & Single Date Selection Guidance in Custom Analytics.                                      | `Done` | Senior Staff Agent | 2026-11-07     | Calendar range & UX polish    |
 | **M7-T24** | Calendar Range Yellow Highlight Palette Integration (`#FFE862`).                                                            | `Done` | Senior Staff Agent | 2026-11-07     | Brand yellow calendar polish  |
 | **M7-T25** | Database Text Expansion (`staff.photo_url` & `restaurants.logo_url`) & Full-Screen Dialog Backdrop Overlay.                 | `Done` | Senior Staff Agent | 2026-11-08     | DB constraint & modal portal  |
+| **M7-T26** | Customer QR Route Redirection (`/r/:token`), Fallback Screen & Audit Log Motion Sliding Filter Tabs.                        | `Done` | Senior Staff Agent | 2026-11-08     | Customer QR & motion tabs     |

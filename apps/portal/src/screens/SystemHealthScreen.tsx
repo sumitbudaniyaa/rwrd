@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -607,130 +608,133 @@ export const SystemHealthScreen: React.FC = () => {
       )}
 
       {/* Configure Feature Flag Modal */}
-      {isFlagModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
-                  <HugeiconsIcon
-                    icon={Flag01Icon}
-                    className="w-5 h-5 text-stone-800"
-                    strokeWidth={1.5}
-                  />
-                  Configure Flag Override
-                </h3>
-                <button
-                  type="button"
-                  onClick={() => setIsFlagModalOpen(false)}
-                  className="text-stone-400 hover:text-stone-600"
-                >
-                  <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
-                </button>
-              </div>
-
-              <form onSubmit={handleCreateFlagSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Select Restaurant
-                  </label>
-                  <select
-                    value={formRestaurantId}
-                    onChange={(e) => setFormRestaurantId(e.target.value)}
-                    required
-                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
-                  >
-                    <option value="">-- Choose Restaurant --</option>
-                    {restaurantsData?.restaurants.map((r) => (
-                      <option key={r.id} value={r.id}>
-                        {r.name} ({r.slug})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Feature Flag Key
-                  </label>
-                  <select
-                    value={formKey}
-                    onChange={(e) => setFormKey(e.target.value)}
-                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
-                  >
-                    {PRESET_FLAG_KEYS.map((p) => (
-                      <option key={p.key} value={p.key}>
-                        {p.key}
-                      </option>
-                    ))}
-                    <option value="custom">-- Custom Flag Key --</option>
-                  </select>
-                </div>
-
-                {formKey === 'custom' && (
-                  <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      Custom Flag Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. experimental_qr_design"
-                      value={formCustomKey}
-                      onChange={(e) => setFormCustomKey(e.target.value)}
-                      required
-                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+      {isFlagModalOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                  <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
+                    <HugeiconsIcon
+                      icon={Flag01Icon}
+                      className="w-5 h-5 text-stone-800"
+                      strokeWidth={1.5}
                     />
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="flagEnabled"
-                    checked={formEnabled}
-                    onChange={(e) => setFormEnabled(e.target.checked)}
-                    className="rounded border-stone-300 text-stone-900 focus:ring-stone-900"
-                  />
-                  <label htmlFor="flagEnabled" className="text-xs font-semibold text-stone-700">
-                    Flag Enabled
-                  </label>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    Config JSON (Optional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={formConfigJson}
-                    onChange={(e) => setFormConfigJson(e.target.value)}
-                    placeholder='{"threshold": 100}'
-                    className="w-full px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                    Configure Flag Override
+                  </h3>
                   <button
                     type="button"
                     onClick={() => setIsFlagModalOpen(false)}
-                    className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                    className="text-stone-400 hover:text-stone-600"
                   >
-                    Cancel
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
                   </button>
-                  <MotionButton
-                    type="submit"
-                    variant="primary"
-                    disabled={upsertFlagMutation.isPending}
-                    className="!px-4 !py-2 !text-xs !bg-stone-900 hover:!bg-stone-800"
-                  >
-                    {upsertFlagMutation.isPending ? 'Saving...' : 'Apply Override'}
-                  </MotionButton>
                 </div>
-              </form>
-            </div>
-          </FadeIn>
-        </div>
-      )}
+
+                <form onSubmit={handleCreateFlagSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Select Restaurant
+                    </label>
+                    <select
+                      value={formRestaurantId}
+                      onChange={(e) => setFormRestaurantId(e.target.value)}
+                      required
+                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                    >
+                      <option value="">-- Choose Restaurant --</option>
+                      {restaurantsData?.restaurants.map((r) => (
+                        <option key={r.id} value={r.id}>
+                          {r.name} ({r.slug})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Feature Flag Key
+                    </label>
+                    <select
+                      value={formKey}
+                      onChange={(e) => setFormKey(e.target.value)}
+                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                    >
+                      {PRESET_FLAG_KEYS.map((p) => (
+                        <option key={p.key} value={p.key}>
+                          {p.key}
+                        </option>
+                      ))}
+                      <option value="custom">-- Custom Flag Key --</option>
+                    </select>
+                  </div>
+
+                  {formKey === 'custom' && (
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Custom Flag Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. experimental_qr_design"
+                        value={formCustomKey}
+                        onChange={(e) => setFormCustomKey(e.target.value)}
+                        required
+                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="flagEnabled"
+                      checked={formEnabled}
+                      onChange={(e) => setFormEnabled(e.target.checked)}
+                      className="rounded border-stone-300 text-stone-900 focus:ring-stone-900"
+                    />
+                    <label htmlFor="flagEnabled" className="text-xs font-semibold text-stone-700">
+                      Flag Enabled
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Config JSON (Optional)
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={formConfigJson}
+                      onChange={(e) => setFormConfigJson(e.target.value)}
+                      placeholder='{"threshold": 100}'
+                      className="w-full px-3 py-2 text-xs font-mono bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                    <button
+                      type="button"
+                      onClick={() => setIsFlagModalOpen(false)}
+                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                    >
+                      Cancel
+                    </button>
+                    <MotionButton
+                      type="submit"
+                      variant="primary"
+                      disabled={upsertFlagMutation.isPending}
+                      className="!px-4 !py-2 !text-xs !bg-stone-900 hover:!bg-stone-800"
+                    >
+                      {upsertFlagMutation.isPending ? 'Saving...' : 'Apply Override'}
+                    </MotionButton>
+                  </div>
+                </form>
+              </div>
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

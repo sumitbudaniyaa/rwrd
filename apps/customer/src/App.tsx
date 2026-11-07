@@ -16,6 +16,7 @@ import { StaffScreen } from './screens/StaffScreen.js';
 import { AmountScreen } from './screens/AmountScreen.js';
 import { PayScreen } from './screens/PayScreen.js';
 import { ThanksScreen } from './screens/ThanksScreen.js';
+import { NoTokenScreen } from './screens/NoTokenScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +27,12 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+const RedirectQrRoute: React.FC = () => {
+  const { token, '*': splat } = useParams<{ token: string; '*': string }>();
+  const target = splat ? `/t/${token}/${splat}` : `/t/${token}`;
+  return <Navigate to={target} replace />;
+};
 
 const RestaurantLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -70,6 +77,10 @@ export const App: React.FC = () => {
       <BrowserRouter>
         <div className="mx-auto min-h-screen max-w-[440px] bg-cream-50 text-charcoal-900 shadow-sm flex flex-col font-sans">
           <Routes>
+            {/* Direct QR Link: /r/:token -> /t/:token */}
+            <Route path="/r/:token/*" element={<RedirectQrRoute />} />
+            <Route path="/r/:token" element={<RedirectQrRoute />} />
+
             <Route path="/t/:token" element={<RestaurantLayout />}>
               <Route index element={<HomeScreen />} />
               <Route path="staff" element={<StaffScreen />} />
@@ -77,6 +88,9 @@ export const App: React.FC = () => {
               <Route path="staff/:staffId/pay" element={<PayScreen />} />
               <Route path="thanks" element={<ThanksScreen />} />
             </Route>
+
+            {/* Direct visit without token */}
+            <Route path="/" element={<NoTokenScreen />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

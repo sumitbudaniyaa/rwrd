@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -453,298 +454,308 @@ export const RestaurantManagementScreen: React.FC = () => {
       )}
 
       {/* Onboard Restaurant Modal */}
-      {isOnboardModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl max-w-lg w-full border border-stone-200 shadow-xl overflow-hidden">
-              <div className="p-5 border-b border-stone-200 flex items-center justify-between">
-                <div>
-                  <h2 className="text-sm font-semibold text-stone-900">Onboard New Restaurant</h2>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Provisions establishment, root table QR, and initial owner user.
-                  </p>
+      {isOnboardModalOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl max-w-lg w-full border border-stone-200 shadow-xl overflow-hidden">
+                <div className="p-5 border-b border-stone-200 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-sm font-semibold text-stone-900">Onboard New Restaurant</h2>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Provisions establishment, root table QR, and initial owner user.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsOnboardModalOpen(false)}
+                    className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+                    aria-label="Close modal"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" />
+                  </button>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setIsOnboardModalOpen(false)}
-                  className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
-                  aria-label="Close modal"
+
+                <form
+                  onSubmit={handleOnboardSubmit}
+                  className="p-6 space-y-4 max-h-[75vh] overflow-y-auto"
                 >
-                  <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" />
-                </button>
+                  {errorMessage && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                      <HugeiconsIcon
+                        icon={AlertCircleIcon}
+                        className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
+                      />
+                      <span>{errorMessage}</span>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
+                      Establishment Profile
+                    </h3>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        Restaurant Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formName}
+                        onChange={(e) => handleNameChange(e.target.value)}
+                        placeholder="e.g. The Bombay Canteen"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        URL Slug *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formSlug}
+                        onChange={(e) =>
+                          setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+                        }
+                        placeholder="e.g. the-bombay-canteen"
+                        className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        Google Review Write URL *
+                      </label>
+                      <input
+                        type="url"
+                        required
+                        value={formReviewUrl}
+                        onChange={(e) => setFormReviewUrl(e.target.value)}
+                        placeholder="https://maps.app.goo.gl/..."
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                      <span className="text-[11px] text-stone-400 mt-1 block">
+                        Must be a valid Google Maps / Place review link (un-gated).
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-3 border-t border-stone-100">
+                    <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
+                      Initial Owner Credentials
+                    </h3>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        Owner Full Name *
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formOwnerName}
+                        onChange={(e) => setFormOwnerName(e.target.value)}
+                        placeholder="e.g. Sameer Seth"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        Owner Email *
+                      </label>
+                      <input
+                        type="email"
+                        required
+                        value={formOwnerEmail}
+                        onChange={(e) => setFormOwnerEmail(e.target.value)}
+                        placeholder="owner@establishment.com"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                        Initial Temporary Password *
+                      </label>
+                      <input
+                        type="password"
+                        required
+                        minLength={8}
+                        value={formOwnerPassword}
+                        onChange={(e) => setFormOwnerPassword(e.target.value)}
+                        placeholder="At least 8 characters"
+                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 flex items-center justify-end gap-2 border-t border-stone-100">
+                    <MotionButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsOnboardModalOpen(false)}
+                    >
+                      Cancel
+                    </MotionButton>
+                    <MotionButton
+                      type="submit"
+                      variant="primary"
+                      size="sm"
+                      disabled={onboardMutation.isPending}
+                      className="bg-stone-900 hover:bg-stone-800 text-white"
+                    >
+                      {onboardMutation.isPending ? 'Provisioning...' : 'Provision Restaurant'}
+                    </MotionButton>
+                  </div>
+                </form>
               </div>
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
 
-              <form
-                onSubmit={handleOnboardSubmit}
-                className="p-6 space-y-4 max-h-[75vh] overflow-y-auto"
-              >
-                {errorMessage && (
-                  <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
-                    <HugeiconsIcon
-                      icon={AlertCircleIcon}
-                      className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
-                    />
-                    <span>{errorMessage}</span>
+      {/* Suspend Confirmation Modal */}
+      {suspendTarget &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
+                    <HugeiconsIcon icon={AlertCircleIcon} className="w-5 h-5" />
                   </div>
-                )}
-
-                <div className="space-y-3">
-                  <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
-                    Establishment Profile
-                  </h3>
-
                   <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Restaurant Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formName}
-                      onChange={(e) => handleNameChange(e.target.value)}
-                      placeholder="e.g. The Bombay Canteen"
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      URL Slug *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formSlug}
-                      onChange={(e) =>
-                        setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-                      }
-                      placeholder="e.g. the-bombay-canteen"
-                      className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Google Review Write URL *
-                    </label>
-                    <input
-                      type="url"
-                      required
-                      value={formReviewUrl}
-                      onChange={(e) => setFormReviewUrl(e.target.value)}
-                      placeholder="https://maps.app.goo.gl/..."
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
-                    <span className="text-[11px] text-stone-400 mt-1 block">
-                      Must be a valid Google Maps / Place review link (un-gated).
-                    </span>
+                    <h3 className="text-sm font-semibold text-stone-900">
+                      Suspend &quot;{suspendTarget.name}&quot;
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Suspension will immediately disable customer QR placards.
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-stone-100">
-                  <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
-                    Initial Owner Credentials
-                  </h3>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Owner Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formOwnerName}
-                      onChange={(e) => setFormOwnerName(e.target.value)}
-                      placeholder="e.g. Sameer Seth"
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Owner Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={formOwnerEmail}
-                      onChange={(e) => setFormOwnerEmail(e.target.value)}
-                      placeholder="owner@establishment.com"
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-medium text-stone-700 mb-1">
-                      Initial Temporary Password *
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={formOwnerPassword}
-                      onChange={(e) => setFormOwnerPassword(e.target.value)}
-                      placeholder="At least 8 characters"
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                    />
-                  </div>
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Reason for Suspension (Optional)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={suspensionReason}
+                    onChange={(e) => setSuspensionReason(e.target.value)}
+                    placeholder="e.g. Overdue payment on flat monthly plan, temporary operational shutdown..."
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                  />
                 </div>
 
-                <div className="pt-4 flex items-center justify-end gap-2 border-t border-stone-100">
+                <div className="flex items-center justify-end gap-2 pt-2">
                   <MotionButton
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setIsOnboardModalOpen(false)}
+                    onClick={() => setSuspendTarget(null)}
                   >
                     Cancel
                   </MotionButton>
                   <MotionButton
-                    type="submit"
+                    type="button"
                     variant="primary"
                     size="sm"
-                    disabled={onboardMutation.isPending}
-                    className="bg-stone-900 hover:bg-stone-800 text-white"
+                    onClick={handleSuspendConfirm}
+                    disabled={statusMutation.isPending}
+                    className="bg-amber-600 hover:bg-amber-700 text-white"
                   >
-                    {onboardMutation.isPending ? 'Provisioning...' : 'Provision Restaurant'}
+                    {statusMutation.isPending ? 'Suspending...' : 'Confirm Suspension'}
                   </MotionButton>
                 </div>
-              </form>
-            </div>
-          </FadeIn>
-        </div>
-      )}
-
-      {/* Suspend Confirmation Modal */}
-      {suspendTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
-                  <HugeiconsIcon icon={AlertCircleIcon} className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-stone-900">
-                    Suspend &quot;{suspendTarget.name}&quot;
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Suspension will immediately disable customer QR placards.
-                  </p>
-                </div>
               </div>
-
-              <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Reason for Suspension (Optional)
-                </label>
-                <textarea
-                  rows={3}
-                  value={suspensionReason}
-                  onChange={(e) => setSuspensionReason(e.target.value)}
-                  placeholder="e.g. Overdue payment on flat monthly plan, temporary operational shutdown..."
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <MotionButton
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSuspendTarget(null)}
-                >
-                  Cancel
-                </MotionButton>
-                <MotionButton
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={handleSuspendConfirm}
-                  disabled={statusMutation.isPending}
-                  className="bg-amber-600 hover:bg-amber-700 text-white"
-                >
-                  {statusMutation.isPending ? 'Suspending...' : 'Confirm Suspension'}
-                </MotionButton>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      )}
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
 
       {/* Support Impersonation Modal */}
-      {impersonateTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0">
-                  <HugeiconsIcon icon={UserCheck01Icon} className="w-5 h-5" />
+      {impersonateTarget &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0">
+                    <HugeiconsIcon icon={UserCheck01Icon} className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-stone-900">
+                      Enter Support Impersonation Mode: &quot;{impersonateTarget.name}&quot;
+                    </h3>
+                    <p className="text-xs text-stone-500 mt-0.5">
+                      Delegated live session. All actions are strictly audited.
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-stone-900">
-                    Enter Support Impersonation Mode: &quot;{impersonateTarget.name}&quot;
-                  </h3>
-                  <p className="text-xs text-stone-500 mt-0.5">
-                    Delegated live session. All actions are strictly audited.
+
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
+                  <p className="font-semibold flex items-center gap-1.5">
+                    <HugeiconsIcon
+                      icon={AlertCircleIcon}
+                      className="w-4 h-4 text-amber-600 shrink-0"
+                    />
+                    <span>Support Delegation Security Notice</span>
+                  </p>
+                  <p className="text-[11px] leading-relaxed text-amber-700">
+                    You are entering this restaurant&apos;s administration account as a delegated
+                    owner. A high-visibility warning banner will be displayed throughout your
+                    session.
                   </p>
                 </div>
-              </div>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
-                <p className="font-semibold flex items-center gap-1.5">
-                  <HugeiconsIcon
-                    icon={AlertCircleIcon}
-                    className="w-4 h-4 text-amber-600 shrink-0"
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Support Ticket Reference / Reason (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={impersonateReason}
+                    onChange={(e) => setImpersonateReason(e.target.value)}
+                    placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
                   />
-                  <span>Support Delegation Security Notice</span>
-                </p>
-                <p className="text-[11px] leading-relaxed text-amber-700">
-                  You are entering this restaurant&apos;s administration account as a delegated
-                  owner. A high-visibility warning banner will be displayed throughout your session.
-                </p>
-              </div>
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Support Ticket Reference / Reason (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={impersonateReason}
-                  onChange={(e) => setImpersonateReason(e.target.value)}
-                  placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
-                  className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                />
+                <div className="flex items-center justify-end gap-2 pt-2">
+                  <MotionButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setImpersonateTarget(null);
+                      setImpersonateReason('');
+                    }}
+                  >
+                    Cancel
+                  </MotionButton>
+                  <MotionButton
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={handleImpersonateConfirm}
+                    disabled={impersonateMutation.isPending}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  >
+                    {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
+                  </MotionButton>
+                </div>
               </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <MotionButton
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setImpersonateTarget(null);
-                    setImpersonateReason('');
-                  }}
-                >
-                  Cancel
-                </MotionButton>
-                <MotionButton
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={handleImpersonateConfirm}
-                  disabled={impersonateMutation.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                >
-                  {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
-                </MotionButton>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      )}
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

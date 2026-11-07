@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -385,72 +386,139 @@ export const LeadsManagementScreen: React.FC = () => {
       </SlideUp>
 
       {/* Lead Detail & Actions Modal */}
-      {selectedLead && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs">
-          <FadeIn>
-            <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-lg w-full p-6 space-y-4">
-              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                <div>
-                  <h3 className="text-base font-bold text-stone-900">
-                    {selectedLead.restaurantName}
-                  </h3>
-                  <p className="text-xs text-stone-500">
-                    Lead ID: <span className="font-mono">{selectedLead.id}</span>
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedLead(null)}
-                  className="text-stone-400 hover:text-stone-600"
-                >
-                  <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
-                </button>
-              </div>
-
-              {/* Lead Info Grid */}
-              <div className="grid grid-cols-2 gap-3 text-xs bg-stone-50 p-3.5 rounded-xl border border-stone-200">
-                <div>
-                  <span className="text-stone-400 block mb-0.5">Contact Person</span>
-                  <p className="font-semibold text-stone-900">{selectedLead.contactName}</p>
-                </div>
-                <div>
-                  <span className="text-stone-400 block mb-0.5">City</span>
-                  <p className="font-semibold text-stone-900">{selectedLead.city}</p>
-                </div>
-                <div>
-                  <span className="text-stone-400 block mb-0.5">Phone</span>
-                  <a
-                    href={`tel:${selectedLead.phone}`}
-                    className="font-mono text-indigo-600 hover:underline"
+      {selectedLead &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <FadeIn>
+              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-lg w-full p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                  <div>
+                    <h3 className="text-base font-bold text-stone-900">
+                      {selectedLead.restaurantName}
+                    </h3>
+                    <p className="text-xs text-stone-500">
+                      Lead ID: <span className="font-mono">{selectedLead.id}</span>
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedLead(null)}
+                    className="text-stone-400 hover:text-stone-600"
                   >
-                    {selectedLead.phone}
-                  </a>
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
+                  </button>
                 </div>
-                <div>
-                  <span className="text-stone-400 block mb-0.5">Email</span>
-                  <a
-                    href={`mailto:${selectedLead.email}`}
-                    className="font-mono text-indigo-600 hover:underline"
-                  >
-                    {selectedLead.email}
-                  </a>
-                </div>
-              </div>
 
-              {/* Stage Transition */}
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1.5">
-                  Pipeline Stage
-                </label>
-                <div className="flex items-center gap-2">
-                  {(['new', 'contacted', 'demo_scheduled', 'won', 'lost'] as LeadStatus[]).map(
-                    (st) => (
-                      <button
-                        key={st}
+                {/* Lead Info Grid */}
+                <div className="grid grid-cols-2 gap-3 text-xs bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                  <div>
+                    <span className="text-stone-400 block mb-0.5">Contact Person</span>
+                    <p className="font-semibold text-stone-900">{selectedLead.contactName}</p>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block mb-0.5">City</span>
+                    <p className="font-semibold text-stone-900">{selectedLead.city}</p>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block mb-0.5">Phone</span>
+                    <a
+                      href={`tel:${selectedLead.phone}`}
+                      className="font-mono text-indigo-600 hover:underline"
+                    >
+                      {selectedLead.phone}
+                    </a>
+                  </div>
+                  <div>
+                    <span className="text-stone-400 block mb-0.5">Email</span>
+                    <a
+                      href={`mailto:${selectedLead.email}`}
+                      className="font-mono text-indigo-600 hover:underline"
+                    >
+                      {selectedLead.email}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Stage Transition */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                    Pipeline Stage
+                  </label>
+                  <div className="flex items-center gap-2">
+                    {(['new', 'contacted', 'demo_scheduled', 'won', 'lost'] as LeadStatus[]).map(
+                      (st) => (
+                        <button
+                          key={st}
+                          type="button"
+                          disabled={isRestrictedRole || updateStatusMutation.isPending}
+                          onClick={() => {
+                            const payload: UpdateLeadStatusInput = { status: st };
+                            if (editingNotes.trim()) {
+                              payload.notes = editingNotes.trim();
+                            }
+                            updateStatusMutation.mutate({
+                              id: selectedLead.id,
+                              data: payload,
+                            });
+                          }}
+                          className={`px-2.5 py-1 text-xs font-semibold rounded-lg capitalize border transition-colors ${
+                            selectedLead.status === st
+                              ? 'bg-stone-900 text-white border-stone-900'
+                              : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
+                          }`}
+                        >
+                          {st.replace('_', ' ')}
+                        </button>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {/* Internal Notes Editor */}
+                <div>
+                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    Sales Notes & Discussion Record
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={editingNotes}
+                    disabled={isRestrictedRole}
+                    onChange={(e) => setEditingNotes(e.target.value)}
+                    placeholder="Record call notes, demo feedback, or onboarding prerequisites..."
+                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white disabled:opacity-60"
+                  />
+                </div>
+
+                {/* Modal Actions */}
+                <div className="flex items-center justify-between pt-2 border-t border-stone-100">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigate('/portal/restaurants');
+                    }}
+                    className="inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-semibold"
+                  >
+                    Onboard as Restaurant &rarr;
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedLead(null)}
+                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                    >
+                      Close
+                    </button>
+                    {!isRestrictedRole && (
+                      <MotionButton
                         type="button"
-                        disabled={isRestrictedRole || updateStatusMutation.isPending}
+                        variant="primary"
+                        disabled={updateStatusMutation.isPending}
                         onClick={() => {
-                          const payload: UpdateLeadStatusInput = { status: st };
+                          const payload: UpdateLeadStatusInput = {
+                            status: selectedLead.status,
+                          };
                           if (editingNotes.trim()) {
                             payload.notes = editingNotes.trim();
                           }
@@ -459,82 +527,18 @@ export const LeadsManagementScreen: React.FC = () => {
                             data: payload,
                           });
                         }}
-                        className={`px-2.5 py-1 text-xs font-semibold rounded-lg capitalize border transition-colors ${
-                          selectedLead.status === st
-                            ? 'bg-stone-900 text-white border-stone-900'
-                            : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
-                        }`}
+                        className="!px-3.5 !py-1.5 !text-xs !bg-stone-900 hover:!bg-stone-800"
                       >
-                        {st.replace('_', ' ')}
-                      </button>
-                    ),
-                  )}
+                        {updateStatusMutation.isPending ? 'Saving...' : 'Save Notes'}
+                      </MotionButton>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              {/* Internal Notes Editor */}
-              <div>
-                <label className="block text-xs font-semibold text-stone-700 mb-1">
-                  Sales Notes & Discussion Record
-                </label>
-                <textarea
-                  rows={3}
-                  value={editingNotes}
-                  disabled={isRestrictedRole}
-                  onChange={(e) => setEditingNotes(e.target.value)}
-                  placeholder="Record call notes, demo feedback, or onboarding prerequisites..."
-                  className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white disabled:opacity-60"
-                />
-              </div>
-
-              {/* Modal Actions */}
-              <div className="flex items-center justify-between pt-2 border-t border-stone-100">
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigate('/portal/restaurants');
-                  }}
-                  className="inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-semibold"
-                >
-                  Onboard as Restaurant &rarr;
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedLead(null)}
-                    className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
-                  >
-                    Close
-                  </button>
-                  {!isRestrictedRole && (
-                    <MotionButton
-                      type="button"
-                      variant="primary"
-                      disabled={updateStatusMutation.isPending}
-                      onClick={() => {
-                        const payload: UpdateLeadStatusInput = {
-                          status: selectedLead.status,
-                        };
-                        if (editingNotes.trim()) {
-                          payload.notes = editingNotes.trim();
-                        }
-                        updateStatusMutation.mutate({
-                          id: selectedLead.id,
-                          data: payload,
-                        });
-                      }}
-                      className="!px-3.5 !py-1.5 !text-xs !bg-stone-900 hover:!bg-stone-800"
-                    >
-                      {updateStatusMutation.isPending ? 'Saving...' : 'Save Notes'}
-                    </MotionButton>
-                  )}
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-        </div>
-      )}
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

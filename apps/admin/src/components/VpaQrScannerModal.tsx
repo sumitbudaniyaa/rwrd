@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import jsQR from 'jsqr';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -299,38 +300,55 @@ export const VpaQrScannerModal: React.FC<VpaQrScannerModalProps> = ({
 
         {/* Tab Controls */}
         {!decodedResult && (
-          <div className="flex border-b border-stone-100 bg-stone-50/50 px-4 pt-2 gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setMode('camera');
-                setScanError(null);
-              }}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
-                mode === 'camera'
-                  ? 'border-indigo-600 text-indigo-600 bg-white rounded-t-lg'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
-              }`}
+          <div className="border-b border-stone-100 bg-stone-50/50 px-4 py-2">
+            <motion.div
+              layoutRoot
+              className="flex items-center gap-1.5 p-1 bg-stone-100/80 rounded-xl border border-stone-200/60 shadow-2xs"
             >
-              <HugeiconsIcon icon={Camera01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span>Camera</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setMode('upload');
-                setScanError(null);
-                stopCamera();
-              }}
-              className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors ${
-                mode === 'upload'
-                  ? 'border-indigo-600 text-indigo-600 bg-white rounded-t-lg'
-                  : 'border-transparent text-stone-500 hover:text-stone-800'
-              }`}
-            >
-              <HugeiconsIcon icon={Upload01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-              <span>Upload Image</span>
-            </button>
+              {(
+                [
+                  { id: 'camera', label: 'Camera', icon: Camera01Icon },
+                  { id: 'upload', label: 'Upload Image', icon: Upload01Icon },
+                ] as const
+              ).map((tab) => {
+                const isSelected = mode === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => {
+                      setMode(tab.id);
+                      setScanError(null);
+                      if (tab.id === 'upload') stopCamera();
+                    }}
+                    className={`relative flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer select-none outline-none focus:outline-none ${
+                      isSelected
+                        ? 'text-stone-900 font-semibold'
+                        : 'text-stone-500 hover:text-stone-800'
+                    }`}
+                  >
+                    {isSelected && (
+                      <motion.span
+                        layoutId="scanner-mode-active-pill"
+                        className="absolute inset-0 bg-white rounded-lg shadow-xs -z-0"
+                        transition={{
+                          type: 'spring',
+                          stiffness: 245,
+                          damping: 36,
+                          mass: 1.2,
+                        }}
+                      />
+                    )}
+                    <HugeiconsIcon
+                      icon={tab.icon}
+                      className="relative z-10 w-3.5 h-3.5"
+                      strokeWidth={1.5}
+                    />
+                    <span className="relative z-10">{tab.label}</span>
+                  </button>
+                );
+              })}
+            </motion.div>
           </div>
         )}
 
