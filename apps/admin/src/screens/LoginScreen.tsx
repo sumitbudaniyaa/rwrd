@@ -205,7 +205,7 @@ export const LoginScreen: React.FC = () => {
   return (
     <div className="min-h-screen w-full flex bg-white text-stone-900 overflow-hidden font-sans antialiased selection:bg-stone-900 selection:text-white">
       {/* LEFT HALF: Clean, Minimal, Editorial Form / Multi-step Onboarding */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 z-10 bg-white overflow-y-auto">
+      <div className="w-full lg:w-1/2 h-screen max-h-screen flex flex-col justify-between p-6 sm:p-8 lg:p-8 z-10 bg-white overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {/* Top-Left Logo & Top-Right Toggle */}
         <div className="flex items-center justify-between w-full shrink-0">
           {/* Top-Left: rwrd brand logo */}
@@ -244,7 +244,7 @@ export const LoginScreen: React.FC = () => {
         </div>
 
         {/* Center: Dynamic Auth / Onboarding Form */}
-        <div className="w-full max-w-md mx-auto my-auto py-6">
+        <div className="w-full max-w-md mx-auto my-auto py-2">
           <AnimatePresence mode="wait">
             {/* LOGIN MODE */}
             {mode === 'login' && (
@@ -532,9 +532,9 @@ export const LoginScreen: React.FC = () => {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-                className="flex flex-col gap-5"
+                className="flex flex-col gap-3.5"
               >
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
+                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
                   your restaurant
                 </h1>
 
@@ -543,48 +543,49 @@ export const LoginScreen: React.FC = () => {
                     role="alert"
                     initial={{ opacity: 0, y: -2 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="rounded-xl border border-rose-200 bg-rose-50/90 px-3.5 py-2.5 text-xs text-rose-800 font-medium"
+                    className="rounded-xl border border-rose-200 bg-rose-50/90 px-3.5 py-2 text-xs text-rose-800 font-medium"
                   >
                     {errorMessage}
                   </motion.div>
                 )}
 
-                <form noValidate onSubmit={handleRegisterSubmit} className="flex flex-col gap-2.5">
-                  <Input
-                    id="fullName"
-                    label="Name"
-                    type="text"
-                    sizeVariant="sm"
-                    placeholder="Full name"
-                    leftIcon={<HugeiconsIcon icon={UserIcon} className="w-3.5 h-3.5" />}
-                    value={fullName}
-                    onChange={(val) => {
-                      setFullName(val);
-                      if (errorMessage) setErrorMessage(null);
-                    }}
-                    onBlur={() => touch('fullName')}
-                    error={touched.fullName ? errors.fullName : undefined}
-                    reserveErrorLine
-                    disabled={status === 'loading' || status === 'success'}
-                  />
+                <form noValidate onSubmit={handleRegisterSubmit} className="flex flex-col gap-2">
+                  {/* Name & Restaurant Legal Name in 2 columns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <Input
+                      id="fullName"
+                      label="Name"
+                      type="text"
+                      sizeVariant="sm"
+                      placeholder="Full name"
+                      leftIcon={<HugeiconsIcon icon={UserIcon} className="w-3.5 h-3.5" />}
+                      value={fullName}
+                      onChange={(val) => {
+                        setFullName(val);
+                        if (errorMessage) setErrorMessage(null);
+                      }}
+                      onBlur={() => touch('fullName')}
+                      error={touched.fullName ? errors.fullName : undefined}
+                      disabled={status === 'loading' || status === 'success'}
+                    />
 
-                  <Input
-                    id="restaurantName"
-                    label="Restaurant legal name"
-                    type="text"
-                    sizeVariant="sm"
-                    placeholder="e.g. The Bombay Canteen"
-                    leftIcon={<HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />}
-                    value={restaurantName}
-                    onChange={(val) => {
-                      setRestaurantName(val);
-                      if (errorMessage) setErrorMessage(null);
-                    }}
-                    onBlur={() => touch('restaurantName')}
-                    error={touched.restaurantName ? errors.restaurantName : undefined}
-                    reserveErrorLine
-                    disabled={status === 'loading' || status === 'success'}
-                  />
+                    <Input
+                      id="restaurantName"
+                      label="Restaurant legal name"
+                      type="text"
+                      sizeVariant="sm"
+                      placeholder="e.g. Bombay Canteen"
+                      leftIcon={<HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />}
+                      value={restaurantName}
+                      onChange={(val) => {
+                        setRestaurantName(val);
+                        if (errorMessage) setErrorMessage(null);
+                      }}
+                      onBlur={() => touch('restaurantName')}
+                      error={touched.restaurantName ? errors.restaurantName : undefined}
+                      disabled={status === 'loading' || status === 'success'}
+                    />
+                  </div>
 
                   {/* City, State, Country Grid */}
                   <div className="grid grid-cols-3 gap-2">
@@ -625,6 +626,7 @@ export const LoginScreen: React.FC = () => {
                     />
                   </div>
 
+                  {/* Email */}
                   <Input
                     id="regEmail"
                     label="Email"
@@ -640,29 +642,24 @@ export const LoginScreen: React.FC = () => {
                     }}
                     onBlur={() => touch('email')}
                     error={touched.email ? errors.email : undefined}
-                    reserveErrorLine
                     disabled={status === 'loading' || status === 'success'}
                   />
 
-                  <div className="flex flex-col gap-0.5">
-                    <label
-                      htmlFor="regPassword"
-                      className="text-[11px] font-medium tracking-wide text-stone-600 select-none cursor-pointer"
-                    >
-                      Password
-                    </label>
+                  {/* Password & Confirm Password in 2 columns */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <Input
                       id="regPassword"
+                      label="Password"
                       type={revealPassword ? 'text' : 'password'}
                       sizeVariant="sm"
                       autoComplete="new-password"
-                      placeholder="At least 8 characters"
+                      placeholder="At least 8 chars"
                       leftIcon={<HugeiconsIcon icon={LockPasswordIcon} className="w-3.5 h-3.5" />}
                       rightIcon={
                         <button
                           type="button"
                           onClick={() => setRevealPassword(!revealPassword)}
-                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
+                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer outline-none focus:outline-none"
                           aria-label={revealPassword ? 'Hide password' : 'Show password'}
                         >
                           {revealPassword ? (
@@ -679,20 +676,12 @@ export const LoginScreen: React.FC = () => {
                       }}
                       onBlur={() => touch('password')}
                       error={touched.password ? errors.password : undefined}
-                      reserveErrorLine
                       disabled={status === 'loading' || status === 'success'}
                     />
-                  </div>
 
-                  <div className="flex flex-col gap-0.5">
-                    <label
-                      htmlFor="confirmPassword"
-                      className="text-[11px] font-medium tracking-wide text-stone-600 select-none cursor-pointer"
-                    >
-                      Confirm Password
-                    </label>
                     <Input
                       id="confirmPassword"
+                      label="Confirm Password"
                       type={revealConfirmPassword ? 'text' : 'password'}
                       sizeVariant="sm"
                       placeholder="Confirm password"
@@ -701,7 +690,7 @@ export const LoginScreen: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setRevealConfirmPassword(!revealConfirmPassword)}
-                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
+                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer outline-none focus:outline-none"
                           aria-label={
                             revealConfirmPassword
                               ? 'Hide confirm password visibility'
@@ -722,13 +711,12 @@ export const LoginScreen: React.FC = () => {
                       }}
                       onBlur={() => touch('confirmPassword')}
                       error={touched.confirmPassword ? errors.confirmPassword : undefined}
-                      reserveErrorLine
                       disabled={status === 'loading' || status === 'success'}
                     />
                   </div>
 
                   {/* Actions: Back & Onboard */}
-                  <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center justify-between pt-1.5">
                     <StatefulButton
                       type="button"
                       variant="outline"

@@ -1,4 +1,4 @@
-import React, { useId } from 'react';
+import React, { useId, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export interface InputProps {
@@ -39,6 +39,7 @@ export const Input: React.FC<InputProps> = ({
   className = '',
 }) => {
   const generatedId = useId();
+  const [isFocused, setIsFocused] = useState(false);
   const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : generatedId);
   const errorId = `${inputId}-error`;
 
@@ -62,7 +63,15 @@ export const Input: React.FC<InputProps> = ({
         </label>
       )}
 
-      <div className="relative flex items-center w-full">
+      <div
+        className={`relative flex items-center w-full rounded-xl transition-all duration-200 ease-out border ${
+          error
+            ? 'border-rose-400 bg-rose-50/20 shadow-[0_0_0_3px_rgba(244,63,94,0.08)]'
+            : isFocused
+              ? 'border-stone-400 bg-white shadow-[0_0_0_3px_rgba(0,0,0,0.04)]'
+              : 'border-stone-200/90 hover:border-stone-300 bg-stone-50/70'
+        } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
+      >
         {hasLeftIcon && (
           <div className="absolute left-3 flex items-center pointer-events-none text-stone-400">
             {leftIcon}
@@ -74,18 +83,18 @@ export const Input: React.FC<InputProps> = ({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          onBlur={onBlur}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            setIsFocused(false);
+            onBlur?.();
+          }}
           placeholder={placeholder}
           disabled={disabled}
           autoComplete={autoComplete}
           required={required}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className={`w-full rounded-xl bg-stone-50/80 border text-stone-900 placeholder:text-stone-400 transition-all focus:bg-white focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed ${
-            error
-              ? 'border-rose-400 focus:border-rose-500 focus:ring-1 focus:ring-rose-500'
-              : 'border-stone-200/90 focus:border-stone-900 focus:ring-1 focus:ring-stone-900'
-          } ${sizeClasses} ${hasLeftIcon ? 'pl-8' : ''} ${hasRightIcon ? 'pr-8' : ''}`}
+          className={`w-full bg-transparent text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0 ${sizeClasses} ${hasLeftIcon ? 'pl-8' : ''} ${hasRightIcon ? 'pr-8' : ''}`}
         />
 
         {hasRightIcon && <div className="absolute right-2.5 flex items-center">{rightIcon}</div>}

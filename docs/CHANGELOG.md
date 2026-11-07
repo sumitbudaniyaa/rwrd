@@ -6,6 +6,31 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Dashboard Aesthetic Overhaul & Auth Interaction Polish (M7-T11)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Zero Button Focus Outline Anywhere** ([`apps/admin/src/components/motion/button.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/button.tsx), [`apps/admin/src/styles/index.css`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/styles/index.css)):
+    - Removed `focus-visible:ring-*` classes from `MotionButton` and `StatefulButton`, enforcing `outline-none focus:outline-none focus:ring-0 active:outline-none`.
+    - Added global `@layer base` CSS rule in `index.css` removing browser outline and focus ring box-shadows on button click while preserving micro-spring scale feedback (`whileTap={{ scale: 0.98 }}`).
+  - **Smooth Input Focus Transition** ([`apps/admin/src/components/motion/input.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/input.tsx)):
+    - Upgraded `Input` component to a container-based focus model with `transition-all duration-200 ease-out`.
+    - Configured soft focus illumination (`border-stone-400 bg-white shadow-[0_0_0_3px_rgba(0,0,0,0.04)]`) and gentle error illumination without harsh lines.
+  - **Step 3 ("Your Restaurant") Form Compacting & Zero Scrollbar** ([`apps/admin/src/screens/LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/LoginScreen.tsx)):
+    - Reorganized input fields into compact grids (2 columns for Name + Restaurant Legal Name; 2 columns for Password + Confirm Password; 3 columns for City/State/Country), removing redundant outer `<label>` wrappers.
+    - Adjusted heading to `text-3xl sm:text-4xl lg:text-5xl font-serif`.
+    - Added `overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden` so the full onboarding screen fits naturally within 100vh viewports without any scrollbar appearing.
+  - **Pinned Corner Alignment**:
+    - Anchored `rwrd` brand logo and `Admin` pill to top-left corner, `Sign up ->` / `Sign in ->` toggle to top-right corner, and `© 2026 rwrd` flush at bottom left.
+  - **Dashboard Overview Aesthetic Overhaul** ([`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)):
+    - Re-styled dashboard welcome banner with editorial serif typography (`good morning, Sarah`) and unified button actions.
+    - Upgraded KPI metric cards and "Recent Tips Initiated" feed to soft `rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs` aesthetic matching the sign-in experience.
+  - **Verification & Testing**:
+    - All 45 tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 errors across all 7 packages.
+    - Vite production build confirmed.
+
 ### 2026-11-07 - Spring-Physics Gliding Motion in Onboarding Step 2 (M7-T10)
 
 - **Milestone**: Milestone 7 (Auth Modernization & Motion System)

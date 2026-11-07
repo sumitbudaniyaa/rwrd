@@ -26,7 +26,7 @@ export const MotionButton = React.forwardRef<HTMLButtonElement, MotionButtonProp
     ref,
   ) => {
     const baseClasses =
-      'inline-flex items-center justify-center font-medium rounded-xl transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer';
+      'inline-flex items-center justify-center font-medium rounded-xl transition-colors duration-150 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 active:outline-none disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer';
 
     const sizeClasses = {
       sm: 'text-xs px-3 py-1.5 h-8 gap-1.5',
@@ -36,14 +36,12 @@ export const MotionButton = React.forwardRef<HTMLButtonElement, MotionButtonProp
 
     const variantClasses = {
       primary:
-        'bg-stone-950 text-white hover:bg-black focus-visible:ring-stone-900 shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20',
-      secondary: 'bg-stone-100 text-stone-800 hover:bg-stone-200/80 focus-visible:ring-stone-400',
+        'bg-stone-950 text-white hover:bg-black shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20',
+      secondary: 'bg-stone-100 text-stone-800 hover:bg-stone-200/80',
       outline:
-        'bg-white text-stone-800 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 focus-visible:ring-stone-400 shadow-sm',
-      ghost:
-        'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-stone-400',
-      danger:
-        'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 focus-visible:ring-rose-500',
+        'bg-white text-stone-800 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 shadow-sm',
+      ghost: 'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-stone-900',
+      danger: 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100',
     }[variant];
 
     return (
@@ -96,7 +94,7 @@ export const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButton
     const isSuccess = state === 'success';
 
     const baseClasses =
-      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer';
+      'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-150 outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 active:outline-none disabled:opacity-50 disabled:pointer-events-none select-none cursor-pointer';
 
     const sizeClasses = {
       sm: 'text-xs px-3.5 py-2.5 h-9 gap-1.5',
@@ -106,14 +104,12 @@ export const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButton
 
     const variantClasses = {
       primary:
-        'bg-stone-950 text-white hover:bg-black focus-visible:ring-stone-900 shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20',
-      secondary: 'bg-stone-100 text-stone-800 hover:bg-stone-200/80 focus-visible:ring-stone-400',
+        'bg-stone-950 text-white hover:bg-black shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20',
+      secondary: 'bg-stone-100 text-stone-800 hover:bg-stone-200/80',
       outline:
-        'bg-white text-stone-800 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 focus-visible:ring-stone-400 shadow-sm',
-      ghost:
-        'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-stone-900 focus-visible:ring-stone-400',
-      danger:
-        'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 focus-visible:ring-rose-500',
+        'bg-white text-stone-800 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 shadow-sm',
+      ghost: 'bg-transparent text-stone-600 hover:bg-stone-100 hover:text-stone-900',
+      danger: 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100',
     }[variant];
 
     return (

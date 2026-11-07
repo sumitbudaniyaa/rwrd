@@ -27,4 +27,23 @@
   body {
     @apply bg-white text-stone-900 font-sans;
   }
+
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  button:focus,
+  button:focus-visible,
+  button:active,
+  [type='button']:focus,
+  [type='button']:focus-visible,
+  [type='button']:active {
+    outline: none !important;
+    --tw-ring-shadow: 0 0 #0000 !important;
+    --tw-ring-offset-shadow: 0 0 #0000 !important;
+  }
 }

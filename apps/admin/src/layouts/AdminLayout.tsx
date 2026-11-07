@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Logout01Icon } from '@hugeicons/core-free-icons';
-import { MotionButton } from '@tiptable/ui';
+import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { FloatingMenu, type MenuItem } from '../components/ui/liquid-morph-floating-menu.js';
 import logoImage from '../assets/logo.png';
@@ -133,19 +133,21 @@ export const AdminLayout: React.FC = () => {
             </div>
 
             {showLogoutConfirm && (
-              <div className="absolute right-0 top-11 p-3 w-48 bg-white border border-stone-200 rounded-xl shadow-lg space-y-2 z-50">
-                <p className="text-xs font-semibold text-stone-800">Session Options</p>
+              <div className="absolute right-0 top-11 p-2 w-52 bg-white border border-stone-200/80 rounded-2xl shadow-xl space-y-1 z-50">
+                <p className="text-[11px] font-semibold text-stone-400 uppercase tracking-wider px-2 py-1">
+                  Session Options
+                </p>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="w-full text-left px-2.5 py-1.5 text-xs text-stone-700 hover:bg-stone-50 rounded-lg cursor-pointer"
+                  className="w-full text-left px-2.5 py-2 text-xs font-medium text-stone-700 hover:bg-stone-50 rounded-xl transition-colors cursor-pointer outline-none focus:outline-none"
                 >
                   Sign out of this session
                 </button>
                 <button
                   type="button"
                   onClick={handleLogoutAll}
-                  className="w-full text-left px-2.5 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-lg font-medium cursor-pointer"
+                  className="w-full text-left px-2.5 py-2 text-xs font-medium text-rose-600 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer outline-none focus:outline-none"
                 >
                   Log out of all devices
                 </button>
