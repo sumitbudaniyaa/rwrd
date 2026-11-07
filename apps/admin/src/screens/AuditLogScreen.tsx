@@ -73,9 +73,6 @@ export const AuditLogScreen: React.FC = () => {
                 Immutable
               </span>
             </div>
-            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
-              Tamper-evident record of configuration changes, QR rotations, and waitstaff actions.
-            </p>
           </div>
 
           <div className="flex items-center gap-2.5 shrink-0">

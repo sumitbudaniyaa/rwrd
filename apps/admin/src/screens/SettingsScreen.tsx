@@ -292,9 +292,6 @@ export const SettingsScreen: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               restaurant settings
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
-              Manage your restaurant branding, Google review landing URL, and tipping bounds.
-            </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <Badge variant="neutral" className="text-[11px] font-medium text-stone-600">

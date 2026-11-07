@@ -212,9 +212,6 @@ export const StaffManagementScreen: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               staff management
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
-              Manage your waitstaff roster, role tags, and direct UPI Virtual Payment Addresses.
-            </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton variant="primary" size="sm" onClick={openAddModal} className="px-4 py-2">

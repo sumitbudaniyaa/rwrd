@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Remove Subtitle Descriptions Across All Admin Screens & Remove "Real-time telemetry" Badge from Overview (M7-T33)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Admin Header Subtitle Cleanup**:
+    - Removed the descriptive `<p>` subtitle line directly below `<h1>` headings across all 6 admin screens:
+      - [`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)
+      - [`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx)
+      - [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx)
+      - [`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)
+      - [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx)
+      - [`apps/admin/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AuditLogScreen.tsx)
+  - **Overview Telemetry Badge Removal** ([`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)):
+    - Removed the `<Badge variant="neutral">Real-time telemetry</Badge>` pill from the "recent tips initiated" card header in the Overview screen.
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/scaffold.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/scaffold.test.tsx) asserting on `Add Team Member` button instead of the removed subtitle text.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Add Emojis with Text to Table Action Buttons in QR Management Screen (M7-T32)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

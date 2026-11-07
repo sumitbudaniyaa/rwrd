@@ -151,10 +151,6 @@ export const QrManagementScreen: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               table & QR management
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
-              Generate, download, and print table placards. Rotate tokens when cards need
-              revocation.
-            </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton

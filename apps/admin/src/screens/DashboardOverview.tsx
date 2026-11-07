@@ -90,9 +90,6 @@ export const DashboardOverview: React.FC = () => {
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               {greeting}
             </h1>
-            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
-              Here is your restaurant&apos;s direct tipping and Google review performance overview.
-            </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton
@@ -146,7 +143,6 @@ export const DashboardOverview: React.FC = () => {
                   Direct peer-to-peer UPI intents generated across tables
                 </p>
               </div>
-              <Badge variant="neutral">Real-time telemetry</Badge>
             </div>
 
             {isLoading ? (
