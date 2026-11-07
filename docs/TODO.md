@@ -124,3 +124,4 @@ Status values:
 | **M7-T04** | Admin Auth UI Refinements (4-corner alignment, email-only label, hero cleanup) & Forgot Password with beUI Motion. | `Done` | Senior Staff Agent | 2026-11-07     | beUI motion components   |
 | **M7-T05** | Editorial Sign-In Page with beUI Input, StatefulButton, Touched Validation & Landscape Artwork.                    | `Done` | Senior Staff Agent | 2026-11-07     | Editorial auth page      |
 | **M7-T06** | Admin Header Streamlining: Removed "Remember your password" label and "Save" button.                               | `Done` | Senior Staff Agent | 2026-11-07     | Top-right header cleanup |
+| **M7-T07** | Custom Hero Artwork Integration: Deployed uploaded 1536×1024 `bg.png` asset for Sign In/Sign Up screen.            | `Done` | Senior Staff Agent | 2026-11-07     | Custom hero image        |

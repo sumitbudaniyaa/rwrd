@@ -6,6 +6,16 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Custom Hero Artwork Integration for Sign In / Sign Up Screen (M7-T07)
+
+- **Milestone**: Milestone 7 (Auth Modernization & Asset Integration)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - Deployed user-uploaded 1536×1024 high-resolution artwork into [`apps/admin/src/assets/bg.png`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/assets/bg.png) (2.1 MB).
+  - Updated [`apps/admin/src/screens/LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/LoginScreen.tsx) with `object-cover object-center` within the rounded hero panel.
+  - Verified static bundling in Vite production build (`dist/assets/bg-C7WC0qgi.png`).
+  - All 44 unit tests passing, zero TypeScript or ESLint warnings.
+
 ### 2026-11-07 - Admin Header Streamlining: Removal of Unused Remember Password & Save Button (M7-T06)
 
 - **Milestone**: Milestone 7 (Auth Modernization & UI Polish)

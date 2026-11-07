@@ -514,8 +514,8 @@ export const LoginScreen: React.FC = () => {
         <div className="w-full h-full relative rounded-2xl overflow-hidden border border-stone-200/60 bg-stone-50">
           <img
             src={bgImage}
-            alt="Landscape with Tree"
-            className="w-full h-full object-cover object-[80%_35%]"
+            alt="rwrd Admin Hero Artwork"
+            className="w-full h-full object-cover object-center"
           />
         </div>
       </div>
