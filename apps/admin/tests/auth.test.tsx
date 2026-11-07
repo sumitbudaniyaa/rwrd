@@ -73,10 +73,8 @@ describe('Admin Authentication Flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Restaurant Admin')).toBeInTheDocument();
+      expect(screen.getByText('Sarah Miller')).toBeInTheDocument();
     });
-
-    expect(screen.getByText('Sarah Miller')).toBeInTheDocument();
   });
 
   it('navigates to MFA challenge when login requires second factor', async () => {

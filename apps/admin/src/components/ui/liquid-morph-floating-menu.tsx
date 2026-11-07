@@ -8,6 +8,7 @@ export interface MenuItem {
   label: string;
   onClick?: () => void;
   active?: boolean | undefined;
+  isDanger?: boolean | undefined;
 }
 
 export interface FloatingMenuProps {
@@ -142,9 +143,11 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
                 >
                   <span
                     className={`text-sm sm:text-[15px] tracking-wide uppercase transition-colors duration-200 ${
-                      isActive
-                        ? 'text-[#FFE862] font-bold'
-                        : 'text-stone-300 hover:text-white font-medium'
+                      item.isDanger
+                        ? 'text-rose-400 hover:text-rose-300 font-medium'
+                        : isActive
+                          ? 'text-[#FFE862] font-bold'
+                          : 'text-stone-300 hover:text-white font-medium'
                     }`}
                     style={{
                       letterSpacing: '0.04em',

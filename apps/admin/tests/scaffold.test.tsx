@@ -72,7 +72,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     });
 
     // Brand and header
-    expect(screen.getByText('Restaurant Admin')).toBeInTheDocument();
+    expect(screen.getAllByText('Admin').length).toBeGreaterThanOrEqual(1);
 
     // Navigation items
     expect(screen.getByText('Overview')).toBeInTheDocument();
@@ -81,6 +81,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     expect(screen.getByText('Analytics')).toBeInTheDocument();
     expect(screen.getByText('Settings')).toBeInTheDocument();
     expect(screen.getByText('Audit Log')).toBeInTheDocument();
+    expect(screen.getByText('Log Out')).toBeInTheDocument();
 
     // Invariant check: metrics must label tips as initiated, never received
     expect(screen.getByText('Tips Initiated')).toBeInTheDocument();

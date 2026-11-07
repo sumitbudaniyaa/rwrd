@@ -134,3 +134,4 @@ Status values:
 | **M7-T14** | Floating Menu Visibility Fix & Borderless Rounded Hover Blend (Unclipped trigger bar, border-free 20px pill).               | `Done` | Senior Staff Agent | 2026-11-07     | Floating menu polish          |
 | **M7-T15** | Harmonize All Dashboard Tabs with Editorial Overview Layout & Menu Yellow Primary Button Styling.                           | `Done` | Senior Staff Agent | 2026-11-07     | Tab & button visual polish    |
 | **M7-T16** | Lowercase Editorial Headings & Database Tenant Purge (Clean 0-tenant database reset & heading polish).                      | `Done` | Senior Staff Agent | 2026-11-07     | Lowercase headings & DB reset |
+| **M7-T17** | Header Admin Badge Harmonization & Log Out Relocation to Floating Menu (Bordered Admin pill & menu logout).                 | `Done` | Senior Staff Agent | 2026-11-07     | Header badge & menu logout    |

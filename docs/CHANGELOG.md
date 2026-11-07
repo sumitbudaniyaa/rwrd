@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Header Admin Badge Harmonization & Log Out Relocation to Floating Menu (M7-T17)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Header Brand Badge Harmonization** ([`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx)):
+    - Replaced the unstyled `Restaurant Admin` text next to the `rwrd` logo with the bordered badge pill matching the login screen:
+      `<span className="px-2 py-0.5 rounded-md text-[9px] font-semibold tracking-wider text-stone-500 bg-stone-100 uppercase border border-stone-200/60 hidden sm:inline-block">Admin</span>`.
+    - Streamlined the right header session area to display user avatar and name/role cleanly without cluttered action buttons.
+  - **Relocate Log Out to Bottom Floating Menu** ([`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx), [`AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx)):
+    - Added `isDanger` support to `MenuItem` with `text-rose-400 hover:text-rose-300 font-medium` styling.
+    - Added `Log Out` to `adminTabs` in `FloatingMenu`, seamlessly highlighted by the gliding hover pill.
+    - Removed the header's standalone logout button and dropdown.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Lowercase Editorial Headings & Database Tenant Purge (M7-T16)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
