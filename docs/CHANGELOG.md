@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Calendar Range Yellow Highlight Palette Integration (M7-T24)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Brand Yellow Calendar Range Highlighting** ([`apps/admin/src/components/motion/date-range-picker.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/date-range-picker.tsx)):
+    - Integrated TipTable's signature brand yellow (`#FFE862`) across the calendar range picker.
+    - Updated the continuous range highlight connecting band to `bg-[#FFE862]/45` for a warm, sunny visual span between start and end dates.
+    - Styled selected start and end endpoint pills with `bg-[#FFE862] text-stone-950 font-bold shadow-xs border border-amber-300`, matching the active tab indicator and floating menu styling.
+    - Updated active preset buttons and year/month selector active items to use matching brand yellow (`#FFE862`).
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-07 - Calendar Range Highlight Styling & Single Date Selection Guidance in Custom Analytics (M7-T23)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

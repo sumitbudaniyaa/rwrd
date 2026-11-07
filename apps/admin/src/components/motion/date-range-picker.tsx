@@ -505,7 +505,7 @@ export function DateRangePickerGrid({
                                 // Range scrubbing follows immediately: independent cell
                                 // fades leave stale highlights behind a moving pointer.
                                 className={cn(
-                                  'pointer-events-none absolute inset-y-0 rounded-[inherit] bg-stone-200/90',
+                                  'pointer-events-none absolute inset-y-0 rounded-[inherit] bg-[#FFE862]/45',
                                   inRange ? 'opacity-100' : 'opacity-0',
                                 )}
                                 style={{
@@ -540,9 +540,9 @@ export function DateRangePickerGrid({
                                 className={cn(
                                   'relative mx-auto flex h-8 w-full max-w-8 items-center justify-center rounded-full text-xs tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 disabled:opacity-30',
                                   endpoint
-                                    ? 'bg-stone-900 font-semibold text-white shadow-xs z-10'
+                                    ? 'bg-[#FFE862] font-bold text-stone-950 shadow-xs border border-amber-300 z-10'
                                     : inRange
-                                      ? 'text-stone-900 font-medium z-10'
+                                      ? 'text-stone-900 font-semibold z-10'
                                       : canHover && !unavailable(date) && 'hover:bg-stone-100',
                                   date === today &&
                                     !endpoint &&
@@ -685,7 +685,7 @@ export function DateRangePickerPreset({
       className={cn(
         'rounded-lg px-3 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 disabled:opacity-40',
         selected
-          ? 'bg-stone-900 text-white font-medium shadow-xs'
+          ? 'bg-[#FFE862] text-stone-950 font-bold shadow-xs border border-amber-300'
           : 'bg-stone-100/60 text-stone-500 hover:bg-stone-100 hover:text-stone-900',
         className,
       )}
@@ -956,7 +956,7 @@ function CalendarChoices({
           className={cn(
             'flex h-13 items-center justify-center rounded-xl px-1 text-[13px] tabular-nums transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-stone-400 focus-visible:ring-offset-2 disabled:opacity-25',
             choice.id === selected
-              ? 'bg-stone-900 font-medium text-white shadow-xs'
+              ? 'bg-[#FFE862] font-bold text-stone-950 shadow-xs border border-amber-300'
               : 'bg-stone-50 hover:bg-stone-100',
           )}
         >

@@ -141,3 +141,4 @@ Status values:
 | **M7-T21** | Restored Original Liquid-Morph Floating Menu (Brand Yellow Pill), Hamburger Repositioning & Brand Asset Consolidation.      | `Done` | Senior Staff Agent | 2026-11-07     | UI polish & asset cleanup     |
 | **M7-T22** | Floating Menu Trigger Layout Alignment (Menu Label on Left, Morphing Hamburger on Right).                                   | `Done` | Senior Staff Agent | 2026-11-07     | Menu button layout alignment  |
 | **M7-T23** | Calendar Range Highlight Styling & Single Date Selection Guidance in Custom Analytics.                                      | `Done` | Senior Staff Agent | 2026-11-07     | Calendar range & UX polish    |
+| **M7-T24** | Calendar Range Yellow Highlight Palette Integration (`#FFE862`).                                                            | `Done` | Senior Staff Agent | 2026-11-07     | Brand yellow calendar polish  |
