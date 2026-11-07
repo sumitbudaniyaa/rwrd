@@ -6,6 +6,7 @@ import { StaffRepository } from '../src/repositories/staffRepository.js';
 import { RestaurantRepository } from '../src/repositories/restaurantRepository.js';
 import { TipIntentRepository } from '../src/repositories/tipIntentRepository.js';
 import { ReviewTapRepository } from '../src/repositories/reviewTapRepository.js';
+import { PageEventRepository } from '../src/repositories/pageEventRepository.js';
 import { encryptVpa } from '../src/services/crypto.js';
 import type { ResolvedQrToken } from '../src/repositories/qrTokenRepository.js';
 import type { Restaurant, Staff, TipIntent, ReviewTap } from '../src/db/schema/index.js';
@@ -96,12 +97,27 @@ describe('Public Customer API Endpoints', () => {
   });
 
   describe('GET /api/v1/public/restaurants/token/:token', () => {
-    it('returns restaurant public details and table metadata for valid token', async () => {
+    it('returns restaurant public details and table metadata for valid token and records qr_scan event', async () => {
+      const pageEventSpy = vi.spyOn(PageEventRepository.prototype, 'create').mockResolvedValue({
+        id: 'pe-1',
+        restaurantId: mockRestaurantId,
+        tableId: mockTableId,
+        eventType: 'qr_scan',
+        deviceOs: 'iOS',
+        createdAt: new Date(),
+      });
       vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
 
-      const res = await request(app).get('/api/v1/public/restaurants/token/valid_table_token_123');
+      const res = await request(app)
+        .get('/api/v1/public/restaurants/token/valid_table_token_123')
+        .set('User-Agent', 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)');
 
       expect(res.status).toBe(200);
+      expect(pageEventSpy).toHaveBeenCalledWith(mockRestaurantId, {
+        eventType: 'qr_scan',
+        tableId: mockTableId,
+        deviceOs: 'iOS',
+      });
       expect(res.body).toEqual({
         restaurant: {
           id: mockRestaurantId,
@@ -138,15 +154,31 @@ describe('Public Customer API Endpoints', () => {
   });
 
   describe('GET /api/v1/public/restaurants/:id/staff', () => {
-    it('returns active staff list without exposing VPAs or encrypted credentials', async () => {
+    it('returns active staff list without exposing VPAs and records staff_view telemetry', async () => {
+      const pageEventSpy = vi.spyOn(PageEventRepository.prototype, 'create').mockResolvedValue({
+        id: 'pe-2',
+        restaurantId: mockRestaurantId,
+        tableId: mockTableId,
+        eventType: 'staff_view',
+        deviceOs: 'Android',
+        createdAt: new Date(),
+      });
       vi.spyOn(RestaurantRepository.prototype, 'findActiveById').mockResolvedValue(mockRestaurant);
+      vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
       vi.spyOn(StaffRepository.prototype, 'findActiveByRestaurant').mockResolvedValue(
         mockStaffList,
       );
 
-      const res = await request(app).get(`/api/v1/public/restaurants/${mockRestaurantId}/staff`);
+      const res = await request(app)
+        .get(`/api/v1/public/restaurants/${mockRestaurantId}/staff?token=valid_table_token_123`)
+        .set('User-Agent', 'Mozilla/5.0 (Linux; Android 14)');
 
       expect(res.status).toBe(200);
+      expect(pageEventSpy).toHaveBeenCalledWith(mockRestaurantId, {
+        eventType: 'staff_view',
+        tableId: mockTableId,
+        deviceOs: 'Android',
+      });
       expect(res.body.staff).toHaveLength(1);
 
       const staffMember = res.body.staff[0];

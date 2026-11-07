@@ -65,9 +65,10 @@ export const api = {
   /**
    * Retrieves active waitstaff for diner selection.
    */
-  getStaff: (restaurantId: string): Promise<{ staff: StaffPublic[] }> => {
+  getStaff: (restaurantId: string, token?: string): Promise<{ staff: StaffPublic[] }> => {
+    const query = token ? `?token=${encodeURIComponent(token)}` : '';
     return request<{ staff: StaffPublic[] }>(
-      `/api/v1/public/restaurants/${encodeURIComponent(restaurantId)}/staff`,
+      `/api/v1/public/restaurants/${encodeURIComponent(restaurantId)}/staff${query}`,
     );
   },
 

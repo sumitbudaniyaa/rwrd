@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Live Telemetry Engine — Record `qr_scan` & `staff_view` Page Events on Public Visits (M7-T31)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Page Event Repository** ([`apps/api/src/repositories/pageEventRepository.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/pageEventRepository.ts)):
+    - Implemented `PageEventRepository` backed by Drizzle ORM to record diner page telemetry (`qr_scan`, `staff_view`) scoped to `restaurant_id` with optional `table_id` and parsed `device_os`.
+    - Exported singleton `pageEventRepository` and class via [`apps/api/src/repositories/index.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/index.ts).
+  - **Public Routes Telemetry Recording** ([`apps/api/src/routes/public.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/public.ts)):
+    - In `GET /api/v1/public/restaurants/token/:token`: asynchronously records `qr_scan` page event with resolved `table.id` and device OS parsed from `User-Agent`.
+    - In `GET /api/v1/public/restaurants/:id/staff`: accepts optional `?token=` query param, resolves `tableId` if token is provided, and records `staff_view` page event with detected device OS.
+    - Telemetry writes are wrapped in non-blocking try-catch blocks with warnings logged, ensuring visitor browsing and tipping is never disrupted.
+  - **Customer Web App Integration** ([`apps/customer/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/services/api.ts), [`apps/customer/src/screens/StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx)):
+    - Updated `api.getStaff(restaurantId, token)` to pass `?token=` query parameter when available.
+    - Updated `StaffScreen` TanStack Query hook to pass the active QR token from context, tracking table-level staff roster views.
+  - **Testing & Verification**:
+    - Updated [`apps/api/tests/public.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/public.test.ts) asserting `pageEventRepo.create` is invoked with `'qr_scan'` and `'staff_view'`.
+    - All 174 backend tests passed (`pnpm --filter "@tiptable/api" test`).
+    - All 20 customer tests passed (`pnpm --filter "@tiptable/customer" test`).
+    - Monorepo typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Remove Details Column & State Diff Inspection from Audit Log Table (M7-T30)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

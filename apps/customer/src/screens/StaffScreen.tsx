@@ -25,8 +25,9 @@ export const StaffScreen: React.FC = () => {
     isLoading: isStaffLoading,
     isError: isStaffError,
   } = useQuery({
-    queryKey: ['staff', restaurant?.id],
-    queryFn: () => (restaurant ? api.getStaff(restaurant.id) : Promise.reject()),
+    queryKey: ['staff', restaurant?.id, token],
+    queryFn: () =>
+      restaurant ? api.getStaff(restaurant.id, token || undefined) : Promise.reject(),
     enabled: Boolean(restaurant?.id),
     staleTime: 60 * 1000,
     retry: false,

@@ -5,9 +5,11 @@ import { StaffRepository } from '../repositories/staffRepository.js';
 import { RestaurantRepository } from '../repositories/restaurantRepository.js';
 import { TipIntentRepository } from '../repositories/tipIntentRepository.js';
 import { ReviewTapRepository } from '../repositories/reviewTapRepository.js';
+import { PageEventRepository } from '../repositories/pageEventRepository.js';
 import { NotFoundError, ValidationError, ForbiddenError } from '../errors/appError.js';
 import { decryptVpa } from '../services/crypto.js';
 import { tipIntentRateLimiter } from '../middleware/rateLimiter.js';
+import { logger } from '../utils/logger.js';
 import {
   type ResolveTokenResponse,
   type StaffPublic,
@@ -24,6 +26,17 @@ const staffRepo = new StaffRepository();
 const restaurantRepo = new RestaurantRepository();
 const tipIntentRepo = new TipIntentRepository();
 const reviewTapRepo = new ReviewTapRepository();
+const pageEventRepo = new PageEventRepository();
+
+function parseDeviceOs(userAgent?: string | null): string {
+  if (!userAgent) return 'Other';
+  if (/iPad|iPhone|iPod/.test(userAgent)) return 'iOS';
+  if (/Android/.test(userAgent)) return 'Android';
+  if (/Mac OS X|Macintosh/.test(userAgent)) return 'macOS';
+  if (/Windows/.test(userAgent)) return 'Windows';
+  if (/Linux/.test(userAgent)) return 'Linux';
+  return 'Other';
+}
 
 const TokenParamSchema = z.object({
   token: z.string().trim().min(1, 'Token is required'),
@@ -52,6 +65,17 @@ publicRouter.get(
       }
 
       const { restaurant, table } = resolved;
+
+      // Telemetry: Record qr_scan event asynchronously without blocking response failure
+      try {
+        await pageEventRepo.create(restaurant.id, {
+          eventType: 'qr_scan',
+          tableId: table?.id ?? null,
+          deviceOs: parseDeviceOs(req.get('user-agent')),
+        });
+      } catch (err) {
+        logger.warn({ err, restaurantId: restaurant.id }, 'Failed to record qr_scan page event');
+      }
 
       const response: ResolveTokenResponse = {
         restaurant: {
@@ -90,10 +114,34 @@ publicRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id: restaurantId } = RestaurantIdParamSchema.parse(req.params);
+      const tokenQuery = typeof req.query.token === 'string' ? req.query.token.trim() : undefined;
 
       const restaurant = await restaurantRepo.findActiveById(restaurantId);
       if (!restaurant) {
         throw new NotFoundError('Restaurant not found or inactive', 'RESTAURANT_NOT_FOUND');
+      }
+
+      // Telemetry: Record staff_view event
+      let tableId: string | null = null;
+      if (tokenQuery) {
+        try {
+          const resolved = await qrTokenRepo.findByToken(tokenQuery);
+          if (resolved && resolved.restaurant.id === restaurantId) {
+            tableId = resolved.table?.id ?? null;
+          }
+        } catch {
+          // Ignore invalid token resolution for telemetry table scoping
+        }
+      }
+
+      try {
+        await pageEventRepo.create(restaurantId, {
+          eventType: 'staff_view',
+          tableId,
+          deviceOs: parseDeviceOs(req.get('user-agent')),
+        });
+      } catch (err) {
+        logger.warn({ err, restaurantId }, 'Failed to record staff_view page event');
       }
 
       const activeStaff = await staffRepo.findActiveByRestaurant(restaurantId);
