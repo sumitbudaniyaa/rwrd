@@ -146,5 +146,5 @@ Status values:
 | **M7-T26** | Customer QR Route Redirection (`/r/:token`), Fallback Screen & Audit Log Motion Sliding Filter Tabs.                        | `Done`     | Senior Staff Agent | 2026-11-08     | Customer QR & motion tabs     |
 | **M7-T27** | Remove "Download QR Kit" Button from Admin Overview Banner.                                                                 | `Done`     | Senior Staff Agent | 2026-11-08     | Overview banner cleanup       |
 | **M7-T28** | Enforce Max Date Constraint (Today) in Custom Analytics Date Picker.                                                        | `Done`     | Senior Staff Agent | 2026-11-08     | Analytics max-date bound      |
-| **M7-T29** | Field-Wise Inline Edit & Save Controls in Admin Settings Screen.                                                            | `Approved` | Senior Staff Agent |                | Settings inline edit & save   |
+| **M7-T29** | Field-Wise Inline Edit & Save Controls in Admin Settings Screen.                                                            | `Done`     | Senior Staff Agent | 2026-11-08     | Settings inline edit & save   |
 | **M7-T30** | Remove Details Column & State Diff Inspection from Audit Log Table.                                                         | `Approved` | Senior Staff Agent |                | Audit log table cleanup       |

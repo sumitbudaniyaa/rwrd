@@ -70,7 +70,7 @@ describe('SettingsScreen', () => {
     vi.clearAllMocks();
   });
 
-  it('renders settings screen with pre-filled restaurant configurations', async () => {
+  it('renders settings screen with pre-filled restaurant configurations in read-only view mode', async () => {
     vi.spyOn(api, 'getRestaurantSettings').mockResolvedValueOnce({
       restaurant: mockRestaurantSettings,
     });
@@ -80,64 +80,123 @@ describe('SettingsScreen', () => {
     expect(screen.getByText('Loading restaurant configuration...')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('The Bombay Canteen')).toBeInTheDocument();
+      expect(screen.getByText('The Bombay Canteen')).toBeInTheDocument();
     });
 
-    expect(
-      screen.getByDisplayValue('https://maps.app.goo.gl/bombaycanteen123'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('https://maps.app.goo.gl/bombaycanteen123')).toBeInTheDocument();
     expect(screen.getByText('₹20')).toBeInTheDocument();
     expect(screen.getByText('₹50')).toBeInTheDocument();
     expect(screen.getByText('₹100')).toBeInTheDocument();
     expect(screen.getByText('₹200')).toBeInTheDocument();
+    expect(screen.getByText('Min: ₹10 · Max: ₹5000')).toBeInTheDocument();
+
+    // Verify Edit buttons exist for fields
+    const editButtons = screen.getAllByRole('button', { name: /^Edit$/i });
+    expect(editButtons.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('allows restaurant admin to edit restaurant legal name', async () => {
-    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValueOnce({
+  it('allows editing and saving restaurant legal name field-wise only when modified', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
       restaurant: mockRestaurantSettings,
+    });
+    const updateSpy = vi.spyOn(api, 'updateRestaurantSettings').mockResolvedValueOnce({
+      restaurant: {
+        ...mockRestaurantSettings,
+        name: 'The Bombay Canteen & Bar',
+      },
     });
 
     renderWithProviders(<SettingsScreen />, 'admin');
 
     await waitFor(() => {
-      expect(screen.getByText(/restaurant settings/i)).toBeInTheDocument();
+      expect(screen.getByText('The Bombay Canteen')).toBeInTheDocument();
     });
 
+    // Click Edit next to name
+    const editBtns = screen.getAllByRole('button', { name: /^Edit$/i });
+    expect(editBtns[0]).toBeDefined();
+    fireEvent.click(editBtns[0]!);
+
+    // Name input appears
     const nameInput = screen.getByDisplayValue('The Bombay Canteen');
-    expect(nameInput).not.toBeDisabled();
+    expect(nameInput).toBeInTheDocument();
+
+    // Save button should initially be disabled because no edit made
+    const saveBtn = screen.getByRole('button', { name: /^Save$/i });
+    expect(saveBtn).toBeDisabled();
+
+    // Make an edit
+    fireEvent.change(nameInput, { target: { value: 'The Bombay Canteen & Bar' } });
+    expect(saveBtn).not.toBeDisabled();
+
+    // Click Save
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('rest-123', {
+        name: 'The Bombay Canteen & Bar',
+      });
+    });
+
+    expect(screen.getByText('Restaurant settings updated successfully.')).toBeInTheDocument();
   });
 
-  it('validates Google review URL and displays warning for non-Google links', async () => {
-    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValueOnce({
+  it('validates Google review URL during field edit and saves only on valid modification', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
       restaurant: mockRestaurantSettings,
+    });
+    const updateSpy = vi.spyOn(api, 'updateRestaurantSettings').mockResolvedValueOnce({
+      restaurant: {
+        ...mockRestaurantSettings,
+        googleReviewUrl: 'https://g.page/r/newreview',
+      },
     });
 
     renderWithProviders(<SettingsScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText(/restaurant settings/i)).toBeInTheDocument();
+      expect(screen.getByText('https://maps.app.goo.gl/bombaycanteen123')).toBeInTheDocument();
     });
 
+    // Find and click Edit for Google Review URL (second edit button in list)
+    const editReviewBtn = screen.getAllByRole('button', { name: /^Edit$/i })[2];
+    expect(editReviewBtn).toBeDefined();
+    fireEvent.click(editReviewBtn!);
+
     const urlInput = screen.getByDisplayValue('https://maps.app.goo.gl/bombaycanteen123');
+
+    // Change to invalid URL
     fireEvent.change(urlInput, { target: { value: 'https://yelp.com/biz/restaurant' } });
 
     expect(
       screen.getByText(/URL must be an official Google Maps \/ Business link/i),
     ).toBeInTheDocument();
 
-    const saveBtn = screen.getByRole('button', { name: /Save Settings/i });
+    const saveBtn = screen.getByRole('button', { name: /^Save$/i });
+    expect(saveBtn).toBeDisabled();
+
+    // Change to valid URL
+    fireEvent.change(urlInput, { target: { value: 'https://g.page/r/newreview' } });
+    expect(saveBtn).not.toBeDisabled();
+
     fireEvent.click(saveBtn);
 
-    expect(
-      screen.getByText(
-        /Google review link must be a valid Google Maps or Google Business review URL/i,
-      ),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('rest-123', {
+        googleReviewUrl: 'https://g.page/r/newreview',
+      });
+    });
   });
 
-  it('adds and removes quick-pick tip chips', async () => {
-    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValueOnce({
+  it('adds and removes quick-pick tip chips with field-wise save', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
       restaurant: mockRestaurantSettings,
+    });
+    const updateSpy = vi.spyOn(api, 'updateRestaurantSettings').mockResolvedValueOnce({
+      restaurant: {
+        ...mockRestaurantSettings,
+        tipPresets: [50, 100, 200, 500],
+      },
     });
 
     renderWithProviders(<SettingsScreen />);
@@ -145,6 +204,11 @@ describe('SettingsScreen', () => {
     await waitFor(() => {
       expect(screen.getByText('₹20')).toBeInTheDocument();
     });
+
+    // Click Edit on tip presets (third or fourth Edit button)
+    const editPresetBtn = screen.getAllByRole('button', { name: /^Edit$/i })[3];
+    expect(editPresetBtn).toBeDefined();
+    fireEvent.click(editPresetBtn!);
 
     // Remove ₹20
     const removeBtn = screen.getByLabelText('Remove ₹20');
@@ -159,45 +223,44 @@ describe('SettingsScreen', () => {
     fireEvent.click(addBtn);
 
     expect(screen.getByText('₹500')).toBeInTheDocument();
+
+    // Save field
+    const saveBtn = screen.getByRole('button', { name: /^Save$/i });
+    expect(saveBtn).not.toBeDisabled();
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('rest-123', {
+        tipPresets: [50, 100, 200, 500],
+      });
+    });
   });
 
-  it('submits updated settings successfully and shows confirmation', async () => {
-    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValueOnce({
+  it('allows canceling field edits and restores saved values', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
       restaurant: mockRestaurantSettings,
-    });
-    const updateSpy = vi.spyOn(api, 'updateRestaurantSettings').mockResolvedValueOnce({
-      restaurant: {
-        ...mockRestaurantSettings,
-        name: 'The Bombay Canteen & Bar',
-        googleReviewUrl: 'https://g.page/r/newreview',
-      },
     });
 
     renderWithProviders(<SettingsScreen />);
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue('The Bombay Canteen')).toBeInTheDocument();
+      expect(screen.getByText('Min: ₹10 · Max: ₹5000')).toBeInTheDocument();
     });
 
-    const nameInput = screen.getByDisplayValue('The Bombay Canteen');
-    fireEvent.change(nameInput, { target: { value: 'The Bombay Canteen & Bar' } });
+    // Click Edit on tip limits
+    const editBoundsBtn = screen.getAllByRole('button', { name: /^Edit$/i })[4];
+    expect(editBoundsBtn).toBeDefined();
+    fireEvent.click(editBoundsBtn!);
 
-    const urlInput = screen.getByDisplayValue('https://maps.app.goo.gl/bombaycanteen123');
-    fireEvent.change(urlInput, { target: { value: 'https://g.page/r/newreview' } });
+    // Inputs appear
+    const minInput = screen.getByDisplayValue('10');
+    fireEvent.change(minInput, { target: { value: '50' } });
 
-    const saveBtn = screen.getByRole('button', { name: /Save Settings/i });
-    fireEvent.click(saveBtn);
+    // Click Cancel
+    const cancelBtn = screen.getByRole('button', { name: /^Cancel$/i });
+    fireEvent.click(cancelBtn);
 
-    await waitFor(() => {
-      expect(updateSpy).toHaveBeenCalledWith(
-        'rest-123',
-        expect.objectContaining({
-          name: 'The Bombay Canteen & Bar',
-          googleReviewUrl: 'https://g.page/r/newreview',
-        }),
-      );
-    });
-
-    expect(screen.getByText('Restaurant settings updated successfully.')).toBeInTheDocument();
+    // View mode restored with original values
+    expect(screen.getByText('Min: ₹10 · Max: ₹5000')).toBeInTheDocument();
   });
 });

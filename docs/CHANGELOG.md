@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Field-Wise Inline Edit & Save Controls in Admin Settings Screen (M7-T29)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Field-Wise Inline Editing UX** ([`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx)):
+    - Refactored settings from a monolithic full-page form into discrete, field-wise inline editable cards.
+    - Each field (Restaurant Legal Name, Logo, Google Review URL, Tip Presets, Tip Bounds) renders in read-only / display mode by default with an `"Edit"` button.
+    - Clicking `"Edit"` activates edit mode for that specific field with dedicated `"Save"` and `"Cancel"` buttons.
+    - The `"Save"` button is strictly disabled unless an actual change was made (`isDirty` check against currently saved data) and values pass validation.
+    - Clicking `"Cancel"` restores the original saved value and returns to display mode.
+    - Submitting `"Save"` triggers targeted mutation payload (`api.updateRestaurantSettings`) for only that field, shows a loading spinner on that specific button, and on success closes edit mode with feedback.
+    - Removed the bottom monolithic `"Save Settings"` submit button.
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) with comprehensive test cases verifying display mode, field-level edit activation, dirty save enforcement, Google link validation, chip adjustments, and cancel reversion.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 warnings/errors (`pnpm lint`).
+
 ### 2026-11-08 - Enforce Max Date Constraint (Today) in Custom Analytics Date Picker (M7-T28)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
