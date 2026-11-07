@@ -148,7 +148,7 @@ export const DashboardOverview: React.FC = () => {
             <div className="flex items-center justify-between pb-4 border-b border-stone-100 mb-3">
               <div>
                 <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                  Recent Tips Initiated
+                  recent tips initiated
                 </h3>
                 <p className="text-xs text-stone-400 mt-0.5">
                   Direct peer-to-peer UPI intents generated across tables
@@ -229,7 +229,7 @@ export const DashboardOverview: React.FC = () => {
                 <HugeiconsIcon icon={QrCodeIcon} className="w-5 h-5" strokeWidth={1.5} />
               </div>
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Table QR Codes
+                table QR codes
               </h3>
               <p className="text-xs text-stone-500 mt-1.5 leading-relaxed">
                 Generate high-resolution SVG or print-ready PDF placards with custom table numbers.

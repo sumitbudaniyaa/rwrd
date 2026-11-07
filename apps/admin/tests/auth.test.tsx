@@ -106,7 +106,7 @@ describe('Admin Authentication Flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
 
     await waitFor(() => {
-      expect(screen.getByText('Two-Factor Authentication')).toBeInTheDocument();
+      expect(screen.getByText(/two-factor authentication/i)).toBeInTheDocument();
     });
 
     expect(screen.getByLabelText(/6-digit verification code/i)).toBeInTheDocument();
@@ -115,7 +115,7 @@ describe('Admin Authentication Flow', () => {
     const recoveryToggle = screen.getByText(/lost your device\? use recovery code/i);
     fireEvent.click(recoveryToggle);
 
-    expect(screen.getByText('Enter Recovery Code')).toBeInTheDocument();
+    expect(screen.getByText(/enter recovery code/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/emergency recovery code/i)).toBeInTheDocument();
   });
 

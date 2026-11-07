@@ -133,3 +133,4 @@ Status values:
 | **M7-T13** | Floating Menu Spring-Gliding Hover Indicator (Integrated SharedLayoutBg, removed active dot, smooth row physics).           | `Done` | Senior Staff Agent | 2026-11-07     | Floating menu gliding hover   |
 | **M7-T14** | Floating Menu Visibility Fix & Borderless Rounded Hover Blend (Unclipped trigger bar, border-free 20px pill).               | `Done` | Senior Staff Agent | 2026-11-07     | Floating menu polish          |
 | **M7-T15** | Harmonize All Dashboard Tabs with Editorial Overview Layout & Menu Yellow Primary Button Styling.                           | `Done` | Senior Staff Agent | 2026-11-07     | Tab & button visual polish    |
+| **M7-T16** | Lowercase Editorial Headings & Database Tenant Purge (Clean 0-tenant database reset & heading polish).                      | `Done` | Senior Staff Agent | 2026-11-07     | Lowercase headings & DB reset |

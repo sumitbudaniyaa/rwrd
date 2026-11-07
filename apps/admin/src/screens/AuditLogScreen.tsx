@@ -68,7 +68,7 @@ export const AuditLogScreen: React.FC = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-                Audit Trail & History
+                audit trail & history
               </h1>
               <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-stone-100 text-stone-600 border border-stone-200/70 shadow-2xs">
                 <HugeiconsIcon icon={Shield01Icon} className="w-3 h-3 text-stone-500" />
@@ -311,7 +311,7 @@ export const AuditLogScreen: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Before */}
                   <div>
-                    <h3 className="text-xs font-semibold text-stone-700 mb-2">Before Change</h3>
+                    <h3 className="text-xs font-semibold text-stone-700 mb-2">before change</h3>
                     <div className="p-3 bg-stone-50/80 border border-stone-200/70 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800 shadow-2xs">
                       {selectedLog.beforeState ? (
                         <pre>{JSON.stringify(selectedLog.beforeState, null, 2)}</pre>
@@ -323,7 +323,7 @@ export const AuditLogScreen: React.FC = () => {
 
                   {/* After */}
                   <div>
-                    <h3 className="text-xs font-semibold text-stone-700 mb-2">After Change</h3>
+                    <h3 className="text-xs font-semibold text-stone-700 mb-2">after change</h3>
                     <div className="p-3 bg-stone-50/80 border border-stone-200/70 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800 shadow-2xs">
                       {selectedLog.afterState ? (
                         <pre>{JSON.stringify(selectedLog.afterState, null, 2)}</pre>

@@ -63,7 +63,7 @@ describe('VpaQrScannerModal Component', () => {
       <VpaQrScannerModal isOpen={true} onClose={onCloseMock} onVpaCaptured={onVpaCapturedMock} />,
     );
 
-    expect(screen.getByText("Scan Waiter's UPI QR")).toBeInTheDocument();
+    expect(screen.getByText(/scan waiter's UPI QR/i)).toBeInTheDocument();
     expect(
       screen.getByText(
         /Double-check the VPA. A wrong VPA sends diner tips directly to the wrong person/i,

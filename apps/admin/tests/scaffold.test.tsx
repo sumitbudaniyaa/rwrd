@@ -84,7 +84,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
 
     // Invariant check: metrics must label tips as initiated, never received
     expect(screen.getByText('Tips Initiated')).toBeInTheDocument();
-    expect(screen.getByText('Recent Tips Initiated')).toBeInTheDocument();
+    expect(screen.getByText(/recent tips initiated/i)).toBeInTheDocument();
     expect(screen.queryByText(/tips received/i)).toBeNull();
   });
 
@@ -101,7 +101,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     const staffTab = screen.getByText('Staff Roster');
     fireEvent.click(staffTab);
 
-    expect(screen.getByText('Staff Management')).toBeInTheDocument();
+    expect(screen.getByText(/staff management/i)).toBeInTheDocument();
     expect(screen.getByText(/Manage your waitstaff roster/i)).toBeInTheDocument();
 
     // Click Settings
@@ -109,7 +109,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     fireEvent.click(settingsTab);
 
     await waitFor(() => {
-      expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
+      expect(screen.getByText(/restaurant settings/i)).toBeInTheDocument();
     });
   });
 });

@@ -107,7 +107,7 @@ describe('QrManagementScreen', () => {
     expect(screen.getByText('Loading QR tokens and table placards...')).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByText('General Restaurant QR')).toBeInTheDocument();
+      expect(screen.getByText(/general restaurant QR/i)).toBeInTheDocument();
     });
 
     expect(screen.getByText('Universal / Standing')).toBeInTheDocument();
@@ -121,7 +121,7 @@ describe('QrManagementScreen', () => {
     renderWithProviders(<QrManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('General Restaurant QR')).toBeInTheDocument();
+      expect(screen.getByText(/general restaurant QR/i)).toBeInTheDocument();
     });
 
     const pngBtns = screen.getAllByRole('button', { name: /^PNG$/i });
@@ -169,7 +169,7 @@ describe('QrManagementScreen', () => {
     renderWithProviders(<QrManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('General Restaurant QR')).toBeInTheDocument();
+      expect(screen.getByText(/general restaurant QR/i)).toBeInTheDocument();
     });
 
     const addBtn = screen.getByRole('button', { name: /Add Dining Table/i });
@@ -214,7 +214,7 @@ describe('QrManagementScreen', () => {
     renderWithProviders(<QrManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('General Restaurant QR')).toBeInTheDocument();
+      expect(screen.getByText(/general restaurant QR/i)).toBeInTheDocument();
     });
 
     const rotateBtns = screen.getAllByRole('button', { name: /Rotate/i });
@@ -238,13 +238,13 @@ describe('QrManagementScreen', () => {
     renderWithProviders(<QrManagementScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('General Restaurant QR')).toBeInTheDocument();
+      expect(screen.getByText(/general restaurant QR/i)).toBeInTheDocument();
     });
 
     const printPlacardBtns = screen.getAllByRole('button', { name: /Print Placard/i });
     fireEvent.click(printPlacardBtns[0]!);
 
-    expect(screen.getByText('Print Table Placard')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /print table placard/i })).toBeInTheDocument();
     expect(screen.getByText('Scan to tip your waiter directly via UPI')).toBeInTheDocument();
     expect(
       screen.getByText('अपने वेटर को सीधे UPI द्वारा टिप देने के लिए स्कैन करें'),

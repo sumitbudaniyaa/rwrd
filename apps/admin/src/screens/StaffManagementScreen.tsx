@@ -209,7 +209,7 @@ export const StaffManagementScreen: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-              Staff Management
+              staff management
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Manage your waitstaff roster, role tags, and direct UPI Virtual Payment Addresses.
@@ -352,7 +352,7 @@ export const StaffManagementScreen: React.FC = () => {
                 <HugeiconsIcon icon={UserGroupIcon} className="w-6 h-6" strokeWidth={1.5} />
               </div>
               <h4 className="font-semibold text-stone-900 text-base tracking-tight">
-                {searchQuery ? 'No matching staff members' : 'No waitstaff added yet'}
+                {searchQuery ? 'no matching staff members' : 'no waitstaff added yet'}
               </h4>
               <p className="text-xs text-stone-500 mt-1 max-w-sm leading-relaxed">
                 {searchQuery
@@ -381,7 +381,7 @@ export const StaffManagementScreen: React.FC = () => {
           <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl overflow-hidden p-6 space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                {isAddModalOpen ? 'Add Team Member' : `Edit ${editingStaff?.displayName}`}
+                {isAddModalOpen ? 'add team member' : `edit ${editingStaff?.displayName}`}
               </h3>
               <button
                 type="button"
@@ -541,7 +541,7 @@ export const StaffManagementScreen: React.FC = () => {
             </div>
             <div>
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Remove {deletingStaff.displayName}?
+                remove {deletingStaff.displayName}?
               </h3>
               <p className="text-xs text-stone-500 mt-1 leading-relaxed">
                 This will soft delete the staff member from active tipping rosters. Historical tip

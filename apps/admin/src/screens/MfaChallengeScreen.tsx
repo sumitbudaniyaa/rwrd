@@ -85,7 +85,7 @@ export const MfaChallengeScreen: React.FC = () => {
             />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-stone-900">
-            {isRecoveryMode ? 'Enter Recovery Code' : 'Two-Factor Authentication'}
+            {isRecoveryMode ? 'enter recovery code' : 'two-factor authentication'}
           </h1>
           <p className="mt-2 text-xs text-stone-500 max-w-sm mx-auto">
             {isRecoveryMode

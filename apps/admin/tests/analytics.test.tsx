@@ -113,7 +113,7 @@ describe('AnalyticsScreen Component', () => {
     renderWithProviders(<AnalyticsScreen />);
 
     // Check header
-    expect(screen.getByText('Analytics & Telemetry')).toBeDefined();
+    expect(screen.getByText(/analytics & telemetry/i)).toBeDefined();
 
     // Wait for metrics to load
     await waitFor(() => {

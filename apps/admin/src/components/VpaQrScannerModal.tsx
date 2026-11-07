@@ -281,7 +281,7 @@ export const VpaQrScannerModal: React.FC<VpaQrScannerModalProps> = ({
               <HugeiconsIcon icon={QrCodeIcon} className="w-4 h-4" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-stone-900">Scan Waiter's UPI QR</h3>
+              <h3 className="text-sm font-semibold text-stone-900">scan waiter's UPI QR</h3>
               <p className="text-[10px] text-stone-500">Auto-capture VPA directly without typos</p>
             </div>
           </div>

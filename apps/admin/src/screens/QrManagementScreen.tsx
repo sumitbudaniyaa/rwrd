@@ -148,7 +148,7 @@ export const QrManagementScreen: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-              Table & QR Management
+              table & QR management
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Generate, download, and print table placards. Rotate tokens when cards need
@@ -216,7 +216,7 @@ export const QrManagementScreen: React.FC = () => {
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
                         <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                          General Restaurant QR
+                          general restaurant QR
                         </h3>
                         <Badge variant="neutral">Universal / Standing</Badge>
                       </div>
@@ -306,7 +306,7 @@ export const QrManagementScreen: React.FC = () => {
             <div className="flex items-center justify-between pb-1">
               <div>
                 <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                  Table Placards
+                  table placards
                 </h3>
                 <p className="text-xs text-stone-500">
                   Individual table QR codes encoding dedicated table identifiers.
@@ -323,7 +323,7 @@ export const QrManagementScreen: React.FC = () => {
                   <HugeiconsIcon icon={QrCodeIcon} className="w-6 h-6" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-stone-800">No dining tables yet</h4>
+                  <h4 className="text-sm font-semibold text-stone-800">no dining tables yet</h4>
                   <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
                     Add tables to print table-numbered placards for individual diner seats.
                   </p>
@@ -432,7 +432,7 @@ export const QrManagementScreen: React.FC = () => {
           <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Add Dining Table
+                add dining table
               </h3>
               <button
                 type="button"
@@ -499,8 +499,8 @@ export const QrManagementScreen: React.FC = () => {
             </div>
             <div>
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Rotate{' '}
-                {rotatingToken.tableNumber ? `${rotatingToken.tableNumber} QR` : 'Restaurant QR'}?
+                rotate{' '}
+                {rotatingToken.tableNumber ? `${rotatingToken.tableNumber} QR` : 'restaurant QR'}?
               </h3>
               <p className="text-xs text-stone-500 mt-1 leading-relaxed">
                 Rotating this token will <strong>immediately invalidate</strong> all previously
@@ -566,7 +566,7 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
       <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl border border-stone-200/80 shadow-2xl p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-stone-100 pb-3">
           <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-            Print Table Placard
+            print table placard
           </h3>
           <button
             type="button"

@@ -95,7 +95,7 @@ export const AnalyticsScreen: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-              Analytics & Telemetry
+              analytics & telemetry
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Track diner QR scans, waitstaff interactions, Google review taps, and tips initiated.
@@ -287,7 +287,7 @@ export const AnalyticsScreen: React.FC = () => {
           <SlideUp delay={100}>
             <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs p-6">
               <h2 className="text-base font-semibold text-stone-900 tracking-tight mb-1">
-                Daily Telemetry Breakdown
+                daily telemetry breakdown
               </h2>
               <p className="text-xs text-stone-500 mb-5">
                 Activity trends across days in the selected period.
@@ -334,7 +334,7 @@ export const AnalyticsScreen: React.FC = () => {
             <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs overflow-hidden">
               <div className="p-6 border-b border-stone-100">
                 <h2 className="text-base font-semibold text-stone-900 tracking-tight">
-                  Waitstaff Tips Initiated Performance
+                  waitstaff tips initiated performance
                 </h2>
                 <p className="text-xs text-stone-500 mt-1">
                   Individual waiter tipping activity initiated through customer table scans.

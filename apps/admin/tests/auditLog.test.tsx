@@ -104,7 +104,7 @@ describe('AuditLogScreen Component', () => {
 
     renderWithProviders(<AuditLogScreen />);
 
-    expect(screen.getByText('Audit Trail & History')).toBeDefined();
+    expect(screen.getByText(/audit trail & history/i)).toBeDefined();
     expect(screen.getByText('Immutable')).toBeDefined();
 
     await waitFor(() => {
@@ -154,10 +154,10 @@ describe('AuditLogScreen Component', () => {
 
     // Modal should be visible with before and after state
     await waitFor(() => {
-      expect(screen.getByText('Before Change')).toBeDefined();
+      expect(screen.getByText(/before change/i)).toBeDefined();
     });
 
-    expect(screen.getByText('After Change')).toBeDefined();
+    expect(screen.getByText(/after change/i)).toBeDefined();
     expect(screen.getByText(/None \(New Record Created\)/i)).toBeDefined();
     expect(screen.getByText(/Aarav Patel/i)).toBeDefined();
     expect(screen.getByText(/Automated Redaction:/i)).toBeDefined();
@@ -167,7 +167,7 @@ describe('AuditLogScreen Component', () => {
     fireEvent.click(closeBtn);
 
     await waitFor(() => {
-      expect(screen.queryByText('Before Change')).toBeNull();
+      expect(screen.queryByText(/before change/i)).toBeNull();
     });
   });
 });

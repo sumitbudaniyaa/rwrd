@@ -189,7 +189,7 @@ export const SettingsScreen: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-              Restaurant Settings
+              restaurant settings
             </h1>
             <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Manage your restaurant branding, Google review landing URL, and tipping bounds.
@@ -237,7 +237,7 @@ export const SettingsScreen: React.FC = () => {
           <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-5 hover:shadow-xs transition-all duration-200">
             <div className="border-b border-stone-100 pb-3">
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Brand & Legal Entity
+                brand & legal entity
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Public name and logo displayed on the customer landing and tipping viewports.
@@ -315,7 +315,7 @@ export const SettingsScreen: React.FC = () => {
           <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-4 hover:shadow-xs transition-all duration-200">
             <div className="border-b border-stone-100 pb-3">
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Google Review Integration
+                google review integration
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Diners tap "Review us" to go straight to your official Google review submission
@@ -361,7 +361,7 @@ export const SettingsScreen: React.FC = () => {
           <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-5 hover:shadow-xs transition-all duration-200">
             <div className="border-b border-stone-100 pb-3">
               <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                Tip Presets & Bounds
+                tip presets & bounds
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Configure quick-pick chip amounts (1-6 chips) and operational limits in Indian

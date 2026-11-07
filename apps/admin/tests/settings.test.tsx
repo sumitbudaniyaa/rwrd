@@ -100,7 +100,7 @@ describe('SettingsScreen', () => {
     renderWithProviders(<SettingsScreen />, 'admin');
 
     await waitFor(() => {
-      expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
+      expect(screen.getByText(/restaurant settings/i)).toBeInTheDocument();
     });
 
     const nameInput = screen.getByDisplayValue('The Bombay Canteen');
@@ -115,7 +115,7 @@ describe('SettingsScreen', () => {
     renderWithProviders(<SettingsScreen />);
 
     await waitFor(() => {
-      expect(screen.getByText('Restaurant Settings')).toBeInTheDocument();
+      expect(screen.getByText(/restaurant settings/i)).toBeInTheDocument();
     });
 
     const urlInput = screen.getByDisplayValue('https://maps.app.goo.gl/bombaycanteen123');

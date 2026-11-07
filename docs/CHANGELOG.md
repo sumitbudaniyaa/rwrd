@@ -6,6 +6,33 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Lowercase Editorial Headings & Database Tenant Purge (M7-T16)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Lowercase Editorial Headings**:
+    - Standardized all `h1`, `h2`, `h3`, `h4` headings across the admin portal to start with a lowercase letter, completing the minimal editorial typography style established in `good morning`, `welcome back`, `let's onboard you`, `i am a...`, and `your restaurant`.
+    - Headings updated:
+      - `apps/admin/src/screens/DashboardOverview.tsx`: `recent tips initiated`, `table QR codes`.
+      - `apps/admin/src/screens/StaffManagementScreen.tsx`: `staff management`, `no matching staff members` / `no waitstaff added yet`, `add team member` / `edit {name}`, `remove {name}?`.
+      - `apps/admin/src/screens/QrManagementScreen.tsx`: `table & QR management`, `general restaurant QR`, `table placards`, `no dining tables yet`, `add dining table`, `rotate ... QR?`, `print table placard`.
+      - `apps/admin/src/screens/AnalyticsScreen.tsx`: `analytics & telemetry`, `daily telemetry breakdown`, `waitstaff tips initiated performance`.
+      - `apps/admin/src/screens/SettingsScreen.tsx`: `restaurant settings`, `brand & legal entity`, `google review integration`, `tip presets & bounds`.
+      - `apps/admin/src/screens/AuditLogScreen.tsx`: `audit trail & history`, `before change`, `after change`.
+      - `apps/admin/src/screens/MfaChallengeScreen.tsx`: `two-factor authentication`, `enter recovery code`.
+      - `apps/admin/src/components/VpaQrScannerModal.tsx`: `scan waiter's UPI QR`.
+    - Preserved domain acronyms (**QR**, **UPI**, **INR**) capitalized following initial lowercase word.
+  - **Database Tenant Data Purge (`cleanTenantData.ts`)**:
+    - Created and executed `apps/api/src/db/cleanTenantData.ts` (added CLI script `pnpm --filter "@tiptable/api" db:clean`).
+    - Truncated all tenant tables with `CASCADE` (`restaurants`, `restaurant_users`, `staff`, `tables`, `qr_tokens`, `tip_intents`, `review_taps`, `page_events`, `audit_logs`, `sessions`), leaving 0 tenant records in PostgreSQL.
+    - Re-seeded default `billing_plans` and platform superadmin via `db:seed`.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - All 174 integration & unit tests in `@tiptable/api` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Harmonize All Dashboard Tabs with Editorial Overview Layout & Menu Yellow Primary Button (M7-T15)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
