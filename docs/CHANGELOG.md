@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Use Download & Print Vector Icons on Table QR Action Buttons (M7-T34)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Table Action Buttons Vector Icons** ([`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx)):
+    - Replaced temporary emojis with the exact same `@hugeicons/react` vector icons used in the General QR Standee action buttons:
+      - `Download01Icon` with `PNG` label for raster export.
+      - `Download01Icon` with `SVG` label for vector export.
+      - `PrinterIcon` with `Placard` label for dining table placard print modal.
+    - Added flex centering and gap styling for clean alignment.
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/qrManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/qrManagement.test.tsx) asserting 2 PNG buttons, 2 SVG buttons, and Placard button with vector icon elements.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Remove Subtitle Descriptions Across All Admin Screens & Remove "Real-time telemetry" Badge from Overview (M7-T33)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

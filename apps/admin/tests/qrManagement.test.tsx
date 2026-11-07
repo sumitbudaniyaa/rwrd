@@ -114,10 +114,10 @@ describe('QrManagementScreen', () => {
     expect(screen.getByText('Table 4')).toBeInTheDocument();
     expect(screen.getByText('Terrace')).toBeInTheDocument();
 
-    // Table card action buttons with emojis
-    expect(screen.getByRole('button', { name: /🖼️ PNG/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /⚡ SVG/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /🪧 Placard/i })).toBeInTheDocument();
+    // Table card action buttons with vector icons and text
+    expect(screen.getAllByRole('button', { name: /^PNG$/i })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: /^SVG$/i })).toHaveLength(2);
+    expect(screen.getByRole('button', { name: /^Placard$/i })).toBeInTheDocument();
   });
 
   it('downloads PNG and SVG files when clicking download buttons', async () => {

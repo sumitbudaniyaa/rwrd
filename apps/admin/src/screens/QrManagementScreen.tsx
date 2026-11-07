@@ -383,9 +383,15 @@ export const QrManagementScreen: React.FC = () => {
                             `${data?.restaurant.slug || 'rest'}-${item.tableNumber || 'table'}-qr`,
                           )
                         }
-                        className="px-1 text-[11px]"
+                        className="px-1 text-[11px] flex items-center justify-center gap-1"
+                        title="Download PNG"
                       >
-                        🖼️ PNG
+                        <HugeiconsIcon
+                          icon={Download01Icon}
+                          className="w-3.5 h-3.5"
+                          strokeWidth={1.5}
+                        />
+                        <span>PNG</span>
                       </MotionButton>
                       <MotionButton
                         variant="outline"
@@ -396,9 +402,15 @@ export const QrManagementScreen: React.FC = () => {
                             `${data?.restaurant.slug || 'rest'}-${item.tableNumber || 'table'}-qr`,
                           )
                         }
-                        className="px-1 text-[11px]"
+                        className="px-1 text-[11px] flex items-center justify-center gap-1"
+                        title="Download SVG"
                       >
-                        ⚡ SVG
+                        <HugeiconsIcon
+                          icon={Download01Icon}
+                          className="w-3.5 h-3.5"
+                          strokeWidth={1.5}
+                        />
+                        <span>SVG</span>
                       </MotionButton>
                       <MotionButton
                         variant="primary"
@@ -410,9 +422,14 @@ export const QrManagementScreen: React.FC = () => {
                             logoUrl: data?.restaurant.logoUrl || null,
                           })
                         }
-                        className="px-1 text-[11px]"
+                        className="px-1 text-[11px] flex items-center justify-center gap-1"
                       >
-                        🪧 Placard
+                        <HugeiconsIcon
+                          icon={PrinterIcon}
+                          className="w-3.5 h-3.5"
+                          strokeWidth={1.5}
+                        />
+                        <span>Placard</span>
                       </MotionButton>
                     </div>
                   </div>
