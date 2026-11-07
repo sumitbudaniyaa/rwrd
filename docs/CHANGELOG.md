@@ -6,6 +6,21 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Remove Details Column & State Diff Inspection from Audit Log Table (M7-T30)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Audit Log Table Simplification** ([`apps/admin/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AuditLogScreen.tsx)):
+    - Removed the `"Details"` header column and the per-row `"Inspect Diff"` button from the admin audit log table.
+    - Streamlined the table view to four clear, focused columns: **Timestamp**, **Action**, **Actor**, and **Entity**.
+    - Cleaned up the state diff modal, portal wrapper, and unused icons (`createPortal`, `Cancel01Icon`, `InformationCircleIcon`, `FadeIn`).
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/auditLog.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/auditLog.test.tsx) asserting the table renders the 4 clean columns and verifying the complete absence of the Details column and Inspect Diff actions.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 warnings/errors (`pnpm lint`).
+
 ### 2026-11-08 - Field-Wise Inline Edit & Save Controls in Admin Settings Screen (M7-T29)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

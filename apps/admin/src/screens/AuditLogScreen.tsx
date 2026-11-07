@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -7,16 +6,14 @@ import {
   Shield01Icon,
   FilterIcon,
   RefreshIcon,
-  InformationCircleIcon,
   UserIcon,
   ComputerIcon,
   HeadsetIcon,
-  Cancel01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, Badge } from '@tiptable/ui';
+import { SlideUp, Badge } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
-import { api, type AuditLogItem } from '../services/api.js';
+import { api } from '../services/api.js';
 
 const PAGE_SIZE = 25;
 
@@ -24,7 +21,6 @@ export const AuditLogScreen: React.FC = () => {
   const { restaurant } = useAuth();
   const [entityFilter, setEntityFilter] = useState<string>('all');
   const [page, setPage] = useState<number>(0);
-  const [selectedLog, setSelectedLog] = useState<AuditLogItem | null>(null);
 
   const {
     data: auditData,
@@ -186,7 +182,6 @@ export const AuditLogScreen: React.FC = () => {
                       <th className="py-3.5 px-6 font-semibold">Action</th>
                       <th className="py-3.5 px-6 font-semibold">Actor</th>
                       <th className="py-3.5 px-6 font-semibold">Entity</th>
-                      <th className="py-3.5 px-6 font-semibold text-right">Details</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
@@ -228,19 +223,6 @@ export const AuditLogScreen: React.FC = () => {
                               {log.entityId.slice(0, 8)}...
                             </span>
                           </td>
-                          <td className="py-3.5 px-6 text-right">
-                            {log.beforeState || log.afterState ? (
-                              <button
-                                type="button"
-                                onClick={() => setSelectedLog(log)}
-                                className="px-3 py-1 rounded-xl text-xs font-medium bg-stone-100 hover:bg-stone-200/70 text-stone-700 transition-colors cursor-pointer"
-                              >
-                                Inspect Diff
-                              </button>
-                            ) : (
-                              <span className="text-stone-300">—</span>
-                            )}
-                          </td>
                         </tr>
                       );
                     })}
@@ -276,107 +258,6 @@ export const AuditLogScreen: React.FC = () => {
           </div>
         </SlideUp>
       )}
-
-      {/* State Diff Modal */}
-      {selectedLog &&
-        typeof document !== 'undefined' &&
-        createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm">
-            <FadeIn>
-              <div className="bg-white/95 backdrop-blur-md rounded-2xl max-w-2xl w-full border border-stone-200/80 shadow-2xl overflow-hidden">
-                <div className="p-5 border-b border-stone-100 flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={getActionBadgeVariant(selectedLog.action)}>
-                        {selectedLog.action}
-                      </Badge>
-                      <span className="text-xs font-mono text-stone-400">
-                        ID: {selectedLog.id.slice(0, 8)}
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-500 mt-1">
-                      Executed by <strong>{selectedLog.actorName}</strong> on{' '}
-                      {new Date(selectedLog.createdAt).toLocaleString('en-IN')}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedLog(null)}
-                    className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 cursor-pointer"
-                    aria-label="Close diff modal"
-                  >
-                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" />
-                  </button>
-                </div>
-
-                <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
-                  {/* Meta details */}
-                  <div className="grid grid-cols-2 gap-3 p-3.5 bg-stone-50/80 rounded-xl text-xs text-stone-600 border border-stone-100 shadow-2xs">
-                    <div>
-                      <span className="text-stone-400 block">Entity:</span>
-                      <span className="font-medium text-stone-900 capitalize">
-                        {selectedLog.entityType} ({selectedLog.entityId})
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-stone-400 block">IP Address:</span>
-                      <span className="font-mono text-stone-900">
-                        {selectedLog.ipAddress || 'Internal / N/A'}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Before / After State Diff */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Before */}
-                    <div>
-                      <h3 className="text-xs font-semibold text-stone-700 mb-2">before change</h3>
-                      <div className="p-3 bg-stone-50/80 border border-stone-200/70 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800 shadow-2xs">
-                        {selectedLog.beforeState ? (
-                          <pre>{JSON.stringify(selectedLog.beforeState, null, 2)}</pre>
-                        ) : (
-                          <span className="text-stone-400 italic">None (New Record Created)</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* After */}
-                    <div>
-                      <h3 className="text-xs font-semibold text-stone-700 mb-2">after change</h3>
-                      <div className="p-3 bg-stone-50/80 border border-stone-200/70 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800 shadow-2xs">
-                        {selectedLog.afterState ? (
-                          <pre>{JSON.stringify(selectedLog.afterState, null, 2)}</pre>
-                        ) : (
-                          <span className="text-stone-400 italic">None (Record Deleted)</span>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Privacy & Redaction Alert */}
-                  <div className="p-3.5 bg-stone-100/80 border border-stone-200 rounded-xl text-xs text-stone-700 flex items-start gap-2.5">
-                    <HugeiconsIcon
-                      icon={InformationCircleIcon}
-                      className="w-4 h-4 text-stone-600 shrink-0 mt-0.5"
-                    />
-                    <span className="leading-relaxed">
-                      <strong>Automated Redaction:</strong> Sensitive credentials (passwords,
-                      encryption keys, recovery codes, and plain VPAs) are securely sanitized before
-                      persistence.
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-4 border-t border-stone-100 bg-stone-50/50 flex justify-end">
-                  <MotionButton variant="outline" size="sm" onClick={() => setSelectedLog(null)}>
-                    Close
-                  </MotionButton>
-                </div>
-              </div>
-            </FadeIn>
-          </div>,
-          document.body,
-        )}
     </div>
   );
 };

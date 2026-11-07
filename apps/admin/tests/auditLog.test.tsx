@@ -139,35 +139,21 @@ describe('AuditLogScreen Component', () => {
     });
   });
 
-  it('opens and closes state diff modal when clicking Inspect Diff', async () => {
+  it('renders audit log table with 4 clean columns without details column or diff inspection', async () => {
     vi.spyOn(api, 'getAuditLogs').mockResolvedValueOnce(mockAuditLogsResponse);
 
     renderWithProviders(<AuditLogScreen />);
 
     await waitFor(() => {
-      expect(screen.getAllByText('Inspect Diff').length).toBe(2);
+      expect(screen.getByText('Timestamp')).toBeDefined();
     });
 
-    // Click first "Inspect Diff"
-    const inspectBtns = screen.getAllByText('Inspect Diff');
-    fireEvent.click(inspectBtns[0]!);
+    expect(screen.getByText('Action')).toBeDefined();
+    expect(screen.getByText('Actor')).toBeDefined();
+    expect(screen.getByText('Entity')).toBeDefined();
 
-    // Modal should be visible with before and after state
-    await waitFor(() => {
-      expect(screen.getByText(/before change/i)).toBeDefined();
-    });
-
-    expect(screen.getByText(/after change/i)).toBeDefined();
-    expect(screen.getByText(/None \(New Record Created\)/i)).toBeDefined();
-    expect(screen.getByText(/Aarav Patel/i)).toBeDefined();
-    expect(screen.getByText(/Automated Redaction:/i)).toBeDefined();
-
-    // Close modal
-    const closeBtn = screen.getByLabelText('Close diff modal');
-    fireEvent.click(closeBtn);
-
-    await waitFor(() => {
-      expect(screen.queryByText(/before change/i)).toBeNull();
-    });
+    // Verify Details column and Inspect Diff buttons are removed
+    expect(screen.queryByText('Details')).toBeNull();
+    expect(screen.queryByText('Inspect Diff')).toBeNull();
   });
 });
