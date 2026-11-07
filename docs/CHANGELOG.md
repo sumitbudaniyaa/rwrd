@@ -6,6 +6,26 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Chromatic Menu Button, beUI Date Range Picker & Brand Logo Favicon (M7-T20)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **ReactDrops Chromatic Button for Menu** ([`apps/admin/src/components/chromatic/`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/chromatic/), [`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx)):
+    - Integrated the ReactDrops Chromatic Button component suite (`chromatic-button.tsx`, `chromatic-surface.tsx`, `chromatic-shaders.ts`, `chromatic-field.ts`, `chromatic-button.css`).
+    - Configured with tactile soft rectangular silhouette, feathered spherical reflections, fractal noise field, and spectrum hue cycle (`color="#29a36870"`, `colorMode="spectrum"`, `speed=0.7`, `intensity=1.4`, `grain=0.105`).
+    - Applied to the admin bottom floating menu trigger with animated hamburger lines, click-outside handling, and upward-gliding navigation panel.
+  - **beUI Motion Date Range Picker** ([`apps/admin/src/components/motion/date-range-picker/`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/date-range-picker/), [`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
+    - Replaced native date inputs with composable `DateRangePickerDropdown` featuring calendar popover with smooth month slide transitions, year jump grid, and full keyboard navigation.
+    - Mapped styling to TipTable warm stone palette with non-custodial telemetry queries triggered on date range selection.
+  - **Brand Logo Favicon Integration** ([`apps/admin/public/favicon.png`](file:///Users/Sumit/Desktop/rwrd/apps/admin/public/favicon.png), `apps/*/index.html`):
+    - Generated a crisp 128x128 transparent square PNG favicon from `apps/admin/src/assets/logo.png`.
+    - Configured `<link rel="icon" type="image/png" href="/favicon.png" />` across Admin, Landing, Portal, and Customer frontends.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production Vite build verified with 0 warnings.
+
 ### 2026-11-07 - Smooth Input Focus Styling, Uniform Analytics Metric Cards & beUI Motion Period Tabs (M7-T19)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

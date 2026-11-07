@@ -12,6 +12,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { SlideUp, StaggerList, FadeIn, Badge } from '@tiptable/ui';
 import { motion } from 'framer-motion';
+import { DateRangePickerDropdown } from '../components/motion/date-range-picker.js';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../services/api.js';
@@ -166,26 +167,24 @@ export const AnalyticsScreen: React.FC = () => {
           </motion.div>
 
           {filterType === 'custom' && (
-            <div className="flex items-center gap-2 text-xs">
-              <label className="flex items-center gap-1.5 text-stone-600">
-                <span>From:</span>
-                <input
-                  type="date"
-                  value={customStart}
-                  onChange={(e) => setCustomStart(e.target.value)}
-                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-white text-stone-800 text-xs outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
-              </label>
-              <label className="flex items-center gap-1.5 text-stone-600">
-                <span>To:</span>
-                <input
-                  type="date"
-                  value={customEnd}
-                  onChange={(e) => setCustomEnd(e.target.value)}
-                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-white text-stone-800 text-xs outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
-              </label>
-            </div>
+            <SlideUp delay={20}>
+              <DateRangePickerDropdown
+                value={
+                  customStart
+                    ? customEnd
+                      ? { from: customStart, to: customEnd }
+                      : { from: customStart }
+                    : null
+                }
+                onValueChange={(range) => {
+                  setCustomStart(range?.from ?? '');
+                  setCustomEnd(range?.to ?? '');
+                }}
+                placeholder="Select date range"
+                triggerClassName="text-xs h-8 px-2.5 rounded-xl border-stone-200 bg-white hover:bg-stone-50"
+                calendarClassName="rounded-2xl border-stone-200/80 shadow-lg bg-white"
+              />
+            </SlideUp>
           )}
         </div>
       </SlideUp>

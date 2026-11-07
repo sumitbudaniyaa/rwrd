@@ -184,8 +184,7 @@ describe('AnalyticsScreen Component', () => {
     const btnCustom = screen.getByText('Custom');
     fireEvent.click(btnCustom);
 
-    expect(screen.getByText('From:')).toBeDefined();
-    expect(screen.getByText('To:')).toBeDefined();
+    expect(screen.getByText('Select date range')).toBeDefined();
   });
 
   it('triggers CSV export download when clicking Export CSV button', async () => {
