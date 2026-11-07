@@ -28,7 +28,7 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
   ];
 
   const activeItem = menuItems.find((item) => item.active);
-  const calculatedHeight = Math.max(280, 72 + menuItems.length * 40);
+  const calculatedHeight = Math.max(300, 76 + menuItems.length * 42);
 
   // Close on outside click
   useEffect(() => {
@@ -109,19 +109,22 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
 
         {/* Menu items with SharedLayoutBg gliding hover */}
         <div
-          className="relative z-10 flex flex-col items-center justify-center px-4 pt-4 pb-2"
+          className="relative z-10 flex flex-col items-center justify-center w-full px-4"
           style={{
             pointerEvents: isOpen ? 'auto' : 'none',
             opacity: isOpen ? 1 : 0,
             flex: isOpen ? 1 : 0,
             overflow: 'hidden',
-            transition: 'opacity 0.25s ease',
+            maxHeight: isOpen ? 500 : 0,
+            paddingTop: isOpen ? 20 : 0,
+            paddingBottom: isOpen ? 8 : 0,
+            transition: 'opacity 0.25s ease, max-height 0.3s ease, padding 0.3s ease',
           }}
         >
           <SharedLayoutBg
             activeId={isOpen ? (activeItem?.label ?? null) : null}
             inset={0}
-            pillClassName="bg-white/10 rounded-xl border border-white/10 shadow-2xs backdrop-blur-xs"
+            pillClassName="bg-white/[0.07] rounded-[20px] border-0 border-none shadow-none"
             className="flex flex-col gap-1 w-full"
           >
             {menuItems.map((item) => {
@@ -135,7 +138,7 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
                     if (item.onClick) item.onClick();
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center justify-center py-2.5 px-3 rounded-xl cursor-pointer select-none transition-colors relative z-10 outline-none focus:outline-none"
+                  className="w-full flex items-center justify-center py-2.5 px-4 rounded-[20px] cursor-pointer select-none transition-colors relative z-10 outline-none focus:outline-none"
                 >
                   <span
                     className={`text-sm sm:text-[15px] tracking-wide uppercase transition-colors duration-200 ${

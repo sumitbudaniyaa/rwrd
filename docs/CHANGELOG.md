@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Floating Menu Visibility Fix & Borderless Rounded Hover Blend (M7-T14)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Menu Text & Hamburger Visibility Fix** ([`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx)):
+    - Clamped the items container height to `0` with `max-height: 0` and zero vertical padding when `isOpen` is `false`.
+    - Solved layout clipping where expanded item children previously pushed the bottom 48px trigger bar out of the container boundary.
+    - Centered `"Menu"` text and the 2-bar hamburger icon with crisp dark `#242424` contrast against the yellow `#FFE862` pill.
+  - **Borderless, Blended Rounded Hover Pill** ([`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx)):
+    - Completely removed the border (`border-none border-0`) from the gliding indicator.
+    - Softened indicator styling to `bg-white/[0.07]`, organically merging with the dark `#242424` background.
+    - Increased corner curvature to `rounded-[20px]` matching the container's 32px curvature.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Floating Menu Spring-Gliding Hover Indicator (M7-T13)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

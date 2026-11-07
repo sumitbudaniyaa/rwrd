@@ -131,3 +131,4 @@ Status values:
 | **M7-T11** | Dashboard Aesthetic Overhaul & Auth Interaction Polish (Zero button outline, smooth input focus, no-scroll onboarding).     | `Done` | Senior Staff Agent | 2026-11-07     | Dashboard & auth polish       |
 | **M7-T12** | Live Telemetry Integration & Seed Data Elimination (Dynamic greetings, real analytics, clean empty states, zero demo seed). | `Done` | Senior Staff Agent | 2026-11-07     | Hardcoded & seed data removed |
 | **M7-T13** | Floating Menu Spring-Gliding Hover Indicator (Integrated SharedLayoutBg, removed active dot, smooth row physics).           | `Done` | Senior Staff Agent | 2026-11-07     | Floating menu gliding hover   |
+| **M7-T14** | Floating Menu Visibility Fix & Borderless Rounded Hover Blend (Unclipped trigger bar, border-free 20px pill).               | `Done` | Senior Staff Agent | 2026-11-07     | Floating menu polish          |
