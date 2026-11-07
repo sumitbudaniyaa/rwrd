@@ -138,3 +138,4 @@ Status values:
 | **M7-T18** | Admin & Global API Rate Limit Scaling (1000 req/min global, 100 req/15min auth, session inspection exempted).               | `Done` | Senior Staff Agent | 2026-11-07     | Rate limit expansion          |
 | **M7-T19** | Smooth Input Focus Styling, Uniform Analytics Metric Cards & beUI Motion Period Tabs (`SharedLayoutBg` gliding pill).       | `Done` | Senior Staff Agent | 2026-11-07     | Visual & motion polish        |
 | **M7-T20** | Chromatic Menu Button, beUI Date Range Picker & Brand Logo Favicon across Apps.                                             | `Done` | Senior Staff Agent | 2026-11-07     | UI motion & branding polish   |
+| **M7-T21** | Restored Original Liquid-Morph Floating Menu (Brand Yellow Pill), Hamburger Repositioning & Brand Asset Consolidation.      | `Done` | Senior Staff Agent | 2026-11-07     | UI polish & asset cleanup     |

@@ -185,21 +185,22 @@ This document records the architectural and design decisions made for **TipTable
 
 ---
 
-## ADR-011: ReactDrops Chromatic WebGL Shader & beUI Motion Date Range Picker Integration
+## ADR-011: beUI Motion Date Range Picker & Authentic Liquid-Morph Menu Architecture
 
 - **Status**: Accepted
-- **Date**: 2026-11-07
+- **Date**: 2026-11-07 (Updated 2026-11-07)
 - **Context**:
   The restaurant admin portal requires high aesthetic refinement and tactile physical feedback for core touchpoints: the persistent bottom floating navigation menu trigger, and date-range telemetry filtering in the analytics dashboard. Static buttons and native browser `<input type="date">` controls introduce jarring cross-browser style inconsistencies, lack spring physics, and degrade the premium feel.
 - **Alternatives Considered**:
   1. _Standard CSS glow/hover states & native date inputs_: Functional but basic; native `<input type="date">` displays disparate system picker dialogs across Safari/Chrome/Firefox with no range context or month slide transitions.
   2. _Heavy third-party UI libraries (e.g. Mantine, MUI, AntD)_: Introduce bundle bloat, styling collisions with Tailwind v4, and rigid DOM structures.
-  3. _Vendor-in ReactDrops Chromatic Shader & beUI Motion DateRangePicker_:
-     - **Chromatic Button**: High-performance WebGL shader suite (`chromatic-surface.tsx`, `chromatic-shaders.ts`, `chromatic-field.ts`) computing periodic value noise, quantile rank mapping, feathered spherical specular reflections, and hue cycling with graceful radial-gradient CSS fallback and IntersectionObserver pause.
+  3. _WebGL Chromatic Shader buttons_: High-end GPU-computed shaders; however, experimental WebGL shaders add unnecessary canvas initialization overhead, risk non-uniform hardware performance, and drift from TipTable's signature brand yellow identity.
+  4. _Authentic Framer Motion Liquid Morph with Yellow `#FFE862` Surface & beUI Date Range Picker_:
+     - **Liquid Morph Menu**: Lightweight Framer Motion pill (145px $\rightarrow$ 290px), expanding dark circular backdrop (`#242424`), inverted leading hamburger placement, and `SharedLayoutBg` gliding hover motion.
      - **beUI DateRangePicker**: Composable popover calendar (`DateRangePickerDropdown`, `MorphPopover`, `DateRangePickerCalendar`) with month slide motion, year jump grid, and accessibility keyboard navigation.
 - **Decision**:
-  Vendor both component suites into `apps/admin/src/components/chromatic/` and `apps/admin/src/components/motion/date-range-picker/`. Guard WebGL context creation and DOM observers against headless/JSDOM execution environments so automated test suites (`vitest`) run with 100% reliability.
+  Adopt the authentic Framer Motion liquid-morphing menu with the signature yellow palette and inverted leading hamburger placement, avoiding heavy WebGL shaders. Vendor the beUI DateRangePicker into `apps/admin/src/components/motion/date-range-picker/`.
 - **Consequences**:
-  - Positive: Distinctive tactile visual identity with smooth 60fps GPU-accelerated shader animations.
+  - Positive: Authentic TipTable brand identity with fluid, native DOM spring animations and zero canvas overhead.
   - Positive: Consistent custom date range selection across all browsers with immediate telemetry query updates.
-  - Positive: Graceful fallbacks for reduced-motion preferences, headless testing environments, and non-WebGL hardware.
+  - Positive: Headless tests and lightweight devices run at 100% reliability without mock canvas dependencies.

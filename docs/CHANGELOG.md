@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Restored Original Liquid-Morph Floating Menu, Hamburger Repositioning & Asset Consolidation (M7-T21)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Restored Original Liquid-Morph Floating Menu** ([`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx)):
+    - Restored the signature brand yellow (`#FFE862`) liquid-morphing floating menu container with fluid dimensions (145px pill $\rightarrow$ 290px card), expanding dark circular backdrop (`#242424`), and `SharedLayoutBg` gliding hover motion.
+    - Completely removed the experimental WebGL chromatic shader directory (`apps/admin/src/components/chromatic/`), eliminating canvas creation overhead and test runner warnings.
+  - **Bottom Bar Layout Reordering**:
+    - Repositioned the animated hamburger / close morphing lines to the leading (left) side, and the `Menu` / `Close` label to the trailing (right) side.
+  - **Master Brand Asset Consolidation**:
+    - Relocated the 2000x2000 master brand logo `rwrd.png` from the repository root into [`apps/admin/src/assets/rwrd.png`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/assets/rwrd.png) and [`packages/ui/src/assets/rwrd.png`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/assets/rwrd.png).
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing with clean test output.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-07 - Chromatic Menu Button, beUI Date Range Picker & Brand Logo Favicon (M7-T20)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
