@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Floating Menu Spring-Gliding Hover Indicator (M7-T13)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **SharedLayoutBg Spring-Physics Gliding Motion** ([`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx)):
+    - Integrated `SharedLayoutBg` to wrap expanded bottom menu navigation tabs (_Overview_, _Staff Roster_, _QR Management_, _Analytics_, _Settings_, _Audit Log_).
+    - Replaced the character-splitting rolling animation with the smooth spring gliding pill indicator (`SPRING_LAYOUT`: `stiffness: 450, damping: 35`) matching Step 2 of the onboarding flow (_"i am a..."_).
+    - Configured a glassmorphic luminous hover pill (`bg-white/10 rounded-xl border border-white/10 shadow-2xs backdrop-blur-xs`) that follows cursor hover seamlessly between rows.
+  - **Removed Active Indicator Dot**:
+    - Removed the yellow indicator dot (`w-1.5 h-1.5 rounded-full bg-[#FFE862]`) from active navigation items, letting the typography and gliding indicator convey selection cleanly.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Live Telemetry Integration & Seed Data Elimination (M7-T12)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { SharedLayoutBg } from '../motion/shared-layout-bg.js';
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -13,115 +14,21 @@ export interface FloatingMenuProps {
   items?: MenuItem[];
 }
 
-function MenuButton({
-  label,
-  onClick,
-  isOpen,
-  index,
-  active,
-}: {
-  label: string;
-  onClick?: () => void;
-  isOpen: boolean;
-  index: number;
-  active?: boolean | undefined;
-}) {
-  const [hovered, setHovered] = useState(false);
-  const animatingRef = useRef(false);
-  const pendingLeaveRef = useRef(false);
-  const chars = label.split('');
-  const lockDuration = 30 * chars.length + 300;
-
-  const handleEnter = useCallback(() => {
-    pendingLeaveRef.current = false;
-    if (hovered) return;
-    setHovered(true);
-    animatingRef.current = true;
-    setTimeout(() => {
-      animatingRef.current = false;
-      if (pendingLeaveRef.current) {
-        pendingLeaveRef.current = false;
-        setHovered(false);
-      }
-    }, lockDuration);
-  }, [hovered, lockDuration]);
-
-  const handleLeave = useCallback(() => {
-    if (animatingRef.current) {
-      pendingLeaveRef.current = true;
-    } else {
-      setHovered(false);
-    }
-  }, []);
-
-  return (
-    <motion.button
-      type="button"
-      aria-label={label}
-      onClick={onClick}
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-      className={`text-[17px] sm:text-[20px] tracking-wide uppercase leading-none overflow-hidden cursor-pointer transition-colors relative ${
-        active ? 'text-[#FFE862] font-black' : 'text-[#f7f1ed] font-semibold hover:text-white'
-      }`}
-      style={{
-        fontFamily: "'Trobika', 'Bebas Neue', 'Poppins', 'Inter', sans-serif",
-        letterSpacing: '-0.01em',
-        height: '1.2em',
-      }}
-      animate={{ opacity: isOpen ? 1 : 0 }}
-      transition={{
-        duration: 0.3,
-        delay: isOpen ? 0.25 + 0.05 * index : 0,
-        ease,
-      }}
-    >
-      <span className="sr-only">{label}</span>
-      <div className="flex justify-center items-center gap-1.5" aria-hidden="true">
-        {active && <span className="w-1.5 h-1.5 rounded-full bg-[#FFE862] inline-block mb-0.5" />}
-        <div className="flex justify-center">
-          {chars.map((char, i) => (
-            <span key={i} className="inline-block overflow-hidden" style={{ height: '1.2em' }}>
-              <span
-                className="flex flex-col"
-                style={{
-                  transitionProperty: 'transform',
-                  transitionDuration: hovered ? '800ms' : '0ms',
-                  transitionDelay: hovered ? `${30 * i}ms` : '0ms',
-                  transform: hovered ? 'translateY(-50%)' : 'translateY(0%)',
-                  transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)',
-                }}
-              >
-                <span className="block" style={{ height: '1.2em', lineHeight: '1.2em' }}>
-                  {char}
-                </span>
-                <span
-                  className="block text-[#FFE862]"
-                  style={{ height: '1.2em', lineHeight: '1.2em' }}
-                  aria-hidden
-                >
-                  {char}
-                </span>
-              </span>
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.button>
-  );
-}
-
 export function FloatingMenu({ items }: FloatingMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const menuItems: MenuItem[] = items ?? [
-    { label: 'Home' },
-    { label: 'Works' },
-    { label: 'Contact' },
+    { label: 'Overview' },
+    { label: 'Staff Roster' },
+    { label: 'QR Management' },
+    { label: 'Analytics' },
+    { label: 'Settings' },
+    { label: 'Audit Log' },
   ];
 
-  const calculatedHeight = Math.max(260, 68 + menuItems.length * 36);
+  const activeItem = menuItems.find((item) => item.active);
+  const calculatedHeight = Math.max(280, 72 + menuItems.length * 40);
 
   // Close on outside click
   useEffect(() => {
@@ -200,29 +107,52 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
           }}
         />
 
-        {/* Menu items */}
+        {/* Menu items with SharedLayoutBg gliding hover */}
         <div
-          className="relative z-10 flex flex-col gap-3.5 items-center justify-center px-4"
+          className="relative z-10 flex flex-col items-center justify-center px-4 pt-4 pb-2"
           style={{
             pointerEvents: isOpen ? 'auto' : 'none',
             opacity: isOpen ? 1 : 0,
             flex: isOpen ? 1 : 0,
             overflow: 'hidden',
+            transition: 'opacity 0.25s ease',
           }}
         >
-          {menuItems.map((item, idx) => (
-            <MenuButton
-              key={item.label}
-              label={item.label}
-              onClick={() => {
-                if (item.onClick) item.onClick();
-                setIsOpen(false);
-              }}
-              isOpen={isOpen}
-              index={idx}
-              active={item.active}
-            />
-          ))}
+          <SharedLayoutBg
+            activeId={isOpen ? (activeItem?.label ?? null) : null}
+            inset={0}
+            pillClassName="bg-white/10 rounded-xl border border-white/10 shadow-2xs backdrop-blur-xs"
+            className="flex flex-col gap-1 w-full"
+          >
+            {menuItems.map((item) => {
+              const isActive = Boolean(item.active);
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (item.onClick) item.onClick();
+                    setIsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-center py-2.5 px-3 rounded-xl cursor-pointer select-none transition-colors relative z-10 outline-none focus:outline-none"
+                >
+                  <span
+                    className={`text-sm sm:text-[15px] tracking-wide uppercase transition-colors duration-200 ${
+                      isActive
+                        ? 'text-[#FFE862] font-bold'
+                        : 'text-stone-300 hover:text-white font-medium'
+                    }`}
+                    style={{
+                      letterSpacing: '0.04em',
+                    }}
+                  >
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </SharedLayoutBg>
         </div>
 
         {/* Bottom bar: Menu + hamburger */}
