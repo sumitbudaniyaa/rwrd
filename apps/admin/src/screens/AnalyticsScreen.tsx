@@ -10,7 +10,8 @@ import {
   Calendar01Icon,
   AlertCircleIcon,
 } from '@hugeicons/core-free-icons';
-import { MotionCard, SlideUp, StaggerList, FadeIn, Badge, MotionButton } from '@tiptable/ui';
+import { SlideUp, StaggerList, FadeIn, Badge } from '@tiptable/ui';
+import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../services/api.js';
 
@@ -88,26 +89,26 @@ export const AnalyticsScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header & Controls */}
       <SlideUp>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
-            <h1 className="text-2xl font-semibold text-stone-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               Analytics & Telemetry
             </h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Track diner QR scans, waitstaff interactions, Google review taps, and tips initiated.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton
               variant="outline"
               size="sm"
               onClick={handleExportCsv}
               disabled={isExporting || isLoading}
-              className="flex items-center gap-2"
+              className="px-3.5 py-2"
               aria-label="Export Analytics CSV"
             >
               <HugeiconsIcon icon={Download01Icon} className="w-4 h-4 text-stone-600" />
@@ -119,7 +120,7 @@ export const AnalyticsScreen: React.FC = () => {
 
       {/* Date Range Selector Pills */}
       <SlideUp delay={50}>
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-stone-200">
+        <div className="flex flex-wrap items-center justify-between gap-4 bg-white/90 backdrop-blur-xs p-3.5 rounded-2xl border border-stone-200/70 shadow-2xs">
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-2 flex items-center gap-1">
               <HugeiconsIcon icon={Calendar01Icon} className="w-3.5 h-3.5" />
@@ -137,10 +138,10 @@ export const AnalyticsScreen: React.FC = () => {
                 key={opt.id}
                 type="button"
                 onClick={() => setFilterType(opt.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   filterType === opt.id
-                    ? 'bg-stone-900 text-white shadow-sm'
-                    : 'text-stone-600 hover:bg-stone-100'
+                    ? 'bg-stone-900 text-stone-50 shadow-2xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
                 }`}
               >
                 {opt.label}
@@ -150,22 +151,22 @@ export const AnalyticsScreen: React.FC = () => {
 
           {filterType === 'custom' && (
             <div className="flex items-center gap-2 text-xs">
-              <label className="flex items-center gap-1 text-stone-600">
+              <label className="flex items-center gap-1.5 text-stone-600">
                 <span>From:</span>
                 <input
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 text-stone-800 text-xs focus:ring-1 focus:ring-indigo-600"
+                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-stone-50/80 text-stone-800 text-xs focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
                 />
               </label>
-              <label className="flex items-center gap-1 text-stone-600">
+              <label className="flex items-center gap-1.5 text-stone-600">
                 <span>To:</span>
                 <input
                   type="date"
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
-                  className="px-2 py-1 rounded-lg border border-stone-200 bg-stone-50 text-stone-800 text-xs focus:ring-1 focus:ring-indigo-600"
+                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-stone-50/80 text-stone-800 text-xs focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
                 />
               </label>
             </div>
@@ -175,8 +176,8 @@ export const AnalyticsScreen: React.FC = () => {
 
       {exportError && (
         <FadeIn>
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center gap-2">
-            <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4 text-red-500 shrink-0" />
+          <div className="p-3.5 bg-rose-50 border border-rose-200/80 rounded-2xl text-xs text-rose-700 flex items-center gap-2 shadow-2xs">
+            <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4 text-rose-500 shrink-0" />
             <span>{exportError}</span>
           </div>
         </FadeIn>
@@ -184,13 +185,16 @@ export const AnalyticsScreen: React.FC = () => {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="p-12 text-center text-stone-400 text-sm">Loading analytics metrics...</div>
+        <div className="p-16 text-center text-stone-400 text-sm flex flex-col items-center justify-center">
+          <div className="w-6 h-6 border-2 border-stone-900 border-t-transparent rounded-full animate-spin mb-2" />
+          <span>Loading analytics metrics...</span>
+        </div>
       )}
 
       {/* Error State */}
       {isError && (
-        <div className="p-8 text-center bg-white border border-red-200 rounded-2xl">
-          <p className="text-sm font-medium text-red-700">Failed to load analytics data.</p>
+        <div className="p-8 text-center bg-white/90 backdrop-blur-xs border border-rose-200/80 rounded-2xl shadow-2xs">
+          <p className="text-sm font-medium text-rose-700">Failed to load analytics data.</p>
           <MotionButton variant="outline" size="sm" onClick={() => refetch()} className="mt-4">
             Retry
           </MotionButton>
@@ -200,89 +204,89 @@ export const AnalyticsScreen: React.FC = () => {
       {/* Metrics Grid */}
       {analytics && (
         <>
-          <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          <StaggerList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Scans */}
-            <MotionCard hoverable className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Total Scans
                 </span>
-                <div className="w-8 h-8 rounded-lg bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-600">
+                <div className="w-8 h-8 rounded-xl bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-600 shadow-2xs">
                   <HugeiconsIcon icon={QrCodeIcon} className="w-4 h-4" strokeWidth={1.5} />
                 </div>
               </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-2xl font-semibold text-stone-900 tracking-tight">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-3xl font-semibold text-stone-900 tracking-tight font-sans">
                   {analytics.metrics.scans.toLocaleString('en-IN')}
                 </span>
                 <Badge variant="neutral">Placard Scans</Badge>
               </div>
-            </MotionCard>
+            </div>
 
             {/* Staff Views */}
-            <MotionCard hoverable className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Staff Page Views
                 </span>
-                <div className="w-8 h-8 rounded-lg bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-600">
+                <div className="w-8 h-8 rounded-xl bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-600 shadow-2xs">
                   <HugeiconsIcon icon={UserGroupIcon} className="w-4 h-4" strokeWidth={1.5} />
                 </div>
               </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-2xl font-semibold text-stone-900 tracking-tight">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-3xl font-semibold text-stone-900 tracking-tight font-sans">
                   {analytics.metrics.staffViews.toLocaleString('en-IN')}
                 </span>
                 <Badge variant="neutral">Diner Visits</Badge>
               </div>
-            </MotionCard>
+            </div>
 
             {/* Tips Initiated (Invariant: Never "Tips received") */}
-            <MotionCard hoverable className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Tips Initiated
                 </span>
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
+                <div className="w-8 h-8 rounded-xl bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-600 shadow-2xs">
                   <HugeiconsIcon icon={SentIcon} className="w-4 h-4" strokeWidth={1.5} />
                 </div>
               </div>
-              <div className="flex items-baseline justify-between">
+              <div className="flex items-baseline justify-between gap-2">
                 <div>
-                  <span className="text-2xl font-semibold text-stone-900 tracking-tight">
+                  <span className="text-3xl font-semibold text-stone-900 tracking-tight font-sans">
                     {analytics.metrics.tipsInitiatedCount.toLocaleString('en-IN')}
                   </span>
-                  <div className="text-xs text-stone-500 mt-0.5">
+                  <div className="text-xs text-stone-500 mt-1">
                     ₹{analytics.metrics.tipsInitiatedVolumeInr.toLocaleString('en-IN')} initiated
                   </div>
                 </div>
-                <Badge variant="accent">Initiated</Badge>
+                <Badge variant="success">Initiated</Badge>
               </div>
-            </MotionCard>
+            </div>
 
             {/* Google Review Taps */}
-            <MotionCard hoverable className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Review Taps
                 </span>
-                <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-100 flex items-center justify-center text-amber-600">
+                <div className="w-8 h-8 rounded-xl bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-600 shadow-2xs">
                   <HugeiconsIcon icon={StarIcon} className="w-4 h-4" strokeWidth={1.5} />
                 </div>
               </div>
-              <div className="flex items-baseline justify-between">
-                <span className="text-2xl font-semibold text-stone-900 tracking-tight">
+              <div className="flex items-baseline justify-between gap-2">
+                <span className="text-3xl font-semibold text-stone-900 tracking-tight font-sans">
                   {analytics.metrics.reviewTaps.toLocaleString('en-IN')}
                 </span>
                 <Badge variant="warning">Google Direct</Badge>
               </div>
-            </MotionCard>
+            </div>
           </StaggerList>
 
           {/* Daily Activity Timeline */}
           <SlideUp delay={100}>
-            <div className="bg-white border border-stone-200 rounded-2xl p-6">
-              <h2 className="text-sm font-semibold text-stone-900 mb-1">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs p-6">
+              <h2 className="text-base font-semibold text-stone-900 tracking-tight mb-1">
                 Daily Telemetry Breakdown
               </h2>
               <p className="text-xs text-stone-500 mb-5">
@@ -290,7 +294,7 @@ export const AnalyticsScreen: React.FC = () => {
               </p>
 
               {analytics.dailyTimeline.length === 0 ? (
-                <p className="text-xs text-stone-400 py-4 text-center">
+                <p className="text-xs text-stone-400 py-6 text-center">
                   No telemetry recorded in this date range.
                 </p>
               ) : (
@@ -298,7 +302,7 @@ export const AnalyticsScreen: React.FC = () => {
                   {analytics.dailyTimeline.map((day) => (
                     <div
                       key={day.date}
-                      className="py-2.5 flex items-center justify-between text-xs text-stone-600 hover:bg-stone-50 px-2 rounded-lg"
+                      className="py-3 flex items-center justify-between text-xs text-stone-600 hover:bg-stone-50/70 px-2.5 rounded-xl transition-colors"
                     >
                       <span className="font-mono font-medium text-stone-900">{day.date}</span>
                       <div className="flex items-center gap-6">
@@ -309,11 +313,13 @@ export const AnalyticsScreen: React.FC = () => {
                           <strong className="text-stone-900">{day.staffViews}</strong> staff views
                         </span>
                         <span>
-                          <strong className="text-indigo-600">{day.tipsInitiatedCount}</strong> tips
-                          initiated (₹{day.tipsInitiatedVolumeInr.toLocaleString('en-IN')})
+                          <strong className="text-stone-950 font-semibold">
+                            {day.tipsInitiatedCount}
+                          </strong>{' '}
+                          tips initiated (₹{day.tipsInitiatedVolumeInr.toLocaleString('en-IN')})
                         </span>
                         <span>
-                          <strong className="text-amber-600">{day.reviewTaps}</strong> reviews
+                          <strong className="text-amber-700">{day.reviewTaps}</strong> reviews
                         </span>
                       </div>
                     </div>
@@ -325,9 +331,9 @@ export const AnalyticsScreen: React.FC = () => {
 
           {/* Waitstaff Performance Breakdown Table */}
           <SlideUp delay={150}>
-            <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden">
-              <div className="p-6 border-b border-stone-200">
-                <h2 className="text-sm font-semibold text-stone-900">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs overflow-hidden">
+              <div className="p-6 border-b border-stone-100">
+                <h2 className="text-base font-semibold text-stone-900 tracking-tight">
                   Waitstaff Tips Initiated Performance
                 </h2>
                 <p className="text-xs text-stone-500 mt-1">
@@ -336,24 +342,24 @@ export const AnalyticsScreen: React.FC = () => {
               </div>
 
               {analytics.staffBreakdown.length === 0 ? (
-                <div className="p-8 text-center text-xs text-stone-400">
+                <div className="p-12 text-center text-xs text-stone-400">
                   No staff tipping activity recorded in this period.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-stone-50 text-stone-500 border-b border-stone-200">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className="bg-stone-50/60 text-stone-500 border-b border-stone-100 font-semibold uppercase tracking-wider text-[10px]">
                       <tr>
-                        <th className="py-3 px-6 font-medium">Waitstaff Member</th>
-                        <th className="py-3 px-6 font-medium">Role</th>
-                        <th className="py-3 px-6 font-medium text-right">Tips Initiated</th>
-                        <th className="py-3 px-6 font-medium text-right">Volume Initiated</th>
-                        <th className="py-3 px-6 font-medium text-right">Avg. Tip Amount</th>
+                        <th className="py-3.5 px-6">Waitstaff Member</th>
+                        <th className="py-3.5 px-6">Role</th>
+                        <th className="py-3.5 px-6 text-right">Tips Initiated</th>
+                        <th className="py-3.5 px-6 text-right">Volume Initiated</th>
+                        <th className="py-3.5 px-6 text-right">Avg. Tip Amount</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone-100">
                       {analytics.staffBreakdown.map((s) => (
-                        <tr key={s.staffId} className="hover:bg-stone-50/60">
+                        <tr key={s.staffId} className="hover:bg-stone-50/60 transition-colors">
                           <td className="py-3.5 px-6 font-medium text-stone-900">
                             {s.displayName}
                           </td>
@@ -361,7 +367,7 @@ export const AnalyticsScreen: React.FC = () => {
                           <td className="py-3.5 px-6 text-right font-medium text-stone-900">
                             {s.tipsInitiatedCount}
                           </td>
-                          <td className="py-3.5 px-6 text-right font-semibold text-indigo-600">
+                          <td className="py-3.5 px-6 text-right font-semibold text-stone-950">
                             ₹{s.tipsInitiatedVolumeInr.toLocaleString('en-IN')}
                           </td>
                           <td className="py-3.5 px-6 text-right text-stone-600">
@@ -378,13 +384,13 @@ export const AnalyticsScreen: React.FC = () => {
 
           {/* Legal / Non-Custodial Compliance Notice */}
           <SlideUp delay={200}>
-            <div className="p-4 bg-stone-50 border border-stone-200 rounded-2xl text-xs text-stone-500 flex items-start gap-3">
+            <div className="p-4 bg-stone-50/70 border border-stone-200/70 rounded-2xl text-xs text-stone-500 flex items-start gap-3 shadow-2xs">
               <HugeiconsIcon
                 icon={AlertCircleIcon}
                 className="w-4 h-4 text-stone-400 shrink-0 mt-0.5"
               />
-              <div>
-                <strong className="text-stone-700">Direct Non-Custodial UPI Invariant: </strong>
+              <div className="leading-relaxed">
+                <strong className="text-stone-800">Direct Non-Custodial UPI Invariant: </strong>
                 All tip numbers represent payment intents initiated by diners directly to staff UPI
                 VPAs using deep links. rwrd never holds, intercepts, or settles customer funds.
               </div>

@@ -11,7 +11,8 @@ import {
   HeadsetIcon,
   Cancel01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, Badge, MotionButton } from '@tiptable/ui';
+import { SlideUp, FadeIn, Badge } from '@tiptable/ui';
+import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, type AuditLogItem } from '../services/api.js';
 
@@ -60,31 +61,31 @@ export const AuditLogScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
       <SlideUp>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-semibold text-stone-900 tracking-tight">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
                 Audit Trail & History
               </h1>
-              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-stone-100 text-stone-600 border border-stone-200">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-stone-100 text-stone-600 border border-stone-200/70 shadow-2xs">
                 <HugeiconsIcon icon={Shield01Icon} className="w-3 h-3 text-stone-500" />
                 Immutable
               </span>
             </div>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Tamper-evident record of configuration changes, QR rotations, and waitstaff actions.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton
               variant="outline"
               size="sm"
               onClick={() => refetch()}
-              className="flex items-center gap-2"
+              className="px-3.5 py-2 flex items-center gap-2"
               aria-label="Refresh audit logs"
             >
               <HugeiconsIcon icon={RefreshIcon} className="w-4 h-4 text-stone-600" />
@@ -96,7 +97,7 @@ export const AuditLogScreen: React.FC = () => {
 
       {/* Filter Tabs */}
       <SlideUp delay={50}>
-        <div className="flex flex-wrap items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-stone-200">
+        <div className="flex flex-wrap items-center justify-between gap-4 bg-white/90 backdrop-blur-xs p-3.5 rounded-2xl border border-stone-200/70 shadow-2xs">
           <div className="flex items-center gap-1.5">
             <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-2 flex items-center gap-1">
               <HugeiconsIcon icon={FilterIcon} className="w-3.5 h-3.5" />
@@ -118,10 +119,10 @@ export const AuditLogScreen: React.FC = () => {
                   setEntityFilter(tab.id);
                   setPage(0);
                 }}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
                   entityFilter === tab.id
-                    ? 'bg-stone-900 text-white shadow-sm'
-                    : 'text-stone-600 hover:bg-stone-100'
+                    ? 'bg-stone-900 text-stone-50 shadow-2xs'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
                 }`}
               >
                 {tab.label}
@@ -135,13 +136,16 @@ export const AuditLogScreen: React.FC = () => {
 
       {/* Loading State */}
       {isLoading && (
-        <div className="p-12 text-center text-stone-400 text-sm">Loading audit logs...</div>
+        <div className="p-16 text-center text-stone-400 text-sm flex flex-col items-center justify-center">
+          <div className="w-6 h-6 border-2 border-stone-900 border-t-transparent rounded-full animate-spin mb-2" />
+          <span>Loading audit logs...</span>
+        </div>
       )}
 
       {/* Error State */}
       {isError && (
-        <div className="p-8 text-center bg-white border border-red-200 rounded-2xl">
-          <p className="text-sm font-medium text-red-700">Failed to load audit logs.</p>
+        <div className="p-8 text-center bg-white/90 backdrop-blur-xs border border-rose-200/80 rounded-2xl shadow-2xs">
+          <p className="text-sm font-medium text-rose-700">Failed to load audit logs.</p>
           <MotionButton variant="outline" size="sm" onClick={() => refetch()} className="mt-4">
             Retry
           </MotionButton>
@@ -151,28 +155,28 @@ export const AuditLogScreen: React.FC = () => {
       {/* Audit Logs Table */}
       {auditData && (
         <SlideUp delay={100}>
-          <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
+          <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs overflow-hidden">
             {auditData.logs.length === 0 ? (
-              <div className="p-12 text-center text-xs text-stone-400">
+              <div className="p-16 text-center text-xs text-stone-400">
                 No audit events recorded for the selected filter.
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead className="bg-stone-50 text-stone-500 border-b border-stone-200">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead className="bg-stone-50/60 text-stone-500 border-b border-stone-100 font-semibold uppercase tracking-wider text-[10px]">
                     <tr>
-                      <th className="py-3 px-6 font-medium">Timestamp</th>
-                      <th className="py-3 px-6 font-medium">Action</th>
-                      <th className="py-3 px-6 font-medium">Actor</th>
-                      <th className="py-3 px-6 font-medium">Entity</th>
-                      <th className="py-3 px-6 font-medium text-right">Details</th>
+                      <th className="py-3.5 px-6 font-semibold">Timestamp</th>
+                      <th className="py-3.5 px-6 font-semibold">Action</th>
+                      <th className="py-3.5 px-6 font-semibold">Actor</th>
+                      <th className="py-3.5 px-6 font-semibold">Entity</th>
+                      <th className="py-3.5 px-6 font-semibold text-right">Details</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
                     {auditData.logs.map((log) => {
                       const ActorIcon = getActorIcon(log.actorType);
                       return (
-                        <tr key={log.id} className="hover:bg-stone-50/60">
+                        <tr key={log.id} className="hover:bg-stone-50/60 transition-colors">
                           <td className="py-3.5 px-6 text-stone-600 font-mono whitespace-nowrap">
                             {new Date(log.createdAt).toLocaleString('en-IN', {
                               dateStyle: 'short',
@@ -183,16 +187,16 @@ export const AuditLogScreen: React.FC = () => {
                             <Badge variant={getActionBadgeVariant(log.action)}>{log.action}</Badge>
                           </td>
                           <td className="py-3.5 px-6">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-md bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-600 shrink-0">
+                            <div className="flex items-center gap-2.5">
+                              <div className="w-7 h-7 rounded-lg bg-stone-100 border border-stone-200/60 flex items-center justify-center text-stone-600 shrink-0 shadow-2xs">
                                 <HugeiconsIcon icon={ActorIcon} className="w-3.5 h-3.5" />
                               </div>
                               <div>
-                                <span className="font-medium text-stone-900 block">
+                                <span className="font-medium text-stone-900 block text-xs tracking-tight">
                                   {log.actorName}
                                 </span>
                                 {log.actorEmail && (
-                                  <span className="text-[11px] text-stone-400">
+                                  <span className="text-[11px] text-stone-400 font-mono">
                                     {log.actorEmail}
                                   </span>
                                 )}
@@ -212,7 +216,7 @@ export const AuditLogScreen: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => setSelectedLog(log)}
-                                className="px-2.5 py-1 rounded-md text-xs font-medium bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+                                className="px-3 py-1 rounded-xl text-xs font-medium bg-stone-100 hover:bg-stone-200/70 text-stone-700 transition-colors cursor-pointer"
                               >
                                 Inspect Diff
                               </button>
@@ -229,7 +233,7 @@ export const AuditLogScreen: React.FC = () => {
             )}
 
             {/* Pagination Controls */}
-            <div className="p-4 border-t border-stone-200 bg-stone-50 flex items-center justify-between text-xs text-stone-500">
+            <div className="p-4 border-t border-stone-100 bg-stone-50/50 flex items-center justify-between text-xs text-stone-500">
               <div>
                 Showing {auditData.logs.length} of {auditData.pagination.count} events on page
               </div>
@@ -258,10 +262,10 @@ export const AuditLogScreen: React.FC = () => {
 
       {/* State Diff Modal */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/40 backdrop-blur-xs">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs">
           <FadeIn>
-            <div className="bg-white rounded-2xl max-w-2xl w-full border border-stone-200 shadow-xl overflow-hidden">
-              <div className="p-5 border-b border-stone-200 flex items-center justify-between">
+            <div className="bg-white/95 backdrop-blur-md rounded-2xl max-w-2xl w-full border border-stone-200/80 shadow-2xl overflow-hidden">
+              <div className="p-5 border-b border-stone-100 flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <Badge variant={getActionBadgeVariant(selectedLog.action)}>
@@ -279,7 +283,7 @@ export const AuditLogScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedLog(null)}
-                  className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+                  className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 cursor-pointer"
                   aria-label="Close diff modal"
                 >
                   <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" />
@@ -288,7 +292,7 @@ export const AuditLogScreen: React.FC = () => {
 
               <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
                 {/* Meta details */}
-                <div className="grid grid-cols-2 gap-3 p-3 bg-stone-50 rounded-xl text-xs text-stone-600 border border-stone-100">
+                <div className="grid grid-cols-2 gap-3 p-3.5 bg-stone-50/80 rounded-xl text-xs text-stone-600 border border-stone-100 shadow-2xs">
                   <div>
                     <span className="text-stone-400 block">Entity:</span>
                     <span className="font-medium text-stone-900 capitalize">
@@ -308,7 +312,7 @@ export const AuditLogScreen: React.FC = () => {
                   {/* Before */}
                   <div>
                     <h3 className="text-xs font-semibold text-stone-700 mb-2">Before Change</h3>
-                    <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800">
+                    <div className="p-3 bg-stone-50/80 border border-stone-200/70 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800 shadow-2xs">
                       {selectedLog.beforeState ? (
                         <pre>{JSON.stringify(selectedLog.beforeState, null, 2)}</pre>
                       ) : (
@@ -320,7 +324,7 @@ export const AuditLogScreen: React.FC = () => {
                   {/* After */}
                   <div>
                     <h3 className="text-xs font-semibold text-stone-700 mb-2">After Change</h3>
-                    <div className="p-3 bg-stone-50 border border-stone-200 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800">
+                    <div className="p-3 bg-stone-50/80 border border-stone-200/70 rounded-xl text-xs font-mono overflow-x-auto min-h-[140px] text-stone-800 shadow-2xs">
                       {selectedLog.afterState ? (
                         <pre>{JSON.stringify(selectedLog.afterState, null, 2)}</pre>
                       ) : (
@@ -331,12 +335,12 @@ export const AuditLogScreen: React.FC = () => {
                 </div>
 
                 {/* Privacy & Redaction Alert */}
-                <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl text-xs text-indigo-700 flex items-start gap-2">
+                <div className="p-3.5 bg-stone-100/80 border border-stone-200 rounded-xl text-xs text-stone-700 flex items-start gap-2.5">
                   <HugeiconsIcon
                     icon={InformationCircleIcon}
-                    className="w-4 h-4 text-indigo-500 shrink-0 mt-0.5"
+                    className="w-4 h-4 text-stone-600 shrink-0 mt-0.5"
                   />
-                  <span>
+                  <span className="leading-relaxed">
                     <strong>Automated Redaction:</strong> Sensitive credentials (passwords,
                     encryption keys, recovery codes, and plain VPAs) are securely sanitized before
                     persistence.
@@ -344,7 +348,7 @@ export const AuditLogScreen: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 border-t border-stone-200 bg-stone-50 flex justify-end">
+              <div className="p-4 border-t border-stone-100 bg-stone-50/50 flex justify-end">
                 <MotionButton variant="outline" size="sm" onClick={() => setSelectedLog(null)}>
                   Close
                 </MotionButton>

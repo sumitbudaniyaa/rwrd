@@ -12,7 +12,8 @@ import {
   Cancel01Icon,
   CheckmarkCircle02Icon,
 } from '@hugeicons/core-free-icons';
-import { MotionCard, MotionButton, Badge, SlideUp } from '@tiptable/ui';
+import { Badge, SlideUp } from '@tiptable/ui';
+import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, ApiError, type QrTokenItem } from '../services/api.js';
 
@@ -98,7 +99,7 @@ export const QrManagementScreen: React.FC = () => {
       link.download = `${filename}.png`;
       link.click();
     } catch {
-      setFormError('Failed to generate PNG image for download.');
+      setFormError('Failed to export QR PNG.');
     }
   };
 
@@ -120,12 +121,13 @@ export const QrManagementScreen: React.FC = () => {
       link.click();
       URL.revokeObjectURL(blobUrl);
     } catch {
-      setFormError('Failed to generate SVG vector for download.');
+      setFormError('Failed to export QR SVG.');
     }
   };
 
   const handleCreateTableSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError(null);
     if (!tableNumber.trim()) {
       setFormError('Table number is required.');
       return;
@@ -140,38 +142,40 @@ export const QrManagementScreen: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
       <SlideUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
-            <h2 className="text-xl font-semibold text-stone-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               Table & QR Management
-            </h2>
-            <p className="mt-0.5 text-xs text-stone-500">
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Generate, download, and print table placards. Rotate tokens when cards need
               revocation.
             </p>
           </div>
-          <MotionButton
-            variant="primary"
-            size="md"
-            onClick={() => {
-              setFormError(null);
-              setIsAddTableOpen(true);
-            }}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
-            <HugeiconsIcon icon={Add01Icon} className="w-4 h-4" strokeWidth={1.5} />
-            <span>Add Dining Table</span>
-          </MotionButton>
+          <div className="flex items-center gap-2.5 shrink-0">
+            <MotionButton
+              variant="primary"
+              size="sm"
+              onClick={() => {
+                setFormError(null);
+                setIsAddTableOpen(true);
+              }}
+              className="px-4 py-2"
+            >
+              <HugeiconsIcon icon={Add01Icon} className="w-4 h-4" strokeWidth={1.5} />
+              <span>Add Dining Table</span>
+            </MotionButton>
+          </div>
         </div>
       </SlideUp>
 
       {/* Notifications */}
       {formError && (
         <SlideUp>
-          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2.5">
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80 text-xs text-rose-700 flex items-start gap-2.5 shadow-2xs">
             <HugeiconsIcon
               icon={Alert01Icon}
               className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"
@@ -184,7 +188,7 @@ export const QrManagementScreen: React.FC = () => {
 
       {successMessage && (
         <SlideUp>
-          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2.5">
+          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-800 flex items-start gap-2.5 shadow-2xs">
             <HugeiconsIcon
               icon={CheckmarkCircle02Icon}
               className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"
@@ -197,7 +201,7 @@ export const QrManagementScreen: React.FC = () => {
 
       {isLoading ? (
         <div className="py-16 flex flex-col items-center justify-center text-stone-400">
-          <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-2" />
+          <div className="w-6 h-6 border-2 border-stone-900 border-t-transparent rounded-full animate-spin mb-2" />
           <p className="text-xs">Loading QR tokens and table placards...</p>
         </div>
       ) : (
@@ -205,23 +209,18 @@ export const QrManagementScreen: React.FC = () => {
           {/* Main Restaurant QR Card */}
           {rootToken && (
             <SlideUp delay={50}>
-              <MotionCard className="p-6 border border-stone-200 bg-white">
+              <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs hover:shadow-xs transition-all duration-200">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                   <div className="flex items-center gap-5">
                     <QrCanvas codeUrl={rootToken.customerUrl} size={120} />
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold text-stone-900">
+                        <h3 className="text-base font-semibold text-stone-900 tracking-tight">
                           General Restaurant QR
                         </h3>
-                        <Badge
-                          variant="accent"
-                          className="bg-indigo-50 text-indigo-700 border-indigo-200"
-                        >
-                          Universal / Standing
-                        </Badge>
+                        <Badge variant="neutral">Universal / Standing</Badge>
                       </div>
-                      <p className="text-xs text-stone-500 max-w-md">
+                      <p className="text-xs text-stone-500 max-w-md leading-relaxed">
                         Universal placard for entrance, counter, or bars where table numbers are not
                         assigned.
                       </p>
@@ -280,7 +279,7 @@ export const QrManagementScreen: React.FC = () => {
                           logoUrl: data?.restaurant.logoUrl || null,
                         })
                       }
-                      className="bg-indigo-600 hover:bg-indigo-700"
+                      className="px-3.5 py-1.5"
                     >
                       <HugeiconsIcon icon={PrinterIcon} className="w-3.5 h-3.5" strokeWidth={1.5} />
                       <span>Print Placard</span>
@@ -298,32 +297,34 @@ export const QrManagementScreen: React.FC = () => {
                     </MotionButton>
                   </div>
                 </div>
-              </MotionCard>
+              </div>
             </SlideUp>
           )}
 
           {/* Table-Specific QR Cards Grid */}
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between pb-1">
               <div>
-                <h3 className="text-sm font-semibold text-stone-900">Table Placards</h3>
+                <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                  Table Placards
+                </h3>
                 <p className="text-xs text-stone-500">
                   Individual table QR codes encoding dedicated table identifiers.
                 </p>
               </div>
               <span className="text-xs text-stone-500">
-                Total Tables: <strong>{tableTokens.length}</strong>
+                Total Tables: <strong className="text-stone-800">{tableTokens.length}</strong>
               </span>
             </div>
 
             {tableTokens.length === 0 ? (
-              <div className="py-12 border border-dashed border-stone-200 rounded-2xl text-center bg-white p-6 space-y-3">
-                <div className="w-10 h-10 rounded-xl bg-stone-100 text-stone-400 mx-auto flex items-center justify-center">
-                  <HugeiconsIcon icon={QrCodeIcon} className="w-5 h-5" strokeWidth={1.5} />
+              <div className="py-16 border border-dashed border-stone-200/80 rounded-2xl text-center bg-white/90 backdrop-blur-xs p-6 space-y-3 shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-stone-100 border border-stone-200/60 text-stone-400 mx-auto flex items-center justify-center shadow-2xs">
+                  <HugeiconsIcon icon={QrCodeIcon} className="w-6 h-6" strokeWidth={1.5} />
                 </div>
                 <div>
-                  <h4 className="text-sm font-medium text-stone-800">No dining tables yet</h4>
-                  <p className="text-xs text-stone-400 mt-0.5">
+                  <h4 className="text-sm font-semibold text-stone-800">No dining tables yet</h4>
+                  <p className="text-xs text-stone-400 mt-1 max-w-sm mx-auto">
                     Add tables to print table-numbered placards for individual diner seats.
                   </p>
                 </div>
@@ -331,23 +332,23 @@ export const QrManagementScreen: React.FC = () => {
                   variant="primary"
                   size="sm"
                   onClick={() => setIsAddTableOpen(true)}
-                  className="bg-indigo-600 hover:bg-indigo-700 mt-2"
+                  className="mt-3 px-4 py-2"
                 >
-                  <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
+                  <HugeiconsIcon icon={Add01Icon} className="w-4 h-4" strokeWidth={1.5} />
                   <span>Add First Table</span>
                 </MotionButton>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tableTokens.map((item) => (
-                  <MotionCard
+                  <div
                     key={item.id}
-                    className="p-5 border border-stone-200 bg-white flex flex-col justify-between"
+                    className="p-5 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between"
                   >
                     <div className="space-y-4">
                       <div className="flex items-start justify-between">
                         <div>
-                          <div className="text-sm font-semibold text-stone-900">
+                          <div className="text-sm font-semibold text-stone-900 tracking-tight">
                             {item.tableNumber || 'Table'}
                           </div>
                           {item.sectionName && (
@@ -359,14 +360,14 @@ export const QrManagementScreen: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setRotatingToken(item)}
-                          className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors"
+                          className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
                           title="Rotate token"
                         >
                           <HugeiconsIcon icon={RefreshIcon} className="w-4 h-4" strokeWidth={1.5} />
                         </button>
                       </div>
 
-                      <div className="flex items-center justify-center py-2 bg-stone-50/60 rounded-xl border border-stone-100">
+                      <div className="flex items-center justify-center py-3 bg-stone-50/70 rounded-xl border border-stone-100">
                         <QrCanvas codeUrl={item.customerUrl} size={140} />
                       </div>
 
@@ -412,12 +413,12 @@ export const QrManagementScreen: React.FC = () => {
                             logoUrl: data?.restaurant.logoUrl || null,
                           })
                         }
-                        className="px-1 text-[11px] bg-indigo-600 hover:bg-indigo-700"
+                        className="px-1 text-[11px]"
                       >
                         Placard
                       </MotionButton>
                     </div>
-                  </MotionCard>
+                  </div>
                 ))}
               </div>
             )}
@@ -427,14 +428,16 @@ export const QrManagementScreen: React.FC = () => {
 
       {/* Add Dining Table Modal */}
       {isAddTableOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm bg-white rounded-2xl border border-stone-200 shadow-xl p-6 space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <h3 className="text-sm font-semibold text-stone-900">Add Dining Table</h3>
+              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                Add Dining Table
+              </h3>
               <button
                 type="button"
                 onClick={() => setIsAddTableOpen(false)}
-                className="text-stone-400 hover:text-stone-600 text-lg leading-none p-1"
+                className="text-stone-400 hover:text-stone-600 text-lg leading-none p-1 cursor-pointer"
               >
                 ×
               </button>
@@ -451,7 +454,7 @@ export const QrManagementScreen: React.FC = () => {
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
                   placeholder="e.g. Table 1, T-12, Booth 3"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
                 />
               </div>
 
@@ -464,7 +467,7 @@ export const QrManagementScreen: React.FC = () => {
                   value={sectionName}
                   onChange={(e) => setSectionName(e.target.value)}
                   placeholder="e.g. Ground Floor, Terrace, Bar"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-300 text-xs text-stone-900 focus:outline-none focus:border-indigo-600"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
                 />
               </div>
 
@@ -477,7 +480,7 @@ export const QrManagementScreen: React.FC = () => {
                   variant="primary"
                   size="sm"
                   isLoading={createTableMutation.isPending}
-                  className="bg-indigo-600 hover:bg-indigo-700"
+                  className="px-4 py-2"
                 >
                   Create Table
                 </MotionButton>
@@ -489,13 +492,13 @@ export const QrManagementScreen: React.FC = () => {
 
       {/* Rotate Confirmation Modal */}
       {rotatingToken && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-sm bg-white rounded-2xl border border-stone-200 shadow-xl p-6 space-y-4">
-            <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
+            <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shadow-2xs">
               <HugeiconsIcon icon={Alert01Icon} className="w-5 h-5" strokeWidth={1.5} />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-stone-900">
+              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
                 Rotate{' '}
                 {rotatingToken.tableNumber ? `${rotatingToken.tableNumber} QR` : 'Restaurant QR'}?
               </h3>
@@ -546,7 +549,7 @@ export const QrCanvas: React.FC<{ codeUrl: string; size?: number }> = ({ codeUrl
     }
   }, [codeUrl, size]);
 
-  return <canvas ref={canvasRef} className="rounded-lg shadow-sm" />;
+  return <canvas ref={canvasRef} className="rounded-xl shadow-2xs" />;
 };
 
 // Printable Placard Dialog with window.print() support
@@ -559,15 +562,17 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md bg-white rounded-3xl border border-stone-200 shadow-2xl p-6 space-y-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
+      <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl border border-stone-200/80 shadow-2xl p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-          <h3 className="text-sm font-semibold text-stone-900">Print Table Placard</h3>
+          <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+            Print Table Placard
+          </h3>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close placard modal"
-            className="text-stone-400 hover:text-stone-600 p-1"
+            className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
           >
             <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
           </button>
@@ -587,7 +592,7 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
           )}
 
           <div>
-            <h4 className="text-lg font-serif font-bold text-stone-900">{data.restaurantName}</h4>
+            <h4 className="text-xl font-serif font-normal text-stone-900">{data.restaurantName}</h4>
             {data.item.tableNumber ? (
               <div className="mt-1 inline-block px-3 py-1 bg-stone-100 text-stone-800 text-xs font-semibold rounded-full border border-stone-200 uppercase tracking-wider">
                 {data.item.tableNumber}
@@ -618,12 +623,7 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
           <MotionButton variant="ghost" size="sm" onClick={onClose}>
             Close
           </MotionButton>
-          <MotionButton
-            variant="primary"
-            size="sm"
-            onClick={handlePrint}
-            className="bg-indigo-600 hover:bg-indigo-700"
-          >
+          <MotionButton variant="primary" size="sm" onClick={handlePrint} className="px-4 py-2">
             <HugeiconsIcon icon={PrinterIcon} className="w-4 h-4" strokeWidth={1.5} />
             <span>Print / Save PDF</span>
           </MotionButton>

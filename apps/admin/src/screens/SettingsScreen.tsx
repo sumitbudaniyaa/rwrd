@@ -9,7 +9,8 @@ import {
   Add01Icon,
   Cancel01Icon,
 } from '@hugeicons/core-free-icons';
-import { MotionCard, MotionButton, Badge, SlideUp } from '@tiptable/ui';
+import { Badge, SlideUp } from '@tiptable/ui';
+import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, ApiError, type UpdateRestaurantSettingsInput } from '../services/api.js';
 
@@ -58,32 +59,29 @@ export const SettingsScreen: React.FC = () => {
       });
       setSuccessMessage('Restaurant settings updated successfully.');
       setFormError(null);
-      // Auto-dismiss success message after 4s
+      if (res?.restaurant?.name) setName(res.restaurant.name);
       setTimeout(() => setSuccessMessage(null), 4000);
-      if (res.restaurant) {
-        setName(res.restaurant.name);
-        setLogoPreview(res.restaurant.logoUrl);
-        setGoogleReviewUrl(res.restaurant.googleReviewUrl);
-      }
     },
     onError: (err) => {
-      setSuccessMessage(null);
       if (err instanceof ApiError) {
         setFormError(err.problem.detail || err.problem.title);
       } else {
-        setFormError('Failed to update settings. Please check your entries.');
+        setFormError('Failed to update settings. Please check values.');
       }
     },
   });
 
+  // Client-side Google review link validation
+  const isGoogleUrlValid =
+    !googleReviewUrl ||
+    googleReviewUrl.includes('google.com') ||
+    googleReviewUrl.includes('goo.gl') ||
+    googleReviewUrl.includes('g.page');
+
+  // Client-side logo upload & compression
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    if (!file.type.startsWith('image/')) {
-      setFormError('Please select a valid image file (PNG, JPG, WebP).');
-      return;
-    }
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -138,14 +136,7 @@ export const SettingsScreen: React.FC = () => {
       return;
     }
     setTipPresets(tipPresets.filter((p) => p !== val));
-    setFormError(null);
   };
-
-  const isGoogleUrlValid =
-    !googleReviewUrl ||
-    googleReviewUrl.includes('google.com') ||
-    googleReviewUrl.includes('g.page') ||
-    googleReviewUrl.includes('maps.app.goo.gl');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,26 +176,26 @@ export const SettingsScreen: React.FC = () => {
   if (isLoading) {
     return (
       <div className="py-16 flex flex-col items-center justify-center text-stone-400">
-        <div className="w-6 h-6 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mb-2" />
+        <div className="w-6 h-6 border-2 border-stone-900 border-t-transparent rounded-full animate-spin mb-2" />
         <p className="text-xs">Loading restaurant configuration...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
       <SlideUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
           <div>
-            <h2 className="text-xl font-semibold text-stone-900 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               Restaurant Settings
-            </h2>
-            <p className="mt-0.5 text-xs text-stone-500">
+            </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
               Manage your restaurant branding, Google review landing URL, and tipping bounds.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5 shrink-0">
             <Badge variant="neutral" className="text-[11px] font-medium text-stone-600">
               Role:{' '}
               <strong className="capitalize ml-1 text-stone-900">{user?.role || 'staff'}</strong>
@@ -216,7 +207,7 @@ export const SettingsScreen: React.FC = () => {
       {/* Alert Messages */}
       {formError && (
         <SlideUp>
-          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 flex items-start gap-2.5">
+          <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200/80 text-xs text-rose-700 flex items-start gap-2.5 shadow-2xs">
             <HugeiconsIcon
               icon={Alert01Icon}
               className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5"
@@ -229,7 +220,7 @@ export const SettingsScreen: React.FC = () => {
 
       {successMessage && (
         <SlideUp>
-          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-start gap-2.5">
+          <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-200/80 text-xs text-emerald-800 flex items-start gap-2.5 shadow-2xs">
             <HugeiconsIcon
               icon={CheckmarkCircle02Icon}
               className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5"
@@ -243,9 +234,11 @@ export const SettingsScreen: React.FC = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section 1: Brand & Profile */}
         <SlideUp delay={50}>
-          <MotionCard className="p-6 space-y-5 border border-stone-200 bg-white">
+          <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-5 hover:shadow-xs transition-all duration-200">
             <div className="border-b border-stone-100 pb-3">
-              <h3 className="text-sm font-semibold text-stone-900">Brand & Legal Entity</h3>
+              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                Brand & Legal Entity
+              </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Public name and logo displayed on the customer landing and tipping viewports.
               </p>
@@ -263,7 +256,7 @@ export const SettingsScreen: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. The Bombay Canteen"
-                  className="w-full px-3 py-2 rounded-xl text-xs border border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-indigo-600 transition-colors"
+                  className="w-full px-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
                 />
               </div>
 
@@ -271,7 +264,7 @@ export const SettingsScreen: React.FC = () => {
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-stone-700">Restaurant Logo</label>
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-stone-100 border border-stone-200 overflow-hidden flex items-center justify-center flex-shrink-0 text-stone-400">
+                  <div className="w-14 h-14 rounded-2xl bg-stone-100 border border-stone-200/60 overflow-hidden flex items-center justify-center flex-shrink-0 text-stone-400 shadow-2xs">
                     {logoPreview ? (
                       <img
                         src={logoPreview}
@@ -288,7 +281,7 @@ export const SettingsScreen: React.FC = () => {
                   </div>
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <label className="px-3 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 text-xs font-medium text-stone-700 cursor-pointer shadow-sm transition-colors">
+                      <label className="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-xs font-medium text-stone-700 cursor-pointer shadow-2xs transition-colors">
                         <span>Change Logo</span>
                         <input
                           type="file"
@@ -301,7 +294,7 @@ export const SettingsScreen: React.FC = () => {
                         <button
                           type="button"
                           onClick={handleRemoveLogo}
-                          className="px-2 py-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors"
+                          className="px-2.5 py-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
                         >
                           Remove
                         </button>
@@ -314,14 +307,16 @@ export const SettingsScreen: React.FC = () => {
                 </div>
               </div>
             </div>
-          </MotionCard>
+          </div>
         </SlideUp>
 
         {/* Section 2: Google Review Link */}
         <SlideUp delay={100}>
-          <MotionCard className="p-6 space-y-4 border border-stone-200 bg-white">
+          <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-4 hover:shadow-xs transition-all duration-200">
             <div className="border-b border-stone-100 pb-3">
-              <h3 className="text-sm font-semibold text-stone-900">Google Review Integration</h3>
+              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                Google Review Integration
+              </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Diners tap "Review us" to go straight to your official Google review submission
                 screen.
@@ -338,10 +333,10 @@ export const SettingsScreen: React.FC = () => {
                 value={googleReviewUrl}
                 onChange={(e) => setGoogleReviewUrl(e.target.value)}
                 placeholder="https://maps.app.goo.gl/... or https://g.page/r/..."
-                className={`w-full px-3 py-2 rounded-xl text-xs border font-mono transition-colors ${
+                className={`w-full px-3 py-2 rounded-xl text-xs border font-mono transition-all ${
                   !isGoogleUrlValid
                     ? 'border-rose-400 bg-rose-50/30 text-rose-900'
-                    : 'border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-indigo-600'
+                    : 'border-stone-200 bg-white text-stone-900 placeholder:font-sans placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]'
                 }`}
               />
 
@@ -353,19 +348,21 @@ export const SettingsScreen: React.FC = () => {
               )}
 
               {/* Policy Invariant Banner */}
-              <div className="p-3 rounded-xl bg-stone-50 border border-stone-200/80 text-[11px] text-stone-600 leading-relaxed">
+              <div className="p-3.5 rounded-xl bg-stone-50/80 border border-stone-200/70 text-[11px] text-stone-600 leading-relaxed">
                 <strong>Google Policy Compliance:</strong> Reviews are completely un-gated. The
                 review button redirects straight to Google with no intermediaries or incentives.
               </div>
             </div>
-          </MotionCard>
+          </div>
         </SlideUp>
 
         {/* Section 3: Tip Presets & Bounds */}
         <SlideUp delay={150}>
-          <MotionCard className="p-6 space-y-5 border border-stone-200 bg-white">
+          <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-5 hover:shadow-xs transition-all duration-200">
             <div className="border-b border-stone-100 pb-3">
-              <h3 className="text-sm font-semibold text-stone-900">Tip Presets & Bounds</h3>
+              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                Tip Presets & Bounds
+              </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Configure quick-pick chip amounts (1-6 chips) and operational limits in Indian
                 Rupees (INR).
@@ -381,14 +378,14 @@ export const SettingsScreen: React.FC = () => {
                 {tipPresets.map((preset) => (
                   <div
                     key={preset}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 border border-stone-200 text-xs font-semibold text-stone-800"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-stone-100 border border-stone-200/70 text-xs font-semibold text-stone-800 shadow-2xs"
                   >
                     <span>₹{preset}</span>
                     <button
                       type="button"
                       onClick={() => handleRemovePreset(preset)}
                       aria-label={`Remove ₹${preset}`}
-                      className="text-stone-400 hover:text-stone-700"
+                      className="text-stone-400 hover:text-stone-700 cursor-pointer"
                     >
                       <HugeiconsIcon
                         icon={Cancel01Icon}
@@ -408,12 +405,12 @@ export const SettingsScreen: React.FC = () => {
                       value={newPresetValue}
                       onChange={(e) => setNewPresetValue(e.target.value)}
                       placeholder="+ Add ₹"
-                      className="w-20 px-2 py-1.5 text-xs rounded-xl border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-indigo-600"
+                      className="w-24 px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
                     />
                     <button
                       type="button"
                       onClick={handleAddPreset}
-                      className="p-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+                      className="p-1.5 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors cursor-pointer"
                       title="Add chip"
                     >
                       <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
@@ -443,7 +440,7 @@ export const SettingsScreen: React.FC = () => {
                     required
                     value={minTipInr}
                     onChange={(e) => setMinTipInr(parseInt(e.target.value, 10) || 1)}
-                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
                   />
                 </div>
               </div>
@@ -463,12 +460,12 @@ export const SettingsScreen: React.FC = () => {
                     required
                     value={maxTipInr}
                     onChange={(e) => setMaxTipInr(parseInt(e.target.value, 10) || 10000)}
-                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-indigo-600"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
                   />
                 </div>
               </div>
             </div>
-          </MotionCard>
+          </div>
         </SlideUp>
 
         {/* Submit Actions */}
@@ -479,7 +476,7 @@ export const SettingsScreen: React.FC = () => {
               variant="primary"
               size="md"
               isLoading={updateMutation.isPending}
-              className="bg-indigo-600 hover:bg-indigo-700 min-w-32"
+              className="px-5 py-2.5 min-w-36"
             >
               <HugeiconsIcon icon={Settings01Icon} className="w-4 h-4" strokeWidth={1.5} />
               <span>Save Settings</span>

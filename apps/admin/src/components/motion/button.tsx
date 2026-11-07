@@ -36,7 +36,7 @@ export const MotionButton = React.forwardRef<HTMLButtonElement, MotionButtonProp
 
     const variantClasses = {
       primary:
-        'bg-stone-950 text-white hover:bg-black shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20',
+        'bg-[#FFE862] text-stone-950 font-semibold hover:bg-[#F5DE53] active:bg-[#ebd347] shadow-xs',
       secondary: 'bg-stone-100 text-stone-800 hover:bg-stone-200/80',
       outline:
         'bg-white text-stone-800 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 shadow-sm',
@@ -104,7 +104,7 @@ export const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButton
 
     const variantClasses = {
       primary:
-        'bg-stone-950 text-white hover:bg-black shadow-sm shadow-stone-900/10 hover:shadow-md hover:shadow-stone-900/20',
+        'bg-[#FFE862] text-stone-950 font-semibold hover:bg-[#F5DE53] active:bg-[#ebd347] shadow-xs',
       secondary: 'bg-stone-100 text-stone-800 hover:bg-stone-200/80',
       outline:
         'bg-white text-stone-800 border border-stone-200 hover:bg-stone-50 hover:border-stone-300 shadow-sm',
@@ -123,7 +123,7 @@ export const StatefulButton = React.forwardRef<HTMLButtonElement, StatefulButton
         {...props}
       >
         {isLoading && (
-          <span className="inline-block w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1.5" />
+          <span className="inline-block w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin mr-1.5" />
         )}
         {isSuccess && (
           <svg

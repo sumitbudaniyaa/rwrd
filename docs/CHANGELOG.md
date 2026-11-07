@@ -6,6 +6,39 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Harmonize All Dashboard Tabs with Editorial Overview Layout & Menu Yellow Primary Button (M7-T15)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Menu Yellow Primary Buttons** ([`apps/admin/src/components/motion/button.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/button.tsx)):
+    - Updated `MotionButton` and `StatefulButton` `variant="primary"` to the floating menu button yellow accent (`bg-[#FFE862] text-stone-950 font-semibold hover:bg-[#F5DE53] active:bg-[#ebd347] shadow-xs`).
+    - Configured loading spinner contrast to `border-current border-t-transparent` so spinners render in dark stone over yellow.
+    - Eliminated lingering `bg-indigo-600` instances across all primary CTA buttons.
+  - **Staff Management Redesign** ([`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx)):
+    - Upgraded header to editorial serif typography (`text-3xl sm:text-4xl lg:text-5xl font-serif text-stone-900 font-normal leading-[1.08]`) with `max-w-6xl mx-auto space-y-8`.
+    - Converted search bar, roster table container, and action modals to glassmorphic `rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs`.
+    - Applied menu yellow primary buttons to "Add Member" and modal submissions.
+  - **Table & QR Management Redesign** ([`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx)):
+    - Upgraded header to editorial serif typography and aligned page container to `max-w-6xl mx-auto space-y-8`.
+    - Converted the restaurant-wide QR card and table placards grid to `rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs`.
+    - Replaced all indigo accents with menu yellow primary actions and stone secondary buttons.
+  - **Analytics Screen Redesign** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
+    - Upgraded header to editorial serif typography with `max-w-6xl mx-auto space-y-8`.
+    - Converted all 4 KPI metric cards to match `DashboardOverview` metrics styling (`rounded-2xl border border-stone-200/70 bg-white/90 shadow-2xs p-5`).
+    - Updated period filter pill tabs, daily timeline breakdown, and staff performance table to clean stone containers.
+  - **Restaurant Settings Redesign** ([`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx)):
+    - Upgraded header to editorial serif typography with `max-w-6xl mx-auto space-y-8`.
+    - Segmented brand identity, Google review link, and tipping presets into distinct glassmorphic `rounded-2xl border border-stone-200/70 bg-white/90 shadow-2xs` cards.
+    - Updated save CTA to menu yellow `StatefulButton`.
+  - **Audit Log Trail Redesign** ([`apps/admin/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AuditLogScreen.tsx)):
+    - Upgraded header to editorial serif typography with immutable audit badge and `max-w-6xl mx-auto space-y-8`.
+    - Converted category filter bar, event log table, and state diff modal to matching editorial card aesthetics.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Floating Menu Visibility Fix & Borderless Rounded Hover Blend (M7-T14)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
