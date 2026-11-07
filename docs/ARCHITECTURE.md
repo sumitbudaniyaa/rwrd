@@ -227,7 +227,7 @@ To ensure strict separation of concerns, testability, and enterprise maintainabi
 
 - **Authentic Liquid-Morph Floating Menu** (`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`):
   - Provides a tactile, fluid single-container morphing menu with TipTable's signature brand yellow (`#FFE862`) pill expanding into an editorial dark `#242424` panel.
-  - Features an inverted bottom bar with the morphing hamburger / close icon on the leading (left) end and the action label on the trailing (right) end.
+  - Features a balanced bottom bar with the action label (`Menu` / `Close`) on the leading (left) end and the morphing hamburger / close icon on the trailing (right) end.
   - Implements `SharedLayoutBg` gliding hover physics across navigation items with zero canvas or WebGL overhead.
 - **Spring-Physics Motion Components** (`apps/admin/src/components/motion/`):
   - Utilizes `beUI` spring physics (`stiffness: 245, damping: 36, mass: 1.2`) for seamless layout gliding across tabs (`SharedLayoutBg`) and menu items.

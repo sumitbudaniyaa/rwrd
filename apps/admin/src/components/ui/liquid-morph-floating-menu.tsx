@@ -161,7 +161,7 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
           </SharedLayoutBg>
         </div>
 
-        {/* Bottom bar: hamburger on the other end (left), text on the right */}
+        {/* Bottom bar: text on left, hamburger on right */}
         <motion.div
           className="relative z-10 flex items-center justify-between w-full shrink-0 cursor-pointer"
           onClick={(e) => {
@@ -177,7 +177,16 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
           transition={{ duration: 0.6, ease }}
           style={{ alignItems: 'center' }}
         >
-          {/* Hamburger / Close morph icon placed at the leading (left) end */}
+          {/* Label text placed at the leading (left) end */}
+          <motion.span
+            className="text-[14px] md:text-[15px] leading-none font-bold select-none tracking-tight"
+            animate={{ color: isOpen ? '#f7f1ed' : '#242424' }}
+            transition={{ duration: 0.3, ease }}
+          >
+            {isOpen ? 'Close' : 'Menu'}
+          </motion.span>
+
+          {/* Hamburger / Close morph icon placed at the trailing (right) end */}
           <div className="relative w-[24px] h-[24px] flex items-center justify-center">
             <motion.span
               className="absolute block w-[18px] h-[2px] rounded-full"
@@ -198,15 +207,6 @@ export function FloatingMenu({ items }: FloatingMenuProps) {
               transition={{ duration: 0.4, ease }}
             />
           </div>
-
-          {/* Label text placed at the trailing (right) end */}
-          <motion.span
-            className="text-[14px] md:text-[15px] leading-none font-bold select-none tracking-tight"
-            animate={{ color: isOpen ? '#f7f1ed' : '#242424' }}
-            transition={{ duration: 0.3, ease }}
-          >
-            {isOpen ? 'Close' : 'Menu'}
-          </motion.span>
         </motion.div>
       </motion.div>
     </motion.div>

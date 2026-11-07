@@ -6,6 +6,17 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Floating Menu Trigger Layout Alignment (M7-T22)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Menu Trigger Layout Alignment** ([`apps/admin/src/components/ui/liquid-morph-floating-menu.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ui/liquid-morph-floating-menu.tsx)):
+    - Swapped the child order in the bottom bar flex container so the text label (`Menu` / `Close`) is placed on the left and the morphing hamburger / close icon is placed on the right.
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-07 - Restored Original Liquid-Morph Floating Menu, Hamburger Repositioning & Asset Consolidation (M7-T21)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

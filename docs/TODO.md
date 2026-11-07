@@ -139,3 +139,4 @@ Status values:
 | **M7-T19** | Smooth Input Focus Styling, Uniform Analytics Metric Cards & beUI Motion Period Tabs (`SharedLayoutBg` gliding pill).       | `Done` | Senior Staff Agent | 2026-11-07     | Visual & motion polish        |
 | **M7-T20** | Chromatic Menu Button, beUI Date Range Picker & Brand Logo Favicon across Apps.                                             | `Done` | Senior Staff Agent | 2026-11-07     | UI motion & branding polish   |
 | **M7-T21** | Restored Original Liquid-Morph Floating Menu (Brand Yellow Pill), Hamburger Repositioning & Brand Asset Consolidation.      | `Done` | Senior Staff Agent | 2026-11-07     | UI polish & asset cleanup     |
+| **M7-T22** | Floating Menu Trigger Layout Alignment (Menu Label on Left, Morphing Hamburger on Right).                                   | `Done` | Senior Staff Agent | 2026-11-07     | Menu button layout alignment  |
