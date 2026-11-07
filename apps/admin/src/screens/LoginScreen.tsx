@@ -20,6 +20,7 @@ import { SharedLayoutBg } from '../components/motion/shared-layout-bg.js';
 import { useAuth } from '../context/AuthContext.js';
 import { ApiError } from '../services/api.js';
 import bgImage from '../assets/bg.png';
+import logoImage from '../assets/logo.png';
 
 type AuthMode = 'login' | 'register' | 'forgot';
 type OnboardStep = 1 | 2 | 3;
@@ -207,20 +208,15 @@ export const LoginScreen: React.FC = () => {
       <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 z-10 bg-white overflow-y-auto">
         {/* Top-Left Logo & Top-Right Toggle */}
         <div className="flex items-center justify-between w-full shrink-0">
-          {/* Top-Left: Zomato-style brand wordmark */}
-          <Link to="/admin" className="flex items-center gap-2 outline-none">
-            <span
-              className="font-zomato font-black italic tracking-tighter text-3xl sm:text-4xl text-stone-950 select-none lowercase leading-none"
-              style={{
-                fontFamily: "'Montserrat', 'Poppins', 'Inter', sans-serif",
-                fontStyle: 'italic',
-                fontWeight: 900,
-                letterSpacing: '-0.06em',
-              }}
-            >
-              rwrd
-            </span>
-            <span className="px-2 py-0.5 rounded-md text-[9px] font-semibold tracking-wider text-stone-500 bg-stone-100 uppercase">
+          {/* Top-Left: rwrd brand logo */}
+          <Link to="/admin" className="flex items-center gap-2 outline-none group">
+            <span className="sr-only">rwrd</span>
+            <img
+              src={logoImage}
+              alt="rwrd"
+              className="h-8 sm:h-9 w-auto object-contain select-none transition-transform group-hover:scale-[1.02]"
+            />
+            <span className="px-2 py-0.5 rounded-md text-[9px] font-semibold tracking-wider text-stone-500 bg-stone-100 uppercase border border-stone-200/60">
               Admin
             </span>
           </Link>

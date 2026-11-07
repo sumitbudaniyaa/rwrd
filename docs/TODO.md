@@ -126,3 +126,4 @@ Status values:
 | **M7-T06** | Admin Header Streamlining: Removed "Remember your password" label and "Save" button.                               | `Done` | Senior Staff Agent | 2026-11-07     | Top-right header cleanup |
 | **M7-T07** | Custom Hero Artwork Integration: Deployed uploaded 1536×1024 `bg.png` asset for Sign In/Sign Up screen.            | `Done` | Senior Staff Agent | 2026-11-07     | Custom hero image        |
 | **M7-T08** | Multi-Step Interactive Sign-Up Flow with SharedLayoutBg & Right Tree Image Framing.                                | `Done` | Senior Staff Agent | 2026-11-07     | Onboarding & framing     |
+| **M7-T09** | Brand Logo Integration: Official stylized `rwrd.png` asset deployed across Admin Login & App Shell.                | `Done` | Senior Staff Agent | 2026-11-07     | Brand logo integration   |

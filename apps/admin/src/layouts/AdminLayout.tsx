@@ -5,6 +5,7 @@ import { Logout01Icon } from '@hugeicons/core-free-icons';
 import { MotionButton } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
 import { FloatingMenu, type MenuItem } from '../components/ui/liquid-morph-floating-menu.js';
+import logoImage from '../assets/logo.png';
 
 export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -99,17 +100,8 @@ export const AdminLayout: React.FC = () => {
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-stone-200 px-6 sm:px-8 py-3.5 flex items-center justify-between shadow-xs">
         {/* Left: Brand */}
         <div className="flex items-center gap-2.5">
-          <span
-            className="font-zomato font-black italic tracking-tighter text-3xl sm:text-4xl text-stone-950 select-none lowercase leading-none"
-            style={{
-              fontFamily: "'Montserrat', 'Poppins', 'Inter', sans-serif",
-              fontStyle: 'italic',
-              fontWeight: 900,
-              letterSpacing: '-0.06em',
-            }}
-          >
-            rwrd
-          </span>
+          <span className="sr-only">rwrd</span>
+          <img src={logoImage} alt="rwrd" className="h-8 w-auto object-contain select-none" />
           <span className="text-[11px] font-medium text-stone-400 uppercase tracking-wider hidden sm:inline-block">
             Restaurant Admin
           </span>
