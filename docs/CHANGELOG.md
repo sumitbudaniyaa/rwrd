@@ -20,7 +20,8 @@ All completed development tasks are recorded in this file in reverse chronologic
     - Harmonized all 4 KPI cards (_Total Scans_, _Staff Page Views_, _Tips Initiated_, _Review Taps_) to `h-full min-h-[128px]` with matching 2-row layout (top row: label + icon; bottom row: 3xl value + badge).
     - Encapsulated the initiated volume string inside `<Badge variant="success">₹{volume} initiated</Badge>`, eliminating card height distortion.
   - **beUI Motion Period Selector Tabs** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
-    - Implemented `SharedLayoutBg` tab switching animation (`https://beui.dev/components/motion/tabs`) with spring-physics sliding background pill across date ranges (_Today_, _Last 7 Days_, _Last 30 Days_, _Custom_).
+    - Restored the original minimal container layout (`flex items-center gap-1.5`) and dark active pill styling (`bg-stone-900 text-stone-50 shadow-2xs`).
+    - Integrated beUI tabs spring motion animation via `motion.span` with `layoutId="analytics-period-active-pill"`, `layoutRoot` scoping, and exact beUI spring physics (`stiffness: 245, damping: 36, mass: 1.2`) for a smooth, critically-damped pill glide without changing the underlying visual appearance.
   - **Verification & Testing**:
     - All 45 unit tests in `@tiptable/admin` passing.
     - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.

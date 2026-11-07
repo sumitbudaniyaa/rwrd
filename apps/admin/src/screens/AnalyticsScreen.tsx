@@ -11,8 +11,8 @@ import {
   AlertCircleIcon,
 } from '@hugeicons/core-free-icons';
 import { SlideUp, StaggerList, FadeIn, Badge } from '@tiptable/ui';
+import { motion } from 'framer-motion';
 import { MotionButton } from '../components/motion/button.js';
-import { SharedLayoutBg } from '../components/motion/shared-layout-bg.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../services/api.js';
 
@@ -119,52 +119,51 @@ export const AnalyticsScreen: React.FC = () => {
         </div>
       </SlideUp>
 
-      {/* Date Range Selector Pills with beUI SharedLayoutBg animation */}
+      {/* Date Range Selector Pills with beUI motion sliding pill */}
       <SlideUp delay={50}>
         <div className="flex flex-wrap items-center justify-between gap-4 bg-white/90 backdrop-blur-xs p-3.5 rounded-2xl border border-stone-200/70 shadow-2xs">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-1 flex items-center gap-1 select-none">
+          <motion.div layoutRoot className="flex items-center gap-1.5">
+            <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-2 flex items-center gap-1 select-none">
               <HugeiconsIcon icon={Calendar01Icon} className="w-3.5 h-3.5" />
               Period:
             </span>
-            <div className="bg-stone-100/80 p-1 rounded-2xl border border-stone-200/60">
-              <SharedLayoutBg
-                activeId={filterType}
-                inset={0}
-                pillClassName="bg-white rounded-xl shadow-xs border border-stone-200/80"
-                className="flex items-center gap-0.5"
-              >
-                {(
-                  [
-                    { id: 'today', label: 'Today' },
-                    { id: '7d', label: 'Last 7 Days' },
-                    { id: '30d', label: 'Last 30 Days' },
-                    { id: 'custom', label: 'Custom' },
-                  ] as const
-                ).map((opt) => {
-                  const isSelected = filterType === opt.id;
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => setFilterType(opt.id)}
-                      className="px-3 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer select-none relative z-10 outline-none focus:outline-none"
-                    >
-                      <span
-                        className={`transition-colors duration-150 ${
-                          isSelected
-                            ? 'text-stone-950 font-semibold'
-                            : 'text-stone-600 hover:text-stone-900'
-                        }`}
-                      >
-                        {opt.label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </SharedLayoutBg>
-            </div>
-          </div>
+            {(
+              [
+                { id: 'today', label: 'Today' },
+                { id: '7d', label: 'Last 7 Days' },
+                { id: '30d', label: 'Last 30 Days' },
+                { id: 'custom', label: 'Custom' },
+              ] as const
+            ).map((opt) => {
+              const isSelected = filterType === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setFilterType(opt.id)}
+                  className={`relative px-3 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer select-none outline-none focus:outline-none ${
+                    isSelected
+                      ? 'text-stone-50'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.span
+                      layoutId="analytics-period-active-pill"
+                      className="absolute inset-0 bg-stone-900 rounded-xl shadow-2xs -z-0"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 245,
+                        damping: 36,
+                        mass: 1.2,
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10 transition-colors duration-150">{opt.label}</span>
+                </button>
+              );
+            })}
+          </motion.div>
 
           {filterType === 'custom' && (
             <div className="flex items-center gap-2 text-xs">
