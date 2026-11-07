@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Restore Subtitle Descriptions & Remove Dividing Border Line Under Main Headings (M7-T35)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Header Structure Refinement**:
+    - Restored the descriptive `<p>` subtitle texts across all 6 admin screen headers:
+      - [`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx)
+      - [`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx)
+      - [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx)
+      - [`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)
+      - [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx)
+      - [`apps/admin/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AuditLogScreen.tsx)
+    - Removed the horizontal dividing border line (`border-b border-stone-200/60`) under each page's header block for a cleaner, open editorial aesthetic.
+    - Preserved removal of the "Real-time telemetry" badge from Overview.
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/scaffold.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/scaffold.test.tsx) asserting on the restored subtitle text.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Use Download & Print Vector Icons on Table QR Action Buttons (M7-T34)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

@@ -103,6 +103,7 @@ describe('Admin App Scaffolding & Minimal Design System', () => {
     fireEvent.click(staffTab);
 
     expect(screen.getByText(/staff management/i)).toBeInTheDocument();
+    expect(screen.getByText(/Manage your waitstaff roster/i)).toBeInTheDocument();
     expect(screen.getByText(/Add Team Member/i)).toBeInTheDocument();
 
     // Click Settings

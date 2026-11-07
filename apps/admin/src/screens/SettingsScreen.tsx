@@ -287,11 +287,14 @@ export const SettingsScreen: React.FC = () => {
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Header */}
       <SlideUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               restaurant settings
             </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
+              Manage your restaurant branding, Google review landing URL, and tipping bounds.
+            </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <Badge variant="neutral" className="text-[11px] font-medium text-stone-600">

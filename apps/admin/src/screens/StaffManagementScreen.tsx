@@ -207,11 +207,14 @@ export const StaffManagementScreen: React.FC = () => {
     <div className="space-y-8 max-w-6xl mx-auto">
       {/* Top Header */}
       <SlideUp>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-stone-200/60">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2">
           <div>
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
               staff management
             </h1>
+            <p className="mt-1.5 text-xs sm:text-sm text-stone-500 font-sans tracking-tight">
+              Manage your waitstaff roster, role tags, and direct UPI Virtual Payment Addresses.
+            </p>
           </div>
           <div className="flex items-center gap-2.5 shrink-0">
             <MotionButton variant="primary" size="sm" onClick={openAddModal} className="px-4 py-2">
