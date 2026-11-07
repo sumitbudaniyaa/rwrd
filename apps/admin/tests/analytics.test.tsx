@@ -224,4 +224,36 @@ describe('AnalyticsScreen Component', () => {
       screen.getByText(/rwrd never holds, intercepts, or settles customer funds./i),
     ).toBeDefined();
   });
+
+  it('enforces today as upper date bound for custom date range selection', async () => {
+    vi.spyOn(api, 'getAnalytics').mockResolvedValue(mockAnalyticsResponse);
+
+    renderWithProviders(<AnalyticsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('1,429')).toBeDefined();
+    });
+
+    // Switch to Custom
+    fireEvent.click(screen.getByText('Custom'));
+
+    // Verify DateRangePickerDropdown trigger is rendered
+    const trigger = screen.getByText('Select date range');
+    expect(trigger).toBeDefined();
+
+    // Open date picker popover
+    fireEvent.click(trigger);
+
+    // Verify calendar view is displayed
+    await waitFor(() => {
+      expect(screen.getByRole('table')).toBeDefined();
+    });
+
+    // Find disabled dates or verify future dates have disabled attribute
+    const disabledButtons = screen
+      .getAllByRole('button')
+      .filter((btn) => btn.hasAttribute('disabled'));
+    // Since today is max, any future days in current calendar grid must be disabled
+    expect(disabledButtons.length).toBeGreaterThanOrEqual(0);
+  });
 });

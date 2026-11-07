@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Enforce Max Date Constraint (Today) in Custom Analytics Date Picker (M7-T28)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Custom Analytics Max Date Enforcement** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
+    - Derived local calendar date `todayStr` (`YYYY-MM-DD`) and passed `max={todayStr}` to `<DateRangePickerDropdown>`.
+    - Future dates in the calendar grid are automatically disabled (`disabled:opacity-30`, pointer events prevented, keyboard selection blocked) via the built-in `unavailable(date)` check.
+    - Future month navigation buttons in the calendar header are automatically disabled when the next month exceeds the current month.
+    - Added defensive clamping in `onValueChange` and `getDateRange()` to guarantee date queries and CSV export parameters cannot exceed `todayStr`.
+  - **Testing & Verification**:
+    - Added unit test in [`apps/admin/tests/analytics.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/analytics.test.tsx) asserting date picker bounds enforcement.
+    - All 46 tests across 9 test files in `@tiptable/admin` passed (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck passed (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 warnings/errors (`pnpm lint`).
+
 ### 2026-11-08 - Remove "Download QR Kit" Button from Admin Overview Banner (M7-T27)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

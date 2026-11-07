@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -27,31 +27,47 @@ export const AnalyticsScreen: React.FC = () => {
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [exportError, setExportError] = useState<string | null>(null);
 
+  // Compute today's local ISO date (YYYY-MM-DD) as the upper bound invariant
+  const todayStr = useMemo(() => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }, []);
+
   // Compute startDate & endDate strings based on active filter
   const getDateRange = () => {
     const now = new Date();
     if (filterType === 'today') {
-      const todayStr = now.toISOString().slice(0, 10);
       return { startDate: todayStr, endDate: todayStr };
     }
     if (filterType === '7d') {
       const past = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+      const pastYear = past.getFullYear();
+      const pastMonth = String(past.getMonth() + 1).padStart(2, '0');
+      const pastDay = String(past.getDate()).padStart(2, '0');
       return {
-        startDate: past.toISOString().slice(0, 10),
-        endDate: now.toISOString().slice(0, 10),
+        startDate: `${pastYear}-${pastMonth}-${pastDay}`,
+        endDate: todayStr,
       };
     }
     if (filterType === '30d') {
       const past = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const pastYear = past.getFullYear();
+      const pastMonth = String(past.getMonth() + 1).padStart(2, '0');
+      const pastDay = String(past.getDate()).padStart(2, '0');
       return {
-        startDate: past.toISOString().slice(0, 10),
-        endDate: now.toISOString().slice(0, 10),
+        startDate: `${pastYear}-${pastMonth}-${pastDay}`,
+        endDate: todayStr,
       };
     }
-    // Custom
+    // Custom: ensure dates cannot be later than today
+    const safeStart = customStart && customStart > todayStr ? todayStr : customStart;
+    const safeEnd = customEnd && customEnd > todayStr ? todayStr : customEnd;
     return {
-      startDate: customStart || undefined,
-      endDate: customEnd || undefined,
+      startDate: safeStart || undefined,
+      endDate: safeEnd || undefined,
     };
   };
 
@@ -180,9 +196,13 @@ export const AnalyticsScreen: React.FC = () => {
                       : { from: customStart }
                     : null
                 }
+                max={todayStr}
                 onValueChange={(range) => {
-                  setCustomStart(range?.from ?? '');
-                  setCustomEnd(range?.to ?? '');
+                  const from =
+                    range?.from && range.from > todayStr ? todayStr : (range?.from ?? '');
+                  const to = range?.to && range.to > todayStr ? todayStr : (range?.to ?? '');
+                  setCustomStart(from);
+                  setCustomEnd(to);
                 }}
                 placeholder="Select date range"
                 showSummary={true}
