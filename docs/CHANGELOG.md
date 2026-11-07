@@ -6,6 +6,26 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Database Text Expansion (staff.photo_url & restaurants.logo_url) & Full-Screen Dialog Backdrop Overlay (M7-T25)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Database Column Expansion to TEXT** ([`apps/api/src/db/schema/staff.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/schema/staff.ts), [`apps/api/src/db/schema/restaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/schema/restaurants.ts), [`apps/api/src/db/migrations/0001_first_reavers.sql`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/migrations/0001_first_reavers.sql)):
+    - Diagnosed PostgreSQL `error: value too long for type character varying(1024)` when adding a team member with an in-browser cropped photo (which generates base64 data URIs ranging ~15,000–60,000+ characters).
+    - Changed `staff.photo_url` and `restaurants.logo_url` column definitions from `varchar(1024)` to `text` in Drizzle schemas.
+    - Generated and successfully executed database migration `0001_first_reavers.sql` altering both columns to `text`.
+    - Documented storage model in [`docs/DATA_MODEL.md`](file:///Users/Sumit/Desktop/rwrd/docs/DATA_MODEL.md) taking advantage of PostgreSQL native TOAST out-of-line compression for values exceeding 2KB.
+  - **Full-Screen Dialog Backdrop Overlay via React Portals** ([`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx), [`apps/admin/src/components/VpaQrScannerModal.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/VpaQrScannerModal.tsx), [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx), [`apps/admin/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AuditLogScreen.tsx)):
+    - Fixed backdrop clipping issue where the sticky top navigation header was left undimmed/uncovered when opening the "Add Team Member" modal (caused by modal being trapped inside `<main>` while `<header>` created a separate stacking context).
+    - Teleported all modals directly into `document.body` using `createPortal(..., document.body)` with `z-[200]`, `bg-stone-900/50`, and `backdrop-blur-sm`.
+    - Modal backdrop now seamlessly and consistently covers 100% of the viewport from the top edge to the bottom, covering both the top header and floating navigation menu.
+  - **Verification & Testing**:
+    - Ran database migrations (`pnpm --filter "@tiptable/api" db:migrate`).
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - All 174 integration & unit tests in `@tiptable/api` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+
 ### 2026-11-07 - Calendar Range Yellow Highlight Palette Integration (M7-T24)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

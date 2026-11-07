@@ -10,7 +10,7 @@ export const staff = pgTable(
       .references(() => restaurants.id, { onDelete: 'cascade' }),
     displayName: varchar('display_name', { length: 100 }).notNull(),
     roleLabel: varchar('role_label', { length: 100 }).default('Server').notNull(),
-    photoUrl: varchar('photo_url', { length: 1024 }),
+    photoUrl: text('photo_url'),
     vpaEncrypted: text('vpa_encrypted').notNull(), // AES-256-GCM ciphertext
     vpaIv: varchar('vpa_iv', { length: 64 }).notNull(), // IV base64
     vpaTag: varchar('vpa_tag', { length: 64 }).notNull(), // Auth Tag base64

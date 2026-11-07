@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import QRCode from 'qrcode';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -427,104 +428,110 @@ export const QrManagementScreen: React.FC = () => {
       )}
 
       {/* Add Dining Table Modal */}
-      {isAddTableOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                add dining table
-              </h3>
-              <button
-                type="button"
-                onClick={() => setIsAddTableOpen(false)}
-                className="text-stone-400 hover:text-stone-600 text-lg leading-none p-1 cursor-pointer"
-              >
-                ×
-              </button>
+      {isAddTableOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+                <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                  add dining table
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsAddTableOpen(false)}
+                  className="text-stone-400 hover:text-stone-600 text-lg leading-none p-1 cursor-pointer"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateTableSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Table Number / Identifier <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={tableNumber}
+                    onChange={(e) => setTableNumber(e.target.value)}
+                    placeholder="e.g. Table 1, T-12, Booth 3"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Section / Area (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    value={sectionName}
+                    onChange={(e) => setSectionName(e.target.value)}
+                    placeholder="e.g. Ground Floor, Terrace, Bar"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
+                  />
+                </div>
+
+                <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
+                  <MotionButton variant="ghost" size="sm" onClick={() => setIsAddTableOpen(false)}>
+                    Cancel
+                  </MotionButton>
+                  <MotionButton
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    isLoading={createTableMutation.isPending}
+                    className="px-4 py-2"
+                  >
+                    Create Table
+                  </MotionButton>
+                </div>
+              </form>
             </div>
+          </div>,
+          document.body,
+        )}
 
-            <form onSubmit={handleCreateTableSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Table Number / Identifier <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={tableNumber}
-                  onChange={(e) => setTableNumber(e.target.value)}
-                  placeholder="e.g. Table 1, T-12, Booth 3"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
+      {/* Rotate Confirmation Modal */}
+      {rotatingToken &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
+              <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shadow-2xs">
+                <HugeiconsIcon icon={Alert01Icon} className="w-5 h-5" strokeWidth={1.5} />
               </div>
-
               <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Section / Area (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={sectionName}
-                  onChange={(e) => setSectionName(e.target.value)}
-                  placeholder="e.g. Ground Floor, Terrace, Bar"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
+                <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                  rotate{' '}
+                  {rotatingToken.tableNumber ? `${rotatingToken.tableNumber} QR` : 'restaurant QR'}?
+                </h3>
+                <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                  Rotating this token will <strong>immediately invalidate</strong> all previously
+                  printed QR placards for this table. Diners scanning existing prints will receive
+                  an invalid token error.
+                </p>
               </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2 border-t border-stone-100">
-                <MotionButton variant="ghost" size="sm" onClick={() => setIsAddTableOpen(false)}>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <MotionButton variant="ghost" size="sm" onClick={() => setRotatingToken(null)}>
                   Cancel
                 </MotionButton>
                 <MotionButton
-                  type="submit"
-                  variant="primary"
+                  variant="danger"
                   size="sm"
-                  isLoading={createTableMutation.isPending}
-                  className="px-4 py-2"
+                  aria-label="Confirm token rotation"
+                  isLoading={rotateMutation.isPending}
+                  onClick={() => rotateMutation.mutate(rotatingToken.tableId)}
                 >
-                  Create Table
+                  Rotate Token
                 </MotionButton>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Rotate Confirmation Modal */}
-      {rotatingToken && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
-            <div className="w-10 h-10 rounded-full bg-amber-50 border border-amber-200/60 text-amber-600 flex items-center justify-center shadow-2xs">
-              <HugeiconsIcon icon={Alert01Icon} className="w-5 h-5" strokeWidth={1.5} />
             </div>
-            <div>
-              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                rotate{' '}
-                {rotatingToken.tableNumber ? `${rotatingToken.tableNumber} QR` : 'restaurant QR'}?
-              </h3>
-              <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                Rotating this token will <strong>immediately invalidate</strong> all previously
-                printed QR placards for this table. Diners scanning existing prints will receive an
-                invalid token error.
-              </p>
-            </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <MotionButton variant="ghost" size="sm" onClick={() => setRotatingToken(null)}>
-                Cancel
-              </MotionButton>
-              <MotionButton
-                variant="danger"
-                size="sm"
-                aria-label="Confirm token rotation"
-                isLoading={rotateMutation.isPending}
-                onClick={() => rotateMutation.mutate(rotatingToken.tableId)}
-              >
-                Rotate Token
-              </MotionButton>
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       {/* Printable Placard Modal / Print Preview */}
       {placardData && <PlacardModal data={placardData} onClose={() => setPlacardData(null)} />}
@@ -561,8 +568,10 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
     window.print();
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs animate-fade-in">
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
       <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl border border-stone-200/80 shadow-2xl p-6 space-y-6">
         <div className="flex items-center justify-between border-b border-stone-100 pb-3">
           <h3 className="text-base font-semibold text-stone-900 tracking-tight">
@@ -629,6 +638,7 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
           </MotionButton>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 };

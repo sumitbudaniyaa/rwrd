@@ -66,7 +66,7 @@ CREATE TABLE restaurants (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
-    logo_url VARCHAR(1024),
+    logo_url TEXT, -- In-browser canvas crop base64 data URL or external asset URL (Postgres TOAST-compressed)
     google_review_url VARCHAR(1024) NOT NULL,
     tip_presets INT[] DEFAULT '{20, 50, 100, 200}' NOT NULL,
     min_tip_inr INT DEFAULT 1 NOT NULL,
@@ -167,7 +167,7 @@ CREATE TABLE staff (
     restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
     display_name VARCHAR(100) NOT NULL,
     role_label VARCHAR(100) DEFAULT 'Server' NOT NULL,
-    photo_url VARCHAR(1024),
+    photo_url TEXT, -- In-browser canvas crop base64 data URL or external asset URL (Postgres TOAST-compressed)
     vpa_encrypted TEXT NOT NULL, -- AES-256-GCM ciphertext
     vpa_iv VARCHAR(64) NOT NULL, -- 12-byte IV base64
     vpa_tag VARCHAR(64) NOT NULL, -- 16-byte Auth Tag base64

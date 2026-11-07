@@ -16,7 +16,7 @@ export const restaurants = pgTable(
     id: uuid('id').defaultRandom().primaryKey(),
     name: varchar('name', { length: 255 }).notNull(),
     slug: varchar('slug', { length: 100 }).unique().notNull(),
-    logoUrl: varchar('logo_url', { length: 1024 }),
+    logoUrl: text('logo_url'),
     googleReviewUrl: varchar('google_review_url', { length: 1024 }).notNull(),
     tipPresets: integer('tip_presets')
       .array()

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -376,194 +377,202 @@ export const StaffManagementScreen: React.FC = () => {
       </SlideUp>
 
       {/* Add / Edit Staff Modal */}
-      {(isAddModalOpen || editingStaff) && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl overflow-hidden p-6 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-stone-100">
-              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                {isAddModalOpen ? 'add team member' : `edit ${editingStaff?.displayName}`}
-              </h3>
-              <button
-                type="button"
-                onClick={closeModals}
-                className="text-stone-400 hover:text-stone-600 text-lg leading-none p-1 cursor-pointer"
-              >
-                ×
-              </button>
-            </div>
+      {(isAddModalOpen || editingStaff) &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl overflow-hidden p-6 space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-100">
+                <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                  {isAddModalOpen ? 'add team member' : `edit ${editingStaff?.displayName}`}
+                </h3>
+                <button
+                  type="button"
+                  onClick={closeModals}
+                  className="text-stone-400 hover:text-stone-600 text-lg leading-none p-1 cursor-pointer"
+                >
+                  ×
+                </button>
+              </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              {formError && (
-                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
-                  {formError}
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {formError && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+                    {formError}
+                  </div>
+                )}
+
+                {/* Warning Banner on VPA Integrity */}
+                <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 flex items-start gap-2.5">
+                  <HugeiconsIcon
+                    icon={Alert01Icon}
+                    className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"
+                    strokeWidth={1.5}
+                  />
+                  <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
+                    Double-check the VPA. A wrong VPA sends diner tips directly to the wrong person.
+                    rwrd does not hold or mediate funds.
+                  </p>
                 </div>
-              )}
 
-              {/* Warning Banner on VPA Integrity */}
-              <div className="p-3.5 rounded-xl bg-amber-50/80 border border-amber-200/80 flex items-start gap-2.5">
-                <HugeiconsIcon
-                  icon={Alert01Icon}
-                  className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5"
-                  strokeWidth={1.5}
-                />
-                <p className="text-[11px] text-amber-900 leading-relaxed font-medium">
-                  Double-check the VPA. A wrong VPA sends diner tips directly to the wrong person.
-                  rwrd does not hold or mediate funds.
+                {/* Display Name */}
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Display name <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="e.g. Rahul Sharma"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
+                  />
+                </div>
+
+                {/* Role Label */}
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Role label
+                  </label>
+                  <input
+                    type="text"
+                    value={roleLabel}
+                    onChange={(e) => setRoleLabel(e.target.value)}
+                    placeholder="e.g. Server, Bartender, Host"
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
+                  />
+                  <div className="flex gap-1.5 mt-2">
+                    {['Server', 'Head Waiter', 'Bartender', 'Host'].map((tag) => (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => setRoleLabel(tag)}
+                        className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200/70 text-[10px] font-medium text-stone-700 transition-colors cursor-pointer"
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* UPI VPA */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-xs font-medium text-stone-700">
+                      UPI VPA (Virtual Payment Address){' '}
+                      {isAddModalOpen && <span className="text-rose-500">*</span>}
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => setIsScannerOpen(true)}
+                      className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-800 hover:text-stone-950 underline underline-offset-2 transition-colors cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={QrCodeIcon} className="w-3.5 h-3.5" strokeWidth={1.5} />
+                      <span>Scan UPI QR</span>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    required={isAddModalOpen}
+                    value={vpa}
+                    onChange={(e) => setVpa(e.target.value)}
+                    placeholder={
+                      editingStaff
+                        ? `Leave blank to keep existing (${editingStaff.maskedVpa})`
+                        : 'e.g. rahul@okaxis, priya@okhdfcbank'
+                    }
+                    className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs font-mono text-stone-900 placeholder:font-sans placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
+                  />
+                </div>
+
+                {/* Photo Upload with Client-Side Preview/Compression */}
+                <div>
+                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                    Photo (client-side square crop & compression)
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden flex items-center justify-center flex-shrink-0 text-stone-400 shadow-2xs">
+                      {photoPreview ? (
+                        <img
+                          src={photoPreview}
+                          alt="Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <HugeiconsIcon icon={UserGroupIcon} className="w-5 h-5" strokeWidth={1.5} />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handlePhotoUpload}
+                        className="block w-full text-xs text-stone-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-medium file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200 cursor-pointer"
+                      />
+                      <p className="text-[10px] text-stone-400 mt-0.5">
+                        Auto-resized and compressed to 256×256 square.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
+                  <MotionButton variant="ghost" size="sm" onClick={closeModals}>
+                    Cancel
+                  </MotionButton>
+                  <MotionButton
+                    type="submit"
+                    variant="primary"
+                    size="sm"
+                    isLoading={createMutation.isPending || updateMutation.isPending}
+                    className="px-4 py-2"
+                  >
+                    {isAddModalOpen ? 'Add Staff Member' : 'Save Changes'}
+                  </MotionButton>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingStaff &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
+              <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-200/60 text-rose-600 flex items-center justify-center shadow-2xs">
+                <HugeiconsIcon icon={Delete01Icon} className="w-5 h-5" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                  remove {deletingStaff.displayName}?
+                </h3>
+                <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                  This will soft delete the staff member from active tipping rosters. Historical tip
+                  intents and analytics will remain preserved.
                 </p>
               </div>
-
-              {/* Display Name */}
-              <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Display name <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="e.g. Rahul Sharma"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
-              </div>
-
-              {/* Role Label */}
-              <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">Role label</label>
-                <input
-                  type="text"
-                  value={roleLabel}
-                  onChange={(e) => setRoleLabel(e.target.value)}
-                  placeholder="e.g. Server, Bartender, Host"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
-                <div className="flex gap-1.5 mt-2">
-                  {['Server', 'Head Waiter', 'Bartender', 'Host'].map((tag) => (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() => setRoleLabel(tag)}
-                      className="px-2.5 py-1 rounded-lg bg-stone-100 hover:bg-stone-200/70 text-[10px] font-medium text-stone-700 transition-colors cursor-pointer"
-                    >
-                      {tag}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* UPI VPA */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-stone-700">
-                    UPI VPA (Virtual Payment Address){' '}
-                    {isAddModalOpen && <span className="text-rose-500">*</span>}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setIsScannerOpen(true)}
-                    className="inline-flex items-center gap-1 text-[11px] font-semibold text-stone-800 hover:text-stone-950 underline underline-offset-2 transition-colors cursor-pointer"
-                  >
-                    <HugeiconsIcon icon={QrCodeIcon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    <span>Scan UPI QR</span>
-                  </button>
-                </div>
-                <input
-                  type="text"
-                  required={isAddModalOpen}
-                  value={vpa}
-                  onChange={(e) => setVpa(e.target.value)}
-                  placeholder={
-                    editingStaff
-                      ? `Leave blank to keep existing (${editingStaff.maskedVpa})`
-                      : 'e.g. rahul@okaxis, priya@okhdfcbank'
-                  }
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs font-mono text-stone-900 placeholder:font-sans placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
-                />
-              </div>
-
-              {/* Photo Upload with Client-Side Preview/Compression */}
-              <div>
-                <label className="block text-xs font-medium text-stone-700 mb-1">
-                  Photo (client-side square crop & compression)
-                </label>
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden flex items-center justify-center flex-shrink-0 text-stone-400 shadow-2xs">
-                    {photoPreview ? (
-                      <img
-                        src={photoPreview}
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <HugeiconsIcon icon={UserGroupIcon} className="w-5 h-5" strokeWidth={1.5} />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handlePhotoUpload}
-                      className="block w-full text-xs text-stone-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-medium file:bg-stone-100 file:text-stone-700 hover:file:bg-stone-200 cursor-pointer"
-                    />
-                    <p className="text-[10px] text-stone-400 mt-0.5">
-                      Auto-resized and compressed to 256×256 square.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
-                <MotionButton variant="ghost" size="sm" onClick={closeModals}>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <MotionButton variant="ghost" size="sm" onClick={() => setDeletingStaff(null)}>
                   Cancel
                 </MotionButton>
                 <MotionButton
-                  type="submit"
-                  variant="primary"
+                  variant="danger"
                   size="sm"
-                  isLoading={createMutation.isPending || updateMutation.isPending}
-                  className="px-4 py-2"
+                  isLoading={deleteMutation.isPending}
+                  onClick={() => deleteMutation.mutate(deletingStaff.id)}
                 >
-                  {isAddModalOpen ? 'Add Staff Member' : 'Save Changes'}
+                  Remove Staff
                 </MotionButton>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {deletingStaff && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
-            <div className="w-10 h-10 rounded-full bg-rose-50 border border-rose-200/60 text-rose-600 flex items-center justify-center shadow-2xs">
-              <HugeiconsIcon icon={Delete01Icon} className="w-5 h-5" strokeWidth={1.5} />
             </div>
-            <div>
-              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
-                remove {deletingStaff.displayName}?
-              </h3>
-              <p className="text-xs text-stone-500 mt-1 leading-relaxed">
-                This will soft delete the staff member from active tipping rosters. Historical tip
-                intents and analytics will remain preserved.
-              </p>
-            </div>
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <MotionButton variant="ghost" size="sm" onClick={() => setDeletingStaff(null)}>
-                Cancel
-              </MotionButton>
-              <MotionButton
-                variant="danger"
-                size="sm"
-                isLoading={deleteMutation.isPending}
-                onClick={() => deleteMutation.mutate(deletingStaff.id)}
-              >
-                Remove Staff
-              </MotionButton>
-            </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
       {/* VPA QR Code Scanner Modal */}
       <VpaQrScannerModal
         isOpen={isScannerOpen}
