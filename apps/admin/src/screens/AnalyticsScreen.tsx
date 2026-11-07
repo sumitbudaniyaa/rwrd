@@ -12,6 +12,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { SlideUp, StaggerList, FadeIn, Badge } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
+import { SharedLayoutBg } from '../components/motion/shared-layout-bg.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../services/api.js';
 
@@ -118,35 +119,51 @@ export const AnalyticsScreen: React.FC = () => {
         </div>
       </SlideUp>
 
-      {/* Date Range Selector Pills */}
+      {/* Date Range Selector Pills with beUI SharedLayoutBg animation */}
       <SlideUp delay={50}>
         <div className="flex flex-wrap items-center justify-between gap-4 bg-white/90 backdrop-blur-xs p-3.5 rounded-2xl border border-stone-200/70 shadow-2xs">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-2 flex items-center gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-stone-400 uppercase tracking-wider mr-1 flex items-center gap-1 select-none">
               <HugeiconsIcon icon={Calendar01Icon} className="w-3.5 h-3.5" />
               Period:
             </span>
-            {(
-              [
-                { id: 'today', label: 'Today' },
-                { id: '7d', label: 'Last 7 Days' },
-                { id: '30d', label: 'Last 30 Days' },
-                { id: 'custom', label: 'Custom' },
-              ] as const
-            ).map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => setFilterType(opt.id)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all cursor-pointer ${
-                  filterType === opt.id
-                    ? 'bg-stone-900 text-stone-50 shadow-2xs'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/70'
-                }`}
+            <div className="bg-stone-100/80 p-1 rounded-2xl border border-stone-200/60">
+              <SharedLayoutBg
+                activeId={filterType}
+                inset={0}
+                pillClassName="bg-white rounded-xl shadow-xs border border-stone-200/80"
+                className="flex items-center gap-0.5"
               >
-                {opt.label}
-              </button>
-            ))}
+                {(
+                  [
+                    { id: 'today', label: 'Today' },
+                    { id: '7d', label: 'Last 7 Days' },
+                    { id: '30d', label: 'Last 30 Days' },
+                    { id: 'custom', label: 'Custom' },
+                  ] as const
+                ).map((opt) => {
+                  const isSelected = filterType === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setFilterType(opt.id)}
+                      className="px-3 py-1.5 rounded-xl text-xs font-medium transition-colors cursor-pointer select-none relative z-10 outline-none focus:outline-none"
+                    >
+                      <span
+                        className={`transition-colors duration-150 ${
+                          isSelected
+                            ? 'text-stone-950 font-semibold'
+                            : 'text-stone-600 hover:text-stone-900'
+                        }`}
+                      >
+                        {opt.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </SharedLayoutBg>
+            </div>
           </div>
 
           {filterType === 'custom' && (
@@ -157,7 +174,7 @@ export const AnalyticsScreen: React.FC = () => {
                   type="date"
                   value={customStart}
                   onChange={(e) => setCustomStart(e.target.value)}
-                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-stone-50/80 text-stone-800 text-xs focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
+                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-white text-stone-800 text-xs outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </label>
               <label className="flex items-center gap-1.5 text-stone-600">
@@ -166,7 +183,7 @@ export const AnalyticsScreen: React.FC = () => {
                   type="date"
                   value={customEnd}
                   onChange={(e) => setCustomEnd(e.target.value)}
-                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-stone-50/80 text-stone-800 text-xs focus:outline-none focus:border-stone-400 focus:bg-white transition-all"
+                  className="px-2.5 py-1 rounded-xl border border-stone-200 bg-white text-stone-800 text-xs outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </label>
             </div>
@@ -206,7 +223,7 @@ export const AnalyticsScreen: React.FC = () => {
         <>
           <StaggerList className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Total Scans */}
-            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between h-full min-h-[128px]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Total Scans
@@ -224,7 +241,7 @@ export const AnalyticsScreen: React.FC = () => {
             </div>
 
             {/* Staff Views */}
-            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between h-full min-h-[128px]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Staff Page Views
@@ -242,7 +259,7 @@ export const AnalyticsScreen: React.FC = () => {
             </div>
 
             {/* Tips Initiated (Invariant: Never "Tips received") */}
-            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between h-full min-h-[128px]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Tips Initiated
@@ -252,20 +269,17 @@ export const AnalyticsScreen: React.FC = () => {
                 </div>
               </div>
               <div className="flex items-baseline justify-between gap-2">
-                <div>
-                  <span className="text-3xl font-semibold text-stone-900 tracking-tight font-sans">
-                    {analytics.metrics.tipsInitiatedCount.toLocaleString('en-IN')}
-                  </span>
-                  <div className="text-xs text-stone-500 mt-1">
-                    ₹{analytics.metrics.tipsInitiatedVolumeInr.toLocaleString('en-IN')} initiated
-                  </div>
-                </div>
-                <Badge variant="success">Initiated</Badge>
+                <span className="text-3xl font-semibold text-stone-900 tracking-tight font-sans">
+                  {analytics.metrics.tipsInitiatedCount.toLocaleString('en-IN')}
+                </span>
+                <Badge variant="success">
+                  ₹{analytics.metrics.tipsInitiatedVolumeInr.toLocaleString('en-IN')} initiated
+                </Badge>
               </div>
             </div>
 
             {/* Google Review Taps */}
-            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between">
+            <div className="rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs p-5 shadow-2xs hover:shadow-xs hover:border-stone-300/80 transition-all duration-200 flex flex-col justify-between h-full min-h-[128px]">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider">
                   Review Taps

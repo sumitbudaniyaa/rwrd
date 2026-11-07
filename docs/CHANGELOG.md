@@ -6,6 +6,26 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Smooth Input Focus Styling, Uniform Analytics Metric Cards & beUI Motion Period Tabs (M7-T19)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Global Input Outline Elimination** ([`apps/admin/src/styles/index.css`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/styles/index.css)):
+    - Added `input`, `textarea`, and `select` to `@layer base` with `outline: none !important; -webkit-tap-highlight-color: transparent;`.
+    - Cleared `--tw-ring-shadow: 0 0 #0000 !important;` and `--tw-ring-offset-shadow: 0 0 #0000 !important;` across `:focus`, `:focus-visible`, and `:active` to eliminate default black outlines.
+  - **Screen-Level Input Focus Polish** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx), [`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx), [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx), [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx)):
+    - Standardized all text, search, date, and number inputs with `outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150` for smooth, subtle focus interaction.
+  - **Analytics Metric Cards Uniform Sizing** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
+    - Harmonized all 4 KPI cards (_Total Scans_, _Staff Page Views_, _Tips Initiated_, _Review Taps_) to `h-full min-h-[128px]` with matching 2-row layout (top row: label + icon; bottom row: 3xl value + badge).
+    - Encapsulated the initiated volume string inside `<Badge variant="success">₹{volume} initiated</Badge>`, eliminating card height distortion.
+  - **beUI Motion Period Selector Tabs** ([`apps/admin/src/screens/AnalyticsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/AnalyticsScreen.tsx)):
+    - Implemented `SharedLayoutBg` tab switching animation (`https://beui.dev/components/motion/tabs`) with spring-physics sliding background pill across date ranges (_Today_, _Last 7 Days_, _Last 30 Days_, _Custom_).
+  - **Verification & Testing**:
+    - All 45 unit tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` and `pnpm lint` passing with 0 warnings/errors.
+    - Admin production build verified.
+
 ### 2026-11-07 - Admin & Global API Rate Limit Scaling (M7-T18)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

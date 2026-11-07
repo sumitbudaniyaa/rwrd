@@ -136,3 +136,4 @@ Status values:
 | **M7-T16** | Lowercase Editorial Headings & Database Tenant Purge (Clean 0-tenant database reset & heading polish).                      | `Done` | Senior Staff Agent | 2026-11-07     | Lowercase headings & DB reset |
 | **M7-T17** | Header Admin Badge Harmonization & Log Out Relocation to Floating Menu (Bordered Admin pill & menu logout).                 | `Done` | Senior Staff Agent | 2026-11-07     | Header badge & menu logout    |
 | **M7-T18** | Admin & Global API Rate Limit Scaling (1000 req/min global, 100 req/15min auth, session inspection exempted).               | `Done` | Senior Staff Agent | 2026-11-07     | Rate limit expansion          |
+| **M7-T19** | Smooth Input Focus Styling, Uniform Analytics Metric Cards & beUI Motion Period Tabs (`SharedLayoutBg` gliding pill).       | `Done` | Senior Staff Agent | 2026-11-07     | Visual & motion polish        |

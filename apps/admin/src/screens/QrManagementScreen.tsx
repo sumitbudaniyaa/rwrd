@@ -454,7 +454,7 @@ export const QrManagementScreen: React.FC = () => {
                   value={tableNumber}
                   onChange={(e) => setTableNumber(e.target.value)}
                   placeholder="e.g. Table 1, T-12, Booth 3"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </div>
 
@@ -467,7 +467,7 @@ export const QrManagementScreen: React.FC = () => {
                   value={sectionName}
                   onChange={(e) => setSectionName(e.target.value)}
                   placeholder="e.g. Ground Floor, Terrace, Bar"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </div>
 

@@ -256,7 +256,7 @@ export const SettingsScreen: React.FC = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. The Bombay Canteen"
-                  className="w-full px-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                  className="w-full px-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </div>
 
@@ -333,10 +333,10 @@ export const SettingsScreen: React.FC = () => {
                 value={googleReviewUrl}
                 onChange={(e) => setGoogleReviewUrl(e.target.value)}
                 placeholder="https://maps.app.goo.gl/... or https://g.page/r/..."
-                className={`w-full px-3 py-2 rounded-xl text-xs border font-mono transition-all ${
+                className={`w-full px-3 py-2 rounded-xl text-xs border font-mono outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 transition-all duration-150 ${
                   !isGoogleUrlValid
-                    ? 'border-rose-400 bg-rose-50/30 text-rose-900'
-                    : 'border-stone-200 bg-white text-stone-900 placeholder:font-sans placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]'
+                    ? 'border-rose-400 bg-rose-50/30 text-rose-900 focus:border-rose-500 focus:shadow-[0_0_0_3px_rgba(244,63,94,0.08)]'
+                    : 'border-stone-200 bg-white text-stone-900 placeholder:font-sans placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)]'
                 }`}
               />
 
@@ -405,7 +405,7 @@ export const SettingsScreen: React.FC = () => {
                       value={newPresetValue}
                       onChange={(e) => setNewPresetValue(e.target.value)}
                       placeholder="+ Add ₹"
-                      className="w-24 px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                      className="w-24 px-2.5 py-1.5 text-xs rounded-xl border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                     />
                     <button
                       type="button"
@@ -440,7 +440,7 @@ export const SettingsScreen: React.FC = () => {
                     required
                     value={minTipInr}
                     onChange={(e) => setMinTipInr(parseInt(e.target.value, 10) || 1)}
-                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                   />
                 </div>
               </div>
@@ -460,7 +460,7 @@ export const SettingsScreen: React.FC = () => {
                     required
                     value={maxTipInr}
                     onChange={(e) => setMaxTipInr(parseInt(e.target.value, 10) || 10000)}
-                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                    className="w-full pl-7 pr-3 py-2 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                   />
                 </div>
               </div>

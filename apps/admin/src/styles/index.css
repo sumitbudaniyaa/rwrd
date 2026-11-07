@@ -31,7 +31,10 @@
   button,
   [type='button'],
   [type='reset'],
-  [type='submit'] {
+  [type='submit'],
+  input,
+  textarea,
+  select {
     outline: none !important;
     -webkit-tap-highlight-color: transparent;
   }
@@ -41,7 +44,16 @@
   button:active,
   [type='button']:focus,
   [type='button']:focus-visible,
-  [type='button']:active {
+  [type='button']:active,
+  input:focus,
+  input:focus-visible,
+  input:active,
+  textarea:focus,
+  textarea:focus-visible,
+  textarea:active,
+  select:focus,
+  select:focus-visible,
+  select:active {
     outline: none !important;
     --tw-ring-shadow: 0 0 #0000 !important;
     --tw-ring-offset-shadow: 0 0 #0000 !important;

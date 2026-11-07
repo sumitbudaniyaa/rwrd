@@ -236,7 +236,7 @@ export const StaffManagementScreen: React.FC = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by name or role..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-stone-200/80 bg-stone-50/70 text-stone-900 placeholder:text-stone-400 focus:outline-none focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-stone-200/80 bg-stone-50/70 text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
             />
           </div>
           <div className="flex items-center gap-2 text-xs text-stone-500 pr-2">
@@ -423,7 +423,7 @@ export const StaffManagementScreen: React.FC = () => {
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="e.g. Rahul Sharma"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </div>
 
@@ -435,7 +435,7 @@ export const StaffManagementScreen: React.FC = () => {
                   value={roleLabel}
                   onChange={(e) => setRoleLabel(e.target.value)}
                   placeholder="e.g. Server, Bartender, Host"
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
                 <div className="flex gap-1.5 mt-2">
                   {['Server', 'Head Waiter', 'Bartender', 'Host'].map((tag) => (
@@ -477,7 +477,7 @@ export const StaffManagementScreen: React.FC = () => {
                       ? `Leave blank to keep existing (${editingStaff.maskedVpa})`
                       : 'e.g. rahul@okaxis, priya@okhdfcbank'
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs font-mono text-stone-900 placeholder:font-sans placeholder:text-stone-400 focus:outline-none focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all"
+                  className="w-full px-3 py-2 rounded-xl bg-white border border-stone-200 text-xs font-mono text-stone-900 placeholder:font-sans placeholder:text-stone-400 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] transition-all duration-150"
                 />
               </div>
 
