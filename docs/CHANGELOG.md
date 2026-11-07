@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Spring-Physics Gliding Motion in Onboarding Step 2 (M7-T10)
+
+- **Milestone**: Milestone 7 (Auth Modernization & Motion System)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **`SPRING_LAYOUT` Motion Physics** ([`apps/admin/src/components/motion/ease.ts`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/ease.ts)):
+    - Added spring layout physics configuration (`type: 'spring'`, `stiffness: 360`, `damping: 32`, `mass: 0.6`) matching the reference beUI motion specification.
+  - **Fluid Hover Gliding in `SharedLayoutBg`** ([`apps/admin/src/components/motion/shared-layout-bg.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/shared-layout-bg.tsx)):
+    - Upgraded `SharedLayoutBg` to support shared layout animation using `framer-motion`'s `layoutId` engine and `SPRING_LAYOUT` spring physics.
+    - Added `AnimatePresence` with entrance/exit blur smoothing (`blur(6px)` to `blur(0px)`) to eliminate abrupt clipping on initial hover entry and mouse leave.
+    - Implemented active item highlighting (`effectiveActiveId`) tracking both mouse hover position and active selection (`activeId={selectedType}`).
+  - **Onboarding Step 2 Integration** ([`apps/admin/src/screens/LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/LoginScreen.tsx)):
+    - Wired `inset={12}` and `activeId={selectedType}` into `SharedLayoutBg`, enabling smooth, spring-damped gliding as the cursor moves across the establishment options (`Restaurant / Dining`, `Bar / Pub / Brewery`, `Cafe / Quick Service`).
+  - **Verification & Testing**:
+    - All 45 tests in `@tiptable/admin` passing.
+    - Monorepo `pnpm typecheck` passed with 0 errors across all 7 packages.
+    - Monorepo `pnpm lint` and Prettier format passed with zero warnings.
+    - Vite production build verified.
+
 ### 2026-11-07 - Brand Logo Integration: Official Stylized rwrd.png Asset Deployment (M7-T09)
 
 - **Milestone**: Milestone 7 (Auth Modernization & Brand Identity)

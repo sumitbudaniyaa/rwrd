@@ -481,7 +481,8 @@ export const LoginScreen: React.FC = () => {
                 {/* beUI SharedLayoutBg with gliding background pill */}
                 <div className="w-full py-1">
                   <SharedLayoutBg
-                    inset={4}
+                    inset={12}
+                    activeId={selectedType}
                     pillClassName="bg-stone-100 rounded-xl"
                     className="flex flex-col gap-1.5 w-full"
                   >
@@ -491,7 +492,7 @@ export const LoginScreen: React.FC = () => {
                         <div
                           key={type.id}
                           onClick={() => handleSelectType(type.id)}
-                          className="group w-full flex items-center px-4 py-3.5 cursor-pointer select-none transition-colors duration-150 relative rounded-xl"
+                          className="group w-full flex items-center px-3 py-3 cursor-pointer select-none transition-colors duration-150 relative"
                         >
                           <span
                             className={`relative z-10 text-base sm:text-lg tracking-tight transition-colors duration-150 ${
