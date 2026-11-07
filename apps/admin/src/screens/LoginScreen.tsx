@@ -11,14 +11,29 @@ import {
   ArrowLeft01Icon,
   UserIcon,
   Store01Icon,
+  Location01Icon,
+  Globe02Icon,
 } from '@hugeicons/core-free-icons';
 import { Input } from '../components/motion/input.js';
 import { StatefulButton, type ButtonState } from '../components/motion/button.js';
+import { SharedLayoutBg } from '../components/motion/shared-layout-bg.js';
 import { useAuth } from '../context/AuthContext.js';
 import { ApiError } from '../services/api.js';
 import bgImage from '../assets/bg.png';
 
 type AuthMode = 'login' | 'register' | 'forgot';
+type OnboardStep = 1 | 2 | 3;
+
+interface EstablishmentType {
+  id: string;
+  label: string;
+}
+
+const establishmentTypes: EstablishmentType[] = [
+  { id: 'RESTAURANT', label: 'A. Restaurant / Dining' },
+  { id: 'BAR', label: 'B. Bar / Pub / Brewery' },
+  { id: 'CAFE', label: 'C. Cafe / Quick Service' },
+];
 
 export const LoginScreen: React.FC = () => {
   const navigate = useNavigate();
@@ -26,35 +41,35 @@ export const LoginScreen: React.FC = () => {
   const { login, register } = useAuth();
 
   const [mode, setMode] = useState<AuthMode>('login');
+  const [step, setStep] = useState<OnboardStep>(1);
+  const [selectedType, setSelectedType] = useState<string | null>(null);
 
-  // Fields
+  // Form Fields
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [restaurantName, setRestaurantName] = useState('');
   const [fullName, setFullName] = useState('');
-  const [revealPassword, setRevealPassword] = useState(false);
+  const [city, setCity] = useState('');
+  const [stateName, setStateName] = useState('');
+  const [country, setCountry] = useState('');
 
+  // Password visibility
+  const [revealPassword, setRevealPassword] = useState(false);
+  const [revealConfirmPassword, setRevealConfirmPassword] = useState(false);
+
+  // Status and feedback
   const [status, setStatus] = useState<ButtonState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // "Reward early, punish late" touched state tracking
-  const [touched, setTouched] = useState<{
-    email?: boolean;
-    password?: boolean;
-    restaurantName?: boolean;
-    fullName?: boolean;
-  }>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/admin';
 
   const errors = useMemo(() => {
-    const errs: {
-      email?: string;
-      password?: string;
-      restaurantName?: string;
-      fullName?: string;
-    } = {};
+    const errs: Record<string, string> = {};
 
     if (!email.trim()) {
       errs.email = 'Enter your email address.';
@@ -69,6 +84,12 @@ export const LoginScreen: React.FC = () => {
     }
 
     if (mode === 'register') {
+      if (!confirmPassword) {
+        errs.confirmPassword = 'Confirm your password.';
+      } else if (confirmPassword !== password) {
+        errs.confirmPassword = 'Passwords do not match.';
+      }
+
       if (!restaurantName.trim()) {
         errs.restaurantName = 'Enter restaurant legal name.';
       }
@@ -78,18 +99,26 @@ export const LoginScreen: React.FC = () => {
     }
 
     return errs;
-  }, [email, password, restaurantName, fullName, mode]);
+  }, [email, password, confirmPassword, restaurantName, fullName, mode]);
 
-  const touch = useCallback((field: 'email' | 'password' | 'restaurantName' | 'fullName') => {
+  const touch = useCallback((field: string) => {
     setTouched((prev) => (prev[field] ? prev : { ...prev, [field]: true }));
   }, []);
 
   const toggleMode = (newMode: AuthMode) => {
     setMode(newMode);
+    setStep(1);
     setErrorMessage(null);
     setSuccessMessage(null);
     setTouched({});
     setStatus('idle');
+  };
+
+  const handleSelectType = (typeId: string) => {
+    setSelectedType(typeId);
+    setTimeout(() => {
+      setStep(3);
+    }, 150);
   };
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
@@ -127,6 +156,7 @@ export const LoginScreen: React.FC = () => {
       fullName: true,
       email: true,
       password: true,
+      confirmPassword: true,
     });
     setErrorMessage(null);
 
@@ -173,10 +203,10 @@ export const LoginScreen: React.FC = () => {
 
   return (
     <div className="min-h-screen w-full flex bg-white text-stone-900 overflow-hidden font-sans antialiased selection:bg-stone-900 selection:text-white">
-      {/* LEFT HALF: Clean, Minimal, Editorial Form */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 z-10 bg-white">
-        {/* Top-Left Logo & Top-Right Password Reminder / Toggle */}
-        <div className="flex items-center justify-between w-full">
+      {/* LEFT HALF: Clean, Minimal, Editorial Form / Multi-step Onboarding */}
+      <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 sm:p-10 lg:p-14 z-10 bg-white overflow-y-auto">
+        {/* Top-Left Logo & Top-Right Toggle */}
+        <div className="flex items-center justify-between w-full shrink-0">
           {/* Top-Left: Zomato-style brand wordmark */}
           <Link to="/admin" className="flex items-center gap-2 outline-none">
             <span
@@ -195,7 +225,7 @@ export const LoginScreen: React.FC = () => {
             </span>
           </Link>
 
-          {/* Top-Right: Sign up / Sign in Toggle */}
+          {/* Top-Right: Sign up / Sign in toggle link */}
           <div className="flex items-center">
             {mode !== 'forgot' && (
               <button
@@ -217,305 +247,534 @@ export const LoginScreen: React.FC = () => {
           </div>
         </div>
 
-        {/* Center: Compact Login Form */}
+        {/* Center: Dynamic Auth / Onboarding Form */}
         <div className="w-full max-w-md mx-auto my-auto py-6">
-          <motion.div
-            key={mode}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-            className="flex flex-col gap-6"
-          >
-            {/* Title: Big Editorial Headline */}
-            <div>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
-                {mode === 'login' && 'welcome back'}
-                {mode === 'register' && 'create account'}
-                {mode === 'forgot' && 'reset password'}
-              </h1>
-              {/* Semantic hidden label for screen readers & test matchers */}
-              <span className="sr-only">Sign in to rwrd Admin</span>
-              {mode === 'forgot' && (
-                <p className="text-xs text-stone-500 mt-2 text-left">
-                  Enter your email and we'll send you instructions to reset your password.
-                </p>
-              )}
-            </div>
-
-            {/* Error Message */}
-            <AnimatePresence initial={false}>
-              {errorMessage && (
-                <motion.div
-                  role="alert"
-                  initial={{ opacity: 0, y: -2 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -2 }}
-                  transition={{ duration: 0.15 }}
-                  className="rounded-xl border border-rose-200 bg-rose-50/90 px-3.5 py-2.5 text-xs text-rose-800 font-medium"
-                >
-                  {errorMessage}
-                </motion.div>
-              )}
-              {successMessage && (
-                <motion.div
-                  role="status"
-                  initial={{ opacity: 0, y: -2 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -2 }}
-                  transition={{ duration: 0.15 }}
-                  className="rounded-xl border border-emerald-200 bg-emerald-50/90 px-3.5 py-2.5 text-xs text-emerald-800 font-medium"
-                >
-                  {successMessage}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Form: Login */}
+          <AnimatePresence mode="wait">
+            {/* LOGIN MODE */}
             {mode === 'login' && (
-              <form noValidate onSubmit={handleLoginSubmit} className="flex flex-col gap-3">
-                {/* Email */}
-                <Input
-                  id="email"
-                  label="Email"
-                  type="email"
-                  sizeVariant="sm"
-                  autoComplete="email"
-                  placeholder="name@restaurant.com"
-                  leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-3.5 h-3.5" />}
-                  value={email}
-                  onChange={(val) => {
-                    setEmail(val);
-                    if (errorMessage) setErrorMessage(null);
-                  }}
-                  onBlur={() => touch('email')}
-                  error={touched.email ? errors.email : undefined}
-                  reserveErrorLine
-                  disabled={status === 'loading' || status === 'success'}
-                />
+              <motion.div
+                key="login-mode"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-6"
+              >
+                <div>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
+                    welcome back
+                  </h1>
+                  <span className="sr-only">Sign in to rwrd Admin</span>
+                </div>
 
-                {/* Password */}
-                <div className="flex flex-col gap-0.5">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <label
-                      htmlFor="password"
-                      className="text-[11px] font-medium tracking-wide text-stone-600 select-none cursor-pointer"
-                    >
-                      Password
-                    </label>
-                    <button
-                      type="button"
-                      tabIndex={-1}
-                      onClick={() => toggleMode('forgot')}
-                      className="text-[11px] text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
-                    >
-                      Forgot?
-                    </button>
-                  </div>
+                {errorMessage && (
+                  <motion.div
+                    role="alert"
+                    initial={{ opacity: 0, y: -2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border border-rose-200 bg-rose-50/90 px-3.5 py-2.5 text-xs text-rose-800 font-medium"
+                  >
+                    {errorMessage}
+                  </motion.div>
+                )}
+
+                <form noValidate onSubmit={handleLoginSubmit} className="flex flex-col gap-3">
                   <Input
-                    id="password"
-                    type={revealPassword ? 'text' : 'password'}
+                    id="email"
+                    label="Email"
+                    type="email"
                     sizeVariant="sm"
-                    autoComplete="current-password"
-                    placeholder="••••••••••••"
-                    leftIcon={<HugeiconsIcon icon={LockPasswordIcon} className="w-3.5 h-3.5" />}
-                    rightIcon={
-                      <button
-                        type="button"
-                        onClick={() => setRevealPassword(!revealPassword)}
-                        className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
-                        aria-label={revealPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {revealPassword ? (
-                          <HugeiconsIcon icon={ViewOffSlashIcon} className="w-3.5 h-3.5" />
-                        ) : (
-                          <HugeiconsIcon icon={ViewIcon} className="w-3.5 h-3.5" />
-                        )}
-                      </button>
-                    }
-                    value={password}
+                    autoComplete="email"
+                    placeholder="name@restaurant.com"
+                    leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-3.5 h-3.5" />}
+                    value={email}
                     onChange={(val) => {
-                      setPassword(val);
+                      setEmail(val);
                       if (errorMessage) setErrorMessage(null);
                     }}
-                    onBlur={() => touch('password')}
-                    error={touched.password ? errors.password : undefined}
+                    onBlur={() => touch('email')}
+                    error={touched.email ? errors.email : undefined}
                     reserveErrorLine
                     disabled={status === 'loading' || status === 'success'}
                   />
-                </div>
 
-                {/* Submit */}
-                <StatefulButton
-                  type="submit"
-                  size="sm"
-                  state={status}
-                  loadingText="Signing in..."
-                  successText="Success"
-                  className="w-full mt-1.5"
-                >
-                  Sign In
-                </StatefulButton>
-              </form>
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center justify-between mb-0.5">
+                      <label
+                        htmlFor="password"
+                        className="text-[11px] font-medium tracking-wide text-stone-600 select-none cursor-pointer"
+                      >
+                        Password
+                      </label>
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => toggleMode('forgot')}
+                        className="text-[11px] text-stone-500 hover:text-stone-900 transition-colors cursor-pointer"
+                      >
+                        Forgot?
+                      </button>
+                    </div>
+                    <Input
+                      id="password"
+                      type={revealPassword ? 'text' : 'password'}
+                      sizeVariant="sm"
+                      autoComplete="current-password"
+                      placeholder="••••••••••••"
+                      leftIcon={<HugeiconsIcon icon={LockPasswordIcon} className="w-3.5 h-3.5" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setRevealPassword(!revealPassword)}
+                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
+                          aria-label={revealPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {revealPassword ? (
+                            <HugeiconsIcon icon={ViewOffSlashIcon} className="w-3.5 h-3.5" />
+                          ) : (
+                            <HugeiconsIcon icon={ViewIcon} className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      }
+                      value={password}
+                      onChange={(val) => {
+                        setPassword(val);
+                        if (errorMessage) setErrorMessage(null);
+                      }}
+                      onBlur={() => touch('password')}
+                      error={touched.password ? errors.password : undefined}
+                      reserveErrorLine
+                      disabled={status === 'loading' || status === 'success'}
+                    />
+                  </div>
+
+                  <StatefulButton
+                    type="submit"
+                    size="sm"
+                    state={status}
+                    loadingText="Signing in..."
+                    successText="Success"
+                    className="w-full mt-1.5"
+                  >
+                    Sign In
+                  </StatefulButton>
+                </form>
+              </motion.div>
             )}
 
-            {/* Form: Register */}
-            {mode === 'register' && (
-              <form noValidate onSubmit={handleRegisterSubmit} className="flex flex-col gap-3">
-                <Input
-                  id="restaurantName"
-                  label="Restaurant legal name"
-                  type="text"
-                  sizeVariant="sm"
-                  placeholder="e.g. The Bombay Canteen"
-                  leftIcon={<HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />}
-                  value={restaurantName}
-                  onChange={(val) => setRestaurantName(val)}
-                  onBlur={() => touch('restaurantName')}
-                  error={touched.restaurantName ? errors.restaurantName : undefined}
-                  reserveErrorLine
-                  disabled={status === 'loading' || status === 'success'}
-                />
+            {/* FORGOT PASSWORD MODE */}
+            {mode === 'forgot' && (
+              <motion.div
+                key="forgot-mode"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-6"
+              >
+                <div>
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
+                    reset password
+                  </h1>
+                  <p className="text-xs text-stone-500 mt-2 text-left">
+                    Enter your email and we'll send you instructions to reset your password.
+                  </p>
+                </div>
 
-                <Input
-                  id="fullName"
-                  label="Admin full name"
-                  type="text"
-                  sizeVariant="sm"
-                  placeholder="e.g. Sarah Miller"
-                  leftIcon={<HugeiconsIcon icon={UserIcon} className="w-3.5 h-3.5" />}
-                  value={fullName}
-                  onChange={(val) => setFullName(val)}
-                  onBlur={() => touch('fullName')}
-                  error={touched.fullName ? errors.fullName : undefined}
-                  reserveErrorLine
-                  disabled={status === 'loading' || status === 'success'}
-                />
+                {errorMessage && (
+                  <motion.div
+                    role="alert"
+                    className="rounded-xl border border-rose-200 bg-rose-50/90 px-3.5 py-2.5 text-xs text-rose-800 font-medium"
+                  >
+                    {errorMessage}
+                  </motion.div>
+                )}
 
-                <Input
-                  id="regEmail"
-                  label="Email"
-                  type="email"
-                  sizeVariant="sm"
-                  autoComplete="email"
-                  placeholder="name@restaurant.com"
-                  leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-3.5 h-3.5" />}
-                  value={email}
-                  onChange={(val) => setEmail(val)}
-                  onBlur={() => touch('email')}
-                  error={touched.email ? errors.email : undefined}
-                  reserveErrorLine
-                  disabled={status === 'loading' || status === 'success'}
-                />
+                {successMessage && (
+                  <motion.div
+                    role="status"
+                    className="rounded-xl border border-emerald-200 bg-emerald-50/90 px-3.5 py-2.5 text-xs text-emerald-800 font-medium"
+                  >
+                    {successMessage}
+                  </motion.div>
+                )}
 
-                <div className="flex flex-col gap-0.5">
-                  <div className="flex items-center justify-between mb-0.5">
+                <form noValidate onSubmit={handleForgotSubmit} className="flex flex-col gap-3">
+                  <Input
+                    id="forgotEmail"
+                    label="Email"
+                    type="email"
+                    sizeVariant="sm"
+                    autoComplete="email"
+                    placeholder="name@restaurant.com"
+                    leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-3.5 h-3.5" />}
+                    value={email}
+                    onChange={(val) => setEmail(val)}
+                    onBlur={() => touch('email')}
+                    error={touched.email ? errors.email : undefined}
+                    reserveErrorLine
+                    disabled={status === 'loading' || status === 'success'}
+                  />
+
+                  <StatefulButton
+                    type="submit"
+                    size="sm"
+                    state={status}
+                    loadingText="Sending link..."
+                    successText="Sent"
+                    className="w-full mt-1.5"
+                  >
+                    Send reset link
+                  </StatefulButton>
+
+                  <div className="pt-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => toggleMode('login')}
+                      className="text-xs text-stone-500 hover:text-stone-900 transition-colors inline-flex items-center gap-1 font-medium cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={ArrowLeft01Icon} className="w-3 h-3" /> Back to sign in
+                    </button>
+                  </div>
+                </form>
+              </motion.div>
+            )}
+
+            {/* ONBOARDING FLOW: STEP 1 */}
+            {mode === 'register' && step === 1 && (
+              <motion.div
+                key="step1"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-8"
+              >
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
+                  let&apos;s onboard you
+                </h1>
+
+                <div className="flex justify-end w-full">
+                  <StatefulButton
+                    type="button"
+                    size="sm"
+                    onClick={() => setStep(2)}
+                    className="px-5"
+                  >
+                    <span>Next</span>
+                    <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5 ml-1" />
+                  </StatefulButton>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ONBOARDING FLOW: STEP 2 */}
+            {mode === 'register' && step === 2 && (
+              <motion.div
+                key="step2"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-6"
+              >
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
+                  i am a...
+                </h1>
+
+                {/* beUI SharedLayoutBg with gliding background pill */}
+                <div className="w-full py-1">
+                  <SharedLayoutBg
+                    inset={4}
+                    pillClassName="bg-stone-100 rounded-xl"
+                    className="flex flex-col gap-1.5 w-full"
+                  >
+                    {establishmentTypes.map((type) => {
+                      const isSelected = selectedType === type.id;
+                      return (
+                        <div
+                          key={type.id}
+                          onClick={() => handleSelectType(type.id)}
+                          className="group w-full flex items-center px-4 py-3.5 cursor-pointer select-none transition-colors duration-150 relative rounded-xl"
+                        >
+                          <span
+                            className={`relative z-10 text-base sm:text-lg tracking-tight transition-colors duration-150 ${
+                              isSelected
+                                ? 'text-stone-950 font-semibold'
+                                : 'text-stone-700 group-hover:text-stone-950 font-normal'
+                            }`}
+                          >
+                            {type.label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </SharedLayoutBg>
+                </div>
+
+                <div className="flex items-center justify-end w-full pt-3">
+                  <StatefulButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStep(1)}
+                    className="px-4"
+                  >
+                    <HugeiconsIcon icon={ArrowLeft01Icon} className="w-3.5 h-3.5 mr-1" />
+                    <span>Back</span>
+                  </StatefulButton>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ONBOARDING FLOW: STEP 3 */}
+            {mode === 'register' && step === 3 && (
+              <motion.div
+                key="step3"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col gap-5"
+              >
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif tracking-tight text-stone-900 font-normal leading-[1.08] text-left">
+                  your restaurant
+                </h1>
+
+                {errorMessage && (
+                  <motion.div
+                    role="alert"
+                    initial={{ opacity: 0, y: -2 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="rounded-xl border border-rose-200 bg-rose-50/90 px-3.5 py-2.5 text-xs text-rose-800 font-medium"
+                  >
+                    {errorMessage}
+                  </motion.div>
+                )}
+
+                <form noValidate onSubmit={handleRegisterSubmit} className="flex flex-col gap-2.5">
+                  <Input
+                    id="fullName"
+                    label="Name"
+                    type="text"
+                    sizeVariant="sm"
+                    placeholder="Full name"
+                    leftIcon={<HugeiconsIcon icon={UserIcon} className="w-3.5 h-3.5" />}
+                    value={fullName}
+                    onChange={(val) => {
+                      setFullName(val);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                    onBlur={() => touch('fullName')}
+                    error={touched.fullName ? errors.fullName : undefined}
+                    reserveErrorLine
+                    disabled={status === 'loading' || status === 'success'}
+                  />
+
+                  <Input
+                    id="restaurantName"
+                    label="Restaurant legal name"
+                    type="text"
+                    sizeVariant="sm"
+                    placeholder="e.g. The Bombay Canteen"
+                    leftIcon={<HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />}
+                    value={restaurantName}
+                    onChange={(val) => {
+                      setRestaurantName(val);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                    onBlur={() => touch('restaurantName')}
+                    error={touched.restaurantName ? errors.restaurantName : undefined}
+                    reserveErrorLine
+                    disabled={status === 'loading' || status === 'success'}
+                  />
+
+                  {/* City, State, Country Grid */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <Input
+                      id="city"
+                      label="City"
+                      type="text"
+                      sizeVariant="sm"
+                      placeholder="City"
+                      leftIcon={<HugeiconsIcon icon={Location01Icon} className="w-3.5 h-3.5" />}
+                      value={city}
+                      onChange={(val) => setCity(val)}
+                      disabled={status === 'loading' || status === 'success'}
+                    />
+
+                    <Input
+                      id="state"
+                      label="State"
+                      type="text"
+                      sizeVariant="sm"
+                      placeholder="State"
+                      leftIcon={<HugeiconsIcon icon={Location01Icon} className="w-3.5 h-3.5" />}
+                      value={stateName}
+                      onChange={(val) => setStateName(val)}
+                      disabled={status === 'loading' || status === 'success'}
+                    />
+
+                    <Input
+                      id="country"
+                      label="Country"
+                      type="text"
+                      sizeVariant="sm"
+                      placeholder="Country"
+                      leftIcon={<HugeiconsIcon icon={Globe02Icon} className="w-3.5 h-3.5" />}
+                      value={country}
+                      onChange={(val) => setCountry(val)}
+                      disabled={status === 'loading' || status === 'success'}
+                    />
+                  </div>
+
+                  <Input
+                    id="regEmail"
+                    label="Email"
+                    type="email"
+                    sizeVariant="sm"
+                    autoComplete="email"
+                    placeholder="name@restaurant.com"
+                    leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-3.5 h-3.5" />}
+                    value={email}
+                    onChange={(val) => {
+                      setEmail(val);
+                      if (errorMessage) setErrorMessage(null);
+                    }}
+                    onBlur={() => touch('email')}
+                    error={touched.email ? errors.email : undefined}
+                    reserveErrorLine
+                    disabled={status === 'loading' || status === 'success'}
+                  />
+
+                  <div className="flex flex-col gap-0.5">
                     <label
                       htmlFor="regPassword"
                       className="text-[11px] font-medium tracking-wide text-stone-600 select-none cursor-pointer"
                     >
                       Password
                     </label>
+                    <Input
+                      id="regPassword"
+                      type={revealPassword ? 'text' : 'password'}
+                      sizeVariant="sm"
+                      autoComplete="new-password"
+                      placeholder="At least 8 characters"
+                      leftIcon={<HugeiconsIcon icon={LockPasswordIcon} className="w-3.5 h-3.5" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setRevealPassword(!revealPassword)}
+                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
+                          aria-label={revealPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {revealPassword ? (
+                            <HugeiconsIcon icon={ViewOffSlashIcon} className="w-3.5 h-3.5" />
+                          ) : (
+                            <HugeiconsIcon icon={ViewIcon} className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      }
+                      value={password}
+                      onChange={(val) => {
+                        setPassword(val);
+                        if (errorMessage) setErrorMessage(null);
+                      }}
+                      onBlur={() => touch('password')}
+                      error={touched.password ? errors.password : undefined}
+                      reserveErrorLine
+                      disabled={status === 'loading' || status === 'success'}
+                    />
                   </div>
-                  <Input
-                    id="regPassword"
-                    type={revealPassword ? 'text' : 'password'}
-                    sizeVariant="sm"
-                    autoComplete="new-password"
-                    placeholder="At least 8 characters"
-                    leftIcon={<HugeiconsIcon icon={LockPasswordIcon} className="w-3.5 h-3.5" />}
-                    rightIcon={
-                      <button
-                        type="button"
-                        onClick={() => setRevealPassword(!revealPassword)}
-                        className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
-                        aria-label={revealPassword ? 'Hide password' : 'Show password'}
-                      >
-                        {revealPassword ? (
-                          <HugeiconsIcon icon={ViewOffSlashIcon} className="w-3.5 h-3.5" />
-                        ) : (
-                          <HugeiconsIcon icon={ViewIcon} className="w-3.5 h-3.5" />
-                        )}
-                      </button>
-                    }
-                    value={password}
-                    onChange={(val) => setPassword(val)}
-                    onBlur={() => touch('password')}
-                    error={touched.password ? errors.password : undefined}
-                    reserveErrorLine
-                    disabled={status === 'loading' || status === 'success'}
-                  />
-                </div>
 
-                <StatefulButton
-                  type="submit"
-                  size="sm"
-                  state={status}
-                  loadingText="Creating account..."
-                  successText="Success"
-                  className="w-full mt-1.5"
-                >
-                  Create restaurant account
-                </StatefulButton>
-              </form>
+                  <div className="flex flex-col gap-0.5">
+                    <label
+                      htmlFor="confirmPassword"
+                      className="text-[11px] font-medium tracking-wide text-stone-600 select-none cursor-pointer"
+                    >
+                      Confirm Password
+                    </label>
+                    <Input
+                      id="confirmPassword"
+                      type={revealConfirmPassword ? 'text' : 'password'}
+                      sizeVariant="sm"
+                      placeholder="Confirm password"
+                      leftIcon={<HugeiconsIcon icon={LockPasswordIcon} className="w-3.5 h-3.5" />}
+                      rightIcon={
+                        <button
+                          type="button"
+                          onClick={() => setRevealConfirmPassword(!revealConfirmPassword)}
+                          className="text-stone-400 hover:text-stone-700 transition-colors p-0.5 flex items-center justify-center cursor-pointer"
+                          aria-label={
+                            revealConfirmPassword
+                              ? 'Hide confirm password visibility'
+                              : 'Show confirm password visibility'
+                          }
+                        >
+                          {revealConfirmPassword ? (
+                            <HugeiconsIcon icon={ViewOffSlashIcon} className="w-3.5 h-3.5" />
+                          ) : (
+                            <HugeiconsIcon icon={ViewIcon} className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+                      }
+                      value={confirmPassword}
+                      onChange={(val) => {
+                        setConfirmPassword(val);
+                        if (errorMessage) setErrorMessage(null);
+                      }}
+                      onBlur={() => touch('confirmPassword')}
+                      error={touched.confirmPassword ? errors.confirmPassword : undefined}
+                      reserveErrorLine
+                      disabled={status === 'loading' || status === 'success'}
+                    />
+                  </div>
+
+                  {/* Actions: Back & Onboard */}
+                  <div className="flex items-center justify-between pt-2">
+                    <StatefulButton
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setStep(2)}
+                      disabled={status === 'loading' || status === 'success'}
+                      className="px-4"
+                    >
+                      <HugeiconsIcon icon={ArrowLeft01Icon} className="w-3.5 h-3.5 mr-1" />
+                      <span>Back</span>
+                    </StatefulButton>
+
+                    <StatefulButton
+                      type="submit"
+                      size="sm"
+                      state={status}
+                      loadingText="Onboarding..."
+                      successText="Success"
+                      className="px-6"
+                    >
+                      <span>Onboard</span>
+                      <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5 ml-1" />
+                    </StatefulButton>
+                  </div>
+                </form>
+              </motion.div>
             )}
-
-            {/* Form: Forgot Password */}
-            {mode === 'forgot' && (
-              <form noValidate onSubmit={handleForgotSubmit} className="flex flex-col gap-3">
-                <Input
-                  id="forgotEmail"
-                  label="Email"
-                  type="email"
-                  sizeVariant="sm"
-                  autoComplete="email"
-                  placeholder="name@restaurant.com"
-                  leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-3.5 h-3.5" />}
-                  value={email}
-                  onChange={(val) => setEmail(val)}
-                  onBlur={() => touch('email')}
-                  error={touched.email ? errors.email : undefined}
-                  reserveErrorLine
-                  disabled={status === 'loading' || status === 'success'}
-                />
-
-                <StatefulButton
-                  type="submit"
-                  size="sm"
-                  state={status}
-                  loadingText="Sending link..."
-                  successText="Sent"
-                  className="w-full mt-1.5"
-                >
-                  Send reset link
-                </StatefulButton>
-
-                <div className="pt-2 text-center">
-                  <button
-                    type="button"
-                    onClick={() => toggleMode('login')}
-                    className="text-xs text-stone-500 hover:text-stone-900 transition-colors inline-flex items-center gap-1 font-medium cursor-pointer"
-                  >
-                    <HugeiconsIcon icon={ArrowLeft01Icon} className="w-3 h-3" /> Back to sign in
-                  </button>
-                </div>
-              </form>
-            )}
-          </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* Bottom Bar: © 2026 rwrd flush at bottom left */}
-        <div className="flex items-center justify-start text-xs text-stone-400 select-none">
+        <div className="flex items-center justify-start text-xs text-stone-400 select-none shrink-0">
           © 2026 rwrd
         </div>
       </div>
 
-      {/* RIGHT HALF: Pure artwork image in light mode */}
+      {/* RIGHT HALF: Pure artwork image with object-[80%_35%] ensuring right tree is visible */}
       <div className="hidden lg:block lg:w-1/2 p-3 bg-white select-none">
         <div className="w-full h-full relative rounded-2xl overflow-hidden border border-stone-200/60 bg-stone-50">
           <img
             src={bgImage}
             alt="rwrd Admin Hero Artwork"
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-[80%_35%]"
           />
         </div>
       </div>

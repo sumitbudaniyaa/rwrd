@@ -156,4 +156,73 @@ describe('Admin Authentication Flow', () => {
       expect(screen.getByText('welcome back')).toBeInTheDocument();
     });
   });
+
+  it('navigates through 3-step interactive onboarding flow during sign-up', async () => {
+    vi.spyOn(api, 'refresh').mockRejectedValue(new Error('No session'));
+    vi.spyOn(api, 'register').mockResolvedValueOnce({
+      message: 'Registered successfully',
+      accessToken: 'access.jwt.123',
+      expiresInSeconds: 900,
+      user: {
+        id: 'usr-1',
+        email: 'founder@restaurant.com',
+        fullName: 'Sarah Miller',
+        role: 'admin',
+      },
+    });
+
+    window.history.pushState({}, 'Login', '/admin/login');
+
+    render(<App />);
+
+    // Toggle to Sign Up
+    fireEvent.click(screen.getByRole('button', { name: /sign up/i }));
+
+    // Step 1: "let's onboard you"
+    await waitFor(() => {
+      expect(screen.getByText(/let's onboard you/i)).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByRole('button', { name: /next/i }));
+
+    // Step 2: "i am a..."
+    await waitFor(() => {
+      expect(screen.getByText(/i am a\.\.\./i)).toBeInTheDocument();
+    });
+    expect(screen.getByText(/A\. Restaurant \/ Dining/i)).toBeInTheDocument();
+
+    // Select role / type
+    fireEvent.click(screen.getByText(/A\. Restaurant \/ Dining/i));
+
+    // Step 3: "your restaurant" form
+    await waitFor(() => {
+      expect(screen.getByText(/your restaurant/i)).toBeInTheDocument();
+    });
+
+    fireEvent.change(screen.getByLabelText(/^name/i), {
+      target: { value: 'Sarah Miller' },
+    });
+    fireEvent.change(screen.getByLabelText(/restaurant legal name/i), {
+      target: { value: 'The Bombay Canteen' },
+    });
+    fireEvent.change(screen.getByLabelText(/^email/i), {
+      target: { value: 'founder@restaurant.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/^password/i), {
+      target: { value: 'SecretPassword123!' },
+    });
+    fireEvent.change(screen.getByLabelText(/^confirm password$/i), {
+      target: { value: 'SecretPassword123!' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /onboard/i }));
+
+    await waitFor(() => {
+      expect(api.register).toHaveBeenCalledWith({
+        restaurantName: 'The Bombay Canteen',
+        fullName: 'Sarah Miller',
+        email: 'founder@restaurant.com',
+        password: 'SecretPassword123!',
+      });
+    });
+  });
 });

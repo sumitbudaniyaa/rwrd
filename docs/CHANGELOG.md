@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-07 - Multi-Step Interactive Sign-Up Flow with SharedLayoutBg & Right Tree Image Framing (M7-T08)
+
+- **Milestone**: Milestone 7 (Auth Modernization & Onboarding UX)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **SharedLayoutBg Component** ([`apps/admin/src/components/motion/shared-layout-bg.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/motion/shared-layout-bg.tsx)):
+    - Created beUI motion `SharedLayoutBg` component utilizing Framer Motion's `layoutId="shared-layout-pill"` and cubic-bezier ease curves for gliding background hover and active pill transitions.
+  - **3-Step Interactive Onboarding Flow** ([`apps/admin/src/screens/LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/LoginScreen.tsx)):
+    - Step 1: Editorial headline `"let's onboard you"` with clean description and `"Next ->"` progression button.
+    - Step 2: Establishment role selection `"i am a..."` with interactive options (`A. Restaurant / Dining`, `B. Bar / Pub / Brewery`, `C. Cafe / Quick Service`), `SharedLayoutBg` gliding pill hover/selection, and automatic advancement to Step 3.
+    - Step 3: Registration form under `"your restaurant"` headline with fields for Admin Full Name, Restaurant Legal Name, City/State/Country 3-column grid, Email, Password, and Confirm Password (with visibility toggles).
+    - Added error handling with `AnimatePresence` server error alert banner, step navigation (`"<- Back"` to previous steps), and `StatefulButton` submit triggering `useAuth().register()`.
+  - **Hero Artwork Right-Tree Framing**:
+    - Updated image container with `object-cover object-[80%_35%]` to ensure both the rolling hills and the right tree are prominently visible within the hero panel.
+  - **Verification & Testing**:
+    - Added integration test in [`apps/admin/tests/auth.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/auth.test.tsx) verifying the 3-step onboarding flow end-to-end.
+    - All 45 unit and integration tests passing in `@tiptable/admin`.
+    - Monorepo `pnpm typecheck`, `pnpm lint`, and Prettier formatting passing with zero warnings or errors.
+
 ### 2026-11-07 - Custom Hero Artwork Integration for Sign In / Sign Up Screen (M7-T07)
 
 - **Milestone**: Milestone 7 (Auth Modernization & Asset Integration)
