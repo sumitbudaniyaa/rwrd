@@ -52,6 +52,9 @@ describe('Customer Screen 3: Amount Selection', () => {
 
     // Default preset is 2nd chip: ₹50
     expect(screen.getByText('Spread happiness')).toBeInTheDocument();
+
+    // rwrd brand logo in top bar
+    expect(screen.getByAltText('rwrd')).toBeInTheDocument();
   });
 
   it('updates amount when selecting a different preset chip', async () => {

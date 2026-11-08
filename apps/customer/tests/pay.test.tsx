@@ -70,6 +70,9 @@ describe('Customer Screen 4: Pay & UPI Deep Link Redirection', () => {
     expect(screen.getByText('ramesh@okaxis')).toBeInTheDocument();
     expect(screen.getByText('Copy ID')).toBeInTheDocument();
     expect(screen.getByText('I have completed payment')).toBeInTheDocument();
+
+    // rwrd brand logo in top bar
+    expect(screen.getByAltText('rwrd')).toBeInTheDocument();
   });
 
   it('copies VPA to clipboard when clicking Copy ID button', async () => {

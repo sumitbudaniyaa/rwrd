@@ -179,7 +179,7 @@ export const ThanksScreen: React.FC = () => {
         <img
           src={rwrdLogo}
           alt="rwrd"
-          className="h-5 w-auto object-contain mx-auto opacity-60 select-none"
+          className="h-8 w-auto object-contain mx-auto opacity-80 select-none"
         />
       </footer>
     </main>

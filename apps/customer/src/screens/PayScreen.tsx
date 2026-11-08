@@ -13,6 +13,7 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { api, ApiError } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import rwrdLogo from '../assets/rwrd.png';
 import type { StaffPublic, TipIntentResponse } from '@tiptable/shared';
 
 export const PayScreen: React.FC = () => {
@@ -176,10 +177,9 @@ export const PayScreen: React.FC = () => {
             <span>{t('common.back')}</span>
           </button>
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider font-sans">
-              {restaurant.name}
-            </span>
+          <div className="flex items-center">
+            <span className="sr-only">rwrd</span>
+            <img src={rwrdLogo} alt="rwrd" className="h-6 w-auto object-contain select-none" />
           </div>
         </div>
 

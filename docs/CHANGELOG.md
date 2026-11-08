@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Scale Up Brand Logo & Replace Restaurant Name with rwrd Logo on Customer Sub-Pages (M7-T39)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Brand Logo Scaling**:
+    - Increased `rwrd` brand logo scale in footers from `h-5` (20px) to `h-8` (32px, `opacity-80`) across [`HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx), [`ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx), and [`NoTokenScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/NoTokenScreen.tsx) for clear, crisp prominence.
+  - **Sub-Page Top Bar Brand Logo Alignment**:
+    - Replaced the right-aligned `{restaurant.name}` text in the top bar of [`StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx), [`AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx), and [`PayScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/PayScreen.tsx) with the official `rwrd` logo (`h-6 w-auto object-contain select-none`), ensuring clean symmetry with the left Back button.
+  - **NoTokenScreen Footer Polish**:
+    - Replaced legacy "Powered by rwrd" footer copy with the official `rwrd` brand logo.
+  - **Testing & Verification**:
+    - Added assertions in [`staff.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/staff.test.tsx), [`amount.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/amount.test.tsx), and [`pay.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/pay.test.tsx) verifying top-bar `rwrd` logo rendering.
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - Monorepo TypeScript typecheck passed with 0 errors (`pnpm typecheck`).
+    - Monorepo ESLint passed with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Customer App Header & Footer Branding Overhaul (M7-T38)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

@@ -62,6 +62,9 @@ describe('Customer Screen 2: Staff Directory', () => {
 
     // Initials fallback for Priya Sharma
     expect(screen.getByText('PS')).toBeInTheDocument();
+
+    // rwrd brand logo in top bar
+    expect(screen.getByAltText('rwrd')).toBeInTheDocument();
   });
 
   it('filters staff roster by search query', async () => {

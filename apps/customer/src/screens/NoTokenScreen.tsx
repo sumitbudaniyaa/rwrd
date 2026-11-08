@@ -1,6 +1,7 @@
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { QrCodeIcon } from '@hugeicons/core-free-icons';
+import rwrdLogo from '../assets/rwrd.png';
 
 export const NoTokenScreen: React.FC = () => {
   return (
@@ -29,10 +30,12 @@ export const NoTokenScreen: React.FC = () => {
       </div>
 
       <footer className="mt-12 text-center">
-        <p className="text-[11px] text-stone-400 font-sans">
-          Powered by <strong className="font-semibold text-stone-600">rwrd</strong> • Safe & Direct
-          Peer-to-Peer
-        </p>
+        <span className="sr-only">rwrd</span>
+        <img
+          src={rwrdLogo}
+          alt="rwrd"
+          className="h-8 w-auto object-contain mx-auto opacity-80 select-none"
+        />
       </footer>
     </main>
   );

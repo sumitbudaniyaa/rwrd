@@ -152,3 +152,5 @@ Status values:
 | **M7-T36** | English-Only Customer Experience — Remove Dual-Language Support & Language Switcher from Customer App.                      | `Done` | Senior Staff Agent | 2026-11-08     | English-only customer app     |
 | **M7-T37** | Harmonize Customer App Aesthetics with Admin Design System (Stone Palette, Brand Yellow CTA, `@hugeicons`, Logo).           | `Done` | Senior Staff Agent | 2026-11-08     | Customer app design sync      |
 | **M7-T38** | Customer App Header & Footer Branding Overhaul (Restaurant Logo on Left, Name on Right, Brand Logo at Bottom, No Text).     | `Done` | Senior Staff Agent | 2026-11-08     | Header & footer branding      |
+| **M7-T39** | Scale Up Brand Logo & Replace Restaurant Name with rwrd Logo on Customer Sub-Pages (Staff, Amount, Pay).                    | `Done` | Senior Staff Agent | 2026-11-08     | Brand logo scaling & top-bar  |
+| **M7-T38** | Customer App Header & Footer Branding Overhaul (Restaurant Logo on Left, Name on Right, Brand Logo at Bottom, No Text).     | `Done` | Senior Staff Agent | 2026-11-08     | Header & footer branding      |
