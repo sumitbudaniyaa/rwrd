@@ -28,6 +28,13 @@ interface AuthContextValue {
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+let activeRestorePromise: Promise<{
+  user: AdminUser;
+  restaurant: AdminRestaurant;
+  accessToken: string;
+  impersonation: ImpersonationDetails | null;
+} | null> | null = null;
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AdminUser | null>(null);
   const [restaurant, setRestaurant] = useState<AdminRestaurant | null>(null);
@@ -66,18 +73,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
 
-        const refreshRes = await api.refresh();
-        if (mounted && refreshRes.accessToken) {
-          setAccessToken(refreshRes.accessToken);
-          setAccessTokenState(refreshRes.accessToken);
+        if (!activeRestorePromise) {
+          activeRestorePromise = (async () => {
+            const refreshRes = await api.refresh();
+            if (!refreshRes.accessToken) return null;
+            setAccessToken(refreshRes.accessToken);
+            const meRes = await api.getMe();
+            return {
+              user: meRes.user,
+              restaurant: meRes.restaurant,
+              accessToken: refreshRes.accessToken,
+              impersonation: meRes.impersonation || null,
+            };
+          })().catch(() => null);
+        }
 
-          const meRes = await api.getMe();
-          if (mounted) {
-            setUser(meRes.user);
-            setRestaurant(meRes.restaurant);
-            if (meRes.impersonation) {
-              setImpersonation(meRes.impersonation);
-            }
+        const sessionData = await activeRestorePromise;
+        if (mounted && sessionData) {
+          setAccessToken(sessionData.accessToken);
+          setAccessTokenState(sessionData.accessToken);
+          setUser(sessionData.user);
+          setRestaurant(sessionData.restaurant);
+          if (sessionData.impersonation) {
+            setImpersonation(sessionData.impersonation);
           }
         }
       } catch {
@@ -98,6 +116,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = useCallback(async (email: string, password: string): Promise<LoginResponse> => {
+    activeRestorePromise = null;
     const res = await api.login(email, password);
 
     if (res.mfaRequired && res.tempToken) {
@@ -163,6 +182,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 
   const logout = useCallback(async (): Promise<void> => {
+    activeRestorePromise = null;
     try {
       await api.logout();
     } catch {
@@ -179,6 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const logoutAll = useCallback(async (): Promise<void> => {
+    activeRestorePromise = null;
     try {
       await api.logoutAll();
     } catch {

@@ -207,6 +207,7 @@ export interface AuditLogsResponse {
 }
 
 let inMemoryToken: string | null = null;
+let activeRefreshPromise: Promise<RefreshResponse> | null = null;
 
 export function setAccessToken(token: string | null): void {
   inMemoryToken = token;
@@ -250,17 +251,8 @@ async function request<T>(
     !endpoint.includes('/auth/refresh')
   ) {
     try {
-      const refreshRes = await fetch(`${adminEnv.VITE_API_BASE_URL}/api/v1/admin/auth/refresh`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        credentials: 'include',
-      });
-
-      if (refreshRes.ok) {
-        const refreshData = (await refreshRes.json()) as RefreshResponse;
+      const refreshData = await api.refresh();
+      if (refreshData.accessToken) {
         setAccessToken(refreshData.accessToken);
         return request<T>(endpoint, options, true);
       }
@@ -317,9 +309,22 @@ export const api = {
   },
 
   refresh(): Promise<RefreshResponse> {
-    return request<RefreshResponse>('/admin/auth/refresh', {
+    if (activeRefreshPromise) {
+      return activeRefreshPromise;
+    }
+
+    activeRefreshPromise = request<RefreshResponse>('/admin/auth/refresh', {
       method: 'POST',
-    });
+    })
+      .then((res) => {
+        setAccessToken(res.accessToken);
+        return res;
+      })
+      .finally(() => {
+        activeRefreshPromise = null;
+      });
+
+    return activeRefreshPromise;
   },
 
   logout(): Promise<{ message: string }> {

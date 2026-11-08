@@ -613,7 +613,7 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
             <img
               src={data.logoUrl}
               alt={data.restaurantName}
-              className="w-12 h-12 rounded-xl mx-auto object-cover border border-stone-200"
+              className="max-h-12 max-w-[140px] w-auto h-auto mx-auto object-contain"
             />
           )}
 

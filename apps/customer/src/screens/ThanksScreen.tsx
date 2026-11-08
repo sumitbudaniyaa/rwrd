@@ -89,7 +89,7 @@ export const ThanksScreen: React.FC = () => {
             <img
               src={restaurant.logoUrl}
               alt={restaurant.name}
-              className="w-11 h-11 rounded-full object-cover shadow-2xs border border-stone-200/80"
+              className="max-h-11 max-w-[120px] w-auto h-auto object-contain"
               loading="lazy"
             />
           ) : (

@@ -88,7 +88,7 @@ export const SettingsScreen: React.FC = () => {
     googleReviewUrl.includes('goo.gl') ||
     googleReviewUrl.includes('g.page');
 
-  // Client-side logo upload & compression
+  // Client-side logo upload & compression (preserves alpha transparency and aspect ratio)
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -97,16 +97,29 @@ export const SettingsScreen: React.FC = () => {
     reader.onload = (event) => {
       const img = new Image();
       img.onload = () => {
+        const maxDim = 512;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
         const canvas = document.createElement('canvas');
-        const size = Math.min(img.width, img.height);
-        canvas.width = 256;
-        canvas.height = 256;
+        canvas.width = width;
+        canvas.height = height;
         const ctx = canvas.getContext('2d');
         if (ctx) {
-          const startX = (img.width - size) / 2;
-          const startY = (img.height - size) / 2;
-          ctx.drawImage(img, startX, startY, size, size, 0, 0, 256, 256);
-          const compressed = canvas.toDataURL('image/jpeg', 0.85);
+          ctx.clearRect(0, 0, width, height);
+          ctx.drawImage(img, 0, 0, width, height);
+          // image/png preserves 100% alpha transparency
+          const compressed = canvas.toDataURL('image/png');
           setLogoPreview(compressed);
         }
       };
@@ -416,12 +429,16 @@ export const SettingsScreen: React.FC = () => {
                 {!isEditingLogo ? (
                   <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
                     <div className="flex items-center gap-3.5 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden flex items-center justify-center shrink-0 text-stone-400 shadow-2xs">
+                      <div
+                        className={`w-12 h-12 rounded-xl border border-stone-200/60 overflow-hidden flex items-center justify-center shrink-0 text-stone-400 shadow-2xs ${
+                          logoPreview ? 'bg-transparent p-1' : 'bg-stone-100'
+                        }`}
+                      >
                         {logoPreview ? (
                           <img
                             src={logoPreview}
                             alt="Restaurant Logo"
-                            className="w-full h-full object-cover"
+                            className="max-h-full max-w-full w-auto h-auto object-contain"
                           />
                         ) : (
                           <HugeiconsIcon
@@ -452,12 +469,16 @@ export const SettingsScreen: React.FC = () => {
                 ) : (
                   <div className="space-y-3 p-4 rounded-xl border border-stone-300/80 bg-white shadow-2xs">
                     <div className="flex items-center gap-4">
-                      <div className="w-14 h-14 rounded-2xl bg-stone-100 border border-stone-200/60 overflow-hidden flex items-center justify-center shrink-0 text-stone-400 shadow-2xs">
+                      <div
+                        className={`w-14 h-14 rounded-2xl border border-stone-200/60 overflow-hidden flex items-center justify-center shrink-0 text-stone-400 shadow-2xs ${
+                          logoPreview ? 'bg-transparent p-1' : 'bg-stone-100'
+                        }`}
+                      >
                         {logoPreview ? (
                           <img
                             src={logoPreview}
                             alt="Restaurant Logo"
-                            className="w-full h-full object-cover"
+                            className="max-h-full max-w-full w-auto h-auto object-contain"
                           />
                         ) : (
                           <HugeiconsIcon
@@ -489,7 +510,7 @@ export const SettingsScreen: React.FC = () => {
                           )}
                         </div>
                         <p className="text-[10px] text-stone-400">
-                          Auto-resized and compressed to 256×256 square format.
+                          Auto-scaled with alpha transparency and natural proportions preserved.
                         </p>
                       </div>
                     </div>

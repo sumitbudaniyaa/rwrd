@@ -51,7 +51,7 @@ export const HomeScreen: React.FC = () => {
             <img
               src={restaurant.logoUrl}
               alt={restaurant.name}
-              className="w-11 h-11 rounded-full object-cover shadow-2xs border border-stone-200/80"
+              className="max-h-11 max-w-[120px] w-auto h-auto object-contain"
               loading="eager"
             />
           ) : (
@@ -85,9 +85,6 @@ export const HomeScreen: React.FC = () => {
         <h1 className="font-serif text-4xl sm:text-5xl font-normal text-stone-900 tracking-tight leading-tight">
           {t('home.greeting')}
         </h1>
-        <p className="mt-3 text-sm text-stone-500 font-sans max-w-xs mx-auto">
-          {t('home.subtitle')}
-        </p>
       </section>
 
       {/* Action Cards: Equal Visual Weight */}

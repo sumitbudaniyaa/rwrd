@@ -1,5 +1,5 @@
 import jwt, { type Secret, type SignOptions } from 'jsonwebtoken';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, desc } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import type { CookieOptions } from 'express';
 import { db } from '../db/index.js';
@@ -371,8 +371,85 @@ export class AuthService {
       throw new UnauthorizedError('Invalid refresh session');
     }
 
-    // Token Reuse Detection: If revoked token is used, invalidate entire family!
+    // Token Reuse Detection: If revoked token is used, check grace window before invalidating family
     if (session.isRevoked) {
+      // Check if this was a recent rotation within a 30-second grace window (RFC 6819 OAuth 2.0 BCP)
+      // Triggered by concurrent requests, rapid reloads, or React StrictMode double mounts
+      const [latestActiveSession] = await db
+        .select()
+        .from(sessions)
+        .where(and(eq(sessions.familyId, session.familyId), eq(sessions.isRevoked, false)))
+        .orderBy(desc(sessions.createdAt))
+        .limit(1);
+
+      const ROTATION_GRACE_PERIOD_MS = 30_000;
+      if (
+        latestActiveSession &&
+        Date.now() - latestActiveSession.createdAt.getTime() < ROTATION_GRACE_PERIOD_MS
+      ) {
+        logger.info(
+          { familyId: session.familyId, userId: session.userId },
+          'Refresh token re-submitted within 30s grace window. Re-issuing active session tokens without revoking family.',
+        );
+
+        let role = 'user';
+        let restaurantId: string | undefined = latestActiveSession.restaurantId ?? undefined;
+
+        if (latestActiveSession.userType === 'restaurant_user') {
+          const [u] = await db
+            .select()
+            .from(restaurantUsers)
+            .where(eq(restaurantUsers.id, latestActiveSession.userId))
+            .limit(1);
+          if (!u || !u.isActive) throw new UnauthorizedError('User account inactive');
+          role = u.role;
+          restaurantId = u.restaurantId;
+        } else {
+          const [u] = await db
+            .select()
+            .from(platformUsers)
+            .where(eq(platformUsers.id, latestActiveSession.userId))
+            .limit(1);
+          if (!u || !u.isActive) throw new UnauthorizedError('User account inactive');
+          role = u.role;
+        }
+
+        // Rotate into a new active session
+        await db
+          .update(sessions)
+          .set({ isRevoked: true })
+          .where(eq(sessions.id, latestActiveSession.id));
+
+        const newRawRefreshToken = generateSecureToken(32);
+        const newRefreshTokenHash = hashToken(newRawRefreshToken);
+        const ttlDays = realm === 'admin' ? 7 : 1;
+        const expiresAt = new Date(Date.now() + ttlDays * 24 * 60 * 60 * 1000);
+
+        await db.insert(sessions).values({
+          userType: latestActiveSession.userType,
+          userId: latestActiveSession.userId,
+          restaurantId: latestActiveSession.restaurantId,
+          refreshTokenHash: newRefreshTokenHash,
+          familyId: latestActiveSession.familyId,
+          ipAddress: metadata?.ipAddress,
+          userAgent: metadata?.userAgent,
+          expiresAt,
+        });
+
+        const accessToken = this.generateAccessToken({
+          sub: latestActiveSession.userId,
+          role,
+          realm,
+          restaurantId,
+        });
+
+        return {
+          accessToken,
+          refreshToken: newRawRefreshToken,
+          expiresInSeconds: 900,
+        };
+      }
+
       logger.warn(
         { familyId: session.familyId, userId: session.userId },
         'Token reuse detected! Revoking entire session family.',

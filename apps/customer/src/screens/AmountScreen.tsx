@@ -179,21 +179,22 @@ export const AmountScreen: React.FC = () => {
                   key={preset}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
+                  style={{ zIndex: isSelected ? 10 : 1 }}
                   className={`relative py-3 min-h-[48px] flex items-center justify-center rounded-xl text-sm font-semibold transition-colors cursor-pointer select-none outline-none focus:outline-none ${
                     isSelected
                       ? 'text-stone-950 font-bold'
-                      : 'bg-white border border-stone-200 text-stone-800 hover:border-stone-300 hover:bg-stone-50 active:scale-95'
+                      : 'bg-white border border-stone-200 text-stone-800 hover:border-stone-300 hover:bg-stone-50'
                   }`}
                 >
                   {isSelected && (
                     <motion.span
                       layoutId="amount-preset-active-pill"
-                      className="absolute inset-0 bg-[#FFE862] border border-[#E5CF4B] rounded-xl shadow-2xs -z-0"
+                      className="absolute inset-0 bg-[#FFE862] border border-[#E5CF4B] rounded-xl shadow-2xs z-0"
                       transition={{
                         type: 'spring',
-                        stiffness: 280,
-                        damping: 28,
-                        mass: 1,
+                        stiffness: 380,
+                        damping: 30,
+                        mass: 0.8,
                       }}
                     />
                   )}
@@ -212,7 +213,7 @@ export const AmountScreen: React.FC = () => {
               {t('amount.custom_label')}
             </label>
             <div className="relative rounded-xl shadow-2xs">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400 font-semibold text-lg font-serif">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400 font-medium text-base font-sans select-none">
                 ₹
               </div>
               <input
@@ -222,7 +223,7 @@ export const AmountScreen: React.FC = () => {
                 value={customInput}
                 onChange={handleCustomChange}
                 placeholder={t('amount.custom_placeholder')}
-                className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white border text-lg font-semibold text-stone-900 placeholder:text-stone-400 placeholder:font-normal placeholder:text-sm focus:outline-none transition-all font-sans ${
+                className={`w-full pl-8 pr-4 py-3 rounded-xl bg-white border text-base font-semibold text-stone-900 placeholder:text-stone-400 placeholder:font-normal placeholder:text-base focus:outline-none transition-all font-sans leading-normal ${
                   validationError && isCustom
                     ? 'border-red-400 focus:ring-2 focus:ring-red-100'
                     : 'border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200'

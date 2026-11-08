@@ -6,6 +6,50 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Customer App Experience & Motion Polish (M7-T44)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **ReactDrops-Style Page Transitions in Customer App**:
+    - Integrated fluid `reactdrops.dev` route transition animation (`opacity: 0, y: 28px, scale: 0.985 -> 1` with `cubic-bezier(0.16, 1, 0.3, 1)`) via `<AnimatePresence mode="wait">` in [`apps/customer/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/App.tsx).
+    - Customer screens (Home, Staff Directory, Amount Selection, Pay & Thanks) now transition with signature physical lift, scale, and subtle fade.
+  - **Bidirectional Tip Preset Glide Symmetry**:
+    - Fixed backward preset chip animation in [`apps/customer/src/screens/AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx) by applying dynamic elevated stacking context `style={{ zIndex: isSelected ? 10 : 1 }}` and removing `active:scale-95`.
+    - Tuned spring physics (`stiffness: 380, damping: 30, mass: 0.8`) so sliding left-to-right and right-to-left exhibit 100% identical velocity, trajectory, and smooth visual response.
+  - **Rupee Symbol & Placeholder Baseline Alignment**:
+    - Unified typography metrics in [`apps/customer/src/screens/AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx) to `font-sans text-base` across the rupee icon container and input element.
+    - `₹` and `"Other amount"` placeholder now sit at the exact same horizontal baseline and vertical center.
+  - **Removed Home Screen Subtitle Text**:
+    - Removed `"Choose an option below to show your appreciation"` from [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx), leaving the clean editorial greeting.
+  - **Preserved Natural Logo Transparency & Proportions**:
+    - Updated [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx) to export uploaded logos as `image/png` instead of `image/jpeg`, preserving full alpha transparency and eliminating artificial black backgrounds.
+    - Replaced 1:1 square force-cropping with proportional aspect ratio scaling within max 512×512 bounds.
+    - Removed `rounded-full` circle clipping, grey borders, and drop shadows in [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx), [`apps/customer/src/screens/ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx), and [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx) to display uploaded logos authentically on a transparent background.
+  - **Testing & Verification**:
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - All 9 admin test suites (46 tests) passing (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck clean with 0 errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with 0 errors (`pnpm lint`).
+
+### 2026-11-09 - Session Persistence & Refresh Token Grace Period (M7-T43)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Eliminated Admin Auto-Logout on Reload**:
+    - Identified root cause of unexpected session drops on page reload: React 18 StrictMode double-invoked session restoration on mount. Call 1 rotated the refresh token, while concurrent Call 2 arrived with the previous token. The backend's token-reuse detector mistook this for token reuse and revoked the entire session family.
+  - **OAuth 2.0 30-Second Rotation Grace Period (RFC 6819 BCP)**:
+    - Updated `rotateRefreshToken` in [`apps/api/src/services/authService.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/services/authService.ts) to verify whether an already-rotated token was rotated within a 30-second grace window.
+    - If presented within 30 seconds of successor token creation (concurrent requests / reload race), the backend re-issues active session credentials and advances the session forward rather than destroying the session family.
+  - **Frontend Refresh Deduplication & Mount Preservation**:
+    - Added shared in-flight promise deduplication to `api.refresh()` in [`apps/admin/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/services/api.ts) so concurrent refresh callers share a single network request.
+    - Added module-level session restoration promise preservation in [`apps/admin/src/context/AuthContext.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/context/AuthContext.tsx) so React StrictMode unmounts do not discard the authenticated user.
+  - **Testing & Verification**:
+    - All 27 API test suites (174 tests) passing (`pnpm --filter "@tiptable/api" test`).
+    - All 9 admin test suites (46 tests) passing (`pnpm --filter "@tiptable/admin" test`).
+    - Full monorepo TypeScript typecheck clean with 0 errors (`pnpm typecheck`).
+
 ### 2026-11-08 - Integrate beUI Spring-Gliding Active Tab Animation for Tip Presets (M7-T42)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
