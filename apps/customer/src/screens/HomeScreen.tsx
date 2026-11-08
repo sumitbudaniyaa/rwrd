@@ -5,7 +5,6 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
 import { api } from '../services/api.js';
-import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 
 export const HomeScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -42,11 +41,6 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full">
-      {/* Top Bar with Language Switcher */}
-      <div className="w-full flex justify-end pb-1">
-        <LanguageSwitcher />
-      </div>
-
       {/* Header Section: Branding & Table Indicator */}
       <header className="pt-2 pb-4 flex flex-col items-center text-center">
         {restaurant.logoUrl ? (

@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - English-Only Customer Experience — Remove Dual-Language Support & Language Switcher (M7-T36)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Eliminated Dual-Language Support**:
+    - Removed `<LanguageSwitcher />` and top-right toggle buttons across all customer screens:
+      - [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx)
+      - [`apps/customer/src/screens/StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx)
+      - [`apps/customer/src/screens/AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx)
+      - [`apps/customer/src/screens/PayScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/PayScreen.tsx)
+      - [`apps/customer/src/screens/ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx)
+    - Removed `LanguageSwitcher.tsx` component and deleted Hindi resource bundle (`hi.json`).
+    - Locked [`apps/customer/src/i18n/index.ts`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/i18n/index.ts) strictly to English (`lng: 'en'`, `fallbackLng: 'en'`).
+  - **Testing & Verification**:
+    - Updated [`apps/customer/tests/i18n.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/i18n.test.tsx) to verify English rendering and assert that language switcher toggle buttons are not present in the DOM.
+    - All 20 customer tests passed (`pnpm --filter "@tiptable/customer" test`).
+    - Monorepo TypeScript typecheck and ESLint passed with 0 errors (`pnpm typecheck && pnpm lint`).
+
 ### 2026-11-08 - Restore Subtitle Descriptions & Remove Dividing Border Line Under Main Headings (M7-T35)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

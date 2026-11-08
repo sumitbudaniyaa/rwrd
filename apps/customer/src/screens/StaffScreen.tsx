@@ -6,7 +6,6 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
-import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 import type { StaffPublic } from '@tiptable/shared';
 
 export const StaffScreen: React.FC = () => {
@@ -89,10 +88,9 @@ export const StaffScreen: React.FC = () => {
         </button>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider hidden sm:inline">
+          <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider">
             {restaurant.name}
           </span>
-          <LanguageSwitcher />
         </div>
       </div>
 

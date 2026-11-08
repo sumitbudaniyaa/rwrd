@@ -5,7 +5,6 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
-import { LanguageSwitcher } from '../components/LanguageSwitcher.js';
 
 interface TipSessionState {
   staffName?: string | undefined;
@@ -80,11 +79,8 @@ export const ThanksScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full text-center">
-      {/* Top Header Branding & Language Switcher */}
+      {/* Top Header Branding */}
       <div>
-        <div className="w-full flex justify-end pb-1">
-          <LanguageSwitcher />
-        </div>
         <header className="pt-2 flex flex-col items-center">
           {restaurant.logoUrl ? (
             <img
