@@ -9,10 +9,24 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Accessible focus rings */
+  body {
+    @apply bg-[#FAFAF9] text-stone-900 font-sans;
+  }
+
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'],
+  input,
+  textarea,
+  select {
+    outline: none !important;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   :focus-visible {
-    outline: 2px solid #10b981;
-    outline-offset: 2px;
+    outline: 2px solid #FFE862;
+    outline-offset: 1px;
   }
 }
 

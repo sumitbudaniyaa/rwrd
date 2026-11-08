@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowLeft02Icon } from '@hugeicons/core-free-icons';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
@@ -23,26 +25,26 @@ export const AmountScreen: React.FC = () => {
     queryFn: () => (restaurant ? api.getStaff(restaurant.id) : Promise.reject()),
     enabled: Boolean(restaurant?.id && !stateStaff),
     staleTime: 60 * 1000,
-    retry: false,
   });
 
   const staff = stateStaff || staffData?.staff?.find((s) => s.id === staffId);
 
   const presets = restaurant?.tipPresets || [20, 50, 100, 200];
-  const minTip = restaurant?.minTipInr || 1;
-  const maxTip = restaurant?.maxTipInr || 10000;
+  const minTip = restaurant?.minTipInr ?? 10;
+  const maxTip = restaurant?.maxTipInr ?? 5000;
 
-  // Default to the 2nd preset chip (e.g., ₹50 or ₹100)
-  const defaultPreset = (presets.length >= 2 ? presets[1] : presets[0]) ?? 50;
-  const [amount, setAmount] = useState<number>(defaultPreset);
+  // Default to second preset or 50
+  const defaultAmount = presets[1] || presets[0] || 50;
+
+  const [amount, setAmount] = useState<number>(defaultAmount);
   const [customInput, setCustomInput] = useState<string>('');
   const [isCustom, setIsCustom] = useState<boolean>(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Validate whenever amount changes
+  // Validate bounds whenever amount changes
   useEffect(() => {
-    if (!amount || isNaN(amount)) {
-      setValidationError('Please enter a tip amount');
+    if (amount <= 0) {
+      setValidationError(null);
       return;
     }
     if (amount < minTip) {
@@ -108,30 +110,26 @@ export const AmountScreen: React.FC = () => {
             type="button"
             onClick={handleBack}
             aria-label="Back to staff list"
-            className="inline-flex items-center gap-1.5 py-2 px-3 -ml-3 rounded-full text-charcoal-700 hover:bg-cream-200/70 active:scale-95 transition-all text-xs font-medium focus-visible:ring-2 focus-visible:ring-brand-accent focus:outline-none"
+            className="inline-flex items-center gap-1.5 py-1.5 px-3 -ml-3 rounded-xl text-stone-700 hover:bg-stone-100 active:scale-95 transition-all text-xs font-medium cursor-pointer"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
+            <HugeiconsIcon
+              icon={ArrowLeft02Icon}
+              className="w-4 h-4 text-stone-700"
+              strokeWidth={1.5}
+            />
             <span>{t('common.back')}</span>
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider font-sans">
               {restaurant.name}
             </span>
           </div>
         </div>
 
         {/* Selected Staff Profile Card */}
-        <div className="mt-2 p-4 rounded-2xl bg-white border border-cream-300/80 shadow-sm flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-xl bg-cream-200 overflow-hidden flex-shrink-0 flex items-center justify-center font-serif text-xl font-medium text-charcoal-700">
+        <div className="mt-2 p-4 rounded-2xl bg-white border border-stone-200/80 shadow-2xs flex items-center gap-3.5">
+          <div className="w-14 h-14 rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden flex-shrink-0 flex items-center justify-center font-serif text-xl font-medium text-stone-700">
             {staff.photoUrl ? (
               <img
                 src={staff.photoUrl}
@@ -149,10 +147,10 @@ export const AmountScreen: React.FC = () => {
             )}
           </div>
           <div>
-            <h2 className="font-serif text-lg font-medium text-charcoal-900 leading-snug">
+            <h2 className="font-serif text-lg font-medium text-stone-900 leading-snug">
               {staff.displayName}
             </h2>
-            <p className="text-xs text-charcoal-500 font-sans mt-0.5">
+            <p className="text-xs text-stone-500 font-sans mt-0.5">
               {staff.roleLabel || t('staff.default_role')}
             </p>
           </div>
@@ -160,10 +158,10 @@ export const AmountScreen: React.FC = () => {
 
         {/* Amount Section */}
         <section className="pt-8 pb-4">
-          <h1 className="font-serif text-2xl font-normal text-charcoal-900 text-center tracking-tight">
+          <h1 className="font-serif text-2xl font-normal text-stone-900 text-center tracking-tight">
             {t('amount.title')}
           </h1>
-          <p className="mt-1 text-xs text-charcoal-500 font-sans text-center">
+          <p className="mt-1 text-xs text-stone-500 font-sans text-center">
             {t('amount.subtitle', { name: staff.displayName.split(' ')[0] })}
           </p>
 
@@ -176,10 +174,10 @@ export const AmountScreen: React.FC = () => {
                   key={preset}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
-                  className={`py-3 min-h-[48px] flex items-center justify-center rounded-xl text-sm font-semibold transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
+                  className={`py-3 min-h-[48px] flex items-center justify-center rounded-xl text-sm font-semibold transition-all cursor-pointer ${
                     isSelected
-                      ? 'bg-charcoal-900 text-white shadow-sm scale-[1.02]'
-                      : 'bg-white border border-cream-300 text-charcoal-800 hover:border-brand-accent/50 active:scale-95'
+                      ? 'bg-[#FFE862] text-stone-950 font-bold border border-[#E5CF4B] shadow-2xs scale-[1.02]'
+                      : 'bg-white border border-stone-200 text-stone-800 hover:border-stone-300 hover:bg-stone-50 active:scale-95'
                   }`}
                 >
                   ₹{preset}
@@ -192,12 +190,12 @@ export const AmountScreen: React.FC = () => {
           <div className="mt-5">
             <label
               htmlFor="custom-amount"
-              className="block text-xs font-medium text-charcoal-600 mb-1.5"
+              className="block text-xs font-medium text-stone-600 mb-1.5 font-sans"
             >
               {t('amount.custom_label')}
             </label>
-            <div className="relative rounded-xl shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-charcoal-500 font-semibold text-lg">
+            <div className="relative rounded-xl shadow-2xs">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-stone-400 font-semibold text-lg font-serif">
                 ₹
               </div>
               <input
@@ -207,15 +205,15 @@ export const AmountScreen: React.FC = () => {
                 value={customInput}
                 onChange={handleCustomChange}
                 placeholder={t('amount.custom_placeholder')}
-                className={`w-full pl-9 pr-4 py-3.5 rounded-xl bg-white border text-lg font-semibold text-charcoal-900 placeholder:text-charcoal-400 placeholder:font-normal placeholder:text-sm focus:outline-none transition-all ${
+                className={`w-full pl-9 pr-4 py-3 rounded-xl bg-white border text-lg font-semibold text-stone-900 placeholder:text-stone-400 placeholder:font-normal placeholder:text-sm focus:outline-none transition-all font-sans ${
                   validationError && isCustom
-                    ? 'border-red-400 focus:ring-1 focus:ring-red-400'
-                    : 'border-cream-300 focus:border-brand-accent focus:ring-1 focus:ring-brand-accent'
+                    ? 'border-red-400 focus:ring-2 focus:ring-red-100'
+                    : 'border-stone-200 focus:border-stone-400 focus:ring-2 focus:ring-stone-200'
                 }`}
               />
             </div>
             {validationError && (
-              <p className="mt-1.5 text-xs text-red-600 font-medium">{validationError}</p>
+              <p className="mt-1.5 text-xs text-red-600 font-medium font-sans">{validationError}</p>
             )}
           </div>
         </section>
@@ -227,17 +225,17 @@ export const AmountScreen: React.FC = () => {
           type="button"
           onClick={handleProceed}
           disabled={isButtonDisabled}
-          className={`w-full py-4 rounded-xl text-base font-medium transition-all flex items-center justify-center gap-2 shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent ${
+          className={`w-full py-3.5 rounded-xl text-base font-semibold transition-all flex items-center justify-center gap-2 shadow-xs cursor-pointer ${
             isButtonDisabled
-              ? 'bg-cream-300/60 text-charcoal-400 cursor-not-allowed'
-              : 'bg-emerald-600 hover:bg-emerald-700 active:scale-[0.99] text-white'
+              ? 'bg-stone-100 text-stone-400 border border-stone-200/60 cursor-not-allowed shadow-none'
+              : 'bg-[#FFE862] hover:bg-[#F5DE53] active:bg-[#ebd347] active:scale-[0.98] text-stone-950'
           }`}
         >
           <span>{t('amount.button')}</span>
           {!isButtonDisabled && amount > 0 && (
             <>
               <span>•</span>
-              <span className="font-semibold">₹{amount.toLocaleString('en-IN')}</span>
+              <span className="font-bold">₹{amount.toLocaleString('en-IN')}</span>
             </>
           )}
         </button>

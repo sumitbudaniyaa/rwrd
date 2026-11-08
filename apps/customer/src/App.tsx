@@ -75,7 +75,7 @@ export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <div className="mx-auto min-h-screen max-w-[440px] bg-cream-50 text-charcoal-900 shadow-sm flex flex-col font-sans">
+        <div className="mx-auto min-h-screen max-w-[420px] bg-[#FAFAF9] text-stone-900 sm:border-x sm:border-stone-200/70 shadow-sm flex flex-col font-sans">
           <Routes>
             {/* Direct QR Link: /r/:token -> /t/:token */}
             <Route path="/r/:token/*" element={<RedirectQrRoute />} />

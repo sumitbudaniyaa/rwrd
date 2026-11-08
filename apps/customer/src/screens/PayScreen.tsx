@@ -2,6 +2,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  ArrowLeft02Icon,
+  Copy01Icon,
+  CheckmarkCircle02Icon,
+  CoinsSwapIcon,
+} from '@hugeicons/core-free-icons';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api, ApiError } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
@@ -27,7 +34,6 @@ export const PayScreen: React.FC = () => {
     queryFn: () => (restaurant ? api.getStaff(restaurant.id) : Promise.reject()),
     enabled: Boolean(restaurant?.id && !stateStaff),
     staleTime: 60 * 1000,
-    retry: false,
   });
 
   const staff = stateStaff || staffData?.staff?.find((s) => s.id === staffId);
@@ -36,16 +42,14 @@ export const PayScreen: React.FC = () => {
   const [isIntentLoading, setIsIntentLoading] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
-  const intentCreatedRef = useRef<boolean>(false);
+  const hasTriggeredRef = useRef(false);
 
+  // Generate tip intent on screen mount and auto-trigger UPI deep link
   useEffect(() => {
-    if (!staff || !amountInr || !token || !restaurant || intentCreatedRef.current) {
-      return;
-    }
+    if (!token || !staff?.id || !amountInr || !restaurant?.id) return;
+    if (hasTriggeredRef.current) return;
+    hasTriggeredRef.current = true;
 
-    intentCreatedRef.current = true;
-
-    // Detect coarse platform
     const userAgent = navigator.userAgent || '';
     const deviceOs = /iPad|iPhone|iPod/.test(userAgent)
       ? 'iOS'
@@ -97,10 +101,10 @@ export const PayScreen: React.FC = () => {
         if (err instanceof ApiError) {
           setErrorMessage(err.problem.detail || err.problem.title);
         } else {
-          setErrorMessage('Failed to create tip intent. Please try again.');
+          setErrorMessage('Could not generate payment link. Please try again.');
         }
       });
-  }, [staff, amountInr, token, restaurant]);
+  }, [token, staff?.id, amountInr, restaurant?.id, restaurant?.name, staff?.displayName]);
 
   if (isRestaurantLoading || (isStaffLoading && !stateStaff) || isIntentLoading) {
     return <LoadingScreen />;
@@ -162,22 +166,18 @@ export const PayScreen: React.FC = () => {
             type="button"
             onClick={() => navigate(`/t/${token}/staff/${staff.id}`, { state: { staff } })}
             aria-label="Back to amount selection"
-            className="inline-flex items-center gap-1.5 py-2 px-3 -ml-3 rounded-full text-charcoal-700 hover:bg-cream-200/70 active:scale-95 transition-all text-xs font-medium focus-visible:ring-2 focus-visible:ring-brand-accent focus:outline-none"
+            className="inline-flex items-center gap-1.5 py-1.5 px-3 -ml-3 rounded-xl text-stone-700 hover:bg-stone-100 active:scale-95 transition-all text-xs font-medium cursor-pointer"
           >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-            </svg>
+            <HugeiconsIcon
+              icon={ArrowLeft02Icon}
+              className="w-4 h-4 text-stone-700"
+              strokeWidth={1.5}
+            />
             <span>{t('common.back')}</span>
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-medium text-charcoal-400 uppercase tracking-wider">
+            <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider font-sans">
               {restaurant.name}
             </span>
           </div>
@@ -185,57 +185,54 @@ export const PayScreen: React.FC = () => {
 
         {/* Status Prompt */}
         <section className="pt-6 pb-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-emerald-100/70 text-emerald-700 mx-auto flex items-center justify-center mb-4">
-            <svg
-              className="w-8 h-8 animate-pulse"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3"
-              />
-            </svg>
+          <div className="w-16 h-16 rounded-2xl bg-[#FFE862]/25 border border-[#FFE862]/50 text-stone-900 mx-auto flex items-center justify-center mb-4">
+            <HugeiconsIcon
+              icon={CoinsSwapIcon}
+              className="w-8 h-8 text-stone-900 animate-pulse"
+              strokeWidth={1.5}
+            />
           </div>
 
-          <h1 className="font-serif text-2xl font-normal text-charcoal-900 tracking-tight">
+          <h1 className="font-serif text-2xl font-normal text-stone-900 tracking-tight">
             {t('pay.opening')}
           </h1>
-          <p className="mt-1 text-sm text-charcoal-500 font-sans">
+          <p className="mt-1 text-sm text-stone-500 font-sans">
             {t('pay.sending', { amount: amountInr, name: staff.displayName })}
           </p>
         </section>
 
         {/* Fallback Card for Devices / Browsers */}
-        <div className="p-5 rounded-2xl bg-white border border-cream-300 shadow-sm space-y-4">
+        <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-2xs space-y-4">
           <div>
-            <h2 className="text-xs font-semibold text-charcoal-700 uppercase tracking-wide">
+            <h2 className="text-xs font-semibold text-stone-700 uppercase tracking-wide font-sans">
               {t('pay.fallback_title')}
             </h2>
-            <p className="mt-1 text-xs text-charcoal-500 leading-relaxed font-sans">
+            <p className="mt-1 text-xs text-stone-500 leading-relaxed font-sans">
               {t('pay.fallback_desc')}
             </p>
           </div>
 
           {vpa && (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-cream-100 border border-cream-200">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-stone-50 border border-stone-200/60">
               <div className="truncate pr-2">
-                <span className="block text-[10px] uppercase font-semibold text-charcoal-400">
+                <span className="block text-[10px] uppercase font-semibold text-stone-400 font-sans">
                   {t('pay.recipient_id')}
                 </span>
-                <span className="text-xs font-mono font-medium text-charcoal-800 truncate block">
+                <span className="text-xs font-mono font-medium text-stone-900 truncate block">
                   {vpa}
                 </span>
               </div>
               <button
                 type="button"
                 onClick={handleCopyVpa}
-                className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-white border border-cream-300 text-xs font-medium text-charcoal-800 hover:bg-cream-50 active:scale-95 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+                className="flex-shrink-0 px-3 py-1.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold text-stone-800 hover:bg-stone-50 active:scale-95 transition-all shadow-2xs cursor-pointer flex items-center gap-1.5"
               >
-                {copied ? t('pay.copied') : t('pay.copy_id')}
+                <HugeiconsIcon
+                  icon={copied ? CheckmarkCircle02Icon : Copy01Icon}
+                  className="w-3.5 h-3.5"
+                  strokeWidth={1.5}
+                />
+                <span>{copied ? t('pay.copied') : t('pay.copy_id')}</span>
               </button>
             </div>
           )}
@@ -243,7 +240,7 @@ export const PayScreen: React.FC = () => {
           <button
             type="button"
             onClick={handleOpenAgain}
-            className="w-full py-2.5 rounded-xl border border-cream-300 bg-white hover:bg-cream-100 text-xs font-medium text-charcoal-800 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+            className="w-full py-2.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-xs font-medium text-stone-800 transition-all shadow-2xs cursor-pointer"
           >
             {t('pay.reopen')}
           </button>
@@ -255,11 +252,11 @@ export const PayScreen: React.FC = () => {
         <button
           type="button"
           onClick={handleDone}
-          className="w-full py-4 rounded-xl bg-charcoal-900 hover:bg-charcoal-800 active:scale-[0.99] text-white text-base font-medium transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
+          className="w-full py-3.5 rounded-xl bg-[#FFE862] hover:bg-[#F5DE53] active:bg-[#ebd347] active:scale-[0.98] text-stone-950 text-base font-semibold transition-all shadow-xs cursor-pointer"
         >
           {t('pay.completed_btn')}
         </button>
-        <p className="text-[11px] text-center text-charcoal-400">{t('pay.disclaimer')}</p>
+        <p className="text-[11px] text-center text-stone-400 font-sans">{t('pay.disclaimer')}</p>
       </footer>
     </main>
   );

@@ -6,6 +6,26 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Harmonize Customer App Aesthetics with Admin Design System (M7-T37)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Color Palette & Layout Harmonization**:
+    - Aligned customer app background and surfaces to the warm stone palette (`bg-[#FAFAF9]`, `text-stone-900`, `text-stone-500`, `border-stone-200/80`, `rounded-2xl`, `shadow-2xs`).
+    - Styled primary CTA buttons and active preset chips with the signature brand yellow accent (`#FFE862`, hover `#F5DE53`, active `#ebd347`, text `text-stone-950`).
+    - Standardized container styling to `max-w-[420px] mx-auto min-h-screen bg-[#FAFAF9] sm:border-x sm:border-stone-200/70 shadow-sm`.
+  - **Vector Iconography Upgrade**:
+    - Replaced all raw SVG paths with `@hugeicons/react` components with `@hugeicons/core-free-icons` and standard `strokeWidth={1.5}` across all customer screens (`HomeScreen`, `StaffScreen`, `AmountScreen`, `PayScreen`, `ThanksScreen`, `ErrorScreen`, `NoTokenScreen`).
+  - **Branding & Visual Polish**:
+    - Deployed official stylized `rwrd` watermark in customer footer.
+    - Updated `index.html` theme-color to `#FAFAF9` and `styles/index.css` outline highlights to brand yellow `#FFE862`.
+    - Modernized state cards (skeleton shimmers in `LoadingScreen`, error pill in `ErrorScreen`, QR box in `NoTokenScreen`).
+  - **Testing & Verification**:
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - Monorepo TypeScript typecheck passed with zero errors (`pnpm typecheck`).
+    - Monorepo ESLint passed with zero errors (`pnpm lint`).
+
 ### 2026-11-08 - English-Only Customer Experience — Remove Dual-Language Support & Language Switcher (M7-T36)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
