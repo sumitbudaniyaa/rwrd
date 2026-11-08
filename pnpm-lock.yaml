@@ -429,6 +429,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      framer-motion:
+        specifier: ^14.9.1
+        version: 14.9.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       i18next:
         specifier: ^24.2.2
         version: 24.2.3(typescript@5.9.3)

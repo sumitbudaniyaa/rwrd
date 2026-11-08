@@ -6,6 +6,21 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Integrate beUI Spring-Gliding Active Tab Animation for Tip Presets (M7-T42)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **beUI Spring-Physics Preset Tabs**:
+    - Added `framer-motion` to [`apps/customer/package.json`](file:///Users/Sumit/Desktop/rwrd/apps/customer/package.json).
+    - Upgraded tip preset selection chips in [`apps/customer/src/screens/AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx) with a shared moving active pill (`<motion.span layoutId="amount-preset-active-pill">`).
+    - Integrated spring physics (`stiffness: 280, damping: 28, mass: 1`) so the signature yellow brand card (`#FFE862` with `#E5CF4B` border) smoothly glides from chip to chip when tapping presets.
+    - Seamlessly clears when entering a custom amount and springs back when selecting any preset.
+  - **Testing & Verification**:
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - Full monorepo TypeScript typecheck clean with 0 errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Restore Full-Color Solid Brand Logo & Remove Opacity (M7-T41)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
+import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft02Icon } from '@hugeicons/core-free-icons';
 import { useRestaurant } from '../context/RestaurantContext.js';
@@ -169,8 +170,8 @@ export const AmountScreen: React.FC = () => {
             {t('amount.subtitle', { name: staff.displayName.split(' ')[0] })}
           </p>
 
-          {/* Preset Chips */}
-          <div className="grid grid-cols-4 gap-2.5 mt-6">
+          {/* Preset Chips with beUI Spring-Gliding Active Pill */}
+          <motion.div layoutRoot className="grid grid-cols-4 gap-2.5 mt-6">
             {presets.map((preset) => {
               const isSelected = !isCustom && amount === preset;
               return (
@@ -178,17 +179,29 @@ export const AmountScreen: React.FC = () => {
                   key={preset}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
-                  className={`py-3 min-h-[48px] flex items-center justify-center rounded-xl text-sm font-semibold transition-all cursor-pointer ${
+                  className={`relative py-3 min-h-[48px] flex items-center justify-center rounded-xl text-sm font-semibold transition-colors cursor-pointer select-none outline-none focus:outline-none ${
                     isSelected
-                      ? 'bg-[#FFE862] text-stone-950 font-bold border border-[#E5CF4B] shadow-2xs scale-[1.02]'
+                      ? 'text-stone-950 font-bold'
                       : 'bg-white border border-stone-200 text-stone-800 hover:border-stone-300 hover:bg-stone-50 active:scale-95'
                   }`}
                 >
-                  ₹{preset}
+                  {isSelected && (
+                    <motion.span
+                      layoutId="amount-preset-active-pill"
+                      className="absolute inset-0 bg-[#FFE862] border border-[#E5CF4B] rounded-xl shadow-2xs -z-0"
+                      transition={{
+                        type: 'spring',
+                        stiffness: 280,
+                        damping: 28,
+                        mass: 1,
+                      }}
+                    />
+                  )}
+                  <span className="relative z-10 transition-colors duration-150">₹{preset}</span>
                 </button>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Custom Amount Input */}
           <div className="mt-5">

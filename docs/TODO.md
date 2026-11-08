@@ -155,3 +155,4 @@ Status values:
 | **M7-T39** | Scale Up Brand Logo & Replace Restaurant Name with rwrd Logo on Customer Sub-Pages (Staff, Amount, Pay).                    | `Done` | Senior Staff Agent | 2026-11-08     | Brand logo scaling & top-bar  |
 | **M7-T40** | Brand Asset Tight-Crop & High-Legibility Logo Scaling Across Customer App (Transparent 1735×817 Wordmark).                  | `Done` | Senior Staff Agent | 2026-11-08     | Tight-crop logo asset         |
 | **M7-T41** | Restore Full-Color Solid Brand Logo (100% Solid Opacity & Remove Washed-Out Opacity Utility Classes).                       | `Done` | Senior Staff Agent | 2026-11-08     | Solid color logo restoration  |
+| **M7-T42** | Integrate beUI Spring-Gliding Active Tab Animation for Tip Presets in Amount Screen (`framer-motion` Layout Pill).          | `Done` | Senior Staff Agent | 2026-11-08     | beUI tabs preset animation    |
