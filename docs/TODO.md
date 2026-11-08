@@ -154,3 +154,4 @@ Status values:
 | **M7-T38** | Customer App Header & Footer Branding Overhaul (Restaurant Logo on Left, Name on Right, Brand Logo at Bottom, No Text).     | `Done` | Senior Staff Agent | 2026-11-08     | Header & footer branding      |
 | **M7-T39** | Scale Up Brand Logo & Replace Restaurant Name with rwrd Logo on Customer Sub-Pages (Staff, Amount, Pay).                    | `Done` | Senior Staff Agent | 2026-11-08     | Brand logo scaling & top-bar  |
 | **M7-T40** | Brand Asset Tight-Crop & High-Legibility Logo Scaling Across Customer App (Transparent 1735×817 Wordmark).                  | `Done` | Senior Staff Agent | 2026-11-08     | Tight-crop logo asset         |
+| **M7-T41** | Restore Full-Color Solid Brand Logo (100% Solid Opacity & Remove Washed-Out Opacity Utility Classes).                       | `Done` | Senior Staff Agent | 2026-11-08     | Solid color logo restoration  |

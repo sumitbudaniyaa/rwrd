@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Restore Full-Color Solid Brand Logo & Remove Opacity (M7-T41)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Color Saturation & 100% Solid Alpha Restoration**:
+    - Fixed root cause of washed-out brand logo: previous white-to-transparent conversion treated light pixel brightness as alpha, unintentionally making the letters 90%+ transparent.
+    - Deployed the official cropped full-color asset (`1738×820px`) with 100% solid opacity (`#FFBD59` yellow badge and `#F7F8EF` solid lettering at 255 alpha) to `packages/ui/src/assets/rwrd.png`, `apps/customer/src/assets/rwrd.png`, `apps/customer/public/rwrd.png`, and `apps/admin/src/assets/rwrd.png`.
+  - **Removed CSS Opacity Reduction**:
+    - Removed `opacity-80` / `opacity-90` classes across [`HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx), [`ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx), and [`NoTokenScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/NoTokenScreen.tsx).
+    - Wordmark now displays at 100% full opacity, bold, fully saturated, and crisp across all screens.
+  - **Testing & Verification**:
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - Monorepo TypeScript typecheck clean with 0 errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Brand Asset Tight-Crop & High-Legibility Logo Scaling Across Customer App (M7-T40)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
