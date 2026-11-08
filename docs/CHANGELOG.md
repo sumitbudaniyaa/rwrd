@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Brand Asset Tight-Crop & High-Legibility Logo Scaling Across Customer App (M7-T40)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Asset Crop & Alpha Transparency Overhaul**:
+    - Identified root cause of unreadable logo: the legacy asset was a 2000×2000 square with 60% empty padding and an opaque white background, causing letter rendering to shrink to ~8px height.
+    - Re-encoded and deployed a tightly cropped high-resolution RGBA asset (`1735×817px`) with transparent background into `packages/ui/src/assets/rwrd.png`, `apps/customer/src/assets/rwrd.png`, `apps/customer/public/rwrd.png`, and `apps/admin/src/assets/rwrd.png`.
+    - Content letters now occupy 100% of the asset's bounding box without any padding or background artifact.
+  - **Screen Typography & Dimensions**:
+    - Updated top-bar header logo on [`StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx), [`AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx), and [`PayScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/PayScreen.tsx) to `h-6 sm:h-7 w-auto object-contain` (~55–60px width, sharp and readable).
+    - Updated footer logo on [`HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx), [`ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx), and [`NoTokenScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/NoTokenScreen.tsx) to `h-8 sm:h-9 w-auto object-contain opacity-90` (~70–78px width, crystal clear).
+  - **Testing & Verification**:
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - Monorepo TypeScript typecheck clean with 0 errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Scale Up Brand Logo & Replace Restaurant Name with rwrd Logo on Customer Sub-Pages (M7-T39)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

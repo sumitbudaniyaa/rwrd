@@ -123,7 +123,11 @@ export const AmountScreen: React.FC = () => {
 
           <div className="flex items-center">
             <span className="sr-only">rwrd</span>
-            <img src={rwrdLogo} alt="rwrd" className="h-6 w-auto object-contain select-none" />
+            <img
+              src={rwrdLogo}
+              alt="rwrd"
+              className="h-6 sm:h-7 w-auto object-contain select-none"
+            />
           </div>
         </div>
 

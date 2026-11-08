@@ -153,4 +153,4 @@ Status values:
 | **M7-T37** | Harmonize Customer App Aesthetics with Admin Design System (Stone Palette, Brand Yellow CTA, `@hugeicons`, Logo).           | `Done` | Senior Staff Agent | 2026-11-08     | Customer app design sync      |
 | **M7-T38** | Customer App Header & Footer Branding Overhaul (Restaurant Logo on Left, Name on Right, Brand Logo at Bottom, No Text).     | `Done` | Senior Staff Agent | 2026-11-08     | Header & footer branding      |
 | **M7-T39** | Scale Up Brand Logo & Replace Restaurant Name with rwrd Logo on Customer Sub-Pages (Staff, Amount, Pay).                    | `Done` | Senior Staff Agent | 2026-11-08     | Brand logo scaling & top-bar  |
-| **M7-T38** | Customer App Header & Footer Branding Overhaul (Restaurant Logo on Left, Name on Right, Brand Logo at Bottom, No Text).     | `Done` | Senior Staff Agent | 2026-11-08     | Header & footer branding      |
+| **M7-T40** | Brand Asset Tight-Crop & High-Legibility Logo Scaling Across Customer App (Transparent 1735×817 Wordmark).                  | `Done` | Senior Staff Agent | 2026-11-08     | Tight-crop logo asset         |

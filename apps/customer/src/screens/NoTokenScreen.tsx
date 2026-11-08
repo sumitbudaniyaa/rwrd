@@ -34,7 +34,7 @@ export const NoTokenScreen: React.FC = () => {
         <img
           src={rwrdLogo}
           alt="rwrd"
-          className="h-8 w-auto object-contain mx-auto opacity-80 select-none"
+          className="h-8 sm:h-9 w-auto object-contain mx-auto opacity-90 select-none"
         />
       </footer>
     </main>
