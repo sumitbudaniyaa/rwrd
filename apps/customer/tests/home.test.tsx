@@ -41,6 +41,9 @@ describe('Customer Screen 1: Home', () => {
     expect(screen.getByText('You are here for...')).toBeInTheDocument();
     expect(screen.getByText('Make the people who fed you happy')).toBeInTheDocument();
     expect(screen.getByText('Review us')).toBeInTheDocument();
+    expect(screen.getByAltText('The Bombay Canteen')).toBeInTheDocument();
+    expect(screen.getByAltText('rwrd')).toBeInTheDocument();
+    expect(screen.queryByText(/Powered by rwrd/i)).not.toBeInTheDocument();
   });
 
   it('displays friendly error screen when QR token resolution fails', async () => {

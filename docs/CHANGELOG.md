@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-08 - Customer App Header & Footer Branding Overhaul (M7-T38)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Header Structure Overhaul (Restaurant Logo on Left, Name on Right)**:
+    - Updated [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx) and [`apps/customer/src/screens/ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx) from centered, vertically stacked branding to a clean horizontal bar (`flex items-center justify-between`):
+      - Left side: Restaurant logo circular avatar (`w-11 h-11 rounded-full object-cover shadow-2xs border border-stone-200/80` or letter avatar fallback).
+      - Right side: Restaurant name (`text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[220px] text-right`) with table indicator chip (`Table # • Section`) directly below.
+  - **Brand Footer & Logo Integration**:
+    - Completely removed the text `Powered by rwrd • 100% of tips go directly to waitstaff` (`powered_by`) from customer footers.
+    - Integrated official `rwrd.png` brand logo at the bottom center of customer views (`h-5 w-auto object-contain mx-auto opacity-60 select-none`).
+  - **Testing & Verification**:
+    - Updated [`apps/customer/tests/home.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/home.test.tsx) asserting `rwrd` brand logo and restaurant logo presence and verifying the absence of `Powered by rwrd` text.
+    - All 7 customer test suites (20 tests) passing (`pnpm --filter "@tiptable/customer" test`).
+    - Full monorepo TypeScript typecheck passed with 0 errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with 0 errors (`pnpm lint`).
+
 ### 2026-11-08 - Harmonize Customer App Aesthetics with Admin Design System (M7-T37)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

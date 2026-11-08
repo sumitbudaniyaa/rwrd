@@ -7,6 +7,7 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import rwrdLogo from '../assets/rwrd.png';
 
 interface TipSessionState {
   staffName?: string | undefined;
@@ -81,26 +82,29 @@ export const ThanksScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full text-center">
-      {/* Top Header Branding */}
-      <div>
-        <header className="pt-2 flex flex-col items-center">
+      {/* Top Header Branding: Restaurant Logo on Left, Name on Right */}
+      <header className="pt-2 pb-4 flex items-center justify-between w-full text-left">
+        <div className="flex items-center flex-shrink-0">
           {restaurant.logoUrl ? (
             <img
               src={restaurant.logoUrl}
               alt={restaurant.name}
-              className="w-14 h-14 rounded-full object-cover shadow-2xs mb-2 border border-stone-200/80"
+              className="w-11 h-11 rounded-full object-cover shadow-2xs border border-stone-200/80"
               loading="lazy"
             />
           ) : (
-            <div className="w-14 h-14 rounded-full bg-stone-100 flex items-center justify-center text-stone-700 font-serif text-xl font-medium mb-2 border border-stone-200">
+            <div className="w-11 h-11 rounded-full bg-stone-100 flex items-center justify-center text-stone-700 font-serif text-lg font-medium border border-stone-200">
               {restaurant.name.charAt(0)}
             </div>
           )}
-          <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-400 font-sans">
+        </div>
+
+        <div className="flex flex-col items-end text-right pl-3 truncate">
+          <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[220px]">
             {restaurant.name}
           </h2>
-        </header>
-      </div>
+        </div>
+      </header>
 
       {/* Main Appreciation Card */}
       <section className="my-auto py-6 flex flex-col items-center">
@@ -169,9 +173,14 @@ export const ThanksScreen: React.FC = () => {
         </button>
       </section>
 
-      {/* Footer */}
-      <footer className="pt-2 pb-2">
-        <p className="text-[11px] text-stone-400 font-sans">{t('thanks.footer')}</p>
+      {/* Footer: Official rwrd Brand Logo */}
+      <footer className="text-center pt-3 pb-2">
+        <span className="sr-only">rwrd</span>
+        <img
+          src={rwrdLogo}
+          alt="rwrd"
+          className="h-5 w-auto object-contain mx-auto opacity-60 select-none"
+        />
       </footer>
     </main>
   );

@@ -151,3 +151,4 @@ Status values:
 | **M7-T35** | Restore Subtitle Descriptions & Remove Dividing Border Line Under Main Headings Across Admin Screens.                       | `Done` | Senior Staff Agent | 2026-11-08     | Headings border & subtitles   |
 | **M7-T36** | English-Only Customer Experience — Remove Dual-Language Support & Language Switcher from Customer App.                      | `Done` | Senior Staff Agent | 2026-11-08     | English-only customer app     |
 | **M7-T37** | Harmonize Customer App Aesthetics with Admin Design System (Stone Palette, Brand Yellow CTA, `@hugeicons`, Logo).           | `Done` | Senior Staff Agent | 2026-11-08     | Customer app design sync      |
+| **M7-T38** | Customer App Header & Footer Branding Overhaul (Restaurant Logo on Left, Name on Right, Brand Logo at Bottom, No Text).     | `Done` | Senior Staff Agent | 2026-11-08     | Header & footer branding      |

@@ -7,6 +7,7 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
 import { api } from '../services/api.js';
+import rwrdLogo from '../assets/rwrd.png';
 
 export const HomeScreen: React.FC = () => {
   const { t } = useTranslation();
@@ -43,36 +44,40 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full">
-      {/* Header Section: Branding & Table Indicator */}
-      <header className="pt-2 pb-4 flex flex-col items-center text-center">
-        {restaurant.logoUrl ? (
-          <img
-            src={restaurant.logoUrl}
-            alt={restaurant.name}
-            className="w-16 h-16 rounded-full object-cover shadow-2xs mb-3 border border-stone-200/80"
-            loading="eager"
-          />
-        ) : (
-          <div className="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center text-stone-700 font-serif text-2xl font-medium mb-3 border border-stone-200">
-            {restaurant.name.charAt(0)}
-          </div>
-        )}
+      {/* Header Section: Restaurant Logo on Left, Name & Table on Right */}
+      <header className="pt-2 pb-4 flex items-center justify-between w-full">
+        <div className="flex items-center flex-shrink-0">
+          {restaurant.logoUrl ? (
+            <img
+              src={restaurant.logoUrl}
+              alt={restaurant.name}
+              className="w-11 h-11 rounded-full object-cover shadow-2xs border border-stone-200/80"
+              loading="eager"
+            />
+          ) : (
+            <div className="w-11 h-11 rounded-full bg-stone-100 flex items-center justify-center text-stone-700 font-serif text-lg font-medium border border-stone-200">
+              {restaurant.name.charAt(0)}
+            </div>
+          )}
+        </div>
 
-        <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-500 font-sans">
-          {restaurant.name}
-        </h2>
+        <div className="flex flex-col items-end text-right pl-3 truncate">
+          <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[220px]">
+            {restaurant.name}
+          </h2>
 
-        {table && (
-          <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-stone-100 border border-stone-200/70 text-xs text-stone-700 font-medium">
-            <span>{table.tableNumber}</span>
-            {table.section && (
-              <>
-                <span className="text-stone-400">•</span>
-                <span>{table.section}</span>
-              </>
-            )}
-          </div>
-        )}
+          {table && (
+            <div className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200/70 text-[11px] text-stone-600 font-medium">
+              <span>{table.tableNumber}</span>
+              {table.section && (
+                <>
+                  <span className="text-stone-400">•</span>
+                  <span>{table.section}</span>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </header>
 
       {/* Greeting Section: Editorial Serif Greeting */}
@@ -144,11 +149,14 @@ export const HomeScreen: React.FC = () => {
         </button>
       </section>
 
-      {/* Footer Assurance */}
-      <footer className="text-center pt-2 pb-2">
-        <p className="text-[11px] text-stone-400 font-sans tracking-tight">
-          {t('common.powered_by')}
-        </p>
+      {/* Footer: Official rwrd Brand Logo */}
+      <footer className="text-center pt-3 pb-2">
+        <span className="sr-only">rwrd</span>
+        <img
+          src={rwrdLogo}
+          alt="rwrd"
+          className="h-5 w-auto object-contain mx-auto opacity-60 select-none"
+        />
       </footer>
     </main>
   );
