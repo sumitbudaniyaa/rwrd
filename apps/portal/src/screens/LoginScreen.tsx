@@ -84,7 +84,7 @@ export const LoginScreen: React.FC = () => {
                 required
                 value={email}
                 onChange={setEmail}
-                placeholder="sumit@rwrd.live"
+                placeholder="operator@rwrd.live"
                 leftIcon={<HugeiconsIcon icon={Mail01Icon} className="w-4 h-4" strokeWidth={1.5} />}
               />
 

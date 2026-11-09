@@ -44,7 +44,7 @@ describe('Portal Authentication Screen', () => {
 
     expect(screen.getByText('rwrd Control Plane')).toBeDefined();
     expect(screen.getByText(/Authorized access only. Connections are IP-monitored/i)).toBeDefined();
-    expect(screen.getByPlaceholderText('sumit@rwrd.live')).toBeDefined();
+    expect(screen.getByPlaceholderText('operator@rwrd.live')).toBeDefined();
     expect(screen.getByPlaceholderText('••••••••••••')).toBeDefined();
     expect(screen.getByRole('button', { name: /Sign In to Control Plane/i })).toBeDefined();
   });
@@ -63,7 +63,7 @@ describe('Portal Authentication Screen', () => {
 
     renderWithProviders(<LoginScreen />, loginMock);
 
-    const emailInput = screen.getByPlaceholderText('sumit@rwrd.live');
+    const emailInput = screen.getByPlaceholderText('operator@rwrd.live');
     const passwordInput = screen.getByPlaceholderText('••••••••••••');
     const submitBtn = screen.getByRole('button', { name: /Sign In to Control Plane/i });
 
@@ -81,7 +81,7 @@ describe('Portal Authentication Screen', () => {
 
     renderWithProviders(<LoginScreen />, loginMock);
 
-    const emailInput = screen.getByPlaceholderText('sumit@rwrd.live');
+    const emailInput = screen.getByPlaceholderText('operator@rwrd.live');
     const passwordInput = screen.getByPlaceholderText('••••••••••••');
     const submitBtn = screen.getByRole('button', { name: /Sign In to Control Plane/i });
 
