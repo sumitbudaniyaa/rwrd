@@ -55,7 +55,7 @@ export const Input: React.FC<InputProps> = ({
       {label && (
         <label
           htmlFor={inputId}
-          className="block text-[11px] font-medium text-stone-600 mb-1 select-none"
+          className="block text-[11px] font-medium text-stone-600 dark:text-stone-300 mb-1 select-none"
         >
           {label}
         </label>
@@ -64,14 +64,14 @@ export const Input: React.FC<InputProps> = ({
       <div
         className={`relative flex items-center w-full rounded-xl transition-all duration-200 ease-out border ${
           error
-            ? 'border-rose-400 bg-rose-50/20 shadow-[0_0_0_3px_rgba(244,63,94,0.08)]'
+            ? 'border-rose-400 bg-rose-50/20 dark:bg-rose-950/20 shadow-[0_0_0_3px_rgba(244,63,94,0.08)]'
             : isFocused
-              ? 'border-stone-400 bg-white shadow-[0_0_0_3px_rgba(0,0,0,0.04)]'
-              : 'border-stone-200/90 hover:border-stone-300 bg-stone-50/70'
+              ? 'border-stone-400 dark:border-stone-500 bg-white dark:bg-stone-900 shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:shadow-[0_0_0_3px_rgba(255,255,255,0.04)]'
+              : 'border-stone-200/90 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700 bg-stone-50/70 dark:bg-stone-900/60'
         } ${disabled ? 'opacity-50 pointer-events-none' : ''}`}
       >
         {hasLeftIcon && (
-          <div className="absolute left-3 flex items-center pointer-events-none text-stone-400">
+          <div className="absolute left-3 flex items-center pointer-events-none text-stone-400 dark:text-stone-500">
             {leftIcon}
           </div>
         )}
@@ -92,7 +92,7 @@ export const Input: React.FC<InputProps> = ({
           required={required}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? errorId : undefined}
-          className={`w-full bg-transparent text-stone-900 placeholder:text-stone-400 outline-none focus:outline-none focus:ring-0 ${sizeClasses} ${hasLeftIcon ? 'pl-8' : ''} ${hasRightIcon ? 'pr-8' : ''}`}
+          className={`w-full bg-transparent text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 outline-none focus:outline-none focus:ring-0 ${sizeClasses} ${hasLeftIcon ? 'pl-8' : ''} ${hasRightIcon ? 'pr-8' : ''}`}
         />
 
         {hasRightIcon && <div className="absolute right-2.5 flex items-center">{rightIcon}</div>}
@@ -101,7 +101,10 @@ export const Input: React.FC<InputProps> = ({
       {error && (
         <div className="min-h-[16px] mt-0.5">
           <FadeIn duration={150}>
-            <p id={errorId} className="text-[10px] text-rose-600 font-medium pl-0.5">
+            <p
+              id={errorId}
+              className="text-[10px] text-rose-600 dark:text-rose-400 font-medium pl-0.5"
+            >
               {error}
             </p>
           </FadeIn>

@@ -210,12 +210,12 @@ export const RestaurantManagementScreen: React.FC = () => {
     <div className="space-y-6 max-w-7xl font-sans">
       {/* Header */}
       <SlideUp>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-stone-900 p-5 rounded-2xl border border-stone-200/80 dark:border-stone-800 shadow-2xs transition-colors duration-200">
           <div>
-            <h1 className="text-xl font-semibold text-stone-900 tracking-tight">
+            <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100 tracking-tight">
               Restaurant Tenants
             </h1>
-            <p className="mt-0.5 text-xs text-stone-500">
+            <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">
               Manage dining establishments, configure onboarding, and monitor account health.
             </p>
           </div>
@@ -229,10 +229,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                   resetForm();
                   setIsOnboardModalOpen(true);
                 }}
-                className="flex items-center gap-1.5 bg-stone-900 hover:bg-black text-white px-3 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
+                className="flex items-center gap-1.5 bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 px-3 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                 aria-label="Onboard New Restaurant"
               >
-                <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5 text-white" />
+                <HugeiconsIcon
+                  icon={Add01Icon}
+                  className="w-3.5 h-3.5 text-white dark:text-stone-900"
+                />
                 <span>Onboard Restaurant</span>
               </MotionButton>
             </div>
@@ -243,18 +246,18 @@ export const RestaurantManagementScreen: React.FC = () => {
       {/* Notifications */}
       {successMessage && (
         <FadeIn>
-          <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800 flex items-center justify-between">
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
+                className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
               />
               <span>{successMessage}</span>
             </div>
             <button
               type="button"
               onClick={() => setSuccessMessage(null)}
-              className="text-emerald-500 hover:text-emerald-700"
+              className="text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300"
             >
               <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
             </button>
@@ -264,7 +267,7 @@ export const RestaurantManagementScreen: React.FC = () => {
 
       {errorMessage && (
         <FadeIn>
-          <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-center justify-between">
+          <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4 text-red-500 shrink-0" />
               <span>{errorMessage}</span>
@@ -272,7 +275,7 @@ export const RestaurantManagementScreen: React.FC = () => {
             <button
               type="button"
               onClick={() => setErrorMessage(null)}
-              className="text-red-400 hover:text-red-700"
+              className="text-red-400 hover:text-red-700 dark:hover:text-red-300"
             >
               <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
             </button>
@@ -282,9 +285,9 @@ export const RestaurantManagementScreen: React.FC = () => {
 
       {/* Search & Status Filters */}
       <SlideUp delay={50}>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 rounded-xl border border-stone-200/80 shadow-2xs">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-stone-900 p-2.5 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-2xs transition-colors duration-200">
           <div className="relative flex-1 max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-stone-400">
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-stone-400 dark:text-stone-500">
               <HugeiconsIcon icon={Search01Icon} className="w-3.5 h-3.5" />
             </div>
             <input
@@ -292,7 +295,7 @@ export const RestaurantManagementScreen: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by restaurant name or slug..."
-              className="w-full pl-8 pr-3 py-1 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8"
+              className="w-full pl-8 pr-3 py-1 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 dark:border-stone-700 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8"
             />
           </div>
 
@@ -310,8 +313,8 @@ export const RestaurantManagementScreen: React.FC = () => {
                 onClick={() => setStatusFilter(tab.id)}
                 className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                   statusFilter === tab.id
-                    ? 'bg-stone-900 text-white shadow-2xs'
-                    : 'text-stone-600 hover:bg-stone-100'
+                    ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
+                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
                 }`}
               >
                 {tab.label}
@@ -323,19 +326,21 @@ export const RestaurantManagementScreen: React.FC = () => {
 
       {/* Loading & Error States */}
       {isLoading && (
-        <div className="p-8 text-center text-stone-400 text-xs bg-white rounded-xl border border-stone-200/70">
+        <div className="p-8 text-center text-stone-400 dark:text-stone-500 text-xs bg-white dark:bg-stone-900 rounded-xl border border-stone-200/70 dark:border-stone-800">
           Loading restaurants directory...
         </div>
       )}
 
       {isError && (
-        <div className="p-6 text-center bg-white border border-red-200 rounded-xl">
-          <p className="text-xs font-medium text-red-700">Failed to load restaurants.</p>
+        <div className="p-6 text-center bg-white dark:bg-stone-900 border border-red-200 dark:border-red-900 rounded-xl">
+          <p className="text-xs font-medium text-red-700 dark:text-red-400">
+            Failed to load restaurants.
+          </p>
           <MotionButton
             variant="outline"
             size="sm"
             onClick={() => refetch()}
-            className="mt-3 text-xs"
+            className="mt-3 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-700"
           >
             Retry
           </MotionButton>
@@ -345,15 +350,15 @@ export const RestaurantManagementScreen: React.FC = () => {
       {/* Table */}
       {restaurantsData && (
         <SlideUp delay={100}>
-          <div className="bg-white border border-stone-200/80 rounded-xl overflow-hidden shadow-2xs">
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl overflow-hidden shadow-2xs transition-colors duration-200">
             {restaurantsData.restaurants.length === 0 ? (
-              <div className="p-10 text-center text-xs text-stone-400">
+              <div className="p-10 text-center text-xs text-stone-400 dark:text-stone-500">
                 No restaurant establishments found matching your filter criteria.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-stone-50/80 text-stone-500 border-b border-stone-200 text-[11px] uppercase tracking-wider font-semibold">
+                  <thead className="bg-stone-50/80 dark:bg-stone-800/80 text-stone-500 dark:text-stone-400 border-b border-stone-200 dark:border-stone-800 text-[11px] uppercase tracking-wider font-semibold">
                     <tr>
                       <th className="py-2.5 px-4">Establishment</th>
                       <th className="py-2.5 px-4">Slug / Identifier</th>
@@ -362,26 +367,29 @@ export const RestaurantManagementScreen: React.FC = () => {
                       <th className="py-2.5 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100">
+                  <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                     {restaurantsData.restaurants.map((rest) => (
-                      <tr key={rest.id} className="hover:bg-stone-50/60 transition-colors">
-                        <td className="py-3 px-4 font-medium text-stone-900">
+                      <tr
+                        key={rest.id}
+                        className="hover:bg-stone-50/60 dark:hover:bg-stone-800/50 transition-colors"
+                      >
+                        <td className="py-3 px-4 font-medium text-stone-900 dark:text-stone-100">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-stone-100 border border-stone-200/60 flex items-center justify-center text-stone-700 shrink-0">
+                            <div className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700 flex items-center justify-center text-stone-700 dark:text-stone-300 shrink-0">
                               <HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />
                             </div>
                             <div>
-                              <span className="block font-semibold text-stone-900">
+                              <span className="block font-semibold text-stone-900 dark:text-stone-100">
                                 {rest.name}
                               </span>
-                              <span className="text-[10px] text-stone-400 block truncate max-w-xs font-mono">
+                              <span className="text-[10px] text-stone-400 dark:text-stone-500 block truncate max-w-xs font-mono">
                                 {rest.googleReviewUrl}
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3 px-4 font-mono text-stone-600">
-                          <span className="px-2 py-0.5 rounded-md bg-stone-50 border border-stone-200 text-[11px]">
+                        <td className="py-3 px-4 font-mono text-stone-600 dark:text-stone-300">
+                          <span className="px-2 py-0.5 rounded-md bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-[11px]">
                             {rest.slug}
                           </span>
                         </td>
@@ -392,7 +400,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                             <div className="flex flex-col gap-0.5">
                               <Badge variant="danger">Suspended</Badge>
                               {rest.suspensionReason && (
-                                <span className="text-[10px] text-stone-400 truncate max-w-xs">
+                                <span className="text-[10px] text-stone-400 dark:text-stone-500 truncate max-w-xs">
                                   {rest.suspensionReason}
                                 </span>
                               )}
@@ -401,7 +409,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                             <Badge variant="success">Active</Badge>
                           )}
                         </td>
-                        <td className="py-3 px-4 text-stone-500 font-mono text-[11px]">
+                        <td className="py-3 px-4 text-stone-500 dark:text-stone-400 font-mono text-[11px]">
                           {new Date(rest.createdAt).toISOString().slice(0, 10)}
                         </td>
                         <td className="py-3 px-4 text-right whitespace-nowrap">
@@ -410,7 +418,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => setImpersonateTarget(rest)}
-                              className="px-2 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors flex items-center gap-1 cursor-pointer"
+                              className="px-2 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 cursor-pointer"
                               title="Support Impersonation"
                             >
                               <HugeiconsIcon icon={UserCheck01Icon} className="w-3 h-3" />
@@ -423,7 +431,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleReactivate(rest)}
-                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/60 transition-colors"
+                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 transition-colors"
                                   >
                                     Reactivate
                                   </button>
@@ -431,7 +439,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => setSuspendTarget(rest)}
-                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/60 transition-colors"
+                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800 transition-colors"
                                   >
                                     Suspend
                                   </button>
@@ -440,7 +448,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleDelete(rest)}
-                                  className="px-2 py-1 rounded-md text-[11px] font-medium bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/60 transition-colors"
+                                  className="px-2 py-1 rounded-md text-[11px] font-medium bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-800 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800 transition-colors"
                                 >
                                   Delete
                                 </button>
@@ -462,20 +470,22 @@ export const RestaurantManagementScreen: React.FC = () => {
       {isOnboardModalOpen &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in font-sans">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-xl max-w-lg w-full border border-stone-200/90 shadow-xl overflow-hidden">
-                <div className="p-4 border-b border-stone-200/70 flex items-center justify-between">
+              <div className="bg-white dark:bg-stone-900 rounded-xl max-w-lg w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden transition-colors duration-200">
+                <div className="p-4 border-b border-stone-200/70 dark:border-stone-800 flex items-center justify-between">
                   <div>
-                    <h2 className="text-sm font-semibold text-stone-900">Onboard New Restaurant</h2>
-                    <p className="text-[11px] text-stone-500 mt-0.5">
+                    <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                      Onboard New Restaurant
+                    </h2>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
                       Provisions establishment, root table QR, and initial owner user.
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setIsOnboardModalOpen(false)}
-                    className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+                    className="p-1 rounded-lg text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                     aria-label="Close modal"
                   >
                     <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
@@ -487,7 +497,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                   className="p-5 space-y-4 max-h-[75vh] overflow-y-auto"
                 >
                   {errorMessage && (
-                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
+                    <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
                       <HugeiconsIcon
                         icon={AlertCircleIcon}
                         className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
@@ -497,13 +507,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                   )}
 
                   <div className="space-y-2.5">
-                    <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                    <h3 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
                       Establishment Profile
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                           Restaurant Name *
                         </label>
                         <input
@@ -512,12 +522,12 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formName}
                           onChange={(e) => handleNameChange(e.target.value)}
                           placeholder="e.g. The Bombay Canteen"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                           URL Slug *
                         </label>
                         <input
@@ -528,13 +538,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                             setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
                           }
                           placeholder="e.g. the-bombay-canteen"
-                          className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                         Google Review Write URL *
                       </label>
                       <input
@@ -543,22 +553,22 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formReviewUrl}
                         onChange={(e) => setFormReviewUrl(e.target.value)}
                         placeholder="https://maps.app.goo.gl/..."
-                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                       />
-                      <span className="text-[10px] text-stone-400 mt-1 block">
+                      <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">
                         Must be a valid Google Maps / Place review link (un-gated).
                       </span>
                     </div>
                   </div>
 
-                  <div className="space-y-2.5 pt-3 border-t border-stone-100">
-                    <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
+                  <div className="space-y-2.5 pt-3 border-t border-stone-100 dark:border-stone-800">
+                    <h3 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
                       Initial Owner Credentials
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                           Owner Full Name *
                         </label>
                         <input
@@ -567,12 +577,12 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formOwnerName}
                           onChange={(e) => setFormOwnerName(e.target.value)}
                           placeholder="e.g. Sameer Seth"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                           Owner Email *
                         </label>
                         <input
@@ -581,13 +591,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formOwnerEmail}
                           onChange={(e) => setFormOwnerEmail(e.target.value)}
                           placeholder="owner@establishment.com"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                         Initial Temporary Password *
                       </label>
                       <input
@@ -597,18 +607,18 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formOwnerPassword}
                         onChange={(e) => setFormOwnerPassword(e.target.value)}
                         placeholder="At least 8 characters"
-                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
+                  <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100 dark:border-stone-800">
                     <MotionButton
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setIsOnboardModalOpen(false)}
-                      className="px-3 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
+                      className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
                     >
                       Cancel
                     </MotionButton>
@@ -617,7 +627,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       variant="primary"
                       size="sm"
                       disabled={onboardMutation.isPending}
-                      className="bg-stone-900 hover:bg-black text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
+                      className="bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
                     >
                       {onboardMutation.isPending ? 'Provisioning...' : 'Provision Restaurant'}
                     </MotionButton>
@@ -633,25 +643,25 @@ export const RestaurantManagementScreen: React.FC = () => {
       {suspendTarget &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in font-sans">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-xl max-w-md w-full border border-stone-200/90 shadow-xl overflow-hidden p-5 space-y-3.5">
+              <div className="bg-white dark:bg-stone-900 rounded-xl max-w-md w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden p-5 space-y-3.5 transition-colors duration-200">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-700 shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
                     <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-stone-900">
+                    <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
                       Suspend &quot;{suspendTarget.name}&quot;
                     </h3>
-                    <p className="text-[11px] text-stone-500 mt-0.5">
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
                       Suspension will immediately disable customer QR placards.
                     </p>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                     Reason for Suspension (Optional)
                   </label>
                   <textarea
@@ -659,17 +669,17 @@ export const RestaurantManagementScreen: React.FC = () => {
                     value={suspensionReason}
                     onChange={(e) => setSuspensionReason(e.target.value)}
                     placeholder="e.g. Overdue payment on flat monthly plan, temporary operational shutdown..."
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 resize-none"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 resize-none"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
                   <MotionButton
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setSuspendTarget(null)}
-                    className="px-3 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
+                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
                   >
                     Cancel
                   </MotionButton>
@@ -694,32 +704,32 @@ export const RestaurantManagementScreen: React.FC = () => {
       {impersonateTarget &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in font-sans">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-xl max-w-md w-full border border-stone-200/90 shadow-xl overflow-hidden p-5 space-y-3.5">
+              <div className="bg-white dark:bg-stone-900 rounded-xl max-w-md w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden p-5 space-y-3.5 transition-colors duration-200">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-800 shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-800 dark:text-stone-200 shrink-0">
                     <HugeiconsIcon icon={UserCheck01Icon} className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-stone-900">
+                    <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
                       Enter Support Impersonation Mode: &quot;{impersonateTarget.name}&quot;
                     </h3>
-                    <p className="text-[11px] text-stone-500 mt-0.5">
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
                       Delegated live session. All actions are strictly audited.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-amber-50 border border-amber-200/70 rounded-lg text-xs text-amber-800 space-y-1">
+                <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300 space-y-1">
                   <p className="font-semibold flex items-center gap-1.5 text-[11px]">
                     <HugeiconsIcon
                       icon={AlertCircleIcon}
-                      className="w-3.5 h-3.5 text-amber-600 shrink-0"
+                      className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0"
                     />
                     <span>Support Delegation Security Notice</span>
                   </p>
-                  <p className="text-[10px] leading-relaxed text-amber-700">
+                  <p className="text-[10px] leading-relaxed text-amber-700 dark:text-amber-400">
                     You are entering this restaurant&apos;s administration account as a delegated
                     owner. A high-visibility warning banner will be displayed throughout your
                     session.
@@ -727,7 +737,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 mb-1">
+                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
                     Support Ticket Reference / Reason (Optional)
                   </label>
                   <input
@@ -735,11 +745,11 @@ export const RestaurantManagementScreen: React.FC = () => {
                     value={impersonateReason}
                     onChange={(e) => setImpersonateReason(e.target.value)}
                     placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 placeholder:text-stone-400"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
                   <MotionButton
                     type="button"
                     variant="outline"
@@ -748,7 +758,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       setImpersonateTarget(null);
                       setImpersonateReason('');
                     }}
-                    className="px-3 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
+                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
                   >
                     Cancel
                   </MotionButton>
@@ -758,7 +768,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     size="sm"
                     onClick={handleImpersonateConfirm}
                     disabled={impersonateMutation.isPending}
-                    className="bg-stone-900 hover:bg-black text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
+                    className="bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
                   >
                     {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
                   </MotionButton>

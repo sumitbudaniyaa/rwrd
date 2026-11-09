@@ -6,6 +6,33 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Company Portal Dark/Light Theme Toggle System (M7-T51)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Class-Based Dark Mode System (`darkMode: 'class'`)**:
+    - Enabled `darkMode: 'class'` in [`apps/portal/tailwind.config.js`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tailwind.config.js).
+    - Created [`ThemeContext`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/context/ThemeContext.tsx) and `<ThemeProvider>` supporting persistent theme state stored in `localStorage` under `portal_theme`, with automatic fallback to system `prefers-color-scheme`.
+    - Added resilient fallback behavior in `useTheme()` preventing crashes in isolated components or test environments.
+  - **Minimalist Theme Toggle Component**:
+    - Created [`ThemeToggle`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/components/ThemeToggle.tsx) featuring `@hugeicons` `Sun01Icon` and `Moon02Icon`, with smooth transitions, accessible `aria-label`, and subtle hover interactions.
+    - Integrated `<ThemeToggle />` into the sidebar footer in [`PortalLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/layouts/PortalLayout.tsx) and top-right corner of [`LoginScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/LoginScreen.tsx).
+  - **Full-Spectrum Dark Mode Styling Across Portal**:
+    - **Portal Layout**: Dark canvas (`dark:bg-stone-950`), dark sidebar panel (`dark:bg-stone-900 dark:border-stone-800`), dark navigation links (`dark:text-stone-400 dark:hover:text-stone-100 dark:hover:bg-stone-800/60`), and dark sign-out button.
+    - **Dashboard Overview**: Dark welcome banner, KPI stat cards (`dark:bg-stone-900 dark:border-stone-800`), 30-day activity trend card and metric selector, dark hover tooltips, dark micro activity bars (`dark:bg-stone-700 dark:hover:bg-stone-100`), tenant account health panel, and operations quick links.
+    - **Restaurant Management**: Dark table headers, rows, search inputs, status badges, and full dark palette support across Onboard, Suspend, and Support Impersonation modals.
+    - **Billing & Subscriptions**: Dark KPI summary cards, filter tabs, subscriptions table, invoices ledger, and modal dialogs (Create Invoice and Auto-Suspend Grace Period Sweep).
+    - **Inbound Leads & Demo Pipeline**: Dark pipeline stage KPI cards, stage filter chips, search input, high-density leads table, and lead detail & notes modal.
+    - **System Status & Feature Flags**: Dark diagnostic cards (API Gateway, PostgreSQL, Redis, Queue Workers), dark feature flags table, and Add Flag Override modal.
+    - **Login Screen**: Dark card (`dark:bg-stone-900 dark:border-stone-800`), dark inputs, dark submit button, and accessible ThemeToggle.
+  - **Tests & Verification**:
+    - Added dedicated theme test suite in [`apps/portal/tests/theme.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/theme.test.tsx) verifying default mode, localStorage restoration, theme toggle interaction, and accessible button labels.
+    - All 9 portal test suites passing 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - Monorepo typecheck passing with zero errors (`pnpm typecheck`).
+    - Monorepo lint passing with zero errors (`pnpm lint`).
+    - Prettier format check passing with zero warnings (`pnpm format:check`).
+
 ### 2026-11-09 - Company Portal Minimalist Design Overhaul & High-Density Operational Dashboard (M7-T50)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

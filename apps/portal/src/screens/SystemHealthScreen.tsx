@@ -169,15 +169,15 @@ export const SystemHealthScreen: React.FC = () => {
       <SlideUp delay={0.05}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-xl font-semibold tracking-tight text-stone-900 flex items-center gap-2">
+            <h1 className="text-xl font-semibold tracking-tight text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <HugeiconsIcon
                 icon={Activity01Icon}
-                className="w-5 h-5 text-stone-900"
+                className="w-5 h-5 text-stone-900 dark:text-stone-100"
                 strokeWidth={1.5}
               />
-              System Status & Feature Flags
+              System Status &amp; Feature Flags
             </h1>
-            <p className="text-xs text-stone-500 mt-0.5">
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-0.5">
               Operational backing services health, telemetry worker queues, and tenant feature flag
               overrides.
             </p>
@@ -189,7 +189,7 @@ export const SystemHealthScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsFlagModalOpen(true)}
-                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white font-medium rounded-lg shadow-2xs flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 font-medium rounded-lg shadow-2xs flex items-center gap-1.5 transition-colors"
               >
                 <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
                 Add Flag Override
@@ -201,11 +201,11 @@ export const SystemHealthScreen: React.FC = () => {
                 if (activeTab === 'health') refetchHealth();
                 else refetchFlags();
               }}
-              className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-medium text-stone-700 bg-white border border-stone-200/90 rounded-lg hover:bg-stone-50 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors shadow-2xs"
             >
               <HugeiconsIcon
                 icon={RefreshIcon}
-                className="w-3.5 h-3.5 text-stone-500"
+                className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400"
                 strokeWidth={1.5}
               />
               Refresh
@@ -217,18 +217,18 @@ export const SystemHealthScreen: React.FC = () => {
       {/* Notifications */}
       {successMessage && (
         <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-xs">
             <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 shrink-0"
+                className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
                 strokeWidth={1.5}
               />
               <span>{successMessage}</span>
             </div>
             <button
               onClick={() => setSuccessMessage(null)}
-              className="text-emerald-700 hover:text-emerald-900"
+              className="text-emerald-700 hover:text-emerald-900 dark:hover:text-emerald-100"
             >
               <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
@@ -238,18 +238,18 @@ export const SystemHealthScreen: React.FC = () => {
 
       {errorMessage && (
         <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-xs">
             <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={AlertCircleIcon}
-                className="w-4 h-4 text-rose-600 shrink-0"
+                className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0"
                 strokeWidth={1.5}
               />
               <span>{errorMessage}</span>
             </div>
             <button
               onClick={() => setErrorMessage(null)}
-              className="text-rose-700 hover:text-rose-900"
+              className="text-rose-700 hover:text-rose-900 dark:hover:text-rose-100"
             >
               <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
@@ -259,14 +259,14 @@ export const SystemHealthScreen: React.FC = () => {
 
       {/* Tabs */}
       <SlideUp delay={0.1}>
-        <div className="flex items-center gap-1 border-b border-stone-200">
+        <div className="flex items-center gap-1 border-b border-stone-200 dark:border-stone-800">
           <button
             type="button"
             onClick={() => setActiveTab('health')}
             className={`pb-2.5 px-3 text-xs font-semibold transition-colors relative ${
               activeTab === 'health'
-                ? 'text-stone-900 border-b-2 border-stone-900'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Infrastructure Diagnostics
@@ -276,8 +276,8 @@ export const SystemHealthScreen: React.FC = () => {
             onClick={() => setActiveTab('flags')}
             className={`pb-2.5 px-3 text-xs font-semibold transition-colors relative ${
               activeTab === 'flags'
-                ? 'text-stone-900 border-b-2 border-stone-900'
-                : 'text-stone-500 hover:text-stone-800'
+                ? 'text-stone-900 dark:text-stone-100 border-b-2 border-stone-900 dark:border-stone-100'
+                : 'text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Tenant Feature Flags ({flags.length})
@@ -290,7 +290,7 @@ export const SystemHealthScreen: React.FC = () => {
         <SlideUp delay={0.15}>
           <div className="space-y-3.5">
             {/* Overall Status Banner */}
-            <div className="p-3.5 rounded-xl bg-white border border-stone-200/80 shadow-2xs flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 shadow-2xs flex items-center justify-between transition-colors duration-200">
               <div className="flex items-center gap-3">
                 <span
                   className={`w-2.5 h-2.5 rounded-full animate-pulse ${
@@ -298,15 +298,15 @@ export const SystemHealthScreen: React.FC = () => {
                   }`}
                 />
                 <div>
-                  <h3 className="text-xs font-bold text-stone-900">
+                  <h3 className="text-xs font-bold text-stone-900 dark:text-stone-100">
                     Platform Core Services:{' '}
                     <span className="capitalize">
                       {isLoadingHealth ? 'Checking...' : healthData?.status || 'Operational'}
                     </span>
                   </h3>
-                  <p className="text-[11px] text-stone-500 mt-0.5">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
                     Environment:{' '}
-                    <span className="font-mono text-stone-700">
+                    <span className="font-mono text-stone-700 dark:text-stone-300">
                       {healthData?.environment || 'production'}
                     </span>{' '}
                     &bull; Last probed:{' '}
@@ -324,42 +324,42 @@ export const SystemHealthScreen: React.FC = () => {
             {/* Diagnostic Component Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
               {/* API Service */}
-              <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs space-y-2.5">
+              <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl shadow-2xs space-y-2.5 transition-colors duration-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
+                  <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     API Gateway
                   </span>
                   <HugeiconsIcon
                     icon={CloudServerIcon}
-                    className="w-4 h-4 text-stone-700"
+                    className="w-4 h-4 text-stone-700 dark:text-stone-300"
                     strokeWidth={1.5}
                   />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-stone-900">
+                  <p className="text-base font-bold text-stone-900 dark:text-stone-100">
                     {healthData?.components.api.status === 'healthy' ? 'Healthy' : 'Degraded'}
                   </p>
-                  <p className="text-[11px] text-stone-500 font-mono mt-0.5">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 font-mono mt-0.5">
                     Uptime:{' '}
                     {healthData ? formatUptime(healthData.components.api.uptimeSeconds) : '...'}
                   </p>
                 </div>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-stone-500 space-y-1">
+                <div className="pt-2 border-t border-stone-100 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400 space-y-1">
                   <div className="flex justify-between">
                     <span>Memory RSS</span>
-                    <span className="font-mono text-stone-800">
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
                       {healthData?.components.api.memoryUsageMb} MB
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Heap Used</span>
-                    <span className="font-mono text-stone-800">
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
                       {healthData?.components.api.heapUsedMb} MB
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Node Runtime</span>
-                    <span className="font-mono text-stone-800">
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
                       {healthData?.components.api.nodeVersion}
                     </span>
                   </div>
@@ -367,117 +367,121 @@ export const SystemHealthScreen: React.FC = () => {
               </div>
 
               {/* PostgreSQL */}
-              <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs space-y-2.5">
+              <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl shadow-2xs space-y-2.5 transition-colors duration-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
+                  <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     Database
                   </span>
                   <HugeiconsIcon
                     icon={DatabaseIcon}
-                    className="w-4 h-4 text-stone-700"
+                    className="w-4 h-4 text-stone-700 dark:text-stone-300"
                     strokeWidth={1.5}
                   />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-stone-900">
+                  <p className="text-base font-bold text-stone-900 dark:text-stone-100">
                     {healthData?.components.database.status === 'healthy' ? 'Connected' : 'Offline'}
                   </p>
-                  <p className="text-[11px] text-stone-500 font-mono mt-0.5">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 font-mono mt-0.5">
                     {healthData?.components.database.engine}
                   </p>
                 </div>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-stone-500 space-y-1">
+                <div className="pt-2 border-t border-stone-100 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400 space-y-1">
                   <div className="flex justify-between">
                     <span>Ping Latency</span>
-                    <span className="font-mono text-emerald-600 font-semibold">
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
                       {healthData?.components.database.latencyMs} ms
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tenancy RLS</span>
-                    <span className="font-mono text-stone-800">Enforced</span>
+                    <span className="font-mono text-stone-800 dark:text-stone-200">Enforced</span>
                   </div>
                   <div className="flex justify-between">
                     <span>Crypto Cipher</span>
-                    <span className="font-mono text-stone-800">AES-256-GCM</span>
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
+                      AES-256-GCM
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Redis */}
-              <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs space-y-2.5">
+              <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl shadow-2xs space-y-2.5 transition-colors duration-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
-                    Cache & Limiters
+                  <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
+                    Cache &amp; Limiters
                   </span>
                   <HugeiconsIcon
                     icon={Activity01Icon}
-                    className="w-4 h-4 text-stone-700"
+                    className="w-4 h-4 text-stone-700 dark:text-stone-300"
                     strokeWidth={1.5}
                   />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-stone-900">
+                  <p className="text-base font-bold text-stone-900 dark:text-stone-100">
                     {healthData?.components.redis.status === 'healthy' ? 'Operational' : 'Degraded'}
                   </p>
-                  <p className="text-[11px] text-stone-500 font-mono mt-0.5">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 font-mono mt-0.5">
                     {healthData?.components.redis.engine}
                   </p>
                 </div>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-stone-500 space-y-1">
+                <div className="pt-2 border-t border-stone-100 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400 space-y-1">
                   <div className="flex justify-between">
                     <span>Redis Latency</span>
-                    <span className="font-mono text-emerald-600 font-semibold">
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
                       {healthData?.components.redis.latencyMs} ms
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Rate Limiter</span>
-                    <span className="font-mono text-stone-800">Sliding Window</span>
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
+                      Sliding Window
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Session Realm</span>
-                    <span className="font-mono text-stone-800">Isolated</span>
+                    <span className="font-mono text-stone-800 dark:text-stone-200">Isolated</span>
                   </div>
                 </div>
               </div>
 
               {/* Background Queues */}
-              <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs space-y-2.5">
+              <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl shadow-2xs space-y-2.5 transition-colors duration-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold text-stone-500 uppercase tracking-wider">
+                  <span className="text-[10px] font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider">
                     Queue Workers
                   </span>
                   <HugeiconsIcon
                     icon={Flag01Icon}
-                    className="w-4 h-4 text-stone-700"
+                    className="w-4 h-4 text-stone-700 dark:text-stone-300"
                     strokeWidth={1.5}
                   />
                 </div>
                 <div>
-                  <p className="text-base font-bold text-stone-900 capitalize">
+                  <p className="text-base font-bold text-stone-900 dark:text-stone-100 capitalize">
                     {healthData?.components.workers.status}
                   </p>
-                  <p className="text-[11px] text-stone-500 font-mono mt-0.5">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 font-mono mt-0.5">
                     Queue: {healthData?.components.workers.queue}
                   </p>
                 </div>
-                <div className="pt-2 border-t border-stone-100 text-[11px] text-stone-500 space-y-1">
+                <div className="pt-2 border-t border-stone-100 dark:border-stone-800 text-[11px] text-stone-500 dark:text-stone-400 space-y-1">
                   <div className="flex justify-between">
                     <span>Active Jobs</span>
-                    <span className="font-mono text-stone-800">
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
                       {healthData?.components.workers.activeJobs}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Completed</span>
-                    <span className="font-mono text-emerald-600 font-semibold">
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 font-semibold">
                       {healthData?.components.workers.completedJobs}
                     </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Failed Jobs</span>
-                    <span className="font-mono text-stone-800">
+                    <span className="font-mono text-stone-800 dark:text-stone-200">
                       {healthData?.components.workers.failedJobs}
                     </span>
                   </div>
@@ -493,27 +497,27 @@ export const SystemHealthScreen: React.FC = () => {
         <SlideUp delay={0.15}>
           <div className="space-y-3.5">
             {/* Flag Presets Documentation */}
-            <div className="p-3 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-600">
-              <p className="font-semibold text-stone-900 mb-1 text-[11px]">
+            <div className="p-3 bg-stone-50 dark:bg-stone-800/60 border border-stone-200 dark:border-stone-700 rounded-lg text-xs text-stone-600 dark:text-stone-300 transition-colors duration-200">
+              <p className="font-semibold text-stone-900 dark:text-stone-100 mb-1 text-[11px]">
                 Standard Platform Feature Flags:
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
                 {PRESET_FLAG_KEYS.map((p) => (
                   <div key={p.key} className="flex items-start gap-1.5">
-                    <span className="font-mono font-semibold text-stone-900 bg-white px-1.5 py-0.5 rounded border border-stone-200 shrink-0 text-[10px]">
+                    <span className="font-mono font-semibold text-stone-900 dark:text-stone-100 bg-white dark:bg-stone-900 px-1.5 py-0.5 rounded border border-stone-200 dark:border-stone-700 shrink-0 text-[10px]">
                       {p.key}
                     </span>
-                    <span className="text-stone-500 text-[11px]">{p.desc}</span>
+                    <span className="text-stone-500 dark:text-stone-400 text-[11px]">{p.desc}</span>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Flags Table */}
-            <div className="bg-white border border-stone-200/80 rounded-xl shadow-2xs overflow-hidden">
+            <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl shadow-2xs overflow-hidden transition-colors duration-200">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-stone-50/70 border-b border-stone-200 text-stone-500 uppercase text-[10px] tracking-wider font-semibold">
+                  <thead className="bg-stone-50/70 dark:bg-stone-800/80 border-b border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 uppercase text-[10px] tracking-wider font-semibold">
                     <tr>
                       <th className="py-2.5 px-3.5">Restaurant</th>
                       <th className="py-2.5 px-3.5">Flag Key</th>
@@ -523,29 +527,40 @@ export const SystemHealthScreen: React.FC = () => {
                       <th className="py-2.5 px-3.5 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-stone-100">
+                  <tbody className="divide-y divide-stone-100 dark:divide-stone-800">
                     {isLoadingFlags ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-stone-400">
+                        <td
+                          colSpan={6}
+                          className="py-8 text-center text-stone-400 dark:text-stone-500"
+                        >
                           Loading feature flags...
                         </td>
                       </tr>
                     ) : flags.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-stone-400">
+                        <td
+                          colSpan={6}
+                          className="py-8 text-center text-stone-400 dark:text-stone-500"
+                        >
                           No tenant feature flag overrides configured.
                         </td>
                       </tr>
                     ) : (
                       flags.map((flag) => (
-                        <tr key={flag.id} className="hover:bg-stone-50/60 transition-colors">
+                        <tr
+                          key={flag.id}
+                          className="hover:bg-stone-50/60 dark:hover:bg-stone-800/50 transition-colors"
+                        >
                           <td className="py-2.5 px-3.5">
-                            <p className="font-semibold text-stone-900">{flag.restaurantName}</p>
-                            <p className="text-[11px] text-stone-400 font-mono">
+                            <p className="font-semibold text-stone-900 dark:text-stone-100">
+                              {flag.restaurantName}
+                            </p>
+                            <p className="text-[11px] text-stone-400 dark:text-stone-500 font-mono">
                               /{flag.restaurantSlug}
                             </p>
                           </td>
-                          <td className="py-2.5 px-3.5 font-mono font-semibold text-stone-800">
+                          <td className="py-2.5 px-3.5 font-mono font-semibold text-stone-800 dark:text-stone-200">
                             {flag.key}
                           </td>
                           <td className="py-2.5 px-3.5">
@@ -561,13 +576,15 @@ export const SystemHealthScreen: React.FC = () => {
                                 }
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
                                   flag.enabled
-                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                                    : 'bg-stone-100 text-stone-500 border-stone-200 hover:bg-stone-200'
+                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
+                                    : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-700'
                                 }`}
                               >
                                 <span
                                   className={`w-1.5 h-1.5 rounded-full ${
-                                    flag.enabled ? 'bg-emerald-600' : 'bg-stone-400'
+                                    flag.enabled
+                                      ? 'bg-emerald-600 dark:bg-emerald-400'
+                                      : 'bg-stone-400 dark:text-stone-500'
                                   }`}
                                 />
                                 {flag.enabled ? 'Enabled' : 'Disabled'}
@@ -578,10 +595,10 @@ export const SystemHealthScreen: React.FC = () => {
                               </Badge>
                             )}
                           </td>
-                          <td className="py-2.5 px-3.5 font-mono text-[11px] text-stone-500 max-w-xs truncate">
+                          <td className="py-2.5 px-3.5 font-mono text-[11px] text-stone-500 dark:text-stone-400 max-w-xs truncate">
                             {flag.configJson ? JSON.stringify(flag.configJson) : '-'}
                           </td>
-                          <td className="py-2.5 px-3.5 font-mono text-[11px] text-stone-400">
+                          <td className="py-2.5 px-3.5 font-mono text-[11px] text-stone-400 dark:text-stone-500">
                             {new Date(flag.updatedAt).toLocaleDateString()}
                           </td>
                           <td className="py-2.5 px-3.5 text-right">
@@ -590,7 +607,7 @@ export const SystemHealthScreen: React.FC = () => {
                                 type="button"
                                 disabled={deleteFlagMutation.isPending}
                                 onClick={() => deleteFlagMutation.mutate(flag.id)}
-                                className="p-1 text-stone-400 hover:text-rose-600 rounded-lg hover:bg-stone-100 transition-colors"
+                                className="p-1 text-stone-400 dark:text-stone-500 hover:text-rose-600 dark:hover:text-rose-400 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                                 title="Remove override"
                               >
                                 <HugeiconsIcon
@@ -616,14 +633,14 @@ export const SystemHealthScreen: React.FC = () => {
       {isFlagModalOpen &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-xl border border-stone-200/90 shadow-xl max-w-md w-full p-5 space-y-3.5">
-                <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
-                  <h3 className="text-sm font-semibold text-stone-900 flex items-center gap-2">
+              <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200/90 dark:border-stone-800 shadow-xl max-w-md w-full p-5 space-y-3.5 transition-colors duration-200">
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
+                  <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <HugeiconsIcon
                       icon={Flag01Icon}
-                      className="w-4 h-4 text-stone-900"
+                      className="w-4 h-4 text-stone-900 dark:text-stone-100"
                       strokeWidth={1.5}
                     />
                     Configure Flag Override
@@ -631,7 +648,7 @@ export const SystemHealthScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsFlagModalOpen(false)}
-                    className="p-1 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-colors"
+                    className="p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
                   >
                     <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
                   </button>
@@ -639,14 +656,14 @@ export const SystemHealthScreen: React.FC = () => {
 
                 <form onSubmit={handleCreateFlagSubmit} className="space-y-3">
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                    <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                       Select Restaurant
                     </label>
                     <select
                       value={formRestaurantId}
                       onChange={(e) => setFormRestaurantId(e.target.value)}
                       required
-                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                     >
                       <option value="">-- Choose Restaurant --</option>
                       {restaurantsData?.restaurants.map((r) => (
@@ -658,13 +675,13 @@ export const SystemHealthScreen: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                    <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                       Feature Flag Key
                     </label>
                     <select
                       value={formKey}
                       onChange={(e) => setFormKey(e.target.value)}
-                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                     >
                       {PRESET_FLAG_KEYS.map((p) => (
                         <option key={p.key} value={p.key}>
@@ -677,7 +694,7 @@ export const SystemHealthScreen: React.FC = () => {
 
                   {formKey === 'custom' && (
                     <div>
-                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                         Custom Flag Name
                       </label>
                       <input
@@ -686,7 +703,7 @@ export const SystemHealthScreen: React.FC = () => {
                         value={formCustomKey}
                         onChange={(e) => setFormCustomKey(e.target.value)}
                         required
-                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
+                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
                   )}
@@ -699,13 +716,16 @@ export const SystemHealthScreen: React.FC = () => {
                       onChange={(e) => setFormEnabled(e.target.checked)}
                       className="rounded border-stone-300 text-stone-900 focus:ring-stone-900"
                     />
-                    <label htmlFor="flagEnabled" className="text-xs font-medium text-stone-700">
+                    <label
+                      htmlFor="flagEnabled"
+                      className="text-xs font-medium text-stone-700 dark:text-stone-300"
+                    >
                       Flag Enabled
                     </label>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
+                    <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                       Config JSON (Optional)
                     </label>
                     <textarea
@@ -713,22 +733,22 @@ export const SystemHealthScreen: React.FC = () => {
                       value={formConfigJson}
                       onChange={(e) => setFormConfigJson(e.target.value)}
                       placeholder='{"threshold": 100}'
-                      className="w-full px-3 py-2 text-xs font-mono bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 resize-none"
+                      className="w-full px-3 py-2 text-xs font-mono bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
                     <button
                       type="button"
                       onClick={() => setIsFlagModalOpen(false)}
-                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 font-medium transition-colors"
+                      className="px-3 py-1.5 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 font-medium transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={upsertFlagMutation.isPending}
-                      className="px-3.5 py-1.5 text-xs font-medium text-white bg-stone-900 hover:bg-black rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+                      className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white rounded-lg transition-colors shadow-2xs disabled:opacity-50"
                     >
                       {upsertFlagMutation.isPending ? 'Saving...' : 'Apply Override'}
                     </button>

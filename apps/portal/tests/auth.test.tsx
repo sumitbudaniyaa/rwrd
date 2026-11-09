@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
 import { LoginScreen } from '../src/screens/LoginScreen.js';
 import { AuthContext } from '../src/context/AuthContext.js';
+import { ThemeProvider } from '../src/context/ThemeContext.js';
 
 const mockUnauthContext = (loginMock = vi.fn()) => ({
   user: null,
@@ -24,9 +25,11 @@ const renderWithProviders = (ui: React.ReactElement, loginMock = vi.fn()) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={mockUnauthContext(loginMock)}>
-        <BrowserRouter>{ui}</BrowserRouter>
-      </AuthContext.Provider>
+      <ThemeProvider>
+        <AuthContext.Provider value={mockUnauthContext(loginMock)}>
+          <BrowserRouter>{ui}</BrowserRouter>
+        </AuthContext.Provider>
+      </ThemeProvider>
     </QueryClientProvider>,
   );
 };

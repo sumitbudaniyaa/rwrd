@@ -6,6 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { PortalLayout } from '../src/layouts/PortalLayout.js';
 import { DashboardOverview } from '../src/screens/DashboardOverview.js';
 import { AuthContext } from '../src/context/AuthContext.js';
+import { ThemeProvider } from '../src/context/ThemeContext.js';
 import { api } from '../src/services/api.js';
 
 const mockSuperAdminContext = {
@@ -31,9 +32,11 @@ const renderWithProviders = (ui: ReactElement) => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <AuthContext.Provider value={mockSuperAdminContext}>
-        <BrowserRouter>{ui}</BrowserRouter>
-      </AuthContext.Provider>
+      <ThemeProvider>
+        <AuthContext.Provider value={mockSuperAdminContext}>
+          <BrowserRouter>{ui}</BrowserRouter>
+        </AuthContext.Provider>
+      </ThemeProvider>
     </QueryClientProvider>,
   );
 };
