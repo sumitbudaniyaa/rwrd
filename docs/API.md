@@ -186,6 +186,7 @@ The API supports three distinct authentication contexts:
 | `GET`    | `/admin/tables`                                     |     Bearer     | List all physical tables and assigned QR tokens.                               |
 | `POST`   | `/admin/tables`                                     |     Bearer     | Create a new table.                                                            |
 | `DELETE` | `/admin/restaurants/:restaurantId/tables/:tableId`  |     Bearer     | Soft delete a dining table and deactivate all associated QR tokens.            |
+| `DELETE` | `/admin/restaurants/:restaurantId/tables/:tableId`  |     Bearer     | Soft delete a dining table and deactivate all associated QR tokens.            |
 | `POST`   | `/admin/qr/rotate`                                  | Bearer (Owner) | Invalidate current QR token and issue a new high-entropy token.                |
 | `GET`    | `/admin/restaurants/:restaurantId/analytics`        |     Bearer     | Aggregated metrics: scans, staff views, tips initiated, review taps, timeline. |
 | `GET`    | `/admin/restaurants/:restaurantId/analytics/export` |     Bearer     | RFC 4180 CSV export of tip intents and telemetry.                              |

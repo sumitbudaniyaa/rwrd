@@ -11,7 +11,7 @@ import rwrdLogo from '../assets/rwrd.png';
 
 export const HomeScreen: React.FC = () => {
   const { t } = useTranslation();
-  const { restaurant, table, token, isLoading, isError } = useRestaurant();
+  const { restaurant, token, isLoading, isError } = useRestaurant();
   const navigate = useNavigate();
 
   if (isLoading) {
@@ -65,18 +65,6 @@ export const HomeScreen: React.FC = () => {
           <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[220px]">
             {restaurant.name}
           </h2>
-
-          {table && (
-            <div className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100 border border-stone-200/70 text-[11px] text-stone-600 font-medium">
-              <span>{table.tableNumber}</span>
-              {table.section && (
-                <>
-                  <span className="text-stone-400">•</span>
-                  <span>{table.section}</span>
-                </>
-              )}
-            </div>
-          )}
         </div>
       </header>
 

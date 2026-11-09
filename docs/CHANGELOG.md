@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Customer UI Simplification & Transition Removal (M7-T46)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Removed Table Number Badge on Customer Home Screen**:
+    - Removed `{table && (<div ...>{table.tableNumber}...</div>)}` chip from the header in [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx).
+    - Top header now presents a clean, distraction-free branding layout displaying only the restaurant logo on the left and the restaurant name on the right.
+  - **Removed Route Opening Animation (Instant Normal Navigation)**:
+    - Removed `<AnimatePresence>` and `<motion.div>` page transition wrappers in [`apps/customer/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/App.tsx).
+    - Restored standard native `<Outlet />` routing for instant, responsive page rendering without translation, scaling, or opacity effects.
+  - **Test Suite Updates & Verification**:
+    - Updated [`apps/customer/tests/home.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/home.test.tsx) to verify table badge omission from the header.
+    - All 7 customer test suites (20 tests), all 9 admin test suites (48 tests), and all 27 API test suites (177 tests) pass cleanly.
+    - Full monorepo TypeScript typecheck clean with zero errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with zero errors (`pnpm lint`).
+    - Prettier check clean (`pnpm format:check`).
+
 ### 2026-11-09 - Bottom-Rise Page Motion, Table Deletion API & QR Action Polish (M7-T45)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
