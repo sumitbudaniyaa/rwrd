@@ -207,6 +207,56 @@ describe('RestaurantManagementScreen Component', () => {
     });
   });
 
+  it('super admin clicking delete opens custom confirmation dialog box and can cancel or confirm', async () => {
+    vi.spyOn(api, 'getRestaurants').mockResolvedValue(mockRestaurantsResponse);
+    const deleteSpy = vi.spyOn(api, 'deleteRestaurant').mockResolvedValueOnce({
+      message: 'Restaurant has been soft-deleted.',
+    });
+
+    renderWithProviders(<RestaurantManagementScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Bombay Canteen')).toBeDefined();
+    });
+
+    // Find and click Delete button for the first restaurant
+    const deleteBtn = screen.getAllByRole('button', { name: /^Delete$/i })[0]!;
+    fireEvent.click(deleteBtn);
+
+    // Dialog should be open with warning and restaurant name
+    await waitFor(() => {
+      expect(screen.getByText(/Delete "The Bombay Canteen"\?/i)).toBeDefined();
+      expect(screen.getByText(/Destructive Action Warning/i)).toBeDefined();
+      expect(
+        screen.getByText(
+          /revoke all staff and admin logins, deactivate associated table QR codes/i,
+        ),
+      ).toBeDefined();
+    });
+
+    // Test Cancel button dismisses dialog
+    const cancelBtn = screen.getByRole('button', { name: /Cancel/i });
+    fireEvent.click(cancelBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/Delete "The Bombay Canteen"\?/i)).toBeNull();
+    });
+    expect(deleteSpy).not.toHaveBeenCalled();
+
+    // Reopen dialog and confirm deletion
+    fireEvent.click(deleteBtn);
+    await waitFor(() => {
+      expect(screen.getByText(/Delete "The Bombay Canteen"\?/i)).toBeDefined();
+    });
+
+    const confirmDeleteBtn = screen.getByRole('button', { name: /Delete Restaurant/i });
+    fireEvent.click(confirmDeleteBtn);
+
+    await waitFor(() => {
+      expect(deleteSpy).toHaveBeenCalledWith('rest-001');
+    });
+  });
+
   it('support role cannot see onboarding or suspension controls (RBAC)', async () => {
     vi.spyOn(api, 'getRestaurants').mockResolvedValueOnce(mockRestaurantsResponse);
 

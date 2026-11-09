@@ -6,6 +6,20 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Modal Confirmation Dialog Box for Restaurant Deletion in Company Portal (M7-T59)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Custom Modal Dialog for Restaurant Soft-Deletion**:
+    - Replaced native browser `window.confirm` in [`apps/portal/src/screens/RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx) with a custom React `createPortal` modal dialog box (`z-[200]`, backdrop blur, dark/light theme support).
+    - Features a red/rose warning header with `Delete02Icon`, the restaurant legal name, and an explicit destructive action warning outlining that deletion immediately revokes staff access, deactivates table QR codes, and halts customer tipping.
+    - Added "Cancel" button to dismiss the dialog safely, and a danger "Delete Restaurant" action button displaying pending state (`Deleting...`).
+  - **Automated Testing & Verification**:
+    - Added unit test in [`apps/portal/tests/restaurantManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/restaurantManagement.test.tsx) verifying that clicking "Delete" opens the dialog, clicking "Cancel" leaves the record untouched without calling the API, and confirming deletion triggers `api.deleteRestaurant(id)` and shows the success notification.
+    - All 9 test suites (32 tests) in `@tiptable/portal` pass cleanly.
+    - Full monorepo typecheck (`pnpm typecheck`) and ESLint (`pnpm lint`) pass with zero errors.
+
 ### 2026-11-10 - Align Company Portal Restaurant Onboarding with Admin Fields (M7-T58)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

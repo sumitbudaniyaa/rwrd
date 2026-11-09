@@ -10,6 +10,7 @@ import {
   CheckmarkCircle02Icon,
   Cancel01Icon,
   UserCheck01Icon,
+  Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { SlideUp, FadeIn, MotionButton } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
@@ -36,6 +37,7 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<PortalRestaurantItem | null>(null);
   const [suspensionReason, setSuspensionReason] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState<PortalRestaurantItem | null>(null);
   const [impersonateTarget, setImpersonateTarget] = useState<PortalRestaurantItem | null>(null);
   const [impersonateReason, setImpersonateReason] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -118,6 +120,7 @@ export const RestaurantManagementScreen: React.FC = () => {
     mutationFn: (id: string) => api.deleteRestaurant(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
+      setDeleteTarget(null);
       setSuccessMessage('Restaurant has been soft-deleted.');
     },
     onError: (err) => {
@@ -234,9 +237,12 @@ export const RestaurantManagementScreen: React.FC = () => {
   };
 
   const handleDelete = (target: PortalRestaurantItem) => {
-    if (window.confirm(`Are you sure you want to soft-delete "${target.name}"?`)) {
-      deleteMutation.mutate(target.id);
-    }
+    setDeleteTarget(target);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget.id);
   };
 
   const isSuperAdmin = user?.role === 'super_admin';
@@ -808,6 +814,76 @@ export const RestaurantManagementScreen: React.FC = () => {
                     className="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                   >
                     {statusMutation.isPending ? 'Suspending...' : 'Confirm Suspension'}
+                  </MotionButton>
+                </div>
+              </div>
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
+
+      {/* Delete Restaurant Confirmation Modal */}
+      {deleteTarget &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-restaurant-dialog-title"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans"
+          >
+            <FadeIn>
+              <div className="bg-white dark:bg-stone-900 rounded-xl max-w-md w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden p-5 space-y-3.5 transition-colors duration-200">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/20 dark:border-rose-900 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
+                    <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3
+                      id="delete-restaurant-dialog-title"
+                      className="text-sm font-semibold text-stone-900 dark:text-stone-100"
+                    >
+                      Delete &quot;{deleteTarget.name}&quot;?
+                    </h3>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                      This will soft-delete the restaurant record.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-2.5 bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/20 dark:border-rose-900 rounded-lg text-xs text-rose-800 dark:text-rose-300 space-y-1">
+                  <p className="font-semibold flex items-center gap-1.5 text-[11px]">
+                    <HugeiconsIcon
+                      icon={AlertCircleIcon}
+                      className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 shrink-0"
+                    />
+                    <span>Destructive Action Warning</span>
+                  </p>
+                  <p className="text-[10px] leading-relaxed text-rose-700 dark:text-rose-400">
+                    Deleting this restaurant will revoke all staff and admin logins, deactivate
+                    associated table QR codes, and halt public customer tipping immediately.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                  <MotionButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDeleteTarget(null)}
+                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                  >
+                    Cancel
+                  </MotionButton>
+                  <MotionButton
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={handleDeleteConfirm}
+                    disabled={deleteMutation.isPending}
+                    className="bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
+                  >
+                    {deleteMutation.isPending ? 'Deleting...' : 'Delete Restaurant'}
                   </MotionButton>
                 </div>
               </div>
