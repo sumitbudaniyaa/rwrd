@@ -206,6 +206,8 @@ export interface BillingPlanItem {
   code: string;
   name: string;
   monthlyFeeInr: number;
+  priceInr?: number;
+  durationMonths?: number;
   isActive: boolean;
 }
 
@@ -219,6 +221,8 @@ export interface SubscriptionItem {
   planName: string;
   planCode: string;
   monthlyFeeInr: number;
+  priceInr?: number;
+  durationMonths?: number;
   status: 'trial' | 'active' | 'past_due' | 'cancelled';
   trialEndsAt: string | null;
   currentPeriodStart: string;

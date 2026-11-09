@@ -309,8 +309,10 @@ SaaS flat-rate subscription management.
 CREATE TABLE billing_plans (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
-    code VARCHAR(50) UNIQUE NOT NULL, -- 'starter', 'pro', 'enterprise'
+    code VARCHAR(50) UNIQUE NOT NULL, -- 'monthly', 'quarterly', 'semi_annual', 'yearly'
     monthly_fee_inr INT NOT NULL,
+    price_inr INT DEFAULT 99 NOT NULL,
+    duration_months INT DEFAULT 1 NOT NULL,
     max_staff INT,
     max_tables INT,
     is_active BOOLEAN DEFAULT TRUE NOT NULL,

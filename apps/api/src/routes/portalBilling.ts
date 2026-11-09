@@ -40,7 +40,7 @@ portalBillingRouter.get(
         .select()
         .from(billingPlans)
         .where(eq(billingPlans.isActive, true))
-        .orderBy(billingPlans.monthlyFeeInr);
+        .orderBy(billingPlans.durationMonths);
 
       res.status(200).json({ plans });
     } catch (error) {
@@ -70,6 +70,8 @@ portalBillingRouter.get(
           planName: billingPlans.name,
           planCode: billingPlans.code,
           monthlyFeeInr: billingPlans.monthlyFeeInr,
+          durationMonths: billingPlans.durationMonths,
+          priceInr: billingPlans.priceInr,
           status: subscriptions.status,
           trialEndsAt: subscriptions.trialEndsAt,
           currentPeriodStart: subscriptions.currentPeriodStart,

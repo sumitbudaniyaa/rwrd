@@ -4,8 +4,10 @@ import { restaurants } from './restaurants';
 export const billingPlans = pgTable('billing_plans', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: varchar('name', { length: 100 }).notNull(),
-  code: varchar('code', { length: 50 }).unique().notNull(), // 'starter', 'pro', 'enterprise'
+  code: varchar('code', { length: 50 }).unique().notNull(), // 'monthly', 'quarterly', 'semi_annual', 'yearly'
   monthlyFeeInr: integer('monthly_fee_inr').notNull(),
+  priceInr: integer('price_inr').default(99).notNull(),
+  durationMonths: integer('duration_months').default(1).notNull(),
   maxStaff: integer('max_staff'),
   maxTables: integer('max_tables'),
   isActive: boolean('is_active').default(true).notNull(),

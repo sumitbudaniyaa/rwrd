@@ -468,7 +468,12 @@ export const BillingManagementScreen: React.FC = () => {
                           {sub.planName}
                         </td>
                         <td className="py-2.5 px-4 font-semibold text-stone-900 dark:text-stone-100 font-mono">
-                          ₹{sub.monthlyFeeInr}/mo
+                          {sub.priceInr ? `₹${sub.priceInr}` : `₹${sub.monthlyFeeInr}/mo`}
+                          {sub.durationMonths && sub.durationMonths > 1 && (
+                            <span className="text-[10px] text-stone-400 font-normal ml-1">
+                              ({sub.durationMonths}m)
+                            </span>
+                          )}
                         </td>
                         <td className="py-2.5 px-4">{getSubStatusBadge(sub.status)}</td>
                         <td className="py-2.5 px-4 text-stone-500 dark:text-stone-400 font-mono text-[11px]">

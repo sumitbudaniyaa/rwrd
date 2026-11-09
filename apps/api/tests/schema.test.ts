@@ -45,4 +45,10 @@ describe('Drizzle Database Schema Definitions', () => {
     expect(restaurants.minTipInr.default).toBe(1);
     expect(restaurants.maxTipInr.default).toBe(10000);
   });
+
+  it('validates billing plans schema defaults', () => {
+    expect(billingPlans.priceInr.default).toBe(99);
+    expect(billingPlans.durationMonths.default).toBe(1);
+    expect(billingPlans.isActive.default).toBe(true);
+  });
 });

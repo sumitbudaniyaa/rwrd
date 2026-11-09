@@ -166,6 +166,52 @@ The API supports three distinct authentication contexts:
 
 - **Response `201 Created`**
 
+### 3.6 List Subscription Pricing Plans
+
+- **Method**: `GET /api/v1/public/billing/plans`
+- **Rate Limit**: 60 requests / minute / IP
+- **Description**: Returns all active subscription pricing tiers ordered by duration for onboarding and pricing transparency.
+- **Response `200 OK`**:
+
+```json
+{
+  "plans": [
+    {
+      "id": "018f2d5e-9a2c-7b1e-92b5-111111111111",
+      "name": "1 Month",
+      "code": "monthly",
+      "priceInr": 99,
+      "durationMonths": 1,
+      "monthlyFeeInr": 99
+    },
+    {
+      "id": "018f2d5e-9a2c-7b1e-92b5-222222222222",
+      "name": "3 Months",
+      "code": "quarterly",
+      "priceInr": 269,
+      "durationMonths": 3,
+      "monthlyFeeInr": 90
+    },
+    {
+      "id": "018f2d5e-9a2c-7b1e-92b5-333333333333",
+      "name": "6 Months",
+      "code": "semi_annual",
+      "priceInr": 549,
+      "durationMonths": 6,
+      "monthlyFeeInr": 92
+    },
+    {
+      "id": "018f2d5e-9a2c-7b1e-92b5-444444444444",
+      "name": "12 Months (Yearly)",
+      "code": "yearly",
+      "priceInr": 1029,
+      "durationMonths": 12,
+      "monthlyFeeInr": 86
+    }
+  ]
+}
+```
+
 ---
 
 ## 4. Restaurant Admin Endpoints (`/api/v1/admin`)

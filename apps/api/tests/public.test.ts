@@ -8,6 +8,7 @@ import { TipIntentRepository } from '../src/repositories/tipIntentRepository.js'
 import { ReviewTapRepository } from '../src/repositories/reviewTapRepository.js';
 import { PageEventRepository } from '../src/repositories/pageEventRepository.js';
 import { encryptVpa } from '../src/services/crypto.js';
+import { db } from '../src/db/index.js';
 import type { ResolvedQrToken } from '../src/repositories/qrTokenRepository.js';
 import type { Restaurant, Staff, TipIntent, ReviewTap } from '../src/db/schema/index.js';
 
@@ -366,6 +367,44 @@ describe('Public Customer API Endpoints', () => {
 
       expect(res.status).toBe(422);
       expect(res.body.code).toBe('VALIDATION_FAILED');
+    });
+  });
+
+  describe('GET /api/v1/public/billing/plans', () => {
+    it('returns active subscription plans ordered by duration', async () => {
+      const mockPlans = [
+        {
+          id: 'plan-1',
+          name: '1 Month',
+          code: 'monthly',
+          priceInr: 99,
+          durationMonths: 1,
+          monthlyFeeInr: 99,
+        },
+        {
+          id: 'plan-2',
+          name: '3 Months',
+          code: 'quarterly',
+          priceInr: 269,
+          durationMonths: 3,
+          monthlyFeeInr: 90,
+        },
+      ];
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            orderBy: () => Promise.resolve(mockPlans),
+          }),
+        }),
+      } as any);
+
+      const res = await request(app).get('/api/v1/public/billing/plans');
+
+      expect(res.status).toBe(200);
+      expect(res.body.plans).toHaveLength(2);
+      expect(res.body.plans[0].priceInr).toBe(99);
+      expect(res.body.plans[1].priceInr).toBe(269);
     });
   });
 });

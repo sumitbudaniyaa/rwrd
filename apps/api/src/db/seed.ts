@@ -11,18 +11,75 @@ import { logger } from '../utils/logger.js';
 export async function seed(): Promise<void> {
   logger.info('Starting baseline system database seed...');
 
-  // 1. Provision default billing plan (Required by subscription schema during onboarding)
-  await db
-    .insert(billingPlans)
-    .values({
-      name: 'Pro Plan',
-      code: 'pro',
-      monthlyFeeInr: 1999,
+  // 1. Provision standard SaaS subscription billing plans
+  const standardPlans = [
+    {
+      name: '1 Month',
+      code: 'monthly',
+      monthlyFeeInr: 99,
+      priceInr: 99,
+      durationMonths: 1,
       maxStaff: 50,
       maxTables: 100,
       isActive: true,
-    })
-    .onConflictDoNothing();
+    },
+    {
+      name: '3 Months',
+      code: 'quarterly',
+      monthlyFeeInr: 90,
+      priceInr: 269,
+      durationMonths: 3,
+      maxStaff: 50,
+      maxTables: 100,
+      isActive: true,
+    },
+    {
+      name: '6 Months',
+      code: 'semi_annual',
+      monthlyFeeInr: 92,
+      priceInr: 549,
+      durationMonths: 6,
+      maxStaff: 50,
+      maxTables: 100,
+      isActive: true,
+    },
+    {
+      name: '12 Months (Yearly)',
+      code: 'yearly',
+      monthlyFeeInr: 86,
+      priceInr: 1029,
+      durationMonths: 12,
+      maxStaff: 50,
+      maxTables: 100,
+      isActive: true,
+    },
+    {
+      name: 'Pro Plan',
+      code: 'pro',
+      monthlyFeeInr: 1999,
+      priceInr: 1999,
+      durationMonths: 1,
+      maxStaff: 50,
+      maxTables: 100,
+      isActive: false, // Retired legacy tier
+    },
+  ];
+
+  for (const plan of standardPlans) {
+    await db
+      .insert(billingPlans)
+      .values(plan)
+      .onConflictDoUpdate({
+        target: billingPlans.code,
+        set: {
+          name: plan.name,
+          monthlyFeeInr: plan.monthlyFeeInr,
+          priceInr: plan.priceInr,
+          durationMonths: plan.durationMonths,
+          isActive: plan.isActive,
+        },
+      });
+  }
 
   // 2. Platform Super Admin (System operations & portal support)
   const superAdminPasswordHash = await hash('SuperAdmin123!', {

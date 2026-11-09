@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - SaaS Billing Fee Structure, Multi-Month Intervals & Public Pricing API (M7-T57)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **SaaS Subscription Pricing & Duration Schema**:
+    - Extended [`billingPlans`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/schema/billing.ts) with `priceInr` (`INT NOT NULL DEFAULT 99`) and `durationMonths` (`INT NOT NULL DEFAULT 1`) alongside existing backward-compatible `monthlyFeeInr`.
+    - Updated [`seed.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/seed.ts) to seed the 4 standard pricing tiers:
+      - **1 Month**: ₹99 (`code: 'monthly'`, `durationMonths: 1`, `priceInr: 99`, `monthlyFeeInr: 99`)
+      - **3 Months**: ₹269 (`code: 'quarterly'`, `durationMonths: 3`, `priceInr: 269`, `monthlyFeeInr: 90`)
+      - **6 Months**: ₹549 (`code: 'semi_annual'`, `durationMonths: 6`, `priceInr: 549`, `monthlyFeeInr: 92`)
+      - **12 Months (Yearly)**: ₹1029 (`code: 'yearly'`, `durationMonths: 12`, `priceInr: 1029`, `monthlyFeeInr: 86`)
+  - **Public & Portal Billing APIs**:
+    - Created `GET /api/v1/public/billing/plans` endpoint in [`public.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/public.ts) providing prospective establishments and onboarding flows access to active pricing tiers ordered by duration.
+    - Updated `GET /api/v1/portal/billing/plans` and `GET /api/v1/portal/billing/subscriptions` in [`portalBilling.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalBilling.ts) to return `durationMonths` and `priceInr`.
+    - Updated [`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx) and [`api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/services/api.ts) in Company Portal to render total price and duration pill.
+  - **Tests & Documentation**:
+    - Added unit test in [`apps/api/tests/public.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/public.test.ts) covering `GET /api/v1/public/billing/plans`.
+    - Added schema default assertions in [`apps/api/tests/schema.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/schema.test.ts).
+    - Updated database schema in [`docs/DATA_MODEL.md`](file:///Users/Sumit/Desktop/rwrd/docs/DATA_MODEL.md) and API contracts in [`docs/API.md`](file:///Users/Sumit/Desktop/rwrd/docs/API.md).
+    - Verified with 100% test pass on `@tiptable/portal` (31 tests) and `@tiptable/api` (public & schema tests).
+
 ### 2026-11-10 - Restore Company Portal Theme Toggle as Single Round Button (M7-T56)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
