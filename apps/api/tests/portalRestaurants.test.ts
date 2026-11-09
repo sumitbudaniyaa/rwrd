@@ -79,6 +79,13 @@ describe('Portal Restaurant Management Routes', () => {
     // 2. Transaction mock
     vi.spyOn(db, 'transaction').mockImplementationOnce(async (cb: any) => {
       const mockTx = {
+        select: () => ({
+          from: () => ({
+            where: () => ({
+              limit: () => [{ id: 'plan-id-123' }],
+            }),
+          }),
+        }),
         insert: (_table: any) => ({
           values: (val: any) => ({
             returning: () => [
@@ -121,6 +128,62 @@ describe('Portal Restaurant Management Routes', () => {
         entityType: 'restaurant',
       }),
     );
+  });
+
+  it('POST /api/v1/portal/restaurants auto-derives slug and accepts location & establishmentType', async () => {
+    vi.spyOn(db, 'select').mockReturnValueOnce({
+      from: () => ({
+        where: () => ({
+          limit: () => [],
+        }),
+      }),
+    } as any);
+
+    vi.spyOn(db, 'transaction').mockImplementationOnce(async (cb: any) => {
+      const mockTx = {
+        select: () => ({
+          from: () => ({
+            where: () => ({
+              limit: () => [{ id: 'plan-id-123' }],
+            }),
+          }),
+        }),
+        insert: (_table: any) => ({
+          values: (val: any) => ({
+            returning: () => [
+              {
+                id: restaurantId,
+                name: val.name || 'New Restaurant',
+                slug: val.slug || 'the-fatty-bao',
+                email: val.email || 'owner@new.com',
+                fullName: val.fullName || 'Owner Name',
+                role: 'owner',
+              },
+            ],
+          }),
+        }),
+      };
+      return await cb(mockTx);
+    });
+
+    vi.spyOn(auditService, 'record').mockResolvedValueOnce({} as any);
+
+    const res = await request(app)
+      .post('/api/v1/portal/restaurants')
+      .set('Authorization', `Bearer ${superAdminToken}`)
+      .send({
+        name: 'The Fatty Bao',
+        establishmentType: 'casual_dining',
+        city: 'Bengaluru',
+        state: 'Karnataka',
+        country: 'India',
+        ownerFullName: 'Manu Chandra',
+        ownerEmail: 'manu@fattybao.com',
+        ownerPassword: 'InitialOwnerPassword123!',
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.restaurant.id).toBe(restaurantId);
   });
 
   it('POST /api/v1/portal/restaurants rejects non-Google review URLs with 422', async () => {

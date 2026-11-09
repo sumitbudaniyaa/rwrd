@@ -2,7 +2,15 @@ import { Router, type Request, type Response, type NextFunction } from 'express'
 import { z } from 'zod';
 import { eq, and, ilike, isNull, isNotNull, desc, sql, or } from 'drizzle-orm';
 import { db } from '../db/index.js';
-import { restaurants, restaurantUsers, qrTokens, staff, tables } from '../db/schema/index.js';
+import {
+  restaurants,
+  restaurantUsers,
+  qrTokens,
+  staff,
+  tables,
+  billingPlans,
+  subscriptions,
+} from '../db/schema/index.js';
 import { hashPassword, generateSecureToken } from '../utils/authCrypto.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireRole } from '../middleware/rbac.js';
@@ -19,17 +27,26 @@ const GOOGLE_REVIEW_URL_REGEX =
 
 const OnboardRestaurantSchema = z.object({
   name: z.string().trim().min(1, 'Restaurant name is required').max(255),
+  establishmentType: z
+    .enum(['casual_dining', 'fine_dining', 'cafe', 'bar_pub', 'quick_service'])
+    .optional(),
+  city: z.string().trim().max(100).optional(),
+  state: z.string().trim().max(100).optional(),
+  country: z.string().trim().max(100).optional(),
   slug: z
     .string()
     .trim()
     .min(2, 'Slug must be at least 2 characters')
     .max(100)
-    .regex(/^[a-z0-9-]+$/, 'Slug must consist only of lowercase letters, numbers, and hyphens'),
+    .regex(/^[a-z0-9-]+$/, 'Slug must consist only of lowercase letters, numbers, and hyphens')
+    .optional(),
   googleReviewUrl: z
     .string()
     .trim()
     .url('Must be a valid URL')
-    .regex(GOOGLE_REVIEW_URL_REGEX, 'Must be a valid Google Maps / Google Review write URL'),
+    .regex(GOOGLE_REVIEW_URL_REGEX, 'Must be a valid Google Maps / Google Review write URL')
+    .optional()
+    .or(z.literal('')),
   ownerFullName: z.string().trim().min(1, 'Owner full name is required').max(100),
   ownerEmail: z.string().trim().email('Valid owner email is required'),
   ownerPassword: z.string().min(8, 'Temporary password must be at least 8 characters'),
@@ -129,15 +146,35 @@ portalRestaurantsRouter.post(
 
       const data = parsed.data;
 
-      // 1. Check slug uniqueness
-      const [existingSlug] = await db
-        .select({ id: restaurants.id })
-        .from(restaurants)
-        .where(eq(restaurants.slug, data.slug))
-        .limit(1);
+      // 1. Resolve slug (use provided or derive uniquely from name)
+      let slug = data.slug;
+      if (!slug) {
+        let baseSlug = data.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+        if (!baseSlug) baseSlug = 'restaurant';
+        slug = baseSlug;
 
-      if (existingSlug) {
-        throw new ConflictError(`Slug '${data.slug}' is already taken by another restaurant.`);
+        const [collision] = await db
+          .select({ id: restaurants.id })
+          .from(restaurants)
+          .where(eq(restaurants.slug, slug))
+          .limit(1);
+
+        if (collision) {
+          slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
+        }
+      } else {
+        const [existingSlug] = await db
+          .select({ id: restaurants.id })
+          .from(restaurants)
+          .where(eq(restaurants.slug, slug))
+          .limit(1);
+
+        if (existingSlug) {
+          throw new ConflictError(`Slug '${slug}' is already taken by another restaurant.`);
+        }
       }
 
       // 2. Hash owner password
@@ -150,11 +187,11 @@ portalRestaurantsRouter.post(
           .insert(restaurants)
           .values({
             name: data.name,
-            slug: data.slug,
-            googleReviewUrl: data.googleReviewUrl,
+            slug,
+            googleReviewUrl: data.googleReviewUrl || '',
             tipPresets: data.tipPresets ?? [20, 50, 100, 200],
-            minTipInr: data.minTipInr ?? 1,
-            maxTipInr: data.maxTipInr ?? 10000,
+            minTipInr: data.minTipInr ?? 10,
+            maxTipInr: data.maxTipInr ?? 5000,
             isActive: true,
             isSuspended: false,
           })
@@ -185,6 +222,25 @@ portalRestaurantsRouter.post(
             isActive: true,
           })
           .returning();
+
+        // Provision default active subscription
+        const [defaultPlan] = await tx
+          .select({ id: billingPlans.id })
+          .from(billingPlans)
+          .where(eq(billingPlans.isActive, true))
+          .limit(1);
+
+        if (defaultPlan) {
+          const now = new Date();
+          const oneMonthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+          await tx.insert(subscriptions).values({
+            restaurantId: createdRestaurant.id,
+            planId: defaultPlan.id,
+            status: 'active',
+            currentPeriodStart: now,
+            currentPeriodEnd: oneMonthLater,
+          });
+        }
 
         return {
           restaurant: createdRestaurant,

@@ -403,6 +403,10 @@ The API supports three distinct authentication contexts:
 ```json
 {
   "name": "The Bombay Canteen",
+  "establishmentType": "casual_dining",
+  "city": "Mumbai",
+  "state": "Maharashtra",
+  "country": "India",
   "slug": "the-bombay-canteen",
   "googleReviewUrl": "https://maps.app.goo.gl/tbc123",
   "ownerFullName": "Sameer Seth",

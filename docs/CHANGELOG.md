@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Align Company Portal Restaurant Onboarding with Admin Fields (M7-T58)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Portal Onboarding Modal Form Alignment**:
+    - Enhanced the Onboard Restaurant Modal in [`RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx) to capture all fields from Admin self-registration:
+      1. Establishment Type selector (`casual_dining`, `fine_dining`, `cafe`, `bar_pub`, `quick_service`).
+      2. Restaurant Legal Name & auto-derived editable slug.
+      3. Location attributes (City, State, Country).
+      4. Initial Owner Full Name & Email.
+      5. Password & Confirm Password matching validation.
+      6. Optional Google Review URL (no longer mandatory).
+  - **Backend API Updates (`POST /api/v1/portal/restaurants`)**:
+    - Updated `OnboardRestaurantSchema` in [`portalRestaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalRestaurants.ts) to support optional `establishmentType`, `city`, `state`, `country`, optional `slug` (auto-derived if omitted), and optional `googleReviewUrl`.
+    - Automatically initializes an active 1-month subscription with the active base plan upon restaurant creation.
+  - **Interface & Test Updates**:
+    - Extended `OnboardRestaurantInput` in [`api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/services/api.ts).
+    - Updated portal test in [`apps/portal/tests/restaurantManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/restaurantManagement.test.tsx).
+    - Added unit test in [`apps/api/tests/portalRestaurants.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/portalRestaurants.test.ts) verifying auto-slug and location acceptance.
+    - Updated endpoint documentation in [`docs/API.md`](file:///Users/Sumit/Desktop/rwrd/docs/API.md).
+
 ### 2026-11-10 - Database Reset, Super Admin Provisioning & Subdomain-Ready Root Routing
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

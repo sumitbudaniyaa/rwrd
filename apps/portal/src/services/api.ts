@@ -64,14 +64,19 @@ export interface PortalRestaurantsResponse {
 
 export interface OnboardRestaurantInput {
   name: string;
-  slug: string;
-  googleReviewUrl: string;
+  establishmentType?:
+    'casual_dining' | 'fine_dining' | 'cafe' | 'bar_pub' | 'quick_service' | undefined;
+  city?: string | undefined;
+  state?: string | undefined;
+  country?: string | undefined;
+  slug?: string | undefined;
+  googleReviewUrl?: string | undefined;
   ownerFullName: string;
   ownerEmail: string;
   ownerPassword: string;
-  tipPresets?: number[];
-  minTipInr?: number;
-  maxTipInr?: number;
+  tipPresets?: number[] | undefined;
+  minTipInr?: number | undefined;
+  maxTipInr?: number | undefined;
 }
 
 let inMemoryToken: string | null = null;

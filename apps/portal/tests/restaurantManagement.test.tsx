@@ -152,7 +152,10 @@ describe('RestaurantManagementScreen Component', () => {
     fireEvent.change(screen.getByPlaceholderText(/owner@establishment\.com/i), {
       target: { value: 'owner@brikoven.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText(/At least 8 characters/i), {
+    fireEvent.change(screen.getByPlaceholderText(/At least 8 chars/i), {
+      target: { value: 'SecurePassword123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/Re-enter password/i), {
       target: { value: 'SecurePassword123!' },
     });
 

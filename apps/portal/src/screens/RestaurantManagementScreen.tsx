@@ -19,6 +19,14 @@ import { api, type PortalRestaurantItem, type OnboardRestaurantInput } from '../
 
 type StatusFilter = 'all' | 'active' | 'suspended';
 
+const establishmentTypes = [
+  { id: 'casual_dining', label: 'Casual Dining' },
+  { id: 'fine_dining', label: 'Fine Dining' },
+  { id: 'cafe', label: 'Cafe' },
+  { id: 'bar_pub', label: 'Bar / Pub' },
+  { id: 'quick_service', label: 'Quick Service' },
+] as const;
+
 export const RestaurantManagementScreen: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -33,13 +41,20 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Form State for Onboarding
+  // Form State for Onboarding (Aligned with Admin self-onboarding fields)
+  const [formType, setFormType] = useState<
+    'casual_dining' | 'fine_dining' | 'cafe' | 'bar_pub' | 'quick_service'
+  >('casual_dining');
   const [formName, setFormName] = useState('');
   const [formSlug, setFormSlug] = useState('');
+  const [formCity, setFormCity] = useState('');
+  const [formState, setFormState] = useState('');
+  const [formCountry, setFormCountry] = useState('India');
   const [formReviewUrl, setFormReviewUrl] = useState('');
   const [formOwnerName, setFormOwnerName] = useState('');
   const [formOwnerEmail, setFormOwnerEmail] = useState('');
   const [formOwnerPassword, setFormOwnerPassword] = useState('');
+  const [formOwnerConfirmPassword, setFormOwnerConfirmPassword] = useState('');
 
   const {
     data: restaurantsData,
@@ -144,12 +159,17 @@ export const RestaurantManagementScreen: React.FC = () => {
   };
 
   const resetForm = () => {
+    setFormType('casual_dining');
     setFormName('');
     setFormSlug('');
+    setFormCity('');
+    setFormState('');
+    setFormCountry('India');
     setFormReviewUrl('');
     setFormOwnerName('');
     setFormOwnerEmail('');
     setFormOwnerPassword('');
+    setFormOwnerConfirmPassword('');
     setErrorMessage(null);
   };
 
@@ -168,10 +188,24 @@ export const RestaurantManagementScreen: React.FC = () => {
     e.preventDefault();
     setErrorMessage(null);
 
+    if (formOwnerPassword.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long.');
+      return;
+    }
+
+    if (formOwnerPassword !== formOwnerConfirmPassword) {
+      setErrorMessage('Passwords do not match.');
+      return;
+    }
+
     const payload: OnboardRestaurantInput = {
       name: formName.trim(),
-      slug: formSlug.trim(),
-      googleReviewUrl: formReviewUrl.trim(),
+      establishmentType: formType,
+      city: formCity.trim() || undefined,
+      state: formState.trim() || undefined,
+      country: formCountry.trim() || undefined,
+      slug: formSlug.trim() || undefined,
+      googleReviewUrl: formReviewUrl.trim() || undefined,
       ownerFullName: formOwnerName.trim(),
       ownerEmail: formOwnerEmail.trim(),
       ownerPassword: formOwnerPassword,
@@ -507,109 +541,190 @@ export const RestaurantManagementScreen: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="space-y-2.5">
-                    <h3 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                      Establishment Profile
-                    </h3>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                          Restaurant Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formName}
-                          onChange={(e) => handleNameChange(e.target.value)}
-                          placeholder="e.g. The Bombay Canteen"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                          URL Slug *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formSlug}
-                          onChange={(e) =>
-                            setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-                          }
-                          placeholder="e.g. the-bombay-canteen"
-                          className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
-                        />
-                      </div>
-                    </div>
-
+                  <div className="space-y-3">
+                    {/* 1. Establishment Type */}
                     <div>
-                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                        Google Review Write URL *
+                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1.5">
+                        Establishment Type *
                       </label>
-                      <input
-                        type="url"
-                        required
-                        value={formReviewUrl}
-                        onChange={(e) => setFormReviewUrl(e.target.value)}
-                        placeholder="https://maps.app.goo.gl/..."
-                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
-                      />
-                      <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">
-                        Must be a valid Google Maps / Place review link (un-gated).
-                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+                        {establishmentTypes.map((type) => (
+                          <button
+                            key={type.id}
+                            type="button"
+                            onClick={() => setFormType(type.id)}
+                            className={`px-2.5 py-1.5 text-xs font-medium rounded-lg border text-left transition-colors cursor-pointer ${
+                              formType === type.id
+                                ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 border-transparent shadow-xs'
+                                : 'bg-stone-50 dark:bg-stone-800/60 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-stone-300'
+                            }`}
+                          >
+                            {type.label}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-2.5 pt-3 border-t border-stone-100 dark:border-stone-800">
-                    <h3 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
-                      Initial Owner Credentials
-                    </h3>
+                    {/* 2. Restaurant Profile */}
+                    <div className="pt-2 border-t border-stone-100 dark:border-stone-800 space-y-2.5">
+                      <h3 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                        Restaurant Profile
+                      </h3>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                          Owner Full Name *
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={formOwnerName}
-                          onChange={(e) => setFormOwnerName(e.target.value)}
-                          placeholder="e.g. Sameer Seth"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
-                        />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            Restaurant Legal Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={formName}
+                            onChange={(e) => handleNameChange(e.target.value)}
+                            placeholder="e.g. The Bombay Canteen"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            URL Slug
+                          </label>
+                          <input
+                            type="text"
+                            value={formSlug}
+                            onChange={(e) =>
+                              setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+                            }
+                            placeholder="Auto-derived if blank"
+                            className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+                      </div>
+
+                      {/* City, State, Country Grid */}
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            City
+                          </label>
+                          <input
+                            type="text"
+                            value={formCity}
+                            onChange={(e) => setFormCity(e.target.value)}
+                            placeholder="e.g. Mumbai"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            State
+                          </label>
+                          <input
+                            type="text"
+                            value={formState}
+                            onChange={(e) => setFormState(e.target.value)}
+                            placeholder="e.g. Maharashtra"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            Country
+                          </label>
+                          <input
+                            type="text"
+                            value={formCountry}
+                            onChange={(e) => setFormCountry(e.target.value)}
+                            placeholder="e.g. India"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
                       </div>
 
                       <div>
                         <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                          Owner Email *
+                          Google Review Write URL (Optional)
                         </label>
                         <input
-                          type="email"
-                          required
-                          value={formOwnerEmail}
-                          onChange={(e) => setFormOwnerEmail(e.target.value)}
-                          placeholder="owner@establishment.com"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          type="url"
+                          value={formReviewUrl}
+                          onChange={(e) => setFormReviewUrl(e.target.value)}
+                          placeholder="https://maps.app.goo.gl/... (optional)"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                        Initial Temporary Password *
-                      </label>
-                      <input
-                        type="password"
-                        required
-                        minLength={8}
-                        value={formOwnerPassword}
-                        onChange={(e) => setFormOwnerPassword(e.target.value)}
-                        placeholder="At least 8 characters"
-                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
-                      />
+                    {/* 3. Initial Admin Credentials */}
+                    <div className="space-y-2.5 pt-3 border-t border-stone-100 dark:border-stone-800">
+                      <h3 className="text-[10px] font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider">
+                        Initial Owner Account
+                      </h3>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            Owner Full Name *
+                          </label>
+                          <input
+                            type="text"
+                            required
+                            value={formOwnerName}
+                            onChange={(e) => setFormOwnerName(e.target.value)}
+                            placeholder="e.g. Sameer Seth"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            Owner Email *
+                          </label>
+                          <input
+                            type="email"
+                            required
+                            value={formOwnerEmail}
+                            onChange={(e) => setFormOwnerEmail(e.target.value)}
+                            placeholder="owner@establishment.com"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            Password *
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            minLength={8}
+                            value={formOwnerPassword}
+                            onChange={(e) => setFormOwnerPassword(e.target.value)}
+                            placeholder="At least 8 chars"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                            Confirm Password *
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            minLength={8}
+                            value={formOwnerConfirmPassword}
+                            onChange={(e) => setFormOwnerConfirmPassword(e.target.value)}
+                            placeholder="Re-enter password"
+                            className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
