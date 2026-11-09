@@ -214,3 +214,51 @@ adminQrRouter.post(
     }
   },
 );
+
+/**
+ * DELETE /api/v1/admin/restaurants/:restaurantId/tables/:tableId
+ * Deletes a dining table and deactivates all of its associated QR tokens.
+ */
+adminQrRouter.delete(
+  '/admin/restaurants/:restaurantId/tables/:tableId',
+  requireAuth('admin'),
+  requireTenant('restaurantId'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const restaurantId = req.params.restaurantId as string;
+      const tableId = z.string().uuid().parse(req.params.tableId);
+
+      const table = await tableRepository.findById(restaurantId, tableId);
+      if (!table || !table.isActive) {
+        throw new NotFoundError('Dining table not found within this restaurant');
+      }
+
+      await tableRepository.delete(restaurantId, tableId);
+      await qrTokenRepository.deactivateByTable(restaurantId, tableId);
+
+      if (req.user?.id) {
+        await auditService.record({
+          restaurantId,
+          actorId: req.user.id,
+          actorType: 'restaurant_user',
+          action: 'TABLE_DELETED',
+          entityType: 'table',
+          entityId: table.id,
+          beforeState: {
+            tableNumber: table.tableNumber,
+            sectionName: table.sectionName,
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+      }
+
+      res.status(200).json({
+        message: 'Dining table deleted successfully',
+        tableId: table.id,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);

@@ -36,6 +36,19 @@ export class TableRepository {
     }
     return created;
   }
+
+  async delete(restaurantId: string, tableId: string): Promise<Table | null> {
+    const [deleted] = await this.database
+      .update(tables)
+      .set({
+        isActive: false,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(tables.id, tableId), eq(tables.restaurantId, restaurantId)))
+      .returning();
+
+    return deleted || null;
+  }
 }
 
 export const tableRepository = new TableRepository();

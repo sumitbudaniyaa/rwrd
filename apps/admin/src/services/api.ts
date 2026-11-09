@@ -438,6 +438,18 @@ export const api = {
     });
   },
 
+  deleteTable(
+    restaurantId: string,
+    tableId: string,
+  ): Promise<{ message: string; tableId: string }> {
+    return request<{ message: string; tableId: string }>(
+      `/admin/restaurants/${restaurantId}/tables/${tableId}`,
+      {
+        method: 'DELETE',
+      },
+    );
+  },
+
   getAnalytics(
     restaurantId: string,
     params?: { startDate?: string; endDate?: string },

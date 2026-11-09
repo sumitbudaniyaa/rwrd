@@ -6,6 +6,31 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Bottom-Rise Page Motion, Table Deletion API & QR Action Polish (M7-T45)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Bottom-Origin Expanding Page Transition in Customer App**:
+    - Replaced subtle lift animation in [`apps/customer/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/App.tsx) with a blooming bottom-rise transition (`initial={{ opacity: 0, y: 70, scale: 0.85 }}`, `animate={{ opacity: 1, y: 0, scale: 1 }}`, `style={{ transformOrigin: 'bottom center' }}`).
+    - Sub-pages now emerge from the bottom and expand outward into full view on navigation with custom easing `[0.16, 1, 0.3, 1]`.
+  - **Dining Table Deletion Route & Token Deactivation**:
+    - Added `DELETE /api/v1/admin/restaurants/:restaurantId/tables/:tableId` in [`apps/api/src/routes/adminQr.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminQr.ts) with UUID validation, tenant boundary protection, and `TABLE_DELETED` audit trail.
+    - Added `tableRepository.delete` soft-deletion (`isActive: false`) in [`apps/api/src/repositories/tableRepository.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/tableRepository.ts).
+    - Added `qrTokenRepository.deactivateByTable` in [`apps/api/src/repositories/qrTokenRepository.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/qrTokenRepository.ts) to immediately deactivate all active tokens associated with a deleted table.
+    - Added `api.deleteTable` method in [`apps/admin/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/services/api.ts).
+  - **QR Management Actions & Truncation Elimination**:
+    - Replaced CSS text clipping (`truncate`) in [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx) with `break-all` so full URLs are visible and cannot be cut short on selection.
+    - Added 1-click **"Copy Link"** button with dynamic `"Copied!"` green checkmark state.
+    - Added direct **"Open Link"** anchor (`<a target="_blank" rel="noreferrer">`) with `ArrowUpRight01Icon` to instantly open any table or general QR URL in a new tab without manual URL copying.
+    - Added table deletion button (`Delete02Icon`) on table placard cards with confirmation dialog warning operators of immediate placard invalidation.
+  - **Testing & Verification**:
+    - Added unit & integration tests covering `DELETE /tables/:tableId` happy path, 404 not found, and 403 cross-tenant isolation in [`apps/api/tests/adminQr.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminQr.test.ts).
+    - Added tests for clipboard copy, open link, and delete table confirmation in [`apps/admin/tests/qrManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/qrManagement.test.tsx).
+    - All 27 API test suites (177 tests), all 9 admin test suites (48 tests), and all 7 customer test suites (20 tests) pass cleanly.
+    - Full monorepo TypeScript typecheck clean with zero errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with zero errors (`pnpm lint`).
+
 ### 2026-11-09 - Customer App Experience & Motion Polish (M7-T44)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

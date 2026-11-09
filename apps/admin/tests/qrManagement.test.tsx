@@ -260,4 +260,62 @@ describe('QrManagementScreen', () => {
 
     expect(printSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('copies customer URL to clipboard and provides direct open link', async () => {
+    vi.spyOn(api, 'getQrList').mockResolvedValueOnce(mockQrData);
+    Object.assign(navigator, {
+      clipboard: {
+        writeText: vi.fn().mockResolvedValue(undefined),
+      },
+    });
+
+    renderWithProviders(<QrManagementScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/general restaurant QR/i)).toBeInTheDocument();
+    });
+
+    // Check Open Link anchor tags exist
+    const openLinks = screen.getAllByRole('link', { name: /Open/i });
+    expect(openLinks.length).toBeGreaterThanOrEqual(2);
+    expect(openLinks[0]).toHaveAttribute('href', 'http://localhost:3000/r/root-token-xyz');
+    expect(openLinks[0]).toHaveAttribute('target', '_blank');
+
+    // Test Copy button
+    const copyButtons = screen.getAllByRole('button', { name: /Copy/i });
+    fireEvent.click(copyButtons[0]!);
+
+    await waitFor(() => {
+      expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+        'http://localhost:3000/r/root-token-xyz',
+      );
+    });
+  });
+
+  it('opens Delete Table modal, confirms deletion, and calls api.deleteTable', async () => {
+    vi.spyOn(api, 'getQrList').mockResolvedValueOnce(mockQrData);
+    const deleteSpy = vi.spyOn(api, 'deleteTable').mockResolvedValueOnce({
+      message: 'Dining table deleted successfully',
+      tableId: 'tbl-1',
+    });
+
+    renderWithProviders(<QrManagementScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Table 4/i)).toBeInTheDocument();
+    });
+
+    const deleteBtn = screen.getByRole('button', { name: /Delete table/i });
+    fireEvent.click(deleteBtn);
+
+    expect(screen.getByText(/delete Table 4\?/i)).toBeInTheDocument();
+    expect(screen.getByText(/All associated QR tokens will be/i)).toBeInTheDocument();
+
+    const confirmDeleteBtn = screen.getByLabelText('Confirm dining table deletion');
+    fireEvent.click(confirmDeleteBtn);
+
+    await waitFor(() => {
+      expect(deleteSpy).toHaveBeenCalledWith('rest-123', 'tbl-1');
+    });
+  });
 });

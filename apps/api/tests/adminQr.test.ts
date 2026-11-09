@@ -164,4 +164,48 @@ describe('Admin QR & Table Management Routes', () => {
       }),
     );
   });
+
+  it('DELETE /api/v1/admin/restaurants/:id/tables/:tableId deletes table and deactivates tokens', async () => {
+    vi.spyOn(tableRepository, 'findById').mockResolvedValueOnce(mockTable);
+    const deleteSpy = vi.spyOn(tableRepository, 'delete').mockResolvedValueOnce(mockTable);
+    const deactivateSpy = vi.spyOn(qrTokenRepository, 'deactivateByTable').mockResolvedValueOnce();
+    const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValueOnce({} as any);
+
+    const res = await request(app)
+      .delete(`/api/v1/admin/restaurants/${restaurantId}/tables/${mockTable.id}`)
+      .set('Authorization', `Bearer ${ownerToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.message).toContain('deleted successfully');
+    expect(res.body.tableId).toBe(mockTable.id);
+
+    expect(deleteSpy).toHaveBeenCalledWith(restaurantId, mockTable.id);
+    expect(deactivateSpy).toHaveBeenCalledWith(restaurantId, mockTable.id);
+    expect(auditSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: 'TABLE_DELETED',
+        restaurantId,
+        actorId: ownerUserId,
+        entityId: mockTable.id,
+      }),
+    );
+  });
+
+  it('DELETE /api/v1/admin/restaurants/:id/tables/:tableId returns 404 if table does not exist', async () => {
+    vi.spyOn(tableRepository, 'findById').mockResolvedValueOnce(null);
+
+    const res = await request(app)
+      .delete(`/api/v1/admin/restaurants/${restaurantId}/tables/${mockTable.id}`)
+      .set('Authorization', `Bearer ${ownerToken}`);
+
+    expect(res.status).toBe(404);
+  });
+
+  it('DELETE /api/v1/admin/restaurants/:id/tables/:tableId returns 403 on cross-tenant request', async () => {
+    const res = await request(app)
+      .delete(`/api/v1/admin/restaurants/${otherRestaurantId}/tables/${mockTable.id}`)
+      .set('Authorization', `Bearer ${ownerToken}`);
+
+    expect(res.status).toBe(403);
+  });
 });

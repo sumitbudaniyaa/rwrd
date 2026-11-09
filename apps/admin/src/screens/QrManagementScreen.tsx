@@ -12,6 +12,9 @@ import {
   Alert01Icon,
   Cancel01Icon,
   CheckmarkCircle02Icon,
+  Delete02Icon,
+  Copy01Icon,
+  ArrowUpRight01Icon,
 } from '@hugeicons/core-free-icons';
 import { Badge, SlideUp } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
@@ -30,6 +33,8 @@ export const QrManagementScreen: React.FC = () => {
   const restaurantId = user?.restaurantId || restaurant?.id || '';
 
   const [rotatingToken, setRotatingToken] = useState<QrTokenItem | null>(null);
+  const [deletingTable, setDeletingTable] = useState<QrTokenItem | null>(null);
+  const [copiedTokenId, setCopiedTokenId] = useState<string | null>(null);
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
   const [tableNumber, setTableNumber] = useState('');
   const [sectionName, setSectionName] = useState('');
@@ -84,6 +89,35 @@ export const QrManagementScreen: React.FC = () => {
       }
     },
   });
+
+  const deleteTableMutation = useMutation({
+    mutationFn: (tableId: string) => api.deleteTable(restaurantId, tableId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ['admin-qr', restaurantId] });
+      setDeletingTable(null);
+      setSuccessMessage('Dining table deleted and its QR codes deactivated.');
+      setTimeout(() => setSuccessMessage(null), 4000);
+    },
+    onError: (err) => {
+      if (err instanceof ApiError) {
+        setFormError(err.problem.detail || err.problem.title);
+      } else {
+        setFormError('Failed to delete dining table.');
+      }
+    },
+  });
+
+  const handleCopyLink = async (tokenId: string, url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopiedTokenId(tokenId);
+      setTimeout(() => {
+        setCopiedTokenId((prev) => (prev === tokenId ? null : prev));
+      }, 2000);
+    } catch {
+      setFormError('Failed to copy link to clipboard.');
+    }
+  };
 
   const handleDownloadPng = async (url: string, filename: string) => {
     try {
@@ -225,8 +259,39 @@ export const QrManagementScreen: React.FC = () => {
                         Universal placard for entrance, counter, or bars where table numbers are not
                         assigned.
                       </p>
-                      <div className="pt-1 font-mono text-[11px] text-stone-400 select-all truncate max-w-xs md:max-w-md">
-                        {rootToken.customerUrl}
+                      <div className="pt-2 flex flex-wrap items-center gap-2 max-w-xl">
+                        <div className="px-2.5 py-1.5 bg-stone-50 border border-stone-200/80 rounded-lg font-mono text-[11px] text-stone-600 break-all select-all flex-1 min-w-[200px]">
+                          {rootToken.customerUrl}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleCopyLink(rootToken.id, rootToken.customerUrl)}
+                          className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                          title="Copy URL"
+                        >
+                          <HugeiconsIcon
+                            icon={
+                              copiedTokenId === rootToken.id ? CheckmarkCircle02Icon : Copy01Icon
+                            }
+                            className={`w-3.5 h-3.5 ${copiedTokenId === rootToken.id ? 'text-emerald-600' : ''}`}
+                            strokeWidth={1.5}
+                          />
+                          <span>{copiedTokenId === rootToken.id ? 'Copied!' : 'Copy'}</span>
+                        </button>
+                        <a
+                          href={rootToken.customerUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="px-2.5 py-1.5 bg-white border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                          title="Open customer app in new tab"
+                        >
+                          <HugeiconsIcon
+                            icon={ArrowUpRight01Icon}
+                            className="w-3.5 h-3.5"
+                            strokeWidth={1.5}
+                          />
+                          <span>Open</span>
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -358,22 +423,71 @@ export const QrManagementScreen: React.FC = () => {
                             </Badge>
                           )}
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setRotatingToken(item)}
-                          className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
-                          title="Rotate token"
-                        >
-                          <HugeiconsIcon icon={RefreshIcon} className="w-4 h-4" strokeWidth={1.5} />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => setRotatingToken(item)}
+                            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-100 rounded-lg transition-colors cursor-pointer"
+                            title="Rotate token"
+                          >
+                            <HugeiconsIcon
+                              icon={RefreshIcon}
+                              className="w-4 h-4"
+                              strokeWidth={1.5}
+                            />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeletingTable(item)}
+                            className="p-1.5 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                            title="Delete table"
+                          >
+                            <HugeiconsIcon
+                              icon={Delete02Icon}
+                              className="w-4 h-4"
+                              strokeWidth={1.5}
+                            />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-center py-3 bg-stone-50/70 rounded-xl border border-stone-100">
                         <QrCanvas codeUrl={item.customerUrl} size={140} />
                       </div>
 
-                      <div className="text-[10px] font-mono text-stone-400 truncate text-center select-all">
-                        {item.customerUrl}
+                      <div className="space-y-2">
+                        <div className="p-2 bg-stone-50 border border-stone-200/70 rounded-lg font-mono text-[10px] text-stone-600 break-all select-all text-center">
+                          {item.customerUrl}
+                        </div>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => handleCopyLink(item.id, item.customerUrl)}
+                            className="px-2 py-1 bg-white border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 rounded-lg text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                            title="Copy URL"
+                          >
+                            <HugeiconsIcon
+                              icon={copiedTokenId === item.id ? CheckmarkCircle02Icon : Copy01Icon}
+                              className={`w-3 h-3 ${copiedTokenId === item.id ? 'text-emerald-600' : ''}`}
+                              strokeWidth={1.5}
+                            />
+                            <span>{copiedTokenId === item.id ? 'Copied!' : 'Copy Link'}</span>
+                          </button>
+                          <a
+                            href={item.customerUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-2 py-1 bg-white border border-stone-200 hover:border-stone-300 text-stone-600 hover:text-stone-900 rounded-lg text-[11px] font-medium flex items-center gap-1 transition-colors cursor-pointer shadow-2xs"
+                            title="Open customer app in new tab"
+                          >
+                            <HugeiconsIcon
+                              icon={ArrowUpRight01Icon}
+                              className="w-3 h-3"
+                              strokeWidth={1.5}
+                            />
+                            <span>Open Link</span>
+                          </a>
+                        </div>
                       </div>
                     </div>
 
@@ -543,6 +657,48 @@ export const QrManagementScreen: React.FC = () => {
                   onClick={() => rotateMutation.mutate(rotatingToken.tableId)}
                 >
                   Rotate Token
+                </MotionButton>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Delete Table Confirmation Modal */}
+      {deletingTable &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-sm bg-white/95 backdrop-blur-md rounded-2xl border border-stone-200/80 shadow-2xl p-6 space-y-4">
+              <div className="w-10 h-10 rounded-full bg-red-50 border border-red-200/60 text-red-600 flex items-center justify-center shadow-2xs">
+                <HugeiconsIcon icon={Delete02Icon} className="w-5 h-5" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                  delete {deletingTable.tableNumber || 'dining table'}?
+                </h3>
+                <p className="text-xs text-stone-500 mt-1 leading-relaxed">
+                  Are you sure you want to delete this table? All associated QR tokens will be
+                  <strong> deactivated immediately</strong>. Diners scanning existing placards will
+                  be unable to open this table.
+                </p>
+              </div>
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <MotionButton variant="ghost" size="sm" onClick={() => setDeletingTable(null)}>
+                  Cancel
+                </MotionButton>
+                <MotionButton
+                  variant="danger"
+                  size="sm"
+                  aria-label="Confirm dining table deletion"
+                  isLoading={deleteTableMutation.isPending}
+                  onClick={() => {
+                    if (deletingTable.tableId) {
+                      deleteTableMutation.mutate(deletingTable.tableId);
+                    }
+                  }}
+                >
+                  Delete Table
                 </MotionButton>
               </div>
             </div>

@@ -72,10 +72,11 @@ const RestaurantLayout: React.FC = () => {
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={location.pathname}
-          initial={{ opacity: 0, y: 28, scale: 0.985 }}
+          initial={{ opacity: 0, y: 70, scale: 0.85 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -14, scale: 0.99 }}
-          transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+          exit={{ opacity: 0, y: 30, scale: 0.92 }}
+          transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+          style={{ transformOrigin: 'bottom center' }}
           className="flex-1 flex flex-col w-full"
         >
           <Outlet />

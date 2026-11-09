@@ -91,6 +91,25 @@ export class QrTokenRepository {
     }
     return created;
   }
+
+  /**
+   * Deactivates all active tokens for a specific table.
+   */
+  async deactivateByTable(restaurantId: string, tableId: string): Promise<void> {
+    await this.database
+      .update(qrTokens)
+      .set({
+        isActive: false,
+        rotatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(qrTokens.restaurantId, restaurantId),
+          eq(qrTokens.tableId, tableId),
+          eq(qrTokens.isActive, true),
+        ),
+      );
+  }
 }
 
 export const qrTokenRepository = new QrTokenRepository();
