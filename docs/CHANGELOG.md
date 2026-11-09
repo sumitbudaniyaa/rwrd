@@ -6,6 +6,37 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Billing Screen Action Buttons & Modal Expansion, Sidebar Tab Highlight Refinement & Customer Staff Copy Polish (M7-T53)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Billing Screen Action Buttons Text in One Line**:
+    - In [`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx), added `whitespace-nowrap shrink-0` to both the **"Run Grace Period Sweep"** and **"Create Invoice"** buttons so button labels never wrap onto multiple lines.
+    - Updated parent action container with `flex-nowrap shrink-0`.
+  - **Create Invoice Dialog Box Inputs Expansion**:
+    - Overhauled the Create Invoice modal in [`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx) to eliminate cramped/shrunken inputs:
+      - Expanded modal container to `max-w-lg w-full p-6 space-y-4 rounded-2xl`.
+      - Increased input heights from `h-8.5` (34px) to `h-10` (40px) with generous horizontal and vertical padding (`px-3.5 text-xs sm:text-sm`).
+      - Updated Amount and Due Date inputs layout into a spacious responsive grid (`grid-cols-1 sm:grid-cols-2 gap-3.5`).
+      - Expanded internal notes textarea to `rows={3}` with `px-3.5 py-2.5`.
+      - Clearer labels with `text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5`.
+  - **Sidebar Selected Tab Highlight Color Refinement**:
+    - In [`PortalLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/layouts/PortalLayout.tsx), replaced the solid white active tab background in dark mode (`dark:bg-white dark:text-stone-900`) with an elevated dark stone surface:
+      `dark:bg-stone-800 dark:text-stone-100 dark:border dark:border-stone-700/80 shadow-2xs` (icon `dark:text-stone-100`).
+    - Eliminates jarring white contrast in the dark sidebar, creating an integrated, refined aesthetic that reserves pure white exclusively for primary CTA buttons.
+  - **Customer App Staff Selection Copy Polish**:
+    - In [`apps/customer/src/i18n/locales/en.json`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/i18n/locales/en.json):
+      - Updated title: `"Who served you?"` &rarr; `"Whose day is it?"`.
+      - Updated subtitle: `"Select your server to send a direct tip via UPI"` &rarr; `"Select a person to send a direct tip via UPI"`.
+    - Updated [`apps/customer/tests/staff.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/staff.test.tsx) assertion to verify `"Whose day is it?"`.
+  - **Tests & Verification**:
+    - All 9 portal test suites passed 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - All 8 customer test suites passed 100% (`pnpm --filter @tiptable/customer test` - 22/22 tests).
+    - Monorepo typecheck passed with zero errors (`pnpm typecheck`).
+    - Monorepo lint passed with zero errors (`pnpm lint`).
+    - Monorepo format check passed with zero warnings (`pnpm format:check`).
+
 ### 2026-11-09 - Company Portal Dialog UI Polish, Button Palette & Minimalist Switch (M7-T52)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

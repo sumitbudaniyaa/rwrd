@@ -65,8 +65,8 @@ export const PortalLayout: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                   isActive
-                    ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 shadow-2xs'
-                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100/70 dark:hover:bg-stone-800/60'
+                    ? 'bg-stone-900 text-white dark:bg-stone-800 dark:text-stone-100 dark:border dark:border-stone-700/80 shadow-2xs'
+                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100/70 dark:hover:bg-stone-800/60 border border-transparent'
                 }`
               }
             >
@@ -74,7 +74,7 @@ export const PortalLayout: React.FC = () => {
                 <>
                   <HugeiconsIcon
                     icon={item.icon}
-                    className={`w-4 h-4 ${isActive ? 'text-white dark:text-stone-900' : 'text-stone-400 dark:text-stone-500'}`}
+                    className={`w-4 h-4 ${isActive ? 'text-white dark:text-stone-100' : 'text-stone-400 dark:text-stone-500'}`}
                     strokeWidth={1.5}
                   />
                   <span>{item.name}</span>

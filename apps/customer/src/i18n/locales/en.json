@@ -15,8 +15,8 @@
     "cardB_desc": "Share your experience on Google Reviews"
   },
   "staff": {
-    "title": "Who served you?",
-    "subtitle": "Select your server to send a direct tip via UPI",
+    "title": "Whose day is it?",
+    "subtitle": "Select a person to send a direct tip via UPI",
     "search_placeholder": "Search by name...",
     "empty_title": "No staff found",
     "empty_desc": "No waitstaff active at this moment.",

@@ -208,7 +208,7 @@ export const BillingManagementScreen: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0 flex-nowrap">
             {isRestrictedRole ? (
               <Badge variant="neutral">Read-only Finance Access</Badge>
             ) : (
@@ -216,27 +216,27 @@ export const BillingManagementScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsSweepModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors shadow-2xs whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   <HugeiconsIcon
                     icon={AlertSquareIcon}
-                    className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400"
+                    className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0"
                     strokeWidth={1.5}
                   />
-                  Run Grace Period Sweep
+                  <span>Run Grace Period Sweep</span>
                 </button>
                 <MotionButton
                   type="button"
                   variant="primary"
                   onClick={() => setIsCreateInvoiceOpen(true)}
-                  className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 font-medium rounded-lg shadow-2xs flex items-center gap-1.5 transition-all"
+                  className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 font-medium rounded-lg shadow-2xs flex items-center gap-1.5 transition-all whitespace-nowrap shrink-0 cursor-pointer"
                 >
                   <HugeiconsIcon
                     icon={Add01Icon}
-                    className="w-3.5 h-3.5 text-white dark:text-stone-900"
+                    className="w-3.5 h-3.5 text-white dark:text-stone-900 shrink-0"
                     strokeWidth={1.5}
                   />
-                  Create Invoice
+                  <span>Create Invoice</span>
                 </MotionButton>
               </>
             )}
@@ -645,8 +645,8 @@ export const BillingManagementScreen: React.FC = () => {
         createPortal(
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200/90 dark:border-stone-800 shadow-xl max-w-md w-full p-5 space-y-3.5 transition-colors duration-200">
-                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2.5">
+              <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200/90 dark:border-stone-800 shadow-xl max-w-lg w-full p-6 space-y-4 transition-colors duration-200">
+                <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-3">
                   <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
                     <HugeiconsIcon
                       icon={Invoice01Icon}
@@ -658,7 +658,7 @@ export const BillingManagementScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsCreateInvoiceOpen(false)}
-                    className="p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                    className="p-1 text-stone-400 dark:text-stone-500 hover:text-stone-600 dark:hover:text-stone-300 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
                   >
                     <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
                   </button>
@@ -681,17 +681,17 @@ export const BillingManagementScreen: React.FC = () => {
                     }
                     createInvoiceMutation.mutate(payload);
                   }}
-                  className="space-y-3"
+                  className="space-y-3.5"
                 >
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
                       Select Restaurant
                     </label>
                     <select
                       value={formRestaurantId}
                       onChange={(e) => setFormRestaurantId(e.target.value)}
                       required
-                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
+                      className="w-full h-10 px-3.5 text-xs sm:text-sm bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
                     >
                       <option value="">-- Choose Restaurant --</option>
                       {restaurantsData?.restaurants.map((r) => (
@@ -702,9 +702,9 @@ export const BillingManagementScreen: React.FC = () => {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2.5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>
-                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
                         Amount (INR)
                       </label>
                       <input
@@ -713,12 +713,12 @@ export const BillingManagementScreen: React.FC = () => {
                         value={formAmountInr}
                         onChange={(e) => setFormAmountInr(Number(e.target.value))}
                         required
-                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
+                        className="w-full h-10 px-3.5 text-xs sm:text-sm bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
                         Due Date
                       </label>
                       <input
@@ -726,36 +726,36 @@ export const BillingManagementScreen: React.FC = () => {
                         value={formDueDate}
                         onChange={(e) => setFormDueDate(e.target.value)}
                         required
-                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
+                        className="w-full h-10 px-3.5 text-xs sm:text-sm bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                    <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1.5">
                       Internal Notes (Optional)
                     </label>
                     <textarea
-                      rows={2}
+                      rows={3}
                       value={formNotes}
                       onChange={(e) => setFormNotes(e.target.value)}
                       placeholder="Monthly billing notes or discount reference..."
-                      className="w-full px-3 py-1.5 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 resize-none"
+                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-stone-800">
                     <button
                       type="button"
                       onClick={() => setIsCreateInvoiceOpen(false)}
-                      className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 font-medium transition-colors cursor-pointer"
+                      className="px-3.5 py-2 text-xs font-medium text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={createInvoiceMutation.isPending}
-                      className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-white dark:hover:bg-stone-100 rounded-lg transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
+                      className="px-4 py-2 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-white dark:hover:bg-stone-100 rounded-lg transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
                     >
                       {createInvoiceMutation.isPending ? 'Generating...' : 'Issue Invoice'}
                     </button>

@@ -52,7 +52,7 @@ describe('Customer Screen 2: Staff Directory', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('Who served you?')).toBeInTheDocument();
+      expect(screen.getByText('Whose day is it?')).toBeInTheDocument();
     });
 
     expect(screen.getByText('Ramesh Kumar')).toBeInTheDocument();
