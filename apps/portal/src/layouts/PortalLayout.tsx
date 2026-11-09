@@ -22,12 +22,12 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { name: 'Platform Overview', to: '/portal', icon: DashboardSquare01Icon, end: true },
-  { name: 'Restaurants', to: '/portal/restaurants', icon: Store01Icon, end: false },
-  { name: 'Billing & Plans', to: '/portal/billing', icon: Invoice01Icon, end: false },
-  { name: 'Inbound Leads', to: '/portal/leads', icon: UserGroupIcon, end: false },
-  { name: 'Global Audit', to: '/portal/audit', icon: Shield01Icon, end: false },
-  { name: 'System Status', to: '/portal/health', icon: Activity01Icon, end: false },
+  { name: 'Platform Overview', to: '/', icon: DashboardSquare01Icon, end: true },
+  { name: 'Restaurants', to: '/restaurants', icon: Store01Icon, end: false },
+  { name: 'Billing & Plans', to: '/billing', icon: Invoice01Icon, end: false },
+  { name: 'Inbound Leads', to: '/leads', icon: UserGroupIcon, end: false },
+  { name: 'Global Audit', to: '/audit', icon: Shield01Icon, end: false },
+  { name: 'System Status', to: '/health', icon: Activity01Icon, end: false },
 ];
 
 export const PortalLayout: React.FC = () => {
@@ -36,7 +36,7 @@ export const PortalLayout: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/portal/login');
+    navigate('/login');
   };
 
   return (

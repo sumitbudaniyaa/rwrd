@@ -82,7 +82,7 @@ export async function seed(): Promise<void> {
   }
 
   // 2. Platform Super Admin (System operations & portal support)
-  const superAdminPasswordHash = await hash('SuperAdmin123!', {
+  const superAdminPasswordHash = await hash('12345678', {
     memoryCost: 19456,
     timeCost: 2,
     outputLen: 32,
@@ -92,9 +92,9 @@ export async function seed(): Promise<void> {
   await db
     .insert(platformUsers)
     .values({
-      email: 'admin@tiptable.in',
+      email: 'sumit@rwrd.live',
       passwordHash: superAdminPasswordHash,
-      fullName: 'TipTable Super Admin',
+      fullName: 'Sumit (Super Admin)',
       role: 'super_admin',
       isActive: true,
       totpSecretEncrypted: 'dummy_encrypted_totp_seed',

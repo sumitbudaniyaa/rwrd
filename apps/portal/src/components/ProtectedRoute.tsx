@@ -20,7 +20,10 @@ export const ProtectedRoute: React.FC = () => {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/portal/login" state={{ from: location }} replace />;
+    const isPrefixed = location.pathname.startsWith('/portal');
+    return (
+      <Navigate to={isPrefixed ? '/portal/login' : '/login'} state={{ from: location }} replace />
+    );
   }
 
   return <Outlet />;

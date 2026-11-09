@@ -23,11 +23,17 @@ export async function cleanTenantData(): Promise<void> {
       tables,
       staff,
       restaurant_users,
-      restaurants
+      invoices,
+      subscriptions,
+      restaurants,
+      leads,
+      platform_users
     RESTART IDENTITY CASCADE;
   `);
 
-  logger.info('Successfully cleared all tenant records. Database is at clean 0-tenant state.');
+  logger.info(
+    'Successfully cleared all tenant and platform records. Database is at clean 0-tenant state.',
+  );
 }
 
 if (

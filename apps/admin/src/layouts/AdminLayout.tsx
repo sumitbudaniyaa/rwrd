@@ -11,7 +11,7 @@ export const AdminLayout: React.FC = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/admin/login');
+    navigate('/login');
   };
 
   const userInitials =
@@ -29,33 +29,42 @@ export const AdminLayout: React.FC = () => {
   const adminTabs: MenuItem[] = [
     {
       label: 'Overview',
-      active: location.pathname === '/admin' || location.pathname === '/admin/',
-      onClick: () => navigate('/admin'),
+      active:
+        location.pathname === '/' ||
+        location.pathname === '/admin' ||
+        location.pathname === '/admin/',
+      onClick: () => navigate('/'),
     },
     {
       label: 'Staff Roster',
-      active: location.pathname.startsWith('/admin/staff'),
-      onClick: () => navigate('/admin/staff'),
+      active:
+        location.pathname.startsWith('/staff') || location.pathname.startsWith('/admin/staff'),
+      onClick: () => navigate('/staff'),
     },
     {
       label: 'QR Management',
-      active: location.pathname.startsWith('/admin/qr'),
-      onClick: () => navigate('/admin/qr'),
+      active: location.pathname.startsWith('/qr') || location.pathname.startsWith('/admin/qr'),
+      onClick: () => navigate('/qr'),
     },
     {
       label: 'Analytics',
-      active: location.pathname.startsWith('/admin/analytics'),
-      onClick: () => navigate('/admin/analytics'),
+      active:
+        location.pathname.startsWith('/analytics') ||
+        location.pathname.startsWith('/admin/analytics'),
+      onClick: () => navigate('/analytics'),
     },
     {
       label: 'Settings',
-      active: location.pathname.startsWith('/admin/settings'),
-      onClick: () => navigate('/admin/settings'),
+      active:
+        location.pathname.startsWith('/settings') ||
+        location.pathname.startsWith('/admin/settings'),
+      onClick: () => navigate('/settings'),
     },
     {
       label: 'Audit Log',
-      active: location.pathname.startsWith('/admin/audit'),
-      onClick: () => navigate('/admin/audit'),
+      active:
+        location.pathname.startsWith('/audit') || location.pathname.startsWith('/admin/audit'),
+      onClick: () => navigate('/audit'),
     },
     {
       label: 'Log Out',

@@ -18,7 +18,7 @@ export const MfaChallengeScreen: React.FC = () => {
 
   // If no pending MFA temp token exists, redirect back to login
   if (!tempToken) {
-    navigate('/admin/login', { replace: true });
+    navigate('/login', { replace: true });
     return null;
   }
 
@@ -56,7 +56,7 @@ export const MfaChallengeScreen: React.FC = () => {
 
     try {
       await verifyMfa(codeToVerify, isRecoveryMode);
-      navigate('/admin', { replace: true });
+      navigate('/', { replace: true });
     } catch (err) {
       if (err instanceof ApiError) {
         setErrorMessage(err.problem.detail || err.problem.title);
@@ -70,7 +70,7 @@ export const MfaChallengeScreen: React.FC = () => {
 
   const handleCancel = () => {
     cancelMfa();
-    navigate('/admin/login', { replace: true });
+    navigate('/login', { replace: true });
   };
 
   return (

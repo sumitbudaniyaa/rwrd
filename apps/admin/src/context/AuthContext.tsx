@@ -229,7 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (window.opener) {
       window.close();
     } else {
-      window.location.href = '/admin/login';
+      window.location.href = '/login';
     }
   }, []);
 

@@ -98,7 +98,7 @@ export const DashboardOverview: React.FC = () => {
             <MotionButton
               variant="primary"
               size="sm"
-              onClick={() => navigate('/admin/staff')}
+              onClick={() => navigate('/staff')}
               className="px-4 py-2"
             >
               Manage Staff
@@ -195,7 +195,7 @@ export const DashboardOverview: React.FC = () => {
                   <MotionButton
                     variant="outline"
                     size="sm"
-                    onClick={() => navigate('/admin/qr')}
+                    onClick={() => navigate('/qr')}
                     className="text-xs px-3 py-1.5"
                   >
                     Export QR Kit
@@ -203,7 +203,7 @@ export const DashboardOverview: React.FC = () => {
                   <MotionButton
                     variant="ghost"
                     size="sm"
-                    onClick={() => navigate('/admin/staff')}
+                    onClick={() => navigate('/staff')}
                     className="text-xs px-3 py-1.5"
                   >
                     Manage Staff
@@ -231,7 +231,7 @@ export const DashboardOverview: React.FC = () => {
               <MotionButton
                 variant="outline"
                 size="sm"
-                onClick={() => navigate('/admin/qr')}
+                onClick={() => navigate('/qr')}
                 className="w-full justify-between"
               >
                 <span>Export Print Placards</span>

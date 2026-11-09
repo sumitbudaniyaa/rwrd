@@ -15,6 +15,13 @@
       "when": 1794080846845,
       "tag": "0001_first_reavers",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794257635417,
+      "tag": "0002_pretty_prima",
+      "breakpoints": true
     }
   ]
 }

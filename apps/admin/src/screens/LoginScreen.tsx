@@ -67,7 +67,7 @@ export const LoginScreen: React.FC = () => {
   // "Reward early, punish late" touched state tracking
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/admin';
+  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/';
 
   const errors = useMemo(() => {
     const errs: Record<string, string> = {};
@@ -135,9 +135,9 @@ export const LoginScreen: React.FC = () => {
       setStatus('success');
       setTimeout(() => {
         if (res.mfaRequired) {
-          navigate('/admin/mfa', { replace: true });
+          navigate('/mfa', { replace: true });
         } else {
-          navigate(from, { replace: true });
+          navigate(from === '/admin' ? '/' : from, { replace: true });
         }
       }, 300);
     } catch (err: unknown) {
@@ -173,7 +173,7 @@ export const LoginScreen: React.FC = () => {
       });
       setStatus('success');
       setTimeout(() => {
-        navigate('/admin', { replace: true });
+        navigate('/', { replace: true });
       }, 300);
     } catch (err: unknown) {
       setStatus('idle');
@@ -209,7 +209,7 @@ export const LoginScreen: React.FC = () => {
         {/* Top-Left Logo & Top-Right Toggle */}
         <div className="flex items-center justify-between w-full shrink-0">
           {/* Top-Left: rwrd brand logo */}
-          <Link to="/admin" className="flex items-center gap-2 outline-none group">
+          <Link to="/" className="flex items-center gap-2 outline-none group">
             <span className="sr-only">rwrd</span>
             <img
               src={logoImage}

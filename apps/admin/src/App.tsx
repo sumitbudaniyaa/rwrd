@@ -29,12 +29,14 @@ export const App: React.FC = () => {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public Auth Routes */}
+            {/* Public Auth Routes (Root & Subdomain-Ready) */}
+            <Route path="/login" element={<LoginScreen />} />
             <Route path="/admin/login" element={<LoginScreen />} />
+            <Route path="/mfa" element={<MfaChallengeScreen />} />
             <Route path="/admin/mfa" element={<MfaChallengeScreen />} />
 
-            {/* Protected Admin Routes */}
-            <Route path="/admin" element={<ProtectedRoute />}>
+            {/* Protected Admin Routes - Clean Root Routes */}
+            <Route path="/" element={<ProtectedRoute />}>
               <Route element={<AdminLayout />}>
                 <Route index element={<DashboardOverview />} />
                 <Route path="staff" element={<StaffManagementScreen />} />
@@ -45,8 +47,16 @@ export const App: React.FC = () => {
               </Route>
             </Route>
 
+            {/* Backwards compatibility aliases for /admin/* */}
+            <Route path="/admin" element={<Navigate to="/" replace />} />
+            <Route path="/admin/staff" element={<Navigate to="/staff" replace />} />
+            <Route path="/admin/qr" element={<Navigate to="/qr" replace />} />
+            <Route path="/admin/analytics" element={<Navigate to="/analytics" replace />} />
+            <Route path="/admin/settings" element={<Navigate to="/settings" replace />} />
+            <Route path="/admin/audit" element={<Navigate to="/audit" replace />} />
+
             {/* Catch-all */}
-            <Route path="*" element={<Navigate to="/admin" replace />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

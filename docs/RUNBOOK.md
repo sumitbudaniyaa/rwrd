@@ -59,7 +59,7 @@ This runbook defines the verified, step-by-step procedures for local development
    pnpm db:seed
    ```
 
-   _Creates demo restaurants ("The Bombay Canteen"), tables, active staff, and test credentials._
+   _Provisions standard SaaS billing tiers and the Super Admin account (`sumit@rwrd.live` / `12345678`) with zero tenant demo clutter._
 
 6. **Start all services in development mode**:
    ```bash

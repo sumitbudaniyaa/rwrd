@@ -151,7 +151,7 @@ export const DashboardOverview: React.FC = () => {
             >
               Refresh Telemetry
             </MotionButton>
-            <Link to="/portal/restaurants">
+            <Link to="/restaurants">
               <MotionButton
                 variant="primary"
                 size="sm"
@@ -499,7 +499,7 @@ export const DashboardOverview: React.FC = () => {
             </div>
 
             <div className="pt-3 mt-3 border-t border-stone-100 dark:border-stone-800">
-              <Link to="/portal/restaurants">
+              <Link to="/restaurants">
                 <MotionButton
                   variant="outline"
                   size="sm"
@@ -530,7 +530,7 @@ export const DashboardOverview: React.FC = () => {
               launch support impersonation.
             </p>
             <Link
-              to="/portal/restaurants"
+              to="/restaurants"
               className="inline-flex items-center gap-1 text-xs font-medium text-stone-900 dark:text-stone-100 hover:underline"
             >
               <span>View all restaurants</span>
@@ -552,7 +552,7 @@ export const DashboardOverview: React.FC = () => {
               stages, and assign account reps.
             </p>
             <Link
-              to="/portal/leads"
+              to="/leads"
               className="inline-flex items-center gap-1 text-xs font-medium text-stone-900 dark:text-stone-100 hover:underline"
             >
               <span>Review inbound requests</span>
@@ -574,7 +574,7 @@ export const DashboardOverview: React.FC = () => {
               delegations, and API rate limiting status.
             </p>
             <Link
-              to="/portal/audit"
+              to="/audit"
               className="inline-flex items-center gap-1 text-xs font-medium text-stone-900 dark:text-stone-100 hover:underline"
             >
               <span>Inspect global audit log</span>

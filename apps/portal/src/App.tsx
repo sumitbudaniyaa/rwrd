@@ -29,11 +29,12 @@ export const App: React.FC = () => {
         <AuthProvider>
           <BrowserRouter>
             <Routes>
-              {/* Public Portal Auth Route */}
+              {/* Public Portal Auth Route (Root & Subdomain-Ready) */}
+              <Route path="/login" element={<LoginScreen />} />
               <Route path="/portal/login" element={<LoginScreen />} />
 
               {/* Protected Platform Staff Routes */}
-              <Route path="/portal" element={<ProtectedRoute />}>
+              <Route path="/" element={<ProtectedRoute />}>
                 <Route element={<PortalLayout />}>
                   <Route index element={<DashboardOverview />} />
                   <Route path="restaurants" element={<RestaurantManagementScreen />} />
@@ -56,8 +57,16 @@ export const App: React.FC = () => {
                 </Route>
               </Route>
 
+              {/* Backwards compatibility aliases for /portal/* */}
+              <Route path="/portal" element={<Navigate to="/" replace />} />
+              <Route path="/portal/restaurants" element={<Navigate to="/restaurants" replace />} />
+              <Route path="/portal/billing" element={<Navigate to="/billing" replace />} />
+              <Route path="/portal/leads" element={<Navigate to="/leads" replace />} />
+              <Route path="/portal/audit" element={<Navigate to="/audit" replace />} />
+              <Route path="/portal/health" element={<Navigate to="/health" replace />} />
+
               {/* Catch-all */}
-              <Route path="*" element={<Navigate to="/portal" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>

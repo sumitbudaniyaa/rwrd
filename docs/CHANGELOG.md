@@ -6,6 +6,29 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Database Reset, Super Admin Provisioning & Subdomain-Ready Root Routing
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Database Purge & Single Super Admin Provisioning**:
+    - Purged all legacy and test tenant records (`restaurants`, `restaurant_users`, `staff`, `tables`, `qr_tokens`, `tip_intents`, `review_taps`, `page_events`, `audit_logs`, `sessions`, `invoices`, `subscriptions`, `leads`, `platform_users`).
+    - Seeded only the 4 active SaaS billing plans and single requested Super Admin:
+      - **Email**: `sumit@rwrd.live`
+      - **Password**: `12345678` (Argon2id hashed)
+      - **Role**: `super_admin` (`totpEnabled: false`)
+    - Updated [`seed.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/seed.ts) and [`cleanTenantData.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/cleanTenantData.ts).
+  - **Subdomain-Ready Root Routing for Admin & Portal**:
+    - In [`apps/admin/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/App.tsx) and [`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx), moved primary routing to root paths (`/login`, `/`, `/staff`, `/qr`, `/analytics`, `/settings`, `/audit`) with backward-compatible aliases for `/admin/*`.
+    - In [`apps/portal/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/App.tsx) and [`apps/portal/src/layouts/PortalLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/layouts/PortalLayout.tsx), moved primary routing to root paths (`/login`, `/`, `/restaurants`, `/billing`, `/leads`, `/audit`, `/health`) with backward-compatible aliases for `/portal/*`.
+    - Enables clean URLs when deployed on dedicated subdomains (`admin.rwrd.live` and `portal.rwrd.live`) without repetitive `/admin` or `/portal` segments in browser addresses.
+  - **Tests & Verification**:
+    - Monorepo typecheck passed with zero errors (`pnpm typecheck`).
+    - Monorepo lint passed with zero errors (`pnpm lint`).
+    - Monorepo format check passed with zero warnings (`pnpm format:check`).
+    - All 9 portal test suites passed 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - All 9 admin test suites passed 100% (`pnpm --filter @tiptable/admin test` - 48/48 tests).
+
 ### 2026-11-10 - SaaS Billing Fee Structure, Multi-Month Intervals & Public Pricing API (M7-T57)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

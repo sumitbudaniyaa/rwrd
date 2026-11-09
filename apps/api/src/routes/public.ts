@@ -69,6 +69,34 @@ publicRouter.get(
   },
 );
 
+/**
+ * GET /api/v1/public/billing/plans
+ * Returns active subscription pricing plans for prospective dining establishments and onboarding.
+ */
+publicRouter.get(
+  '/public/billing/plans',
+  async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+      const plans = await db
+        .select({
+          id: billingPlans.id,
+          name: billingPlans.name,
+          code: billingPlans.code,
+          priceInr: billingPlans.priceInr,
+          durationMonths: billingPlans.durationMonths,
+          monthlyFeeInr: billingPlans.monthlyFeeInr,
+        })
+        .from(billingPlans)
+        .where(eq(billingPlans.isActive, true))
+        .orderBy(billingPlans.durationMonths);
+
+      res.status(200).json({ plans });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
 const TokenParamSchema = z.object({
   token: z.string().trim().min(1, 'Token is required'),
 });

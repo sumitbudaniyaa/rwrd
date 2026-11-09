@@ -541,7 +541,7 @@ export const LeadsManagementScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      navigate('/portal/restaurants');
+                      navigate('/restaurants');
                     }}
                     className="inline-flex items-center gap-1 text-xs text-stone-900 dark:text-stone-100 hover:text-black dark:hover:text-white font-semibold underline underline-offset-2"
                   >
