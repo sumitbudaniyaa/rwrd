@@ -50,6 +50,15 @@ export class ConflictError extends AppError {
   }
 }
 
+export class PaymentRequiredError extends AppError {
+  constructor(
+    message = 'Active subscription required. Please complete plan payment to unlock the console.',
+    code = 'PAYMENT_REQUIRED',
+  ) {
+    super({ statusCode: 402, message, code });
+  }
+}
+
 export class ValidationError extends AppError {
   constructor(message = 'Validation failed', invalidParams?: ValidationIssue[]) {
     super({

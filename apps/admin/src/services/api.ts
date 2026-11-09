@@ -18,6 +18,17 @@ export interface AdminUser {
   role: string;
   restaurantId?: string;
   totpEnabled?: boolean;
+  hasActivePlan?: boolean;
+  subscriptionStatus?: string;
+}
+
+export interface BillingPlanItem {
+  id: string;
+  name: string;
+  code: string;
+  priceInr: number;
+  durationMonths: number;
+  monthlyFeeInr: number;
 }
 
 export interface AdminRestaurant {
@@ -510,5 +521,30 @@ export const api = {
       `/admin/restaurants/${restaurantId}/audit${qs ? `?${qs}` : ''}`,
       { method: 'GET' },
     );
+  },
+
+  getBillingPlans(): Promise<{ plans: BillingPlanItem[] }> {
+    return request<{ plans: BillingPlanItem[] }>('/public/billing/plans', {
+      method: 'GET',
+    });
+  },
+
+  completeOnboardingPayment(planId: string): Promise<{
+    message: string;
+    accessToken: string;
+    subscription: {
+      planId: string;
+      planName: string;
+      priceInr: number;
+      durationMonths: number;
+      status: string;
+      currentPeriodEnd: string;
+    };
+    hasActivePlan: boolean;
+  }> {
+    return request('/admin/billing/onboarding/pay', {
+      method: 'POST',
+      body: JSON.stringify({ planId }),
+    });
   },
 };

@@ -173,7 +173,7 @@ export const LoginScreen: React.FC = () => {
       });
       setStatus('success');
       setTimeout(() => {
-        navigate('/', { replace: true });
+        navigate('/onboarding/payment', { replace: true });
       }, 300);
     } catch (err: unknown) {
       setStatus('idle');

@@ -25,6 +25,7 @@ import { portalMetricsRouter } from './routes/portalMetrics.js';
 import { portalBillingRouter } from './routes/portalBilling.js';
 import { portalLeadsRouter } from './routes/portalLeads.js';
 import { portalHealthRouter } from './routes/portalHealth.js';
+import { requireAuth, requireActiveSubscription } from './middleware/rbac.js';
 import { NotFoundError } from './errors/appError.js';
 
 export function createApp(): Express {
@@ -145,7 +146,8 @@ export function createApp(): Express {
   app.use('/api/v1', authRateLimiter, authAdminRouter);
   app.use('/api/v1', authRateLimiter, authPortalRouter);
 
-  // Admin Tenant Routes
+  // Admin Tenant Routes (Gated by active plan requirement)
+  app.use('/api/v1/admin/restaurants', requireAuth('admin'), requireActiveSubscription());
   app.use('/api/v1', adminStaffRouter);
   app.use('/api/v1', adminRestaurantRouter);
   app.use('/api/v1', adminQrRouter);

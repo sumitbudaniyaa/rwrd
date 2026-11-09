@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Admin Onboarding Mandatory Plan Selection & Payment Gateway Wall Gating Dashboard Access (M7-T61)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Unpaid Subscription Registration & Strict API Access Gating**:
+    - Updated `POST /api/v1/auth/admin/register` in [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) so new admin accounts are created with an initial `unpaid` subscription and JWT payload property `hasActivePlan: false`.
+    - Added `getRestaurantSubscriptionStatus` in [`apps/api/src/services/authService.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/services/authService.ts) to evaluate whether a tenant's subscription is currently active or within the 2-day grace period.
+    - Added `PaymentRequiredError` (RFC 7807 problem envelope, HTTP 402) in [`apps/api/src/errors/appError.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/errors/appError.ts) and `requireActiveSubscription()` middleware in [`apps/api/src/middleware/rbac.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/middleware/rbac.ts) to guard backend admin operational endpoints (`/api/v1/admin/restaurants/*`).
+  - **Onboarding Plan Activation Endpoint**:
+    - Created `POST /api/v1/admin/billing/onboarding/pay` in [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) allowing newly registered admins to activate any validated SaaS billing tier (1m ₹99, 3m ₹269, 6m ₹549, 12m ₹1029).
+    - Upon activation, sets subscription to `active`, extends `currentPeriodEnd` by `durationMonths`, records a paid invoice, appends an immutable audit log, and issues a refreshed access token with `hasActivePlan: true`.
+  - **Admin Client Paywall Routing & Payment Screen**:
+    - Updated [`ProtectedRoute.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/components/ProtectedRoute.tsx) to inspect `user.hasActivePlan`. If false, redirects any navigation away from dashboard routes to `/onboarding/payment`.
+    - Built [`OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx) showcasing 4 plan tier cards, feature breakdowns, popular badge, and simulated UPI payment modal with QR and VPA checkout.
+    - Updated [`AuthContext.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/context/AuthContext.tsx) to expose `setAccessToken` and `refreshUser` for seamless state transitions after checkout.
+  - **Automated Testing & Verification**:
+    - Added 8 integration tests in [`apps/api/tests/adminAuth.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminAuth.test.ts) covering registration in unpaid state, 402 rejection on dashboard API endpoints for unpaid tenants, and successful plan activation issuing active JWT tokens.
+    - Added 10 test suites (49 tests) in [`apps/admin/tests/onboardingPayment.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/onboardingPayment.test.tsx) and related test suites verifying paywall gating and checkout.
+    - All 27 test files (186 tests) in `@tiptable/api` and 10 test files (49 tests) in `@tiptable/admin` pass cleanly.
+    - Monorepo typecheck and ESLint pass with zero errors.
+
 ### 2026-11-10 - QR Token & Customer Tipping Service Auto-Deactivation 2 Days Post Plan Expiration (M7-T60)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

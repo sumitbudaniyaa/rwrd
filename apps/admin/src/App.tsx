@@ -12,6 +12,7 @@ import { SettingsScreen } from './screens/SettingsScreen.js';
 import { QrManagementScreen } from './screens/QrManagementScreen.js';
 import { AnalyticsScreen } from './screens/AnalyticsScreen.js';
 import { AuditLogScreen } from './screens/AuditLogScreen.js';
+import { OnboardingPaymentScreen } from './screens/OnboardingPaymentScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -34,6 +35,12 @@ export const App: React.FC = () => {
             <Route path="/admin/login" element={<LoginScreen />} />
             <Route path="/mfa" element={<MfaChallengeScreen />} />
             <Route path="/admin/mfa" element={<MfaChallengeScreen />} />
+
+            {/* Onboarding Payment Wall (accessible before plan is active) */}
+            <Route element={<ProtectedRoute allowUnpaid />}>
+              <Route path="/onboarding/payment" element={<OnboardingPaymentScreen />} />
+              <Route path="/admin/onboarding/payment" element={<OnboardingPaymentScreen />} />
+            </Route>
 
             {/* Protected Admin Routes - Clean Root Routes */}
             <Route path="/" element={<ProtectedRoute />}>

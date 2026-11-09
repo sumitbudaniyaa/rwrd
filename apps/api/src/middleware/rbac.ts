@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { authService, type AuthRealm } from '../services/authService.js';
-import { UnauthorizedError, ForbiddenError } from '../errors/appError.js';
+import { UnauthorizedError, ForbiddenError, PaymentRequiredError } from '../errors/appError.js';
 
 export type AdminRole = 'admin';
 export type PortalRole = 'super_admin' | 'support' | 'finance';
@@ -11,6 +11,7 @@ export interface AuthUser {
   role: string;
   realm: AuthRealm;
   restaurantId?: string | undefined;
+  hasActivePlan?: boolean | undefined;
   isImpersonated?: boolean | undefined;
   impersonatorId?: string | undefined;
   impersonatorEmail?: string | undefined;
@@ -48,6 +49,7 @@ export function requireAuth(realm: AuthRealm): RequestHandler {
         role: payload.role,
         realm: payload.realm,
         restaurantId: payload.restaurantId,
+        hasActivePlan: payload.hasActivePlan,
         isImpersonated: payload.isImpersonated,
         impersonatorId: payload.impersonatorId,
         impersonatorEmail: payload.impersonatorEmail,
@@ -122,6 +124,25 @@ export function requireTenant(paramKey = 'restaurantId'): RequestHandler {
     }
 
     res.locals.restaurantId = req.user.restaurantId;
+    next();
+  };
+}
+
+/**
+ * Requires the restaurant to have an active paid subscription.
+ * Unpaid or expired accounts are rejected with 402 Payment Required.
+ */
+export function requireActiveSubscription(): RequestHandler {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user || req.user.realm !== 'admin') {
+      return next();
+    }
+    if (req.user.isImpersonated) {
+      return next();
+    }
+    if (req.user.hasActivePlan === false) {
+      throw new PaymentRequiredError();
+    }
     next();
   };
 }

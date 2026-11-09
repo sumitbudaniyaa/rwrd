@@ -1,11 +1,24 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { authService } from '../services/authService.js';
+import { auditService } from '../services/auditService.js';
 import { requireAuth } from '../middleware/rbac.js';
 import { db } from '../db/index.js';
-import { restaurantUsers, restaurants, qrTokens } from '../db/schema/index.js';
-import { UnauthorizedError, ConflictError } from '../errors/appError.js';
+import {
+  restaurantUsers,
+  restaurants,
+  qrTokens,
+  billingPlans,
+  subscriptions,
+  invoices,
+} from '../db/schema/index.js';
+import {
+  UnauthorizedError,
+  ConflictError,
+  NotFoundError,
+  ForbiddenError,
+} from '../errors/appError.js';
 import { hashPassword, generateSecureToken } from '../utils/authCrypto.js';
 
 export const authAdminRouter = Router();
@@ -155,6 +168,24 @@ authAdminRouter.post(
           role: 'admin',
           isActive: true,
         });
+
+        // Initialize unpaid subscription pending mandatory onboarding plan selection & payment
+        const [defaultPlan] = await tx
+          .select({ id: billingPlans.id })
+          .from(billingPlans)
+          .where(eq(billingPlans.isActive, true))
+          .orderBy(billingPlans.durationMonths)
+          .limit(1);
+
+        if (defaultPlan) {
+          await tx.insert(subscriptions).values({
+            restaurantId: createdRestaurant.id,
+            planId: defaultPlan.id,
+            status: 'unpaid',
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: new Date(),
+          });
+        }
       });
 
       // Automatically log the newly registered admin in
@@ -372,8 +403,16 @@ authAdminRouter.get(
         throw new UnauthorizedError('User account not found or inactive');
       }
 
+      const planInfo = userProfile.restaurantId
+        ? await authService.getRestaurantSubscriptionStatus(userProfile.restaurantId)
+        : { hasActivePlan: false, subscriptionStatus: 'unpaid' };
+
       res.status(200).json({
-        user: userProfile,
+        user: {
+          ...userProfile,
+          hasActivePlan: req.user?.isImpersonated ? true : planInfo.hasActivePlan,
+          subscriptionStatus: req.user?.isImpersonated ? 'active' : planInfo.subscriptionStatus,
+        },
         restaurant: restaurantData,
         impersonation: req.user?.isImpersonated
           ? {
@@ -382,6 +421,130 @@ authAdminRouter.get(
               impersonatorEmail: req.user.impersonatorEmail,
             }
           : undefined,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+const CompleteOnboardingPaymentSchema = z.object({
+  planId: z.string().uuid('Valid plan ID is required'),
+});
+
+/**
+ * POST /api/v1/admin/billing/onboarding/pay
+ * Completes mandatory onboarding plan selection & payment for the restaurant admin.
+ */
+authAdminRouter.post(
+  '/admin/billing/onboarding/pay',
+  requireAuth('admin'),
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { planId } = CompleteOnboardingPaymentSchema.parse(req.body);
+      const restaurantId = req.user!.restaurantId;
+      if (!restaurantId) {
+        throw new ForbiddenError('Restaurant context is required');
+      }
+
+      const [plan] = await db
+        .select()
+        .from(billingPlans)
+        .where(and(eq(billingPlans.id, planId), eq(billingPlans.isActive, true)))
+        .limit(1);
+
+      if (!plan) {
+        throw new NotFoundError('Selected billing plan is not found or inactive');
+      }
+
+      const now = new Date();
+      const currentPeriodEnd = new Date(now);
+      currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + plan.durationMonths);
+
+      await db.transaction(async (tx) => {
+        const [existingSub] = await tx
+          .select({ id: subscriptions.id })
+          .from(subscriptions)
+          .where(eq(subscriptions.restaurantId, restaurantId))
+          .limit(1);
+
+        let subId: string;
+        if (existingSub) {
+          subId = existingSub.id;
+          await tx
+            .update(subscriptions)
+            .set({
+              planId: plan.id,
+              status: 'active',
+              currentPeriodStart: now,
+              currentPeriodEnd,
+              updatedAt: now,
+            })
+            .where(eq(subscriptions.id, existingSub.id));
+        } else {
+          const [newSub] = await tx
+            .insert(subscriptions)
+            .values({
+              restaurantId,
+              planId: plan.id,
+              status: 'active',
+              currentPeriodStart: now,
+              currentPeriodEnd,
+            })
+            .returning();
+          subId = newSub!.id;
+        }
+
+        const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${generateSecureToken(4).toUpperCase()}`;
+        await tx.insert(invoices).values({
+          restaurantId,
+          subscriptionId: subId,
+          invoiceNumber,
+          amountInr: plan.priceInr,
+          status: 'paid',
+          dueDate: now.toISOString().slice(0, 10),
+          paidAt: now,
+        });
+
+        await auditService.record({
+          restaurantId,
+          actorId: req.user!.id,
+          actorType: 'restaurant_user',
+          action: 'SUBSCRIPTION_ACTIVATED',
+          entityType: 'subscription',
+          entityId: subId,
+          afterState: {
+            planId: plan.id,
+            planName: plan.name,
+            priceInr: plan.priceInr,
+            durationMonths: plan.durationMonths,
+            currentPeriodEnd: currentPeriodEnd.toISOString(),
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+      });
+
+      const newAccessToken = authService.generateAccessToken({
+        sub: req.user!.id,
+        role: req.user!.role,
+        realm: 'admin',
+        restaurantId,
+        hasActivePlan: true,
+      });
+
+      res.status(200).json({
+        message: `Plan "${plan.name}" successfully activated`,
+        accessToken: newAccessToken,
+        subscription: {
+          planId: plan.id,
+          planName: plan.name,
+          priceInr: plan.priceInr,
+          durationMonths: plan.durationMonths,
+          status: 'active',
+          currentPeriodEnd: currentPeriodEnd.toISOString(),
+        },
+        hasActivePlan: true,
       });
     } catch (error) {
       next(error);

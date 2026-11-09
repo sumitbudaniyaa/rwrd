@@ -3,7 +3,13 @@ import { eq, and, desc } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import type { CookieOptions } from 'express';
 import { db } from '../db/index.js';
-import { restaurantUsers, platformUsers, restaurants, sessions } from '../db/schema/index.js';
+import {
+  restaurantUsers,
+  platformUsers,
+  restaurants,
+  sessions,
+  subscriptions,
+} from '../db/schema/index.js';
 import { env } from '../config/env.js';
 import { verifyPassword, generateSecureToken, hashToken } from '../utils/authCrypto.js';
 import { mfaService } from './mfaService.js';
@@ -18,6 +24,7 @@ export interface TokenPayload {
   role: string;
   realm: AuthRealm;
   restaurantId?: string | undefined;
+  hasActivePlan?: boolean | undefined;
   isImpersonated?: boolean | undefined;
   impersonatorId?: string | undefined;
   impersonatorEmail?: string | undefined;
@@ -42,6 +49,8 @@ export interface AuthenticatedUser {
   fullName: string;
   role: string;
   restaurantId?: string;
+  hasActivePlan?: boolean;
+  subscriptionStatus?: string;
 }
 
 export class AuthService {
@@ -87,6 +96,41 @@ export class AuthService {
   }
 
   /**
+   * Evaluates if a restaurant has an active paid subscription (with 2-day grace period).
+   */
+  async getRestaurantSubscriptionStatus(restaurantId: string): Promise<{
+    hasActivePlan: boolean;
+    subscriptionStatus: string;
+  }> {
+    const [sub] = await db
+      .select({
+        status: subscriptions.status,
+        currentPeriodEnd: subscriptions.currentPeriodEnd,
+      })
+      .from(subscriptions)
+      .where(eq(subscriptions.restaurantId, restaurantId))
+      .limit(1);
+
+    if (!sub) {
+      return { hasActivePlan: false, subscriptionStatus: 'unpaid' };
+    }
+
+    if (sub.status === 'cancelled' || sub.status === 'unpaid') {
+      return { hasActivePlan: false, subscriptionStatus: sub.status };
+    }
+
+    const PLAN_GRACE_PERIOD_MS = 2 * 24 * 60 * 60 * 1000;
+    const graceEnd = new Date(sub.currentPeriodEnd).getTime() + PLAN_GRACE_PERIOD_MS;
+    const isWithinGrace = Date.now() <= graceEnd;
+
+    const hasActivePlan = isWithinGrace && (sub.status === 'active' || sub.status === 'trial');
+    return {
+      hasActivePlan,
+      subscriptionStatus: hasActivePlan ? sub.status : 'past_due',
+    };
+  }
+
+  /**
    * Authenticates Restaurant Admin (Owner / Manager).
    */
   async loginAdmin(
@@ -118,6 +162,8 @@ export class AuthService {
       throw new UnauthorizedError('Invalid email or password');
     }
 
+    const planInfo = await this.getRestaurantSubscriptionStatus(user.restaurant.id);
+
     // If user has MFA enabled, return temporary token for 2FA challenge
     if (user.user.totpEnabled) {
       const tempToken = jwt.sign(
@@ -144,6 +190,8 @@ export class AuthService {
           fullName: user.user.fullName,
           role: user.user.role,
           restaurantId: user.restaurant.id,
+          hasActivePlan: planInfo.hasActivePlan,
+          subscriptionStatus: planInfo.subscriptionStatus,
         },
       };
     }
@@ -170,6 +218,7 @@ export class AuthService {
       role: user.user.role,
       realm: 'admin',
       restaurantId: user.restaurant.id,
+      hasActivePlan: planInfo.hasActivePlan,
     });
 
     return {
@@ -185,6 +234,8 @@ export class AuthService {
         fullName: user.user.fullName,
         role: user.user.role,
         restaurantId: user.restaurant.id,
+        hasActivePlan: planInfo.hasActivePlan,
+        subscriptionStatus: planInfo.subscriptionStatus,
       },
     };
   }
@@ -267,11 +318,14 @@ export class AuthService {
       expiresAt,
     });
 
+    const planInfo = await this.getRestaurantSubscriptionStatus(record.restaurant.id);
+
     const accessToken = this.generateAccessToken({
       sub: record.user.id,
       role: record.user.role,
       realm: 'admin',
       restaurantId: record.restaurant.id,
+      hasActivePlan: planInfo.hasActivePlan,
     });
 
     return {
@@ -286,6 +340,8 @@ export class AuthService {
         fullName: record.user.fullName,
         role: record.user.role,
         restaurantId: record.restaurant.id,
+        hasActivePlan: planInfo.hasActivePlan,
+        subscriptionStatus: planInfo.subscriptionStatus,
       },
     };
   }

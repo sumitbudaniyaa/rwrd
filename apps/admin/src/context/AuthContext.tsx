@@ -24,6 +24,7 @@ interface AuthContextValue {
   logoutAll: () => Promise<void>;
   cancelMfa: () => void;
   exitImpersonation: () => void;
+  refreshUser?: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -233,6 +234,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const refreshUser = useCallback(async (): Promise<void> => {
+    try {
+      const meRes = await api.getMe();
+      setUser(meRes.user);
+      setRestaurant(meRes.restaurant);
+    } catch {
+      // ignore
+    }
+  }, []);
+
   const value: AuthContextValue = {
     user,
     restaurant,
@@ -248,6 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     logoutAll,
     cancelMfa,
     exitImpersonation,
+    refreshUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
