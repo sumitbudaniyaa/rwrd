@@ -17,6 +17,7 @@ import { AmountScreen } from './screens/AmountScreen.js';
 import { PayScreen } from './screens/PayScreen.js';
 import { ThanksScreen } from './screens/ThanksScreen.js';
 import { NoTokenScreen } from './screens/NoTokenScreen.js';
+import { LiquidGlassIntro } from './components/LiquidGlassIntro.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -75,6 +76,7 @@ export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
+        <LiquidGlassIntro />
         <div className="mx-auto min-h-screen max-w-[420px] bg-[#FAFAF9] text-stone-900 sm:border-x sm:border-stone-200/70 shadow-sm flex flex-col font-sans">
           <Routes>
             {/* Direct QR Link: /r/:token -> /t/:token */}

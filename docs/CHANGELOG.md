@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - ReactDrops Liquid Glass Logo Intro Animation (M7-T48)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Installed ReactDrops Liquid Glass Logo Component**:
+    - Unpacked official source files from `https://reactdrops.dev/r/liquid-glass-logo.json` into [`apps/customer/src/components/`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/components/):
+      - `liquid-glass-logo.tsx`: React wrapper with camera controls, reduced motion support, and fallback image rendering.
+      - `liquid-glass-logo-renderer.ts`: Pure WebGL timeline engine managing Catmull-Rom animation tracks, normal map calculation, caustics, and mipmapped bloom.
+      - `liquid-glass-logo-shaders.ts`: Custom GLSL vertex & fragment shaders simulating wavelength-based bevel refraction, dispersion, and chromatic edge streaks.
+      - `liquid-glass-logo.css`: Layout isolation and canvas positioning rules.
+    - Resolved TypeScript strictness and `noUncheckedIndexedAccess` type safety without degrading any WebGL features.
+  - **Opening Experience & Cinematic Dissolve**:
+    - Created [`apps/customer/src/components/LiquidGlassIntro.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/components/LiquidGlassIntro.tsx) rendering a full-screen black overlay (`fixed inset-0 z-[100] bg-black`) housing `<LiquidGlassLogo logo={rwrdLogo} ending="logo" background="#000000" theme="dark" style={{ height: 480 }} />`.
+    - Preserved sphere-to-tile glass entrance, wavelength bevel refraction, chromatic edge streaks, and finished on the original `rwrd` logo alone at its normal size on black with zero text reveal.
+    - Configured automatic 600ms exit dissolve after logo resting state (~2.4s) and instant tap-anywhere dismiss for fast customer interactions.
+    - Mounted `<LiquidGlassIntro />` in [`apps/customer/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/App.tsx).
+  - **Tests & Verification**:
+    - Added unit test suite [`apps/customer/tests/liquidGlassIntro.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/liquidGlassIntro.test.tsx) testing banner mount and tap-to-dismiss behavior.
+    - All 8 customer test suites (22 tests) pass cleanly (`pnpm --filter @tiptable/customer test`).
+    - Full monorepo TypeScript typecheck clean with zero errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with zero errors (`pnpm lint`).
+    - Prettier formatting check clean (`pnpm format:check`).
+
 ### 2026-11-09 - Customer Thanks Screen Polish (M7-T47)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

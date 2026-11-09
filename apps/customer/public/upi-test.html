@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPI Test - rwrd</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #FAFAF9;
+      color: #1c1917;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e7e5e4;
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 380px;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+    }
+    h1 {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 8px;
+    }
+    p {
+      color: #78716c;
+      font-size: 14px;
+      margin-bottom: 24px;
+      line-height: 1.4;
+    }
+    .badge {
+      display: inline-block;
+      background: #f5f5f4;
+      border: 1px solid #e7e5e4;
+      border-radius: 999px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-family: monospace;
+      color: #44403c;
+      margin-bottom: 24px;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      background: #FFE862;
+      color: #1c1917;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      text-decoration: none;
+      box-shadow: 0 2px 8px rgba(255, 232, 98, 0.4);
+      margin-bottom: 12px;
+      box-sizing: border-box;
+      transition: transform 0.1s ease;
+    }
+    .btn:active {
+      transform: scale(0.98);
+    }
+    .secondary-link {
+      display: inline-block;
+      color: #78716c;
+      font-size: 13px;
+      margin-top: 12px;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Test UPI App Redirection</h1>
+    <p>Tap the button below on your phone to trigger the native UPI intent sheet (Google Pay, PhonePe, Paytm).</p>
+    <div class="badge">VPA: 8209333127@upi • ₹50</div>
+    
+    <a class="btn" href="upi://pay?pa=8209333127@upi&pn=Rahul&am=50&cu=INR&tn=Tip+for+Rahul+at+Test">
+      ⚡ Pay ₹50 via UPI App
+    </a>
+
+    <a class="secondary-link" href="/r/4e3e8531-f9e9-4231-b4b0-da500ad08e6e">
+      Open Full Customer App (Table 1) →
+    </a>
+  </div>
+</body>
+</html>
