@@ -6,6 +6,34 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Company Portal Dialog UI Polish, Button Palette & Minimalist Switch (M7-T52)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Single Compact Sun/Moon Theme Switch**:
+    - Refactored [`ThemeToggle`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/components/ThemeToggle.tsx) into a single, compact icon-only switch (`w-7 h-7` rounded-lg button with Sun/Moon icon, subtle hover effect, and full `aria-label`/`title` accessibility).
+    - Relocated the theme toggle button to the top-right of the user profile card in the sidebar footer in [`PortalLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/layouts/PortalLayout.tsx), removing the old bulky full-width button row.
+  - **Sidebar "Super Admin" Text Cleanup**:
+    - Removed the `"Super Admin"` role badge completely from the sidebar footer in [`PortalLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/layouts/PortalLayout.tsx).
+    - Retained only the staff user's full name and email in the profile card alongside the minimalist sun/moon switch.
+  - **Dialog Box Input Fields UI Overhaul**:
+    - Standardized all form controls (`<input>`, `<select>`, `<textarea>`) across every modal dialog in the portal:
+      - **Onboard Restaurant Modal**, **Suspend Confirmation Modal**, and **Support Impersonation Modal** in [`RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx).
+      - **Create Invoice Modal** and **Auto-Suspend Sweep Modal** in [`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx).
+      - **Lead Detail & Sales Notes Modal** in [`LeadsManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/LeadsManagementScreen.tsx).
+      - **Configure Feature Flag Modal** in [`SystemHealthScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SystemHealthScreen.tsx).
+    - Inputs feature uniform `h-8.5 px-3 rounded-xl border border-stone-200/90 dark:border-stone-700 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)]` with crisp `text-[11px]` labels.
+  - **Button Palette in Dark Mode**:
+    - **Primary Action Buttons**: Pure white in dark mode (`dark:bg-white dark:text-stone-900 dark:hover:bg-stone-100 shadow-2xs font-medium`). White is reserved exclusively for primary buttons.
+    - **Secondary / Cancel / Outline Buttons**: Subtle light-on-dark styling (`dark:bg-stone-800 dark:text-stone-300 dark:border-stone-700 dark:hover:bg-stone-700/80`), preventing high-contrast white clutter and ensuring primary actions pop clearly.
+  - **Tests & Verification**:
+    - Updated [`apps/portal/tests/scaffold.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/scaffold.test.tsx) asserting removal of "Super Admin" text and presence of the compact theme switch.
+    - All 9 portal test suites passing 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - Monorepo typecheck passing with zero errors (`pnpm typecheck`).
+    - Monorepo lint passing with zero errors (`pnpm lint`).
+    - Prettier format check passing with zero warnings (`pnpm format:check`).
+
 ### 2026-11-09 - Company Portal Dark/Light Theme Toggle System (M7-T51)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

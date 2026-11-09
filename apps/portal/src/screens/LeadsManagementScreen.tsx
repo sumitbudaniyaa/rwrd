@@ -509,8 +509,8 @@ export const LeadsManagementScreen: React.FC = () => {
                           }}
                           className={`px-2.5 py-1 text-[11px] font-medium rounded-lg capitalize border transition-colors ${
                             selectedLead.status === st
-                              ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 border-stone-900 dark:border-stone-100 shadow-2xs'
-                              : 'bg-white text-stone-600 dark:bg-stone-900 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-800'
+                              ? 'bg-stone-900 text-white dark:bg-white dark:text-stone-900 border-stone-900 dark:border-white shadow-2xs'
+                              : 'bg-white text-stone-600 dark:bg-stone-800 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:bg-stone-50 dark:hover:bg-stone-700/80'
                           }`}
                         >
                           {st.replace('_', ' ')}
@@ -531,7 +531,7 @@ export const LeadsManagementScreen: React.FC = () => {
                     disabled={isRestrictedRole}
                     onChange={(e) => setEditingNotes(e.target.value)}
                     placeholder="Record call notes, demo feedback, or onboarding prerequisites..."
-                    className="w-full px-3 py-2 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 resize-none disabled:opacity-60"
+                    className="w-full px-3 py-2 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 resize-none disabled:opacity-60"
                   />
                 </div>
 
@@ -551,7 +551,7 @@ export const LeadsManagementScreen: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedLead(null)}
-                      className="px-3 py-1.5 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 font-medium transition-colors"
+                      className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 font-medium transition-colors cursor-pointer"
                     >
                       Close
                     </button>
@@ -571,7 +571,7 @@ export const LeadsManagementScreen: React.FC = () => {
                             data: payload,
                           });
                         }}
-                        className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+                        className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-white dark:hover:bg-stone-100 rounded-lg transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
                       >
                         {updateStatusMutation.isPending ? 'Saving...' : 'Save Notes'}
                       </button>

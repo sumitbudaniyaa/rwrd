@@ -4,13 +4,15 @@ import { Sun01Icon, Moon02Icon } from '@hugeicons/core-free-icons';
 import { useTheme } from '../context/ThemeContext.js';
 
 interface ThemeToggleProps {
-  compact?: boolean;
   className?: string;
+  size?: 'sm' | 'md';
 }
 
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({ compact = false, className = '' }) => {
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '', size = 'sm' }) => {
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
+
+  const sizeClasses = size === 'sm' ? 'w-7 h-7' : 'w-8 h-8';
 
   return (
     <button
@@ -18,20 +20,17 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ compact = false, class
       onClick={toggleTheme}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`inline-flex items-center justify-center gap-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer select-none ${
-        compact ? 'p-1.5' : 'w-full px-2.5 py-1.5'
-      } ${
+      className={`${sizeClasses} rounded-lg border flex items-center justify-center transition-colors cursor-pointer select-none shrink-0 ${
         isDark
-          ? 'bg-stone-800/90 hover:bg-stone-800 border-stone-700/80 text-stone-200'
-          : 'bg-stone-50 hover:bg-stone-100 border-stone-200 text-stone-700'
+          ? 'bg-stone-800/90 hover:bg-stone-700 border-stone-700/80 text-amber-400'
+          : 'bg-stone-100/80 hover:bg-stone-200/90 border-stone-200 text-stone-600'
       } ${className}`}
     >
       <HugeiconsIcon
         icon={isDark ? Sun01Icon : Moon02Icon}
-        className={`w-3.5 h-3.5 ${isDark ? 'text-amber-400' : 'text-stone-500'}`}
+        className="w-3.5 h-3.5"
         strokeWidth={1.5}
       />
-      {!compact && <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>}
     </button>
   );
 };

@@ -116,7 +116,7 @@ export const LoginScreen: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading || !email || !password}
-                  className="w-full h-10 inline-flex items-center justify-center bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer"
+                  className="w-full h-10 inline-flex items-center justify-center bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-[0.99] disabled:opacity-50 cursor-pointer"
                 >
                   {isLoading ? 'Verifying Credentials...' : 'Sign In to Control Plane'}
                 </button>

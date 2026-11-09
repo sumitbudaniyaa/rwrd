@@ -119,7 +119,7 @@ export const DashboardOverview: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={() => void refetch()}
-              className="px-2.5 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800 transition-colors"
+              className="px-2.5 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
             >
               Refresh Telemetry
             </MotionButton>
@@ -127,7 +127,7 @@ export const DashboardOverview: React.FC = () => {
               <MotionButton
                 variant="primary"
                 size="sm"
-                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 font-medium rounded-lg shadow-2xs transition-all"
+                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 font-medium rounded-lg shadow-2xs transition-all"
               >
                 Manage Restaurants
               </MotionButton>
@@ -383,7 +383,7 @@ export const DashboardOverview: React.FC = () => {
                 <MotionButton
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs justify-center text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
+                  className="w-full text-xs justify-center text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
                 >
                   Inspect Establishments
                 </MotionButton>

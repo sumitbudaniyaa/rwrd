@@ -229,7 +229,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                   resetForm();
                   setIsOnboardModalOpen(true);
                 }}
-                className="flex items-center gap-1.5 bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 px-3 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
+                className="flex items-center gap-1.5 bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 px-3 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                 aria-label="Onboard New Restaurant"
               >
                 <HugeiconsIcon
@@ -513,7 +513,7 @@ export const RestaurantManagementScreen: React.FC = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                           Restaurant Name *
                         </label>
                         <input
@@ -522,12 +522,12 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formName}
                           onChange={(e) => handleNameChange(e.target.value)}
                           placeholder="e.g. The Bombay Canteen"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                           URL Slug *
                         </label>
                         <input
@@ -538,13 +538,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                             setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
                           }
                           placeholder="e.g. the-bombay-canteen"
-                          className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                         Google Review Write URL *
                       </label>
                       <input
@@ -553,7 +553,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formReviewUrl}
                         onChange={(e) => setFormReviewUrl(e.target.value)}
                         placeholder="https://maps.app.goo.gl/..."
-                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                       />
                       <span className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 block">
                         Must be a valid Google Maps / Place review link (un-gated).
@@ -568,7 +568,7 @@ export const RestaurantManagementScreen: React.FC = () => {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                           Owner Full Name *
                         </label>
                         <input
@@ -577,12 +577,12 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formOwnerName}
                           onChange={(e) => setFormOwnerName(e.target.value)}
                           placeholder="e.g. Sameer Seth"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                        <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                           Owner Email *
                         </label>
                         <input
@@ -591,13 +591,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formOwnerEmail}
                           onChange={(e) => setFormOwnerEmail(e.target.value)}
                           placeholder="owner@establishment.com"
-                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                         Initial Temporary Password *
                       </label>
                       <input
@@ -607,7 +607,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formOwnerPassword}
                         onChange={(e) => setFormOwnerPassword(e.target.value)}
                         placeholder="At least 8 characters"
-                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500 h-8.5"
                       />
                     </div>
                   </div>
@@ -618,7 +618,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => setIsOnboardModalOpen(false)}
-                      className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
+                      className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
                     >
                       Cancel
                     </MotionButton>
@@ -627,7 +627,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       variant="primary"
                       size="sm"
                       disabled={onboardMutation.isPending}
-                      className="bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
+                      className="bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                     >
                       {onboardMutation.isPending ? 'Provisioning...' : 'Provision Restaurant'}
                     </MotionButton>
@@ -679,7 +679,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setSuspendTarget(null)}
-                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
+                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
                   >
                     Cancel
                   </MotionButton>
@@ -689,7 +689,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     size="sm"
                     onClick={handleSuspendConfirm}
                     disabled={statusMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                   >
                     {statusMutation.isPending ? 'Suspending...' : 'Confirm Suspension'}
                   </MotionButton>
@@ -737,7 +737,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-stone-700 dark:text-stone-300 mb-1">
+                  <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
                     Support Ticket Reference / Reason (Optional)
                   </label>
                   <input
@@ -745,7 +745,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     value={impersonateReason}
                     onChange={(e) => setImpersonateReason(e.target.value)}
                     placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
                   />
                 </div>
 
@@ -758,7 +758,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       setImpersonateTarget(null);
                       setImpersonateReason('');
                     }}
-                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-800"
+                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
                   >
                     Cancel
                   </MotionButton>
@@ -768,7 +768,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     size="sm"
                     onClick={handleImpersonateConfirm}
                     disabled={impersonateMutation.isPending}
-                    className="bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
+                    className="bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                   >
                     {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
                   </MotionButton>

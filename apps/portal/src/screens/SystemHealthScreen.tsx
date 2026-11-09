@@ -189,7 +189,7 @@ export const SystemHealthScreen: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsFlagModalOpen(true)}
-                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 font-medium rounded-lg shadow-2xs flex items-center gap-1.5 transition-colors"
+                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 font-medium rounded-lg shadow-2xs flex items-center gap-1.5 transition-all"
               >
                 <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
                 Add Flag Override
@@ -663,11 +663,11 @@ export const SystemHealthScreen: React.FC = () => {
                       value={formRestaurantId}
                       onChange={(e) => setFormRestaurantId(e.target.value)}
                       required
-                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
                     >
                       <option value="">-- Choose Restaurant --</option>
                       {restaurantsData?.restaurants.map((r) => (
-                        <option key={r.id} value={r.id}>
+                        <option key={r.id} value={r.id} className="dark:bg-stone-800">
                           {r.name} ({r.slug})
                         </option>
                       ))}
@@ -681,14 +681,16 @@ export const SystemHealthScreen: React.FC = () => {
                     <select
                       value={formKey}
                       onChange={(e) => setFormKey(e.target.value)}
-                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
                     >
                       {PRESET_FLAG_KEYS.map((p) => (
-                        <option key={p.key} value={p.key}>
+                        <option key={p.key} value={p.key} className="dark:bg-stone-800">
                           {p.key}
                         </option>
                       ))}
-                      <option value="custom">-- Custom Flag Key --</option>
+                      <option value="custom" className="dark:bg-stone-800">
+                        -- Custom Flag Key --
+                      </option>
                     </select>
                   </div>
 
@@ -703,7 +705,7 @@ export const SystemHealthScreen: React.FC = () => {
                         value={formCustomKey}
                         onChange={(e) => setFormCustomKey(e.target.value)}
                         required
-                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
+                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
                   )}
@@ -714,7 +716,7 @@ export const SystemHealthScreen: React.FC = () => {
                       id="flagEnabled"
                       checked={formEnabled}
                       onChange={(e) => setFormEnabled(e.target.checked)}
-                      className="rounded border-stone-300 text-stone-900 focus:ring-stone-900"
+                      className="rounded border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100 focus:ring-stone-900 dark:focus:ring-stone-100"
                     />
                     <label
                       htmlFor="flagEnabled"
@@ -733,7 +735,7 @@ export const SystemHealthScreen: React.FC = () => {
                       value={formConfigJson}
                       onChange={(e) => setFormConfigJson(e.target.value)}
                       placeholder='{"threshold": 100}'
-                      className="w-full px-3 py-2 text-xs font-mono bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 resize-none"
+                      className="w-full px-3 py-2 text-xs font-mono bg-stone-50/70 dark:bg-stone-800/60 border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 rounded-xl text-stone-900 dark:text-stone-100 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 
@@ -741,14 +743,14 @@ export const SystemHealthScreen: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsFlagModalOpen(false)}
-                      className="px-3 py-1.5 text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 font-medium transition-colors"
+                      className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 font-medium transition-colors cursor-pointer"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={upsertFlagMutation.isPending}
-                      className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-stone-100 dark:hover:bg-white rounded-lg transition-colors shadow-2xs disabled:opacity-50"
+                      className="px-3.5 py-1.5 text-xs font-medium text-white dark:text-stone-900 bg-stone-900 hover:bg-black dark:bg-white dark:hover:bg-stone-100 rounded-lg transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
                     >
                       {upsertFlagMutation.isPending ? 'Saving...' : 'Apply Override'}
                     </button>
