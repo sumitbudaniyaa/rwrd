@@ -14,6 +14,7 @@ import {
   CheckmarkCircle02Icon,
   Analytics01Icon,
   Clock01Icon,
+  Calendar01Icon,
 } from '@hugeicons/core-free-icons';
 import { MotionCard, SlideUp, StaggerList, Badge, MotionButton } from '@tiptable/ui';
 import { Link } from 'react-router-dom';
@@ -23,6 +24,9 @@ import { api, type PlatformMetricsResponse } from '../services/api.js';
 export const DashboardOverview: React.FC = () => {
   const { user } = useAuth();
   const [metricView, setMetricView] = useState<'scans' | 'volume'>('scans');
+  const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month' | 'custom'>('month');
+  const [customStart, setCustomStart] = useState<string>('');
+  const [customEnd, setCustomEnd] = useState<string>('');
 
   const {
     data: metricsData,
@@ -85,13 +89,36 @@ export const DashboardOverview: React.FC = () => {
     },
   ];
 
+  // Filter timeline based on selected timeframe
+  const filteredTimeline = React.useMemo(() => {
+    if (!timeline.length) return [];
+    if (timeframe === 'today') {
+      return timeline.slice(-1);
+    }
+    if (timeframe === 'week') {
+      return timeline.slice(-7);
+    }
+    if (timeframe === 'custom') {
+      return timeline.filter((d) => {
+        if (customStart && d.date < customStart) return false;
+        if (customEnd && d.date > customEnd) return false;
+        return true;
+      });
+    }
+    // Default 'month'
+    return timeline;
+  }, [timeline, timeframe, customStart, customEnd]);
+
   // Maximum value for timeline visualization scaling
-  const maxScanVolume = Math.max(...timeline.map((d) => d.scans), 1);
-  const maxTipVolume = Math.max(...timeline.map((d) => d.tipsInitiatedVolumeInr), 1);
+  const maxScanVolume = Math.max(...filteredTimeline.map((d) => d.scans), 1);
+  const maxTipVolume = Math.max(...filteredTimeline.map((d) => d.tipsInitiatedVolumeInr), 1);
   const activeMax = metricView === 'scans' ? maxScanVolume : maxTipVolume;
 
-  const total30dScans = timeline.reduce((acc, curr) => acc + curr.scans, 0);
-  const total30dVolume = timeline.reduce((acc, curr) => acc + curr.tipsInitiatedVolumeInr, 0);
+  const totalFilteredScans = filteredTimeline.reduce((acc, curr) => acc + curr.scans, 0);
+  const totalFilteredVolume = filteredTimeline.reduce(
+    (acc, curr) => acc + curr.tipsInitiatedVolumeInr,
+    0,
+  );
 
   return (
     <div className="space-y-6 max-w-7xl font-sans">
@@ -103,7 +130,7 @@ export const DashboardOverview: React.FC = () => {
               <h1 className="text-xl font-semibold text-stone-900 dark:text-stone-100 tracking-tight">
                 Control Plane Dashboard
               </h1>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-500/25">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Live Systems OK
               </span>
@@ -190,73 +217,159 @@ export const DashboardOverview: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Activity Trends */}
           <MotionCard className="lg:col-span-2 p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-2xs space-y-4 transition-colors duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-200">
-                  <HugeiconsIcon icon={Analytics01Icon} className="w-4 h-4" />
+            <div className="flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-800 dark:text-stone-200">
+                    <HugeiconsIcon icon={Analytics01Icon} className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                      Scan &amp; Interaction Activity
+                    </h2>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                      Daily QR scans and initiated tip interactions across all establishments
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
-                    30-Day Scan &amp; Interaction Activity
-                  </h2>
-                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
-                    Daily QR scans and initiated tip interactions across all establishments
-                  </p>
+
+                {/* Metric Selector Toggle (Scans vs Volume) */}
+                <div className="flex items-center gap-1 p-1 bg-stone-100 dark:bg-stone-800/80 rounded-lg border border-stone-200/60 dark:border-stone-700 self-start sm:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setMetricView('scans')}
+                    className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all cursor-pointer ${
+                      metricView === 'scans'
+                        ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
+                        : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+                    }`}
+                  >
+                    Scans Volume
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMetricView('volume')}
+                    className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all cursor-pointer ${
+                      metricView === 'volume'
+                        ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
+                        : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+                    }`}
+                  >
+                    Tips (₹)
+                  </button>
                 </div>
               </div>
 
-              {/* Metric Selector Toggle */}
-              <div className="flex items-center gap-1 p-1 bg-stone-100 dark:bg-stone-800/80 rounded-lg border border-stone-200/60 dark:border-stone-700 self-start sm:self-auto">
-                <button
-                  type="button"
-                  onClick={() => setMetricView('scans')}
-                  className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
-                    metricView === 'scans'
-                      ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
-                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
-                  }`}
-                >
-                  Scans Volume
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setMetricView('volume')}
-                  className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
-                    metricView === 'volume'
-                      ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
-                      : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
-                  }`}
-                >
-                  Tips (₹)
-                </button>
-              </div>
-            </div>
+              {/* Timeframe Selector Pill (Today / This Week / This Month / Custom) */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-stone-100 dark:border-stone-800/80">
+                <div className="flex items-center gap-1 p-1 bg-stone-100 dark:bg-stone-800/80 rounded-lg border border-stone-200/60 dark:border-stone-700">
+                  {(
+                    [
+                      { id: 'today', label: 'Today' },
+                      { id: 'week', label: 'This Week' },
+                      { id: 'month', label: 'This Month' },
+                      { id: 'custom', label: 'Custom' },
+                    ] as const
+                  ).map((tf) => (
+                    <button
+                      key={tf.id}
+                      type="button"
+                      onClick={() => setTimeframe(tf.id)}
+                      className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all cursor-pointer ${
+                        timeframe === tf.id
+                          ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
+                          : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+                      }`}
+                    >
+                      {tf.label}
+                    </button>
+                  ))}
+                </div>
 
-            {/* Quick 30d Total Chips */}
-            <div className="flex items-center gap-3 pt-1 text-xs">
-              <div className="px-2.5 py-1 rounded-md bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700">
-                <span className="text-stone-400 dark:text-stone-500 text-[10px] uppercase tracking-wider block">
-                  30d Total Scans
-                </span>
-                <span className="font-semibold text-stone-800 dark:text-stone-100 font-mono">
-                  {total30dScans > 0 ? total30dScans.toLocaleString() : '14,200'}
-                </span>
+                {/* Quick Total Chips */}
+                <div className="flex items-center gap-2.5 text-xs">
+                  <div className="px-2.5 py-1 rounded-md bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700">
+                    <span className="text-stone-400 dark:text-stone-500 text-[10px] uppercase tracking-wider block">
+                      {timeframe === 'today'
+                        ? 'Today Total Scans'
+                        : timeframe === 'week'
+                          ? '7d Total Scans'
+                          : timeframe === 'custom'
+                            ? 'Range Total Scans'
+                            : '30d Total Scans'}
+                    </span>
+                    <span className="font-semibold text-stone-800 dark:text-stone-100 font-mono">
+                      {totalFilteredScans > 0 ? totalFilteredScans.toLocaleString() : '0'}
+                    </span>
+                  </div>
+                  <div className="px-2.5 py-1 rounded-md bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700">
+                    <span className="text-stone-400 dark:text-stone-500 text-[10px] uppercase tracking-wider block">
+                      {timeframe === 'today'
+                        ? 'Today Tip Volume'
+                        : timeframe === 'week'
+                          ? '7d Tip Volume'
+                          : timeframe === 'custom'
+                            ? 'Range Tip Volume'
+                            : '30d Tip Volume'}{' '}
+                      Initiated
+                    </span>
+                    <span className="font-semibold text-stone-800 dark:text-stone-100 font-mono">
+                      ₹{totalFilteredVolume > 0 ? totalFilteredVolume.toLocaleString() : '0'}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <div className="px-2.5 py-1 rounded-md bg-stone-50 dark:bg-stone-800/60 border border-stone-200/60 dark:border-stone-700">
-                <span className="text-stone-400 dark:text-stone-500 text-[10px] uppercase tracking-wider block">
-                  30d Tip Volume Initiated
-                </span>
-                <span className="font-semibold text-stone-800 dark:text-stone-100 font-mono">
-                  ₹{total30dVolume > 0 ? total30dVolume.toLocaleString() : '4,15,900'}
-                </span>
-              </div>
+
+              {/* Custom Date Range Picker Strip */}
+              {timeframe === 'custom' && (
+                <div className="flex flex-wrap items-center gap-2.5 p-2.5 bg-stone-50 dark:bg-stone-800/50 rounded-xl border border-stone-200/70 dark:border-stone-700/70 text-xs animate-fadeIn">
+                  <div className="flex items-center gap-1.5 text-stone-600 dark:text-stone-400 font-medium text-[11px]">
+                    <HugeiconsIcon
+                      icon={Calendar01Icon}
+                      className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400"
+                    />
+                    <span>Select Range:</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      value={customStart}
+                      onChange={(e) => setCustomStart(e.target.value)}
+                      className="h-7.5 px-2 text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:outline-none focus:border-stone-400 dark:focus:border-stone-500 font-mono"
+                    />
+                    <span className="text-stone-400 dark:text-stone-500 text-xs">to</span>
+                    <input
+                      type="date"
+                      value={customEnd}
+                      onChange={(e) => setCustomEnd(e.target.value)}
+                      className="h-7.5 px-2 text-xs bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-stone-900 dark:text-stone-100 focus:outline-none focus:border-stone-400 dark:focus:border-stone-500 font-mono"
+                    />
+                  </div>
+                  {timeline.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const first = timeline[0];
+                        const last = timeline[timeline.length - 1];
+                        if (first && last) {
+                          setCustomStart(first.date);
+                          setCustomEnd(last.date);
+                        }
+                      }}
+                      className="ml-auto px-2 py-1 text-[11px] font-medium text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 rounded-md hover:bg-stone-200/60 dark:hover:bg-stone-700 transition-colors cursor-pointer"
+                    >
+                      Reset Full Range
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Micro Activity Bars */}
             <div className="pt-2">
               <div className="h-32 flex items-end gap-1.5 justify-between">
-                {timeline.length > 0 ? (
-                  timeline.map((point) => {
+                {filteredTimeline.length > 0 ? (
+                  filteredTimeline.map((point) => {
                     const activeVal =
                       metricView === 'scans' ? point.scans : point.tipsInitiatedVolumeInr;
                     const heightPercent = Math.max(Math.round((activeVal / activeMax) * 100), 8);
@@ -300,8 +413,14 @@ export const DashboardOverview: React.FC = () => {
                 )}
               </div>
               <div className="flex justify-between text-[10px] text-stone-400 dark:text-stone-500 pt-2 border-t border-stone-100 dark:border-stone-800 mt-2 font-mono">
-                <span>30 days ago</span>
-                <span>Today</span>
+                <span>{filteredTimeline[0]?.date || 'Start'}</span>
+                <span>
+                  {filteredTimeline.length > 1
+                    ? filteredTimeline[filteredTimeline.length - 1]?.date || ''
+                    : timeframe === 'today'
+                      ? 'Today'
+                      : ''}
+                </span>
               </div>
             </div>
           </MotionCard>
@@ -310,7 +429,7 @@ export const DashboardOverview: React.FC = () => {
           <MotionCard className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl shadow-2xs flex flex-col justify-between transition-colors duration-200">
             <div className="space-y-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-100 dark:border-emerald-900 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 dark:border-emerald-900 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />
                 </div>
                 <div>

@@ -6,6 +6,37 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Soften Badge Backgrounds, Fix Portal Theme Switch & Dynamic Activity Timeframe Controls (M7-T54)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Muted Badge & Chip Alpha Fills (`+2 this month`, etc.)**:
+    - In [`packages/ui/src/motion.tsx`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/motion.tsx), overhauled `<Badge>` variant classes to replace harsh, high-saturation solid pastel fills (`bg-emerald-50`, `bg-amber-50`, `bg-rose-50`, `bg-stone-100`) with subtle, modern low-opacity alpha fills and borders:
+      - `success`: `bg-emerald-500/10 text-emerald-800 border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-500/25`
+      - `warning`: `bg-amber-500/10 text-amber-800 border-amber-500/20 dark:bg-amber-500/15 dark:text-amber-300 dark:border-amber-500/25`
+      - `neutral`: `bg-stone-500/10 text-stone-700 border-stone-500/20 dark:bg-stone-500/15 dark:text-stone-300 dark:border-stone-500/25`
+      - `danger`: `bg-rose-500/10 text-rose-800 border-rose-500/20 dark:bg-rose-500/15 dark:text-rose-300 dark:border-rose-500/25`
+      - `accent`: `bg-stone-500/10 text-stone-800 border-stone-500/20 dark:bg-stone-500/15 dark:text-stone-200 dark:border-stone-500/25`
+    - Softened inline chips and banners across [`DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/DashboardOverview.tsx) (`Live Systems OK`), [`RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx) (table action pills), and [`SystemHealthScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SystemHealthScreen.tsx).
+  - **Company Portal Theme Toggle & Sync Fix**:
+    - Redesigned [`ThemeToggle.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/components/ThemeToggle.tsx) into a smooth, accessible sliding Sun/Moon switch pill (`role="switch"`, `w-11 h-6` track with a sliding circular thumb containing active sun/moon icon) with `pointer-events-none` on children to ensure reliable click handling.
+    - Updated [`ThemeContext.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/context/ThemeContext.tsx) to synchronize the `.dark` class across both `document.documentElement` and `document.body` and persist to `localStorage`.
+    - Added an immediate theme hydration script in [`index.html`](file:///Users/Sumit/Desktop/rwrd/apps/portal/index.html) `<head>` so dark mode is set before React renders, completely preventing white flashes on page reload.
+    - Added `dark:bg-stone-950 dark:text-stone-100` to `<body>` in `index.html` and `@layer base { body { ... } }` in [`index.css`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/styles/index.css).
+  - **Dynamic Activity Timeframe Selector (`Today` / `This Week` / `This Month` / `Custom`)**:
+    - In [`DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/DashboardOverview.tsx), replaced the static "30-Day" Scan & Interaction Activity view with a responsive timeframe selector pill:
+      - **Options**: `Today`, `This Week`, `This Month`, `Custom`.
+      - **Dynamic Summary Chips**: Updates dynamically based on the selected window (e.g. `Today Total Scans`, `7d Total Scans`, `30d Total Scans`, `Range Total Scans` and matching `Tip Volume Initiated`).
+      - **Dynamic Activity Bars**: Filters timeline points dynamically to the selected range and recomputes maximum scale bounds.
+      - **Custom Date Range Controls**: When `Custom` is selected, renders an inline date range strip with Start Date & End Date `<input type="date">` and a quick `Reset Full Range` trigger.
+      - **Dynamic Date Bounds**: Bottom date labels reflect the active filtered date bounds (e.g., `Start` to `Today`).
+  - **Tests & Verification**:
+    - All 9 portal test suites passed 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - Monorepo typecheck passed with zero errors (`pnpm typecheck`).
+    - Monorepo lint passed with zero errors (`pnpm lint`).
+    - Monorepo format check passed with zero warnings (`pnpm format:check`).
+
 ### 2026-11-09 - Billing Screen Action Buttons & Modal Expansion, Sidebar Tab Highlight Refinement & Customer Staff Copy Polish (M7-T53)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

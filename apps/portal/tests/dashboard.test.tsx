@@ -104,13 +104,17 @@ describe('DashboardOverview Screen', () => {
     });
   });
 
-  it('renders 30-day activity trends and tenant retention health widget', async () => {
+  it('renders activity trends and allows switching between Today, This Week, This Month and Custom', async () => {
     vi.spyOn(api, 'getGlobalMetrics').mockResolvedValueOnce(mockMetrics);
 
     renderWithProviders(<DashboardOverview />);
 
     await waitFor(() => {
-      expect(screen.getByText(/30-Day Scan & Interaction Activity/i)).toBeDefined();
+      expect(screen.getByText(/Scan & Interaction Activity/i)).toBeDefined();
+      expect(screen.getByText('Today')).toBeDefined();
+      expect(screen.getByText('This Week')).toBeDefined();
+      expect(screen.getByText('This Month')).toBeDefined();
+      expect(screen.getByText('Custom')).toBeDefined();
       expect(screen.getByText('Tenant Account Health')).toBeDefined();
       expect(screen.getByText('Active Establishments')).toBeDefined();
       expect(screen.getByText('Suspended Establishments')).toBeDefined();

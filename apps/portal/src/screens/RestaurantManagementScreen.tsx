@@ -246,7 +246,7 @@ export const RestaurantManagementScreen: React.FC = () => {
       {/* Notifications */}
       {successMessage && (
         <FadeIn>
-          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
+          <div className="p-3 bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 dark:border-emerald-900 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={CheckmarkCircle02Icon}
@@ -431,7 +431,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleReactivate(rest)}
-                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800 transition-colors"
+                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-emerald-500/10 hover:bg-emerald-500/20 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-800 transition-colors"
                                   >
                                     Reactivate
                                   </button>
@@ -439,7 +439,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => setSuspendTarget(rest)}
-                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-200/60 dark:border-amber-800 transition-colors"
+                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-amber-500/10 hover:bg-amber-500/20 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-500/20 dark:border-amber-800 transition-colors"
                                   >
                                     Suspend
                                   </button>
@@ -448,7 +448,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleDelete(rest)}
-                                  className="px-2 py-1 rounded-md text-[11px] font-medium bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-800 dark:text-rose-300 border border-rose-200/60 dark:border-rose-800 transition-colors"
+                                  className="px-2 py-1 rounded-md text-[11px] font-medium bg-rose-500/10 hover:bg-rose-500/20 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-800 dark:text-rose-300 border border-rose-500/20 dark:border-rose-800 transition-colors"
                                 >
                                   Delete
                                 </button>
@@ -647,7 +647,7 @@ export const RestaurantManagementScreen: React.FC = () => {
             <FadeIn>
               <div className="bg-white dark:bg-stone-900 rounded-xl max-w-md w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden p-5 space-y-3.5 transition-colors duration-200">
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/20 dark:border-amber-900 flex items-center justify-center text-amber-700 dark:text-amber-400 shrink-0">
                     <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" />
                   </div>
                   <div>
@@ -721,7 +721,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/70 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                <div className="p-2.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/20 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300 space-y-1">
                   <p className="font-semibold flex items-center gap-1.5 text-[11px]">
                     <HugeiconsIcon
                       icon={AlertCircleIcon}

@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    @apply bg-white text-stone-900 font-sans;
+    @apply bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 font-sans;
   }
 }
 

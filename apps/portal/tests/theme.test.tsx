@@ -21,6 +21,7 @@ describe('ThemeContext & ThemeToggle System', () => {
   beforeEach(() => {
     localStorage.clear();
     document.documentElement.classList.remove('dark');
+    document.body?.classList.remove('dark');
   });
 
   it('defaults to light mode when localStorage is empty and system preference is not dark', () => {
@@ -32,6 +33,7 @@ describe('ThemeContext & ThemeToggle System', () => {
 
     expect(screen.getByTestId('current-theme').textContent).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.body?.classList.contains('dark')).toBe(false);
   });
 
   it('restores dark mode when localStorage contains portal_theme="dark"', () => {
@@ -45,6 +47,7 @@ describe('ThemeContext & ThemeToggle System', () => {
 
     expect(screen.getByTestId('current-theme').textContent).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.body?.classList.contains('dark')).toBe(true);
   });
 
   it('toggles theme when button is clicked and synchronizes class and localStorage', () => {
@@ -56,12 +59,14 @@ describe('ThemeContext & ThemeToggle System', () => {
 
     expect(screen.getByTestId('current-theme').textContent).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.body?.classList.contains('dark')).toBe(false);
 
     // Click toggle button
     fireEvent.click(screen.getByTestId('toggle-btn'));
 
     expect(screen.getByTestId('current-theme').textContent).toBe('dark');
     expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.body?.classList.contains('dark')).toBe(true);
     expect(localStorage.getItem('portal_theme')).toBe('dark');
 
     // Click toggle button again
@@ -69,22 +74,26 @@ describe('ThemeContext & ThemeToggle System', () => {
 
     expect(screen.getByTestId('current-theme').textContent).toBe('light');
     expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.body?.classList.contains('dark')).toBe(false);
     expect(localStorage.getItem('portal_theme')).toBe('light');
   });
 
-  it('renders ThemeToggle component with accessible button and handles click', () => {
+  it('renders ThemeToggle component with accessible switch role and handles click', () => {
     render(
       <ThemeProvider>
         <ThemeToggle />
       </ThemeProvider>,
     );
 
-    const toggleButton = screen.getByRole('button', { name: /switch to dark mode/i });
-    expect(toggleButton).toBeDefined();
+    const toggleSwitch = screen.getByRole('switch', { name: /switch to dark mode/i });
+    expect(toggleSwitch).toBeDefined();
+    expect(toggleSwitch.getAttribute('aria-checked')).toBe('false');
 
-    fireEvent.click(toggleButton);
+    fireEvent.click(toggleSwitch);
 
     expect(document.documentElement.classList.contains('dark')).toBe(true);
-    expect(screen.getByRole('button', { name: /switch to light mode/i })).toBeDefined();
+    expect(document.body?.classList.contains('dark')).toBe(true);
+    expect(screen.getByRole('switch', { name: /switch to light mode/i })).toBeDefined();
+    expect(toggleSwitch.getAttribute('aria-checked')).toBe('true');
   });
 });

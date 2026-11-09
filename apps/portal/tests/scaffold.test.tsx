@@ -86,7 +86,7 @@ describe('Portal App Scaffolding & Layout', () => {
     expect(screen.getByText('Ananya Deshmukh')).toBeDefined();
     expect(screen.getByText('admin@tiptable.in')).toBeDefined();
     expect(screen.queryByText('Super Admin')).toBeNull();
-    expect(screen.getByRole('button', { name: /switch to (dark|light) mode/i })).toBeDefined();
+    expect(screen.getByRole('switch', { name: /switch to (dark|light) mode/i })).toBeDefined();
     expect(screen.getByText('Sign Out')).toBeDefined();
   });
 

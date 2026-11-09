@@ -217,7 +217,7 @@ export const SystemHealthScreen: React.FC = () => {
       {/* Notifications */}
       {successMessage && (
         <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-xs">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-xs">
             <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={CheckmarkCircle02Icon}
@@ -238,7 +238,7 @@ export const SystemHealthScreen: React.FC = () => {
 
       {errorMessage && (
         <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-xs">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/20 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-xs">
             <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={AlertCircleIcon}
@@ -576,7 +576,7 @@ export const SystemHealthScreen: React.FC = () => {
                                 }
                                 className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition-colors ${
                                   flag.enabled
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/60'
+                                    ? 'bg-emerald-500/10 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-500/20 dark:border-emerald-800 hover:bg-emerald-500/20 dark:hover:bg-emerald-900/60'
                                     : 'bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 border-stone-200 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-700'
                                 }`}
                               >
