@@ -53,11 +53,11 @@ export const PortalLayout: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAF9] flex flex-col md:flex-row text-stone-900 font-sans">
+    <div className="h-screen bg-[#FAFAF9] flex flex-col md:flex-row text-stone-900 font-sans overflow-hidden">
       {/* Sidebar Navigation */}
-      <aside className="w-full md:w-60 bg-white border-r border-stone-200/80 flex flex-col shrink-0">
+      <aside className="w-full md:w-60 bg-white border-r border-stone-200/80 flex flex-col shrink-0 h-full overflow-hidden select-none">
         {/* Brand Header */}
-        <div className="p-4 border-b border-stone-200/70">
+        <div className="p-4 border-b border-stone-200/70 shrink-0">
           <div className="flex items-center justify-between">
             <img src={logoImage} alt="rwrd" className="h-6 w-auto object-contain" />
             <span className="sr-only">rwrd</span>
@@ -69,7 +69,7 @@ export const PortalLayout: React.FC = () => {
         </div>
 
         {/* Nav Links */}
-        <nav className="p-3 flex-1 space-y-1">
+        <nav className="p-3 flex-1 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
@@ -98,7 +98,7 @@ export const PortalLayout: React.FC = () => {
         </nav>
 
         {/* User Profile & Logout */}
-        <div className="p-3.5 border-t border-stone-200/70 bg-white">
+        <div className="p-3.5 border-t border-stone-200/70 bg-white shrink-0">
           <div className="flex items-center justify-between mb-2.5">
             <div className="truncate mr-2">
               <span className="text-xs font-semibold text-stone-900 block truncate">
@@ -114,7 +114,7 @@ export const PortalLayout: React.FC = () => {
           <button
             type="button"
             onClick={handleLogout}
-            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-colors border border-stone-200"
+            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-50 rounded-lg transition-colors border border-stone-200 cursor-pointer"
           >
             <HugeiconsIcon icon={Logout01Icon} className="w-3.5 h-3.5" />
             <span>Sign Out</span>
@@ -123,7 +123,7 @@ export const PortalLayout: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-6 md:p-8 overflow-y-auto">
+      <main className="flex-1 h-full overflow-y-auto p-6 md:p-8">
         <Outlet />
       </main>
     </div>
