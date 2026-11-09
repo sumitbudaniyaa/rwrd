@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { eq, and, desc, isNull, lte } from 'drizzle-orm';
+import { eq, and, desc, isNull, lte, ne } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from '../db/index.js';
 import { billingPlans, subscriptions, invoices, restaurants } from '../db/schema/index.js';
@@ -343,11 +343,99 @@ portalBillingRouter.post(
   requireRole(['super_admin', 'finance']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const GRACE_PERIOD_DAYS = 7;
-      const graceThreshold = new Date(Date.now() - GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000);
-      const graceThresholdDateStr = graceThreshold.toISOString().slice(0, 10);
+      const suspendedEstablishments: Array<{
+        restaurantId: string;
+        restaurantName: string;
+        invoiceNumber: string;
+      }> = [];
 
-      // Find all unpaid invoices where dueDate <= graceThresholdDateStr
+      // 1. Evaluate Expired Plans past 2-day grace period
+      const PLAN_GRACE_PERIOD_DAYS = 2;
+      const planGraceThreshold = new Date(
+        Date.now() - PLAN_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
+      );
+
+      const expiredSubscriptions = await db
+        .select({
+          subscriptionId: subscriptions.id,
+          restaurantId: subscriptions.restaurantId,
+          currentPeriodEnd: subscriptions.currentPeriodEnd,
+          restaurantName: restaurants.name,
+          isSuspended: restaurants.isSuspended,
+        })
+        .from(subscriptions)
+        .innerJoin(restaurants, eq(subscriptions.restaurantId, restaurants.id))
+        .where(
+          and(
+            lte(subscriptions.currentPeriodEnd, planGraceThreshold),
+            ne(subscriptions.status, 'cancelled'),
+            ne(subscriptions.status, 'past_due'),
+            isNull(restaurants.deletedAt),
+          ),
+        );
+
+      for (const item of expiredSubscriptions) {
+        if (!item.isSuspended) {
+          const reason = `Automatic suspension: Plan expired on ${item.currentPeriodEnd.toISOString().slice(0, 10)}; 2-day grace period concluded`;
+
+          // 1. Suspend restaurant
+          await db
+            .update(restaurants)
+            .set({
+              isSuspended: true,
+              suspensionReason: reason,
+              updatedAt: new Date(),
+            })
+            .where(eq(restaurants.id, item.restaurantId));
+
+          // 2. Mark subscription past_due
+          await db
+            .update(subscriptions)
+            .set({
+              status: 'past_due',
+              updatedAt: new Date(),
+            })
+            .where(eq(subscriptions.id, item.subscriptionId));
+
+          // 3. Record immutable audit log
+          await auditService.record({
+            restaurantId: item.restaurantId,
+            actorId: req.user!.id,
+            actorType: 'system',
+            action: 'RESTAURANT_SUSPENDED',
+            entityType: 'restaurant',
+            entityId: item.restaurantId,
+            beforeState: { isSuspended: false },
+            afterState: { isSuspended: true, suspensionReason: reason },
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent'),
+          });
+
+          logger.warn(
+            {
+              restaurantId: item.restaurantId,
+              subscriptionId: item.subscriptionId,
+              reason,
+            },
+            'Restaurant automatically suspended due to expired plan past 2-day grace period',
+          );
+
+          suspendedEstablishments.push({
+            restaurantId: item.restaurantId,
+            restaurantName: item.restaurantName,
+            invoiceNumber: 'PLAN-EXP-2D',
+          });
+        }
+      }
+
+      // 2. Evaluate Overdue Invoices beyond 7-day grace period
+      const INVOICE_GRACE_PERIOD_DAYS = 7;
+      const invoiceGraceThreshold = new Date(
+        Date.now() - INVOICE_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
+      );
+      const invoiceGraceThresholdDateStr = invoiceGraceThreshold.toISOString().slice(0, 10);
+
+      // Find all unpaid invoices where dueDate <= invoiceGraceThresholdDateStr
       const overdueInvoices = await db
         .select({
           invoiceId: invoices.id,
@@ -363,16 +451,10 @@ portalBillingRouter.post(
         .where(
           and(
             eq(invoices.status, 'unpaid'),
-            lte(invoices.dueDate, graceThresholdDateStr),
+            lte(invoices.dueDate, invoiceGraceThresholdDateStr),
             isNull(restaurants.deletedAt),
           ),
         );
-
-      const suspendedEstablishments: Array<{
-        restaurantId: string;
-        restaurantName: string;
-        invoiceNumber: string;
-      }> = [];
 
       for (const item of overdueInvoices) {
         if (!item.isSuspended) {
@@ -429,6 +511,7 @@ portalBillingRouter.post(
       }
 
       res.status(200).json({
+        evaluatedSubscriptionsCount: expiredSubscriptions.length,
         evaluatedInvoicesCount: overdueInvoices.length,
         newlySuspendedCount: suspendedEstablishments.length,
         suspendedEstablishments,

@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - QR Token & Customer Tipping Service Auto-Deactivation 2 Days Post Plan Expiration (M7-T60)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Zero-Lag Request-Level Grace Enforcement**:
+    - Updated [`QrTokenRepository.findByToken`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/qrTokenRepository.ts) to join `subscriptions` and enforce a 2-day (48-hour) grace period (`PLAN_GRACE_PERIOD_MS = 2 * 24 * 60 * 60 * 1000`). If `Date.now() > currentPeriodEnd + 2 days` or the subscription is cancelled, tokens fail resolution immediately (`return null`).
+    - Updated [`RestaurantRepository.findActiveById`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/restaurantRepository.ts) to enforce the identical 2-day grace period, ensuring that public staff listings (`GET /public/restaurants/:id/staff`) and customer review taps immediately reject restaurants whose plan expired over 2 days ago.
+  - **Automated Delinquent Plan Synchronization**:
+    - Updated `POST /api/v1/portal/billing/auto-suspend-check` in [`apps/api/src/routes/portalBilling.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalBilling.ts) to evaluate active subscriptions whose `currentPeriodEnd` expired past the 2-day grace period. Delinquent accounts have their status set to `past_due`, restaurant suspended (`isSuspended = true`), and an immutable system audit record logged.
+  - **Automated Tests & Quality Verification**:
+    - Added comprehensive unit tests in [`apps/api/tests/public.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/public.test.ts) covering:
+      1. Resolving QR token within active subscription period.
+      2. Resolving QR token within 2-day grace period (< 48 hrs post-expiration).
+      3. Rejecting QR token after 2-day grace period (> 48 hrs post-expiration).
+      4. Rejecting QR token immediately upon subscription cancellation.
+      5. Rejecting active restaurant lookup after 2-day grace expiration.
+    - Updated [`apps/api/tests/portalBilling.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/portalBilling.test.ts) verifying automated plan expiration suspension.
+    - All 27 test files (184 tests) in `@tiptable/api` and all 9 test files (32 tests) in `@tiptable/portal` pass cleanly.
+    - Monorepo typecheck and ESLint pass with zero errors.
+
 ### 2026-11-10 - Modal Confirmation Dialog Box for Restaurant Deletion in Company Portal (M7-T59)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

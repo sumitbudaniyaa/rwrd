@@ -94,7 +94,7 @@ describe('Public Customer API Endpoints', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('GET /api/v1/public/restaurants/token/:token', () => {
@@ -405,6 +405,143 @@ describe('Public Customer API Endpoints', () => {
       expect(res.body.plans).toHaveLength(2);
       expect(res.body.plans[0].priceInr).toBe(99);
       expect(res.body.plans[1].priceInr).toBe(269);
+    });
+  });
+
+  describe('Plan Expiration & 2-Day Grace Period Enforcement', () => {
+    it('allows QR token resolution when subscription is within the 2-day grace period', async () => {
+      const repo = new QrTokenRepository();
+      const oneDayPastPlan = new Date(Date.now() - 24 * 60 * 60 * 1000); // 1 day expired (< 2 days grace)
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          innerJoin: () => ({
+            leftJoin: () => ({
+              leftJoin: () => ({
+                where: () => ({
+                  limit: () =>
+                    Promise.resolve([
+                      {
+                        qrToken: mockResolvedToken.qrToken,
+                        restaurant: mockRestaurant,
+                        table: mockResolvedToken.table,
+                        subscription: {
+                          id: 'sub-1',
+                          restaurantId: mockRestaurantId,
+                          status: 'active',
+                          currentPeriodEnd: oneDayPastPlan,
+                        },
+                      },
+                    ]),
+                }),
+              }),
+            }),
+          }),
+        }),
+      } as any);
+
+      const resolved = await repo.findByToken('valid_table_token_123');
+      expect(resolved).not.toBeNull();
+      expect(resolved?.restaurant.id).toBe(mockRestaurant.id);
+    });
+
+    it('rejects QR token resolution when plan has expired past the 2-day grace period', async () => {
+      const repo = new QrTokenRepository();
+      const threeDaysPastPlan = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000); // 3 days expired (> 2 days grace)
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          innerJoin: () => ({
+            leftJoin: () => ({
+              leftJoin: () => ({
+                where: () => ({
+                  limit: () =>
+                    Promise.resolve([
+                      {
+                        qrToken: mockResolvedToken.qrToken,
+                        restaurant: mockRestaurant,
+                        table: mockResolvedToken.table,
+                        subscription: {
+                          id: 'sub-1',
+                          restaurantId: mockRestaurantId,
+                          status: 'active',
+                          currentPeriodEnd: threeDaysPastPlan,
+                        },
+                      },
+                    ]),
+                }),
+              }),
+            }),
+          }),
+        }),
+      } as any);
+
+      const resolved = await repo.findByToken('valid_table_token_123');
+      expect(resolved).toBeNull();
+    });
+
+    it('rejects QR token resolution immediately when subscription is cancelled', async () => {
+      const repo = new QrTokenRepository();
+      const futureDate = new Date(Date.now() + 10 * 24 * 60 * 60 * 1000);
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          innerJoin: () => ({
+            leftJoin: () => ({
+              leftJoin: () => ({
+                where: () => ({
+                  limit: () =>
+                    Promise.resolve([
+                      {
+                        qrToken: mockResolvedToken.qrToken,
+                        restaurant: mockRestaurant,
+                        table: mockResolvedToken.table,
+                        subscription: {
+                          id: 'sub-1',
+                          restaurantId: mockRestaurantId,
+                          status: 'cancelled',
+                          currentPeriodEnd: futureDate,
+                        },
+                      },
+                    ]),
+                }),
+              }),
+            }),
+          }),
+        }),
+      } as any);
+
+      const resolved = await repo.findByToken('valid_table_token_123');
+      expect(resolved).toBeNull();
+    });
+
+    it('rejects active restaurant lookup when plan has expired past 2 days in RestaurantRepository', async () => {
+      const repo = new RestaurantRepository();
+      const threeDaysPastPlan = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          leftJoin: () => ({
+            where: () => ({
+              limit: () =>
+                Promise.resolve([
+                  {
+                    restaurant: mockRestaurant,
+                    subscription: {
+                      id: 'sub-1',
+                      restaurantId: mockRestaurantId,
+                      status: 'active',
+                      currentPeriodEnd: threeDaysPastPlan,
+                    },
+                  },
+                ]),
+            }),
+          }),
+        }),
+      } as any);
+
+      const activeRestaurant = await repo.findActiveById(mockRestaurantId);
+      expect(activeRestaurant).toBeNull();
     });
   });
 });

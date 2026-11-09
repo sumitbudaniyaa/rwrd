@@ -4,10 +4,13 @@ import {
   qrTokens,
   restaurants,
   tables,
+  subscriptions,
   type QrToken,
   type Restaurant,
   type Table,
 } from '../db/schema/index.js';
+
+export const PLAN_GRACE_PERIOD_MS = 2 * 24 * 60 * 60 * 1000; // 48 hours = 2 days
 
 export interface ResolvedQrToken {
   qrToken: QrToken;
@@ -20,6 +23,7 @@ export class QrTokenRepository {
 
   /**
    * Resolves a public QR token string and returns the associated restaurant and table.
+   * Enforces 2-day plan grace period: tokens become inactive 2 days after plan expiration.
    */
   async findByToken(token: string): Promise<ResolvedQrToken | null> {
     const results = await this.database
@@ -27,10 +31,12 @@ export class QrTokenRepository {
         qrToken: qrTokens,
         restaurant: restaurants,
         table: tables,
+        subscription: subscriptions,
       })
       .from(qrTokens)
       .innerJoin(restaurants, eq(qrTokens.restaurantId, restaurants.id))
       .leftJoin(tables, eq(qrTokens.tableId, tables.id))
+      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
       .where(
         and(
           eq(qrTokens.token, token),
@@ -41,7 +47,26 @@ export class QrTokenRepository {
       )
       .limit(1);
 
-    return results[0] || null;
+    const match = results[0];
+    if (!match) return null;
+
+    // Enforce 2-day plan grace period
+    if (match.subscription) {
+      if (match.subscription.status === 'cancelled') {
+        return null;
+      }
+      const gracePeriodEnd =
+        new Date(match.subscription.currentPeriodEnd).getTime() + PLAN_GRACE_PERIOD_MS;
+      if (Date.now() > gracePeriodEnd) {
+        return null;
+      }
+    }
+
+    return {
+      qrToken: match.qrToken,
+      restaurant: match.restaurant,
+      table: match.table,
+    };
   }
 
   /**

@@ -298,26 +298,34 @@ describe('Portal Billing & Subscription Routes', () => {
   });
 
   describe('POST /api/v1/portal/billing/auto-suspend-check', () => {
-    it('suspends delinquent establishments past 7-day grace period and marks subscription past_due', async () => {
-      const mockOverdueInvoices = [
+    it('suspends delinquent establishments past 2-day plan grace period and past 7-day invoice grace period', async () => {
+      const mockExpiredSub = [
         {
-          invoiceId: 'inv-delinquent',
-          invoiceNumber: 'INV-100001',
+          subscriptionId: 'sub-delinquent-1',
           restaurantId,
-          dueDate: '2026-10-01',
-          amountInr: 999,
-          restaurantName: 'Delinquent Diner',
+          currentPeriodEnd: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // 3 days ago (> 2 day grace)
+          restaurantName: 'Expired Plan Bistro',
           isSuspended: false,
         },
       ];
 
-      vi.spyOn(db, 'select').mockReturnValueOnce({
-        from: () => ({
-          innerJoin: () => ({
-            where: () => Promise.resolve(mockOverdueInvoices),
+      const mockOverdueInvoices: any[] = [];
+
+      vi.spyOn(db, 'select')
+        .mockReturnValueOnce({
+          from: () => ({
+            innerJoin: () => ({
+              where: () => Promise.resolve(mockExpiredSub),
+            }),
           }),
-        }),
-      } as any);
+        } as any)
+        .mockReturnValueOnce({
+          from: () => ({
+            innerJoin: () => ({
+              where: () => Promise.resolve(mockOverdueInvoices),
+            }),
+          }),
+        } as any);
 
       // 1st update for restaurant suspension, 2nd update for subscription past_due
       vi.spyOn(db, 'update')
@@ -339,9 +347,9 @@ describe('Portal Billing & Subscription Routes', () => {
         .set('Authorization', `Bearer ${superAdminToken}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.evaluatedInvoicesCount).toBe(1);
+      expect(res.body.evaluatedSubscriptionsCount).toBe(1);
       expect(res.body.newlySuspendedCount).toBe(1);
-      expect(res.body.suspendedEstablishments[0].restaurantName).toBe('Delinquent Diner');
+      expect(res.body.suspendedEstablishments[0].restaurantName).toBe('Expired Plan Bistro');
       expect(auditSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'RESTAURANT_SUSPENDED',

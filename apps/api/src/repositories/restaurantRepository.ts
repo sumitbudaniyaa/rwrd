@@ -1,6 +1,7 @@
 import { eq, and } from 'drizzle-orm';
 import { db, type Database } from '../db/index.js';
-import { restaurants, type Restaurant } from '../db/schema/index.js';
+import { restaurants, subscriptions, type Restaurant } from '../db/schema/index.js';
+import { PLAN_GRACE_PERIOD_MS } from './qrTokenRepository.js';
 
 export class RestaurantRepository {
   constructor(private readonly database: Database = db) {}
@@ -20,11 +21,16 @@ export class RestaurantRepository {
 
   /**
    * Retrieves an active, non-suspended restaurant by primary key ID.
+   * Enforces 2-day plan grace period: service becomes inactive 2 days after plan expiration.
    */
   async findActiveById(id: string): Promise<Restaurant | null> {
     const results = await this.database
-      .select()
+      .select({
+        restaurant: restaurants,
+        subscription: subscriptions,
+      })
       .from(restaurants)
+      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
       .where(
         and(
           eq(restaurants.id, id),
@@ -34,7 +40,22 @@ export class RestaurantRepository {
       )
       .limit(1);
 
-    return results[0] || null;
+    const match = results[0];
+    if (!match) return null;
+
+    // Enforce 2-day plan grace period
+    if (match.subscription) {
+      if (match.subscription.status === 'cancelled') {
+        return null;
+      }
+      const gracePeriodEnd =
+        new Date(match.subscription.currentPeriodEnd).getTime() + PLAN_GRACE_PERIOD_MS;
+      if (Date.now() > gracePeriodEnd) {
+        return null;
+      }
+    }
+
+    return match.restaurant;
   }
 
   /**

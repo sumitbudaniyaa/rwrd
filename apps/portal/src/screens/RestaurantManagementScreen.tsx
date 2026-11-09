@@ -121,7 +121,7 @@ export const RestaurantManagementScreen: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
       setDeleteTarget(null);
-      setSuccessMessage('Restaurant has been soft-deleted.');
+      setSuccessMessage('Restaurant has been deleted.');
     },
     onError: (err) => {
       setErrorMessage(err instanceof Error ? err.message : 'Failed to delete restaurant.');
@@ -846,7 +846,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       Delete &quot;{deleteTarget.name}&quot;?
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      This will soft-delete the restaurant record.
+                      This will permanently deactivate this restaurant.
                     </p>
                   </div>
                 </div>
