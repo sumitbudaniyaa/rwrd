@@ -383,7 +383,7 @@ export const BillingManagementScreen: React.FC = () => {
                   placeholder="Filter subscriptions..."
                   value={subSearch}
                   onChange={(e) => setSubSearch(e.target.value)}
-                  className="w-full pl-8 pr-3 py-1 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                  className="w-full pl-8 pr-3 py-1 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8"
                 />
               </div>
 
@@ -476,7 +476,7 @@ export const BillingManagementScreen: React.FC = () => {
                     placeholder="Search invoices..."
                     value={invoiceSearch}
                     onChange={(e) => setInvoiceSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                    className="w-full pl-8 pr-3 py-1 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8"
                   />
                 </div>
 
@@ -649,7 +649,7 @@ export const BillingManagementScreen: React.FC = () => {
                       value={formRestaurantId}
                       onChange={(e) => setFormRestaurantId(e.target.value)}
                       required
-                      className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                     >
                       <option value="">-- Choose Restaurant --</option>
                       {restaurantsData?.restaurants.map((r) => (
@@ -671,7 +671,7 @@ export const BillingManagementScreen: React.FC = () => {
                         value={formAmountInr}
                         onChange={(e) => setFormAmountInr(Number(e.target.value))}
                         required
-                        className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
 
@@ -684,7 +684,7 @@ export const BillingManagementScreen: React.FC = () => {
                         value={formDueDate}
                         onChange={(e) => setFormDueDate(e.target.value)}
                         required
-                        className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
                   </div>
@@ -698,7 +698,7 @@ export const BillingManagementScreen: React.FC = () => {
                       value={formNotes}
                       onChange={(e) => setFormNotes(e.target.value)}
                       placeholder="Monthly billing notes or discount reference..."
-                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 resize-none"
+                      className="w-full px-3 py-1.5 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 

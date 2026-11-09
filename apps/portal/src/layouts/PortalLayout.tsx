@@ -9,10 +9,10 @@ import {
   Shield01Icon,
   Activity01Icon,
   Logout01Icon,
-  SecurityCheckIcon,
 } from '@hugeicons/core-free-icons';
 import { Badge } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
+import logoImage from '../assets/logo.png';
 
 interface NavItem {
   name: string;
@@ -57,25 +57,15 @@ export const PortalLayout: React.FC = () => {
       {/* Sidebar Navigation */}
       <aside className="w-full md:w-60 bg-white border-r border-stone-200/80 flex flex-col shrink-0">
         {/* Brand Header */}
-        <div className="p-5 border-b border-stone-200/70">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-stone-900 flex items-center justify-center text-white font-bold text-xs tracking-tight shadow-2xs font-mono">
-              R
-            </div>
-            <div>
-              <span className="font-bold text-sm tracking-tight text-stone-900 block lowercase">
-                rwrd
-              </span>
-              <span className="text-[10px] font-semibold text-stone-400 block tracking-wider uppercase">
-                Control Plane
-              </span>
-            </div>
+        <div className="p-4 border-b border-stone-200/70">
+          <div className="flex items-center justify-between">
+            <img src={logoImage} alt="rwrd" className="h-6 w-auto object-contain" />
+            <span className="sr-only">rwrd</span>
+            <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider">
+              Control Plane
+            </span>
           </div>
-
-          <div className="mt-3 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-stone-50 border border-stone-200/70 text-[11px] text-stone-600">
-            <HugeiconsIcon icon={SecurityCheckIcon} className="w-3.5 h-3.5 text-stone-500" />
-            <span className="font-medium">Platform Staff Realm</span>
-          </div>
+          <span className="sr-only">Platform Staff Realm</span>
         </div>
 
         {/* Nav Links */}

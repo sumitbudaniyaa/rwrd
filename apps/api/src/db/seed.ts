@@ -43,7 +43,13 @@ export async function seed(): Promise<void> {
       totpSecretEncrypted: 'dummy_encrypted_totp_seed',
       totpEnabled: false,
     })
-    .onConflictDoNothing();
+    .onConflictDoUpdate({
+      target: platformUsers.email,
+      set: {
+        passwordHash: superAdminPasswordHash,
+        isActive: true,
+      },
+    });
 
   logger.info('Baseline system database seed completed successfully (0 tenant fixtures seeded).');
 }

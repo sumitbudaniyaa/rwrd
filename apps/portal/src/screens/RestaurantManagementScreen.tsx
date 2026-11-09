@@ -292,7 +292,7 @@ export const RestaurantManagementScreen: React.FC = () => {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by restaurant name or slug..."
-              className="w-full pl-8 pr-3 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 text-stone-900 placeholder:text-stone-400 transition-colors h-8"
+              className="w-full pl-8 pr-3 py-1 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8"
             />
           </div>
 
@@ -512,7 +512,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formName}
                           onChange={(e) => handleNameChange(e.target.value)}
                           placeholder="e.g. The Bombay Canteen"
-                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
                         />
                       </div>
 
@@ -528,7 +528,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                             setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
                           }
                           placeholder="e.g. the-bombay-canteen"
-                          className="w-full px-2.5 py-1 text-xs font-mono rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                          className="w-full px-3 py-1.5 text-xs font-mono rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
                         />
                       </div>
                     </div>
@@ -543,7 +543,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formReviewUrl}
                         onChange={(e) => setFormReviewUrl(e.target.value)}
                         placeholder="https://maps.app.goo.gl/..."
-                        className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
                       />
                       <span className="text-[10px] text-stone-400 mt-1 block">
                         Must be a valid Google Maps / Place review link (un-gated).
@@ -567,7 +567,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formOwnerName}
                           onChange={(e) => setFormOwnerName(e.target.value)}
                           placeholder="e.g. Sameer Seth"
-                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
                         />
                       </div>
 
@@ -581,7 +581,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                           value={formOwnerEmail}
                           onChange={(e) => setFormOwnerEmail(e.target.value)}
                           placeholder="owner@establishment.com"
-                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                          className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
                         />
                       </div>
                     </div>
@@ -597,7 +597,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formOwnerPassword}
                         onChange={(e) => setFormOwnerPassword(e.target.value)}
                         placeholder="At least 8 characters"
-                        className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 placeholder:text-stone-400 h-8.5"
                       />
                     </div>
                   </div>
@@ -659,7 +659,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     value={suspensionReason}
                     onChange={(e) => setSuspensionReason(e.target.value)}
                     placeholder="e.g. Overdue payment on flat monthly plan, temporary operational shutdown..."
-                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 text-stone-900"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 text-stone-900 resize-none"
                   />
                 </div>
 
@@ -735,7 +735,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     value={impersonateReason}
                     onChange={(e) => setImpersonateReason(e.target.value)}
                     placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
-                    className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8 text-stone-900"
+                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 hover:border-stone-300 bg-stone-50/70 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 placeholder:text-stone-400"
                   />
                 </div>
 

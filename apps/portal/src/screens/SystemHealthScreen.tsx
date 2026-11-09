@@ -646,7 +646,7 @@ export const SystemHealthScreen: React.FC = () => {
                       value={formRestaurantId}
                       onChange={(e) => setFormRestaurantId(e.target.value)}
                       required
-                      className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                     >
                       <option value="">-- Choose Restaurant --</option>
                       {restaurantsData?.restaurants.map((r) => (
@@ -664,7 +664,7 @@ export const SystemHealthScreen: React.FC = () => {
                     <select
                       value={formKey}
                       onChange={(e) => setFormKey(e.target.value)}
-                      className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                      className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                     >
                       {PRESET_FLAG_KEYS.map((p) => (
                         <option key={p.key} value={p.key}>
@@ -686,7 +686,7 @@ export const SystemHealthScreen: React.FC = () => {
                         value={formCustomKey}
                         onChange={(e) => setFormCustomKey(e.target.value)}
                         required
-                        className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
+                        className="w-full h-8.5 px-3 text-xs bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200"
                       />
                     </div>
                   )}
@@ -713,7 +713,7 @@ export const SystemHealthScreen: React.FC = () => {
                       value={formConfigJson}
                       onChange={(e) => setFormConfigJson(e.target.value)}
                       placeholder='{"threshold": 100}'
-                      className="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 resize-none"
+                      className="w-full px-3 py-2 text-xs font-mono bg-stone-50/70 border border-stone-200/90 hover:border-stone-300 rounded-xl text-stone-900 focus:bg-white focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none transition-all duration-200 resize-none"
                     />
                   </div>
 
