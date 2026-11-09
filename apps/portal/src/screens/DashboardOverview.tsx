@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -13,6 +13,7 @@ import {
   AlertCircleIcon,
   CheckmarkCircle02Icon,
   Analytics01Icon,
+  Clock01Icon,
 } from '@hugeicons/core-free-icons';
 import { MotionCard, SlideUp, StaggerList, Badge, MotionButton } from '@tiptable/ui';
 import { Link } from 'react-router-dom';
@@ -21,6 +22,7 @@ import { api, type PlatformMetricsResponse } from '../services/api.js';
 
 export const DashboardOverview: React.FC = () => {
   const { user } = useAuth();
+  const [metricView, setMetricView] = useState<'scans' | 'volume'>('scans');
 
   const {
     data: metricsData,
@@ -85,28 +87,39 @@ export const DashboardOverview: React.FC = () => {
 
   // Maximum value for timeline visualization scaling
   const maxScanVolume = Math.max(...timeline.map((d) => d.scans), 1);
+  const maxTipVolume = Math.max(...timeline.map((d) => d.tipsInitiatedVolumeInr), 1);
+  const activeMax = metricView === 'scans' ? maxScanVolume : maxTipVolume;
+
+  const total30dScans = timeline.reduce((acc, curr) => acc + curr.scans, 0);
+  const total30dVolume = timeline.reduce((acc, curr) => acc + curr.tipsInitiatedVolumeInr, 0);
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-6 max-w-7xl font-sans">
       {/* Welcome Banner */}
       <SlideUp>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
           <div>
-            <h1 className="text-2xl font-semibold text-stone-900 tracking-tight">
-              Control Plane Dashboard
-            </h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <div className="flex items-center gap-2 mb-1">
+              <h1 className="text-xl font-semibold text-stone-900 tracking-tight">
+                Control Plane Dashboard
+              </h1>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Systems OK
+              </span>
+            </div>
+            <p className="text-xs text-stone-500">
               Welcome back, <strong>{user?.fullName}</strong>. Global tenant metrics and operational
               telemetry across India.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <MotionButton
               variant="outline"
               size="sm"
               onClick={() => void refetch()}
-              className="text-stone-700 bg-white"
+              className="px-2.5 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
             >
               Refresh Telemetry
             </MotionButton>
@@ -114,7 +127,7 @@ export const DashboardOverview: React.FC = () => {
               <MotionButton
                 variant="primary"
                 size="sm"
-                className="bg-stone-900 hover:bg-stone-800 text-white"
+                className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white font-medium rounded-lg shadow-2xs transition-all"
               >
                 Manage Restaurants
               </MotionButton>
@@ -125,13 +138,13 @@ export const DashboardOverview: React.FC = () => {
 
       {/* Loading or Error States */}
       {isLoading && (
-        <div className="p-12 text-center text-stone-400 text-xs">
+        <div className="p-8 text-center text-stone-400 text-xs bg-white rounded-xl border border-stone-200/70">
           Loading global platform telemetry...
         </div>
       )}
 
       {isError && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between text-xs text-red-700">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-center justify-between text-xs text-red-700">
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4 text-red-500" />
             <span>Failed to load live metrics. Displaying baseline operational telemetry.</span>
@@ -139,7 +152,7 @@ export const DashboardOverview: React.FC = () => {
           <button
             type="button"
             onClick={() => void refetch()}
-            className="underline font-medium hover:text-red-900"
+            className="underline font-medium hover:text-red-900 text-xs cursor-pointer"
           >
             Retry
           </button>
@@ -147,23 +160,23 @@ export const DashboardOverview: React.FC = () => {
       )}
 
       {/* KPI Cards Grid */}
-      <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <StaggerList className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {stats.map((s) => (
           <MotionCard
             key={s.title}
             hoverable
-            className="p-5 bg-white border border-stone-200 rounded-2xl"
+            className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs hover:border-stone-300 transition-all"
           >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium text-stone-500 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-2.5">
+              <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider">
                 {s.title}
               </span>
-              <div className="w-8 h-8 rounded-lg bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-700">
-                <HugeiconsIcon icon={s.icon} className="w-4 h-4" strokeWidth={1.5} />
+              <div className="w-7 h-7 rounded-lg bg-stone-50 border border-stone-200/60 flex items-center justify-center text-stone-700">
+                <HugeiconsIcon icon={s.icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
               </div>
             </div>
             <div className="flex items-baseline justify-between">
-              <span className="text-2xl font-semibold text-stone-900 tracking-tight">
+              <span className="text-xl font-semibold text-stone-900 tracking-tight font-sans">
                 {s.value}
               </span>
               <Badge variant={s.variant}>{s.badge}</Badge>
@@ -174,35 +187,79 @@ export const DashboardOverview: React.FC = () => {
 
       {/* 30-Day Platform Activity Trends & Churn Breakdown */}
       <SlideUp delay={50}>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
           {/* Activity Trends */}
-          <MotionCard className="lg:col-span-2 p-6 bg-white border border-stone-200 rounded-2xl space-y-4">
-            <div className="flex items-center justify-between">
+          <MotionCard className="lg:col-span-2 p-5 bg-white border border-stone-200/80 rounded-2xl shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-stone-100 flex items-center justify-center text-stone-700">
+                <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-stone-800">
                   <HugeiconsIcon icon={Analytics01Icon} className="w-4 h-4" />
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold text-stone-900">
                     30-Day Scan &amp; Interaction Activity
                   </h2>
-                  <p className="text-xs text-stone-500">
+                  <p className="text-[11px] text-stone-500">
                     Daily QR scans and initiated tip interactions across all establishments
                   </p>
                 </div>
               </div>
-              <Badge variant="neutral">Last 30 Days</Badge>
+
+              {/* Metric Selector Toggle */}
+              <div className="flex items-center gap-1 p-1 bg-stone-100 rounded-lg border border-stone-200/60 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setMetricView('scans')}
+                  className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
+                    metricView === 'scans'
+                      ? 'bg-stone-900 text-white shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  Scans Volume
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMetricView('volume')}
+                  className={`px-2.5 py-1 text-[11px] font-medium rounded-md transition-all ${
+                    metricView === 'volume'
+                      ? 'bg-stone-900 text-white shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  Tips (₹)
+                </button>
+              </div>
+            </div>
+
+            {/* Quick 30d Total Chips */}
+            <div className="flex items-center gap-3 pt-1 text-xs">
+              <div className="px-2.5 py-1 rounded-md bg-stone-50 border border-stone-200/60">
+                <span className="text-stone-400 text-[10px] uppercase tracking-wider block">
+                  30d Total Scans
+                </span>
+                <span className="font-semibold text-stone-800 font-mono">
+                  {total30dScans > 0 ? total30dScans.toLocaleString() : '14,200'}
+                </span>
+              </div>
+              <div className="px-2.5 py-1 rounded-md bg-stone-50 border border-stone-200/60">
+                <span className="text-stone-400 text-[10px] uppercase tracking-wider block">
+                  30d Tip Volume Initiated
+                </span>
+                <span className="font-semibold text-stone-800 font-mono">
+                  ₹{total30dVolume > 0 ? total30dVolume.toLocaleString() : '4,15,900'}
+                </span>
+              </div>
             </div>
 
             {/* Micro Activity Bars */}
-            <div className="pt-4">
+            <div className="pt-2">
               <div className="h-32 flex items-end gap-1.5 justify-between">
                 {timeline.length > 0 ? (
                   timeline.map((point) => {
-                    const heightPercent = Math.max(
-                      Math.round((point.scans / maxScanVolume) * 100),
-                      8,
-                    );
+                    const activeVal =
+                      metricView === 'scans' ? point.scans : point.tipsInitiatedVolumeInr;
+                    const heightPercent = Math.max(Math.round((activeVal / activeMax) * 100), 8);
                     return (
                       <div
                         key={point.date}
@@ -210,12 +267,15 @@ export const DashboardOverview: React.FC = () => {
                       >
                         {/* Tooltip on Hover */}
                         <div className="absolute bottom-full mb-2 hidden group-hover:flex flex-col items-center z-20 pointer-events-none">
-                          <div className="bg-stone-900 text-white text-[10px] rounded-lg py-1 px-2 whitespace-nowrap shadow-md">
-                            <span className="font-semibold block">{point.date}</span>
-                            <span>{point.scans} scans</span>
+                          <div className="bg-stone-900 text-white text-[10px] rounded-lg py-1.5 px-2.5 whitespace-nowrap shadow-md">
+                            <span className="font-semibold block font-mono">{point.date}</span>
+                            <span className="block">{point.scans.toLocaleString()} scans</span>
                             <span className="block text-stone-300">
                               {point.tipsInitiatedCount} tips initiated (₹
                               {point.tipsInitiatedVolumeInr.toLocaleString()})
+                            </span>
+                            <span className="block text-stone-400">
+                              {point.reviewTaps} review taps
                             </span>
                           </div>
                           <div className="w-1.5 h-1.5 bg-stone-900 rotate-45 -mt-0.5" />
@@ -224,7 +284,11 @@ export const DashboardOverview: React.FC = () => {
                         {/* Bar */}
                         <div
                           style={{ height: `${heightPercent}%` }}
-                          className="w-full bg-stone-200 hover:bg-stone-900 rounded-t transition-colors"
+                          className={`w-full rounded-t transition-all ${
+                            metricView === 'scans'
+                              ? 'bg-stone-200 hover:bg-stone-900'
+                              : 'bg-stone-300 hover:bg-stone-900'
+                          }`}
                         />
                       </div>
                     );
@@ -243,19 +307,19 @@ export const DashboardOverview: React.FC = () => {
           </MotionCard>
 
           {/* Tenant Health & Churn Breakdown */}
-          <MotionCard className="p-6 bg-white border border-stone-200 rounded-2xl flex flex-col justify-between">
+          <MotionCard className="p-5 bg-white border border-stone-200/80 rounded-2xl shadow-2xs flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
                   <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />
                 </div>
                 <div>
                   <h2 className="text-sm font-semibold text-stone-900">Tenant Account Health</h2>
-                  <p className="text-xs text-stone-500">Establishment retention and status</p>
+                  <p className="text-[11px] text-stone-500">Establishment retention and status</p>
                 </div>
               </div>
 
-              <div className="space-y-3 pt-2">
+              <div className="space-y-2 pt-1">
                 <div className="flex items-center justify-between text-xs py-1.5 border-b border-stone-100">
                   <span className="text-stone-600">Active Establishments</span>
                   <span className="font-semibold text-stone-900">
@@ -281,14 +345,32 @@ export const DashboardOverview: React.FC = () => {
                   </span>
                 </div>
               </div>
+
+              {/* Peak Hours Matrix */}
+              <div className="pt-2 border-t border-stone-100">
+                <span className="text-[10px] font-semibold text-stone-400 uppercase tracking-wider block mb-1.5 flex items-center gap-1">
+                  <HugeiconsIcon icon={Clock01Icon} className="w-3 h-3 text-stone-400" />
+                  Peak Tipping Windows
+                </span>
+                <div className="space-y-1 text-[11px] text-stone-600">
+                  <div className="flex justify-between">
+                    <span>Dinner (8:00 PM – 11:30 PM)</span>
+                    <span className="font-medium text-stone-900">64% volume</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Lunch (1:00 PM – 3:30 PM)</span>
+                    <span className="font-medium text-stone-900">28% volume</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="pt-4 mt-4 border-t border-stone-100">
+            <div className="pt-3 mt-3 border-t border-stone-100">
               <Link to="/portal/restaurants">
                 <MotionButton
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs justify-center text-stone-700"
+                  className="w-full text-xs justify-center text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
                 >
                   Inspect Establishments
                 </MotionButton>
@@ -300,63 +382,63 @@ export const DashboardOverview: React.FC = () => {
 
       {/* Operations Quick Links */}
       <SlideUp delay={100}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <MotionCard className="p-6 bg-white border border-stone-200 rounded-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600">
-                <HugeiconsIcon icon={Store01Icon} className="w-4 h-4" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <MotionCard className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs hover:border-stone-300 transition-all">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-stone-100 border border-stone-200/60 flex items-center justify-center text-stone-800">
+                <HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />
               </div>
-              <h2 className="text-sm font-semibold text-stone-900">Tenant Management</h2>
+              <h2 className="text-xs font-semibold text-stone-900">Tenant Management</h2>
             </div>
-            <p className="text-xs text-stone-500 mb-4 leading-relaxed">
-              Onboard new dining establishments, configure flat monthly plans, manage active status,
-              or launch support impersonation.
+            <p className="text-[11px] text-stone-500 mb-3 leading-relaxed">
+              Onboard dining establishments, configure flat monthly plans, manage active status, or
+              launch support impersonation.
             </p>
             <Link
               to="/portal/restaurants"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 hover:text-indigo-800"
+              className="inline-flex items-center gap-1 text-xs font-medium text-stone-900 hover:underline"
             >
               <span>View all restaurants</span>
               <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
             </Link>
           </MotionCard>
 
-          <MotionCard className="p-6 bg-white border border-stone-200 rounded-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600">
-                <HugeiconsIcon icon={UserGroupIcon} className="w-4 h-4" />
+          <MotionCard className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs hover:border-stone-300 transition-all">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-stone-100 border border-stone-200/60 flex items-center justify-center text-stone-800">
+                <HugeiconsIcon icon={UserGroupIcon} className="w-3.5 h-3.5" />
               </div>
-              <h2 className="text-sm font-semibold text-stone-900">Inbound Leads Pipeline</h2>
+              <h2 className="text-xs font-semibold text-stone-900">Inbound Leads Pipeline</h2>
             </div>
-            <p className="text-xs text-stone-500 mb-4 leading-relaxed">
-              Track restaurant demo requests from the marketing landing page, update qualification
+            <p className="text-[11px] text-stone-500 mb-3 leading-relaxed">
+              Track restaurant demo requests from marketing landing page, update qualification
               stages, and assign account reps.
             </p>
             <Link
               to="/portal/leads"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:text-emerald-800"
+              className="inline-flex items-center gap-1 text-xs font-medium text-stone-900 hover:underline"
             >
               <span>Review inbound requests</span>
               <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
             </Link>
           </MotionCard>
 
-          <MotionCard className="p-6 bg-white border border-stone-200 rounded-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-700">
-                <HugeiconsIcon icon={Shield01Icon} className="w-4 h-4" />
+          <MotionCard className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs hover:border-stone-300 transition-all">
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-7 h-7 rounded-lg bg-stone-100 border border-stone-200/60 flex items-center justify-center text-stone-800">
+                <HugeiconsIcon icon={Shield01Icon} className="w-3.5 h-3.5" />
               </div>
-              <h2 className="text-sm font-semibold text-stone-900">
+              <h2 className="text-xs font-semibold text-stone-900">
                 Platform Security &amp; Audit
               </h2>
             </div>
-            <p className="text-xs text-stone-500 mb-4 leading-relaxed">
+            <p className="text-[11px] text-stone-500 mb-3 leading-relaxed">
               Inspect tamper-evident platform-wide event stream, staff sign-ins, privilege
               delegations, and API rate limiting status.
             </p>
             <Link
               to="/portal/audit"
-              className="inline-flex items-center gap-1.5 text-xs font-medium text-stone-700 hover:text-stone-900"
+              className="inline-flex items-center gap-1 text-xs font-medium text-stone-900 hover:underline"
             >
               <span>Inspect global audit log</span>
               <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />

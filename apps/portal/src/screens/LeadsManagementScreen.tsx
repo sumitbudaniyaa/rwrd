@@ -14,7 +14,7 @@ import {
   Cancel01Icon,
   ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, Badge, MotionButton } from '@tiptable/ui';
+import { SlideUp, FadeIn, Badge } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
 import {
   api,
@@ -108,29 +108,33 @@ export const LeadsManagementScreen: React.FC = () => {
     <div className="space-y-6">
       {/* Page Header */}
       <SlideUp delay={0.05}>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
+            <h1 className="text-xl font-semibold tracking-tight text-stone-900 flex items-center gap-2">
               <HugeiconsIcon
                 icon={UserGroupIcon}
-                className="w-6 h-6 text-stone-800"
+                className="w-5 h-5 text-stone-900"
                 strokeWidth={1.5}
               />
               Inbound Leads & Demo Pipeline
             </h1>
-            <p className="text-sm text-stone-500 mt-1">
+            <p className="text-xs text-stone-500 mt-0.5">
               Prospective restaurant partner inquiries from the marketing demo request form.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {isRestrictedRole && <Badge variant="neutral">Read-only Sales View</Badge>}
             <button
               type="button"
               onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+              className="inline-flex items-center gap-1.5 h-8 px-2.5 text-xs font-medium text-stone-700 bg-white border border-stone-200/90 rounded-lg hover:bg-stone-50 transition-colors shadow-2xs"
             >
-              <HugeiconsIcon icon={RefreshIcon} className="w-3.5 h-3.5" strokeWidth={1.5} />
+              <HugeiconsIcon
+                icon={RefreshIcon}
+                className="w-3.5 h-3.5 text-stone-500"
+                strokeWidth={1.5}
+              />
               Refresh
             </button>
           </div>
@@ -140,11 +144,11 @@ export const LeadsManagementScreen: React.FC = () => {
       {/* Notifications */}
       {successMessage && (
         <FadeIn>
-          <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-sm">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs">
+            <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={CheckmarkCircle02Icon}
-                className="w-5 h-5 text-emerald-600 shrink-0"
+                className="w-4 h-4 text-emerald-600 shrink-0"
                 strokeWidth={1.5}
               />
               <span>{successMessage}</span>
@@ -153,7 +157,7 @@ export const LeadsManagementScreen: React.FC = () => {
               onClick={() => setSuccessMessage(null)}
               className="text-emerald-700 hover:text-emerald-900"
             >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
+              <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
           </div>
         </FadeIn>
@@ -161,11 +165,11 @@ export const LeadsManagementScreen: React.FC = () => {
 
       {errorMessage && (
         <FadeIn>
-          <div className="flex items-center justify-between p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-sm">
-            <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-900 text-xs">
+            <div className="flex items-center gap-2">
               <HugeiconsIcon
                 icon={AlertCircleIcon}
-                className="w-5 h-5 text-rose-600 shrink-0"
+                className="w-4 h-4 text-rose-600 shrink-0"
                 strokeWidth={1.5}
               />
               <span>{errorMessage}</span>
@@ -174,7 +178,7 @@ export const LeadsManagementScreen: React.FC = () => {
               onClick={() => setErrorMessage(null)}
               className="text-rose-700 hover:text-rose-900"
             >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
+              <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
             </button>
           </div>
         </FadeIn>
@@ -182,54 +186,58 @@ export const LeadsManagementScreen: React.FC = () => {
 
       {/* Pipeline Stage Summary KPIs */}
       <SlideUp delay={0.1}>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="p-3.5 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500">
               <span>New Inquiries</span>
-              <span className="w-2 h-2 rounded-full bg-amber-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{newCount}</p>
-            <p className="text-xs text-stone-400 mt-0.5">Awaiting initial outreach</p>
+            <p className="text-xl font-semibold tracking-tight text-stone-900 mt-1.5">{newCount}</p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Awaiting initial outreach</p>
           </div>
 
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-3.5 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500">
               <span>In Pipeline</span>
-              <span className="w-2 h-2 rounded-full bg-indigo-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{inProgressCount}</p>
-            <p className="text-xs text-stone-400 mt-0.5">Contacted or demo set</p>
+            <p className="text-xl font-semibold tracking-tight text-stone-900 mt-1.5">
+              {inProgressCount}
+            </p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Contacted or demo set</p>
           </div>
 
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-3.5 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500">
               <span>Won / Converted</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{wonCount}</p>
-            <p className="text-xs text-stone-400 mt-0.5">Ready for onboarding</p>
+            <p className="text-xl font-semibold tracking-tight text-stone-900 mt-1.5">{wonCount}</p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Ready for onboarding</p>
           </div>
 
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-3.5 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500">
               <span>Closed / Lost</span>
-              <span className="w-2 h-2 rounded-full bg-stone-300" />
+              <span className="w-1.5 h-1.5 rounded-full bg-stone-300" />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{lostCount}</p>
-            <p className="text-xs text-stone-400 mt-0.5">Archived or disqualified</p>
+            <p className="text-xl font-semibold tracking-tight text-stone-900 mt-1.5">
+              {lostCount}
+            </p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Archived or disqualified</p>
           </div>
         </div>
       </SlideUp>
 
       {/* Main Table / Pipeline Section */}
       <SlideUp delay={0.15}>
-        <div className="bg-white border border-stone-200 rounded-2xl shadow-xs overflow-hidden">
+        <div className="bg-white border border-stone-200/80 rounded-xl shadow-2xs overflow-hidden">
           {/* Filter & Search Bar */}
-          <div className="p-4 border-b border-stone-200 flex flex-col md:flex-row items-center justify-between gap-3">
-            <div className="relative w-full md:w-72">
+          <div className="p-3 border-b border-stone-200/80 flex flex-col md:flex-row items-center justify-between gap-2.5">
+            <div className="relative w-full md:w-64">
               <HugeiconsIcon
                 icon={Search01Icon}
-                className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"
+                className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2"
                 strokeWidth={1.5}
               />
               <input
@@ -237,12 +245,12 @@ export const LeadsManagementScreen: React.FC = () => {
                 placeholder="Search leads by name, city, phone..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                className="w-full h-8 pl-8 pr-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
               />
             </div>
 
             {/* Stage Filter Chips */}
-            <div className="flex items-center gap-1 overflow-x-auto w-full md:w-auto bg-stone-100 p-0.5 rounded-lg border border-stone-200">
+            <div className="flex items-center gap-1 overflow-x-auto w-full md:w-auto bg-stone-100/80 p-0.5 rounded-lg border border-stone-200/70">
               {(
                 [
                   { label: 'All', value: 'all' },
@@ -257,10 +265,10 @@ export const LeadsManagementScreen: React.FC = () => {
                   key={tab.value}
                   type="button"
                   onClick={() => setStatusFilter(tab.value)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${
+                  className={`px-2.5 py-1 text-xs font-medium rounded-md whitespace-nowrap transition-colors ${
                     statusFilter === tab.value
-                      ? 'bg-white text-stone-900 shadow-xs'
-                      : 'text-stone-600 hover:text-stone-900'
+                      ? 'bg-stone-900 text-white shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-200/50'
                   }`}
                 >
                   {tab.label}
@@ -272,14 +280,14 @@ export const LeadsManagementScreen: React.FC = () => {
           {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase font-semibold">
+              <thead className="bg-stone-50/70 border-b border-stone-200 text-stone-500 uppercase text-[10px] tracking-wider font-semibold">
                 <tr>
-                  <th className="py-3 px-4">Restaurant & Location</th>
-                  <th className="py-3 px-4">Contact Details</th>
-                  <th className="py-3 px-4">Notes</th>
-                  <th className="py-3 px-4">Stage</th>
-                  <th className="py-3 px-4">Received</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-2.5 px-3.5">Restaurant & Location</th>
+                  <th className="py-2.5 px-3.5">Contact Details</th>
+                  <th className="py-2.5 px-3.5">Notes</th>
+                  <th className="py-2.5 px-3.5">Stage</th>
+                  <th className="py-2.5 px-3.5">Received</th>
+                  <th className="py-2.5 px-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-stone-100">
@@ -299,16 +307,16 @@ export const LeadsManagementScreen: React.FC = () => {
                   leads.map((lead) => (
                     <tr
                       key={lead.id}
-                      className="hover:bg-stone-50/50 transition-colors cursor-pointer"
+                      className="hover:bg-stone-50/60 transition-colors cursor-pointer"
                       onClick={() => handleOpenLead(lead)}
                     >
-                      <td className="py-3 px-4">
+                      <td className="py-2.5 px-3.5">
                         <p className="font-semibold text-stone-900">{lead.restaurantName}</p>
                         <p className="text-[11px] text-stone-500 font-medium">{lead.city}</p>
                       </td>
-                      <td className="py-3 px-4" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-2.5 px-3.5" onClick={(e) => e.stopPropagation()}>
                         <p className="font-medium text-stone-800">{lead.contactName}</p>
-                        <div className="flex items-center gap-3 mt-1 text-[11px] text-stone-500">
+                        <div className="flex items-center gap-3 mt-0.5 text-[11px] text-stone-500">
                           <a
                             href={`tel:${lead.phone}`}
                             className="inline-flex items-center gap-1 hover:text-stone-900"
@@ -335,15 +343,15 @@ export const LeadsManagementScreen: React.FC = () => {
                           </a>
                         </div>
                       </td>
-                      <td className="py-3 px-4 max-w-xs truncate text-stone-500">
+                      <td className="py-2.5 px-3.5 max-w-xs truncate text-stone-500 text-[11px]">
                         {lead.notes || <span className="text-stone-300 italic">No notes</span>}
                       </td>
-                      <td className="py-3 px-4">{getStatusBadge(lead.status)}</td>
-                      <td className="py-3 px-4 font-mono text-[11px] text-stone-400">
+                      <td className="py-2.5 px-3.5">{getStatusBadge(lead.status)}</td>
+                      <td className="py-2.5 px-3.5 font-mono text-[11px] text-stone-400">
                         {new Date(lead.createdAt).toLocaleDateString()}
                       </td>
-                      <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="inline-flex items-center gap-2 justify-end">
+                      <td className="py-2.5 px-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="inline-flex items-center gap-1.5 justify-end">
                           {!isRestrictedRole && (
                             <select
                               value={lead.status}
@@ -353,7 +361,7 @@ export const LeadsManagementScreen: React.FC = () => {
                                   data: { status: e.target.value as LeadStatus },
                                 })
                               }
-                              className="px-2 py-1 text-xs bg-stone-50 border border-stone-200 rounded-md text-stone-700 hover:bg-stone-100 focus:outline-none"
+                              className="h-7 px-2 text-[11px] bg-white border border-stone-200 rounded-lg text-stone-800 hover:border-stone-300 focus:outline-none focus:border-stone-900"
                             >
                               <option value="new">New</option>
                               <option value="contacted">Contacted</option>
@@ -365,12 +373,12 @@ export const LeadsManagementScreen: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => handleOpenLead(lead)}
-                            className="p-1 text-stone-400 hover:text-stone-700 rounded-md hover:bg-stone-100"
+                            className="p-1 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
                             title="View details"
                           >
                             <HugeiconsIcon
                               icon={ArrowRight01Icon}
-                              className="w-4 h-4"
+                              className="w-3.5 h-3.5"
                               strokeWidth={1.5}
                             />
                           </button>
@@ -389,51 +397,59 @@ export const LeadsManagementScreen: React.FC = () => {
       {selectedLead &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
             <FadeIn>
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-lg w-full p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <div className="bg-white rounded-xl border border-stone-200/90 shadow-xl max-w-lg w-full p-5 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
                   <div>
-                    <h3 className="text-base font-bold text-stone-900">
+                    <h3 className="text-sm font-semibold text-stone-900">
                       {selectedLead.restaurantName}
                     </h3>
-                    <p className="text-xs text-stone-500">
-                      Lead ID: <span className="font-mono">{selectedLead.id}</span>
+                    <p className="text-[11px] text-stone-500">
+                      Lead ID: <span className="font-mono text-stone-700">{selectedLead.id}</span>
                     </p>
                   </div>
                   <button
                     type="button"
                     onClick={() => setSelectedLead(null)}
-                    className="text-stone-400 hover:text-stone-600"
+                    className="p-1 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-colors"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
                   </button>
                 </div>
 
                 {/* Lead Info Grid */}
-                <div className="grid grid-cols-2 gap-3 text-xs bg-stone-50 p-3.5 rounded-xl border border-stone-200">
+                <div className="grid grid-cols-2 gap-2.5 text-xs bg-stone-50/70 p-3 rounded-lg border border-stone-200/80">
                   <div>
-                    <span className="text-stone-400 block mb-0.5">Contact Person</span>
-                    <p className="font-semibold text-stone-900">{selectedLead.contactName}</p>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold tracking-wider mb-0.5">
+                      Contact Person
+                    </span>
+                    <p className="font-medium text-stone-900">{selectedLead.contactName}</p>
                   </div>
                   <div>
-                    <span className="text-stone-400 block mb-0.5">City</span>
-                    <p className="font-semibold text-stone-900">{selectedLead.city}</p>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold tracking-wider mb-0.5">
+                      City
+                    </span>
+                    <p className="font-medium text-stone-900">{selectedLead.city}</p>
                   </div>
                   <div>
-                    <span className="text-stone-400 block mb-0.5">Phone</span>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold tracking-wider mb-0.5">
+                      Phone
+                    </span>
                     <a
                       href={`tel:${selectedLead.phone}`}
-                      className="font-mono text-indigo-600 hover:underline"
+                      className="font-mono text-stone-900 hover:underline"
                     >
                       {selectedLead.phone}
                     </a>
                   </div>
                   <div>
-                    <span className="text-stone-400 block mb-0.5">Email</span>
+                    <span className="text-stone-400 block text-[10px] uppercase font-semibold tracking-wider mb-0.5">
+                      Email
+                    </span>
                     <a
                       href={`mailto:${selectedLead.email}`}
-                      className="font-mono text-indigo-600 hover:underline"
+                      className="font-mono text-stone-900 hover:underline"
                     >
                       {selectedLead.email}
                     </a>
@@ -442,10 +458,10 @@ export const LeadsManagementScreen: React.FC = () => {
 
                 {/* Stage Transition */}
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                  <label className="block text-[11px] font-medium text-stone-700 mb-1.5">
                     Pipeline Stage
                   </label>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-1.5">
                     {(['new', 'contacted', 'demo_scheduled', 'won', 'lost'] as LeadStatus[]).map(
                       (st) => (
                         <button
@@ -462,10 +478,10 @@ export const LeadsManagementScreen: React.FC = () => {
                               data: payload,
                             });
                           }}
-                          className={`px-2.5 py-1 text-xs font-semibold rounded-lg capitalize border transition-colors ${
+                          className={`px-2.5 py-1 text-[11px] font-medium rounded-lg capitalize border transition-colors ${
                             selectedLead.status === st
-                              ? 'bg-stone-900 text-white border-stone-900'
-                              : 'bg-stone-50 text-stone-600 border-stone-200 hover:bg-stone-100'
+                              ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+                              : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
                           }`}
                         >
                           {st.replace('_', ' ')}
@@ -477,7 +493,7 @@ export const LeadsManagementScreen: React.FC = () => {
 
                 {/* Internal Notes Editor */}
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">
+                  <label className="block text-[11px] font-medium text-stone-700 mb-1">
                     Sales Notes & Discussion Record
                   </label>
                   <textarea
@@ -486,7 +502,7 @@ export const LeadsManagementScreen: React.FC = () => {
                     disabled={isRestrictedRole}
                     onChange={(e) => setEditingNotes(e.target.value)}
                     placeholder="Record call notes, demo feedback, or onboarding prerequisites..."
-                    className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white disabled:opacity-60"
+                    className="w-full px-2.5 py-1.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 resize-none disabled:opacity-60"
                   />
                 </div>
 
@@ -497,7 +513,7 @@ export const LeadsManagementScreen: React.FC = () => {
                     onClick={() => {
                       navigate('/portal/restaurants');
                     }}
-                    className="inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-800 font-semibold"
+                    className="inline-flex items-center gap-1 text-xs text-stone-900 hover:text-black font-semibold underline underline-offset-2"
                   >
                     Onboard as Restaurant &rarr;
                   </button>
@@ -506,14 +522,13 @@ export const LeadsManagementScreen: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedLead(null)}
-                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 font-medium transition-colors"
                     >
                       Close
                     </button>
                     {!isRestrictedRole && (
-                      <MotionButton
+                      <button
                         type="button"
-                        variant="primary"
                         disabled={updateStatusMutation.isPending}
                         onClick={() => {
                           const payload: UpdateLeadStatusInput = {
@@ -527,10 +542,10 @@ export const LeadsManagementScreen: React.FC = () => {
                             data: payload,
                           });
                         }}
-                        className="!px-3.5 !py-1.5 !text-xs !bg-stone-900 hover:!bg-stone-800"
+                        className="px-3.5 py-1.5 text-xs font-medium text-white bg-stone-900 hover:bg-black rounded-lg transition-colors shadow-2xs disabled:opacity-50"
                       >
                         {updateStatusMutation.isPending ? 'Saving...' : 'Save Notes'}
-                      </MotionButton>
+                      </button>
                     )}
                   </div>
                 </div>

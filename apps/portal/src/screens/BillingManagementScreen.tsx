@@ -208,7 +208,7 @@ export const BillingManagementScreen: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             {isRestrictedRole ? (
               <Badge variant="neutral">Read-only Finance Access</Badge>
             ) : (
@@ -216,11 +216,11 @@ export const BillingManagementScreen: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsSweepModalOpen(true)}
-                  className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 transition-colors shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 transition-colors shadow-2xs"
                 >
                   <HugeiconsIcon
                     icon={AlertSquareIcon}
-                    className="w-4 h-4 text-amber-700"
+                    className="w-3.5 h-3.5 text-amber-700"
                     strokeWidth={1.5}
                   />
                   Run Grace Period Sweep
@@ -229,9 +229,9 @@ export const BillingManagementScreen: React.FC = () => {
                   type="button"
                   variant="primary"
                   onClick={() => setIsCreateInvoiceOpen(true)}
-                  className="!px-3.5 !py-2 !text-xs !bg-stone-900 hover:!bg-stone-800"
+                  className="px-3 py-1.5 text-xs bg-stone-900 hover:bg-black text-white font-medium rounded-lg shadow-2xs flex items-center gap-1.5"
                 >
-                  <HugeiconsIcon icon={Add01Icon} className="w-4 h-4 mr-1.5" strokeWidth={1.5} />
+                  <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
                   Create Invoice
                 </MotionButton>
               </>
@@ -286,54 +286,54 @@ export const BillingManagementScreen: React.FC = () => {
       {/* KPI Stats Overview */}
       <SlideUp delay={0.1}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 uppercase tracking-wider">
               <span>Active Subscriptions</span>
               <HugeiconsIcon
                 icon={CreditCardIcon}
-                className="w-4 h-4 text-emerald-600"
+                className="w-3.5 h-3.5 text-emerald-600"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{activeSubsCount}</p>
-            <p className="text-xs text-stone-400 mt-0.5">Recurring flat SaaS establishments</p>
+            <p className="text-xl font-bold text-stone-900 mt-2">{activeSubsCount}</p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Recurring flat SaaS establishments</p>
           </div>
 
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 uppercase tracking-wider">
               <span>Past Due / Delinquent</span>
               <HugeiconsIcon
                 icon={AlertCircleIcon}
-                className="w-4 h-4 text-rose-600"
+                className="w-3.5 h-3.5 text-rose-600"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{pastDueSubsCount}</p>
-            <p className="text-xs text-rose-600 font-medium mt-0.5">Subject to QR pause</p>
+            <p className="text-xl font-bold text-stone-900 mt-2">{pastDueSubsCount}</p>
+            <p className="text-[11px] text-rose-600 font-medium mt-0.5">Subject to QR pause</p>
           </div>
 
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 uppercase tracking-wider">
               <span>Pending Invoices</span>
               <HugeiconsIcon
                 icon={Invoice01Icon}
-                className="w-4 h-4 text-amber-600"
+                className="w-3.5 h-3.5 text-amber-600"
                 strokeWidth={1.5}
               />
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">{unpaidInvoicesCount}</p>
-            <p className="text-xs text-stone-400 mt-0.5">Awaiting settlement</p>
+            <p className="text-xl font-bold text-stone-900 mt-2">{unpaidInvoicesCount}</p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Awaiting settlement</p>
           </div>
 
-          <div className="p-4 bg-white border border-stone-200 rounded-xl shadow-xs">
-            <div className="flex items-center justify-between text-xs font-medium text-stone-500">
+          <div className="p-4 bg-white border border-stone-200/80 rounded-xl shadow-2xs">
+            <div className="flex items-center justify-between text-[11px] font-medium text-stone-500 uppercase tracking-wider">
               <span>Unpaid INR Volume</span>
-              <span className="text-xs font-semibold text-stone-400">INR</span>
+              <span className="text-[10px] font-semibold text-stone-400 font-mono">INR</span>
             </div>
-            <p className="text-2xl font-bold text-stone-900 mt-2">
+            <p className="text-xl font-bold text-stone-900 mt-2 font-mono">
               ₹{unpaidInvoicesSum.toLocaleString()}
             </p>
-            <p className="text-xs text-stone-400 mt-0.5">Outstanding accounts receivable</p>
+            <p className="text-[11px] text-stone-400 mt-0.5">Outstanding accounts receivable</p>
           </div>
         </div>
       </SlideUp>
@@ -369,13 +369,13 @@ export const BillingManagementScreen: React.FC = () => {
       {/* Subscriptions Tab */}
       {activeTab === 'subscriptions' && (
         <SlideUp delay={0.2}>
-          <div className="bg-white border border-stone-200 rounded-2xl shadow-xs overflow-hidden">
+          <div className="bg-white border border-stone-200/80 rounded-xl shadow-2xs overflow-hidden">
             {/* Toolbar */}
-            <div className="p-4 border-b border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="p-3 border-b border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="relative w-full sm:w-72">
                 <HugeiconsIcon
                   icon={Search01Icon}
-                  className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"
+                  className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2"
                   strokeWidth={1.5}
                 />
                 <input
@@ -383,16 +383,16 @@ export const BillingManagementScreen: React.FC = () => {
                   placeholder="Filter subscriptions..."
                   value={subSearch}
                   onChange={(e) => setSubSearch(e.target.value)}
-                  className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                  className="w-full pl-8 pr-3 py-1 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
                 />
               </div>
 
               <button
                 type="button"
                 onClick={() => refetchSubs()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 border border-stone-200 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs text-stone-600 hover:text-stone-900 border border-stone-200 rounded-lg bg-white hover:bg-stone-50 transition-colors h-8"
               >
-                <HugeiconsIcon icon={RefreshIcon} className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <HugeiconsIcon icon={RefreshIcon} className="w-3 h-3" strokeWidth={1.5} />
                 Refresh
               </button>
             </div>
@@ -400,48 +400,48 @@ export const BillingManagementScreen: React.FC = () => {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase font-semibold">
+                <thead className="bg-stone-50/80 border-b border-stone-200 text-stone-500 uppercase text-[11px] font-semibold">
                   <tr>
-                    <th className="py-3 px-4">Restaurant</th>
-                    <th className="py-3 px-4">Plan Tier</th>
-                    <th className="py-3 px-4">Monthly Fee</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4">Current Period</th>
-                    <th className="py-3 px-4 text-right">Account Status</th>
+                    <th className="py-2.5 px-4">Restaurant</th>
+                    <th className="py-2.5 px-4">Plan Tier</th>
+                    <th className="py-2.5 px-4">Monthly Fee</th>
+                    <th className="py-2.5 px-4">Status</th>
+                    <th className="py-2.5 px-4">Current Period</th>
+                    <th className="py-2.5 px-4 text-right">Account Status</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
                   {isLoadingSubs ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-stone-400">
+                      <td colSpan={6} className="py-8 text-center text-stone-400 text-xs">
                         Loading subscriptions...
                       </td>
                     </tr>
                   ) : filteredSubs.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="py-8 text-center text-stone-400">
+                      <td colSpan={6} className="py-8 text-center text-stone-400 text-xs">
                         No subscription records found.
                       </td>
                     </tr>
                   ) : (
                     filteredSubs.map((sub) => (
                       <tr key={sub.id} className="hover:bg-stone-50/50 transition-colors">
-                        <td className="py-3 px-4">
+                        <td className="py-2.5 px-4">
                           <p className="font-semibold text-stone-900">{sub.restaurantName}</p>
-                          <p className="text-[11px] text-stone-400 font-mono">
+                          <p className="text-[10px] text-stone-400 font-mono">
                             /{sub.restaurantSlug}
                           </p>
                         </td>
-                        <td className="py-3 px-4 font-medium text-stone-700">{sub.planName}</td>
-                        <td className="py-3 px-4 font-semibold text-stone-900">
+                        <td className="py-2.5 px-4 font-medium text-stone-700">{sub.planName}</td>
+                        <td className="py-2.5 px-4 font-semibold text-stone-900 font-mono">
                           ₹{sub.monthlyFeeInr}/mo
                         </td>
-                        <td className="py-3 px-4">{getSubStatusBadge(sub.status)}</td>
-                        <td className="py-3 px-4 text-stone-500 font-mono text-[11px]">
+                        <td className="py-2.5 px-4">{getSubStatusBadge(sub.status)}</td>
+                        <td className="py-2.5 px-4 text-stone-500 font-mono text-[11px]">
                           {new Date(sub.currentPeriodStart).toLocaleDateString()} &rarr;{' '}
                           {new Date(sub.currentPeriodEnd).toLocaleDateString()}
                         </td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-2.5 px-4 text-right">
                           {sub.isRestaurantSuspended ? (
                             <Badge variant="danger">Suspended</Badge>
                           ) : (
@@ -461,14 +461,14 @@ export const BillingManagementScreen: React.FC = () => {
       {/* Invoices Tab */}
       {activeTab === 'invoices' && (
         <SlideUp delay={0.2}>
-          <div className="bg-white border border-stone-200 rounded-2xl shadow-xs overflow-hidden">
+          <div className="bg-white border border-stone-200/80 rounded-xl shadow-2xs overflow-hidden">
             {/* Toolbar */}
-            <div className="p-4 border-b border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="p-3 border-b border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
                 <div className="relative w-full sm:w-64">
                   <HugeiconsIcon
                     icon={Search01Icon}
-                    className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2"
+                    className="w-3.5 h-3.5 text-stone-400 absolute left-2.5 top-1/2 -translate-y-1/2"
                     strokeWidth={1.5}
                   />
                   <input
@@ -476,19 +476,19 @@ export const BillingManagementScreen: React.FC = () => {
                     placeholder="Search invoices..."
                     value={invoiceSearch}
                     onChange={(e) => setInvoiceSearch(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                    className="w-full pl-8 pr-3 py-1 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
                   />
                 </div>
 
-                <div className="flex items-center gap-1 bg-stone-100 p-0.5 rounded-lg border border-stone-200 shrink-0">
+                <div className="flex items-center gap-1 bg-stone-100 p-1 rounded-lg border border-stone-200/60 shrink-0">
                   {(['all', 'unpaid', 'paid', 'void'] as InvoiceStatusFilter[]).map((status) => (
                     <button
                       key={status}
                       type="button"
                       onClick={() => setInvoiceStatusFilter(status)}
-                      className={`px-2.5 py-1 text-xs font-medium rounded-md capitalize transition-colors ${
+                      className={`px-2 py-0.5 text-xs font-medium rounded-md capitalize transition-colors ${
                         invoiceStatusFilter === status
-                          ? 'bg-white text-stone-900 shadow-xs'
+                          ? 'bg-white text-stone-900 shadow-2xs'
                           : 'text-stone-600 hover:text-stone-900'
                       }`}
                     >
@@ -511,14 +511,14 @@ export const BillingManagementScreen: React.FC = () => {
             {/* Table */}
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-stone-50 border-b border-stone-200 text-stone-600 uppercase font-semibold">
+                <thead className="bg-stone-50/70 border-b border-stone-200 text-stone-500 uppercase text-[10px] tracking-wider font-semibold">
                   <tr>
-                    <th className="py-3 px-4">Invoice #</th>
-                    <th className="py-3 px-4">Restaurant</th>
-                    <th className="py-3 px-4">Amount</th>
-                    <th className="py-3 px-4">Due Date</th>
-                    <th className="py-3 px-4">Status</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
+                    <th className="py-2.5 px-3.5">Invoice #</th>
+                    <th className="py-2.5 px-3.5">Restaurant</th>
+                    <th className="py-2.5 px-3.5">Amount</th>
+                    <th className="py-2.5 px-3.5">Due Date</th>
+                    <th className="py-2.5 px-3.5">Status</th>
+                    <th className="py-2.5 px-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-stone-100">
@@ -536,21 +536,21 @@ export const BillingManagementScreen: React.FC = () => {
                     </tr>
                   ) : (
                     filteredInvoices.map((inv) => (
-                      <tr key={inv.id} className="hover:bg-stone-50/50 transition-colors">
-                        <td className="py-3 px-4 font-mono font-semibold text-stone-900">
+                      <tr key={inv.id} className="hover:bg-stone-50/60 transition-colors">
+                        <td className="py-2 px-3.5 font-mono font-semibold text-stone-900">
                           {inv.invoiceNumber}
                         </td>
-                        <td className="py-3 px-4 font-medium text-stone-800">
+                        <td className="py-2 px-3.5 font-medium text-stone-800">
                           {inv.restaurantName}
                         </td>
-                        <td className="py-3 px-4 font-semibold text-stone-900">
+                        <td className="py-2 px-3.5 font-semibold text-stone-900">
                           ₹{inv.amountInr.toLocaleString()}
                         </td>
-                        <td className="py-3 px-4 font-mono text-[11px] text-stone-500">
+                        <td className="py-2 px-3.5 font-mono text-[11px] text-stone-500">
                           {inv.dueDate}
                         </td>
-                        <td className="py-3 px-4">{getInvoiceStatusBadge(inv.status)}</td>
-                        <td className="py-3 px-4 text-right">
+                        <td className="py-2 px-3.5">{getInvoiceStatusBadge(inv.status)}</td>
+                        <td className="py-2 px-3.5 text-right">
                           {inv.status === 'unpaid' && !isRestrictedRole && (
                             <div className="inline-flex items-center gap-1.5 justify-end">
                               <button
@@ -562,7 +562,7 @@ export const BillingManagementScreen: React.FC = () => {
                                     action: 'mark_paid',
                                   })
                                 }
-                                className="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors"
+                                className="px-2.5 py-1 text-[11px] font-medium rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 transition-colors"
                               >
                                 Mark Paid
                               </button>
@@ -575,7 +575,7 @@ export const BillingManagementScreen: React.FC = () => {
                                     action: 'void',
                                   })
                                 }
-                                className="px-2 py-1 text-xs font-medium rounded-md text-stone-500 hover:text-stone-800 hover:bg-stone-100 transition-colors"
+                                className="px-2 py-1 text-[11px] font-medium rounded-lg text-stone-500 hover:text-stone-800 hover:bg-stone-100 border border-transparent hover:border-stone-200 transition-colors"
                               >
                                 Void
                               </button>
@@ -601,14 +601,14 @@ export const BillingManagementScreen: React.FC = () => {
       {isCreateInvoiceOpen &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
             <FadeIn>
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
-                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                  <h3 className="text-base font-bold text-stone-900 flex items-center gap-2">
+              <div className="bg-white rounded-xl border border-stone-200/90 shadow-xl max-w-md w-full p-5 space-y-3.5">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
+                  <h3 className="text-sm font-semibold text-stone-900 flex items-center gap-2">
                     <HugeiconsIcon
                       icon={Invoice01Icon}
-                      className="w-5 h-5 text-stone-800"
+                      className="w-4 h-4 text-stone-900"
                       strokeWidth={1.5}
                     />
                     Generate Invoice
@@ -616,9 +616,9 @@ export const BillingManagementScreen: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsCreateInvoiceOpen(false)}
-                    className="text-stone-400 hover:text-stone-600"
+                    className="p-1 text-stone-400 hover:text-stone-600 rounded-lg hover:bg-stone-100 transition-colors"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" strokeWidth={1.5} />
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
                   </button>
                 </div>
 
@@ -639,17 +639,17 @@ export const BillingManagementScreen: React.FC = () => {
                     }
                     createInvoiceMutation.mutate(payload);
                   }}
-                  className="space-y-4"
+                  className="space-y-3"
                 >
                   <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
                       Select Restaurant
                     </label>
                     <select
                       value={formRestaurantId}
                       onChange={(e) => setFormRestaurantId(e.target.value)}
                       required
-                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                      className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
                     >
                       <option value="">-- Choose Restaurant --</option>
                       {restaurantsData?.restaurants.map((r) => (
@@ -660,9 +660,9 @@ export const BillingManagementScreen: React.FC = () => {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
                         Amount (INR)
                       </label>
                       <input
@@ -671,12 +671,12 @@ export const BillingManagementScreen: React.FC = () => {
                         value={formAmountInr}
                         onChange={(e) => setFormAmountInr(Number(e.target.value))}
                         required
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                        className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      <label className="block text-[11px] font-medium text-stone-700 mb-1">
                         Due Date
                       </label>
                       <input
@@ -684,13 +684,13 @@ export const BillingManagementScreen: React.FC = () => {
                         value={formDueDate}
                         onChange={(e) => setFormDueDate(e.target.value)}
                         required
-                        className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                        className="w-full h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                    <label className="block text-[11px] font-medium text-stone-700 mb-1">
                       Internal Notes (Optional)
                     </label>
                     <textarea
@@ -698,7 +698,7 @@ export const BillingManagementScreen: React.FC = () => {
                       value={formNotes}
                       onChange={(e) => setFormNotes(e.target.value)}
                       placeholder="Monthly billing notes or discount reference..."
-                      className="w-full px-3 py-2 text-xs bg-stone-50 border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:ring-1 focus:ring-stone-900 focus:bg-white"
+                      className="w-full px-2.5 py-1.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900 resize-none"
                     />
                   </div>
 
@@ -706,18 +706,17 @@ export const BillingManagementScreen: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsCreateInvoiceOpen(false)}
-                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 font-medium"
+                      className="px-3 py-1.5 text-xs text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 font-medium transition-colors"
                     >
                       Cancel
                     </button>
-                    <MotionButton
+                    <button
                       type="submit"
-                      variant="primary"
                       disabled={createInvoiceMutation.isPending}
-                      className="!px-4 !py-2 !text-xs !bg-stone-900 hover:!bg-stone-800"
+                      className="px-3.5 py-1.5 text-xs font-medium text-white bg-stone-900 hover:bg-black rounded-lg transition-colors shadow-2xs disabled:opacity-50"
                     >
                       {createInvoiceMutation.isPending ? 'Generating...' : 'Issue Invoice'}
-                    </MotionButton>
+                    </button>
                   </div>
                 </form>
               </div>
@@ -730,41 +729,43 @@ export const BillingManagementScreen: React.FC = () => {
       {isSweepModalOpen &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fade-in">
             <FadeIn>
-              <div className="bg-white rounded-2xl border border-stone-200 shadow-xl max-w-md w-full p-6 space-y-4">
+              <div className="bg-white rounded-xl border border-stone-200/90 shadow-xl max-w-md w-full p-5 space-y-3.5">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                    <HugeiconsIcon icon={AlertSquareIcon} className="w-5 h-5" strokeWidth={1.5} />
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0">
+                    <HugeiconsIcon icon={AlertSquareIcon} className="w-4 h-4" strokeWidth={1.5} />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-stone-900">
+                    <h3 className="text-sm font-semibold text-stone-900">
                       Run Grace Period Enforcement Sweep
                     </h3>
-                    <p className="text-xs text-stone-500 mt-0.5">
+                    <p className="text-[11px] text-stone-500">
                       Evaluates overdue invoices against the platform 7-day grace rule.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3.5 bg-stone-50 border border-stone-200 rounded-xl text-xs text-stone-700 space-y-2">
-                  <p className="font-semibold text-stone-900">How auto-suspension works:</p>
-                  <ul className="list-disc list-inside space-y-1 text-stone-600">
+                <div className="p-3 bg-stone-50 border border-stone-200 rounded-lg text-xs text-stone-700 space-y-1.5">
+                  <p className="font-medium text-stone-900 text-[11px]">
+                    How auto-suspension works:
+                  </p>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px] text-stone-600">
                     <li>Checks all unpaid invoices whose due date has passed by &ge; 7 days.</li>
                     <li>Delinquent restaurants are automatically flagged as suspended.</li>
                     <li>Customer QR code placards are disabled immediately with an audit log.</li>
                     <li>
                       Subscriptions are marked as{' '}
-                      <span className="font-mono text-rose-600">past_due</span>.
+                      <span className="font-mono text-rose-600 font-semibold">past_due</span>.
                     </li>
                   </ul>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
                   <button
                     type="button"
                     onClick={() => setIsSweepModalOpen(false)}
-                    className="px-3.5 py-2 text-xs font-semibold text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 rounded-lg hover:bg-stone-100 transition-colors"
                   >
                     Cancel
                   </button>
@@ -772,7 +773,7 @@ export const BillingManagementScreen: React.FC = () => {
                     type="button"
                     disabled={sweepMutation.isPending}
                     onClick={() => sweepMutation.mutate()}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-sm"
+                    className="px-3.5 py-1.5 text-xs font-medium text-white bg-amber-600 hover:bg-amber-700 rounded-lg transition-colors shadow-2xs"
                   >
                     {sweepMutation.isPending ? 'Sweeping...' : 'Execute Sweep'}
                   </button>

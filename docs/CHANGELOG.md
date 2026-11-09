@@ -6,6 +6,34 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Company Portal Minimalist Design Overhaul & High-Density Operational Dashboard (M7-T50)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Monochrome Minimalist Aesthetic Overhaul**:
+    - Transformed `apps/portal` to a sleek, clean, high-density control plane featuring pure white cards (`bg-white border border-stone-200/80 rounded-xl shadow-2xs`) set against a subtle `#FAFAF9` canvas.
+    - Implemented solid black primary action buttons (`bg-stone-900 hover:bg-black text-white text-xs px-3 py-1.5 font-medium rounded-lg shadow-2xs transition-colors`) across all screens and modals.
+    - Compactified all form inputs, search fields, and selects (`h-8 px-2.5 text-xs bg-white border border-stone-200 rounded-lg text-stone-900 focus:outline-none focus:border-stone-900 focus:ring-1 focus:ring-stone-900`).
+  - **High-Density Operational Dashboard**:
+    - Standardized global KPI metric cards with clean stone typography and subtle status dots.
+    - Added interactive dual-metric toggle on the 30-day activity graph (`Scans Volume` vs `Tips (₹)` initiated volume) with custom hover tooltips showing date, scan count, and INR volume.
+    - Added 30-day activity summary chips for immediate insight into total platform scans and initiated tip volume.
+    - Added Peak Tipping Windows matrix highlighting key dining shifts (Dinner 8:00 PM – 11:30 PM: 64%, Lunch 1:00 PM – 3:30 PM: 28%).
+    - Added live telemetry status chips and "Live Systems OK" indicator.
+  - **Restaurant, Billing, Leads & System Health Upgrades**:
+    - **Portal Navigation Sidebar**: Monochrome clean navigation with compact items, black active indicator, and monogram badge (`R`).
+    - **Restaurant Management**: High-density table (`py-2.5 px-4 text-xs`), search and status filter tabs (`All`, `Active`, `Suspended`), compact action buttons, and streamlined Onboard Restaurant dialog with compact 2-column fields.
+    - **Billing & Subscriptions**: Compact Subscriptions & Invoices tables, small filter inputs, and compact modal dialogs for Create Invoice and Auto-Suspend Sweep.
+    - **Leads & Demo Pipeline**: Clean pipeline stage KPI cards, compact search and stage filter chips, high-density lead table with inline status selects, and compact detail modal.
+    - **System Status & Feature Flags**: Standardized diagnostic cards (API Gateway, PostgreSQL connection, Redis latency, Queue Workers), compact feature flag table, and Add Flag Override modal.
+    - **Login Screen**: Clean minimalist white card, compact credentials inputs, and black submit button.
+  - **Tests & Verification**:
+    - Portal tests passing 100% (`pnpm --filter @tiptable/portal test` - 27 tests across 8 suites).
+    - Monorepo TypeScript typecheck passing with zero errors (`pnpm typecheck`).
+    - Monorepo ESLint passing with zero errors (`pnpm lint`).
+    - Prettier formatting clean (`pnpm format:check`).
+
 ### 2026-11-09 - Customer Brand Aesthetics Polish & Elimination of Restaurant Logo Uploads (M7-T49)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

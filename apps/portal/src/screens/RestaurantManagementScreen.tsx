@@ -207,21 +207,21 @@ export const RestaurantManagementScreen: React.FC = () => {
   const isSuperAdmin = user?.role === 'super_admin';
 
   return (
-    <div className="space-y-8 max-w-7xl">
+    <div className="space-y-6 max-w-7xl font-sans">
       {/* Header */}
       <SlideUp>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-5 rounded-2xl border border-stone-200/80 shadow-2xs">
           <div>
-            <h1 className="text-2xl font-semibold text-stone-900 tracking-tight">
+            <h1 className="text-xl font-semibold text-stone-900 tracking-tight">
               Restaurant Tenants
             </h1>
-            <p className="mt-1 text-sm text-stone-500">
+            <p className="mt-0.5 text-xs text-stone-500">
               Manage dining establishments, configure onboarding, and monitor account health.
             </p>
           </div>
 
           {isSuperAdmin && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <MotionButton
                 variant="primary"
                 size="sm"
@@ -229,10 +229,10 @@ export const RestaurantManagementScreen: React.FC = () => {
                   resetForm();
                   setIsOnboardModalOpen(true);
                 }}
-                className="flex items-center gap-2 bg-stone-900 hover:bg-stone-800 text-white"
+                className="flex items-center gap-1.5 bg-stone-900 hover:bg-black text-white px-3 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
                 aria-label="Onboard New Restaurant"
               >
-                <HugeiconsIcon icon={Add01Icon} className="w-4 h-4 text-white" />
+                <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5 text-white" />
                 <span>Onboard Restaurant</span>
               </MotionButton>
             </div>
@@ -282,21 +282,21 @@ export const RestaurantManagementScreen: React.FC = () => {
 
       {/* Search & Status Filters */}
       <SlideUp delay={50}>
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white p-3 rounded-2xl border border-stone-200">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-2.5 rounded-xl border border-stone-200/80 shadow-2xs">
           <div className="relative flex-1 max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-stone-400">
-              <HugeiconsIcon icon={Search01Icon} className="w-4 h-4" />
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-stone-400">
+              <HugeiconsIcon icon={Search01Icon} className="w-3.5 h-3.5" />
             </div>
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by restaurant name or slug..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 text-stone-900 placeholder:text-stone-400 transition-colors"
+              className="w-full pl-8 pr-3 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 text-stone-900 placeholder:text-stone-400 transition-colors h-8"
             />
           </div>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1">
             {(
               [
                 { id: 'all', label: 'All' },
@@ -308,9 +308,9 @@ export const RestaurantManagementScreen: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setStatusFilter(tab.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                   statusFilter === tab.id
-                    ? 'bg-stone-900 text-white shadow-xs'
+                    ? 'bg-stone-900 text-white shadow-2xs'
                     : 'text-stone-600 hover:bg-stone-100'
                 }`}
               >
@@ -323,15 +323,20 @@ export const RestaurantManagementScreen: React.FC = () => {
 
       {/* Loading & Error States */}
       {isLoading && (
-        <div className="p-12 text-center text-stone-400 text-sm">
+        <div className="p-8 text-center text-stone-400 text-xs bg-white rounded-xl border border-stone-200/70">
           Loading restaurants directory...
         </div>
       )}
 
       {isError && (
-        <div className="p-8 text-center bg-white border border-red-200 rounded-2xl">
-          <p className="text-sm font-medium text-red-700">Failed to load restaurants.</p>
-          <MotionButton variant="outline" size="sm" onClick={() => refetch()} className="mt-4">
+        <div className="p-6 text-center bg-white border border-red-200 rounded-xl">
+          <p className="text-xs font-medium text-red-700">Failed to load restaurants.</p>
+          <MotionButton
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="mt-3 text-xs"
+          >
             Retry
           </MotionButton>
         </div>
@@ -340,47 +345,47 @@ export const RestaurantManagementScreen: React.FC = () => {
       {/* Table */}
       {restaurantsData && (
         <SlideUp delay={100}>
-          <div className="bg-white border border-stone-200 rounded-2xl overflow-hidden shadow-xs">
+          <div className="bg-white border border-stone-200/80 rounded-xl overflow-hidden shadow-2xs">
             {restaurantsData.restaurants.length === 0 ? (
-              <div className="p-12 text-center text-xs text-stone-400">
+              <div className="p-10 text-center text-xs text-stone-400">
                 No restaurant establishments found matching your filter criteria.
               </div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-stone-50 text-stone-500 border-b border-stone-200">
+                  <thead className="bg-stone-50/80 text-stone-500 border-b border-stone-200 text-[11px] uppercase tracking-wider font-semibold">
                     <tr>
-                      <th className="py-3 px-6 font-medium">Establishment</th>
-                      <th className="py-3 px-6 font-medium">Slug / Identifier</th>
-                      <th className="py-3 px-6 font-medium">Status</th>
-                      <th className="py-3 px-6 font-medium">Created At</th>
-                      <th className="py-3 px-6 font-medium text-right">Actions</th>
+                      <th className="py-2.5 px-4">Establishment</th>
+                      <th className="py-2.5 px-4">Slug / Identifier</th>
+                      <th className="py-2.5 px-4">Status</th>
+                      <th className="py-2.5 px-4">Created At</th>
+                      <th className="py-2.5 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
                     {restaurantsData.restaurants.map((rest) => (
-                      <tr key={rest.id} className="hover:bg-stone-50/60">
-                        <td className="py-3.5 px-6 font-medium text-stone-900">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-700 shrink-0">
-                              <HugeiconsIcon icon={Store01Icon} className="w-4 h-4" />
+                      <tr key={rest.id} className="hover:bg-stone-50/60 transition-colors">
+                        <td className="py-3 px-4 font-medium text-stone-900">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-7 h-7 rounded-lg bg-stone-100 border border-stone-200/60 flex items-center justify-center text-stone-700 shrink-0">
+                              <HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />
                             </div>
                             <div>
                               <span className="block font-semibold text-stone-900">
                                 {rest.name}
                               </span>
-                              <span className="text-[11px] text-stone-400 block truncate max-w-xs">
+                              <span className="text-[10px] text-stone-400 block truncate max-w-xs font-mono">
                                 {rest.googleReviewUrl}
                               </span>
                             </div>
                           </div>
                         </td>
-                        <td className="py-3.5 px-6 font-mono text-stone-600">
-                          <span className="px-2 py-0.5 rounded-md bg-stone-100 border border-stone-200 text-[11px]">
+                        <td className="py-3 px-4 font-mono text-stone-600">
+                          <span className="px-2 py-0.5 rounded-md bg-stone-50 border border-stone-200 text-[11px]">
                             {rest.slug}
                           </span>
                         </td>
-                        <td className="py-3.5 px-6">
+                        <td className="py-3 px-4">
                           {rest.deletedAt ? (
                             <Badge variant="neutral">Deleted</Badge>
                           ) : rest.isSuspended ? (
@@ -396,19 +401,19 @@ export const RestaurantManagementScreen: React.FC = () => {
                             <Badge variant="success">Active</Badge>
                           )}
                         </td>
-                        <td className="py-3.5 px-6 text-stone-500 font-mono">
+                        <td className="py-3 px-4 text-stone-500 font-mono text-[11px]">
                           {new Date(rest.createdAt).toISOString().slice(0, 10)}
                         </td>
-                        <td className="py-3.5 px-6 text-right whitespace-nowrap">
-                          <div className="flex items-center justify-end gap-2">
+                        <td className="py-3 px-4 text-right whitespace-nowrap">
+                          <div className="flex items-center justify-end gap-1.5">
                             {/* Impersonate button */}
                             <button
                               type="button"
                               onClick={() => setImpersonateTarget(rest)}
-                              className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors flex items-center gap-1 cursor-pointer"
+                              className="px-2 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 text-stone-800 transition-colors flex items-center gap-1 cursor-pointer"
                               title="Support Impersonation"
                             >
-                              <HugeiconsIcon icon={UserCheck01Icon} className="w-3.5 h-3.5" />
+                              <HugeiconsIcon icon={UserCheck01Icon} className="w-3 h-3" />
                               <span>Impersonate</span>
                             </button>
 
@@ -418,7 +423,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => handleReactivate(rest)}
-                                    className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-700 transition-colors"
+                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200/60 transition-colors"
                                   >
                                     Reactivate
                                   </button>
@@ -426,7 +431,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                   <button
                                     type="button"
                                     onClick={() => setSuspendTarget(rest)}
-                                    className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-700 transition-colors"
+                                    className="px-2 py-1 rounded-md text-[11px] font-medium bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200/60 transition-colors"
                                   >
                                     Suspend
                                   </button>
@@ -435,7 +440,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleDelete(rest)}
-                                  className="px-2.5 py-1 rounded-md text-[11px] font-medium bg-red-50 hover:bg-red-100 text-red-700 transition-colors"
+                                  className="px-2 py-1 rounded-md text-[11px] font-medium bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200/60 transition-colors"
                                 >
                                   Delete
                                 </button>
@@ -457,13 +462,13 @@ export const RestaurantManagementScreen: React.FC = () => {
       {isOnboardModalOpen &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-2xl max-w-lg w-full border border-stone-200 shadow-xl overflow-hidden">
-                <div className="p-5 border-b border-stone-200 flex items-center justify-between">
+              <div className="bg-white rounded-xl max-w-lg w-full border border-stone-200/90 shadow-xl overflow-hidden">
+                <div className="p-4 border-b border-stone-200/70 flex items-center justify-between">
                   <div>
                     <h2 className="text-sm font-semibold text-stone-900">Onboard New Restaurant</h2>
-                    <p className="text-xs text-stone-500 mt-0.5">
+                    <p className="text-[11px] text-stone-500 mt-0.5">
                       Provisions establishment, root table QR, and initial owner user.
                     </p>
                   </div>
@@ -473,16 +478,16 @@ export const RestaurantManagementScreen: React.FC = () => {
                     className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
                     aria-label="Close modal"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" />
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
                   </button>
                 </div>
 
                 <form
                   onSubmit={handleOnboardSubmit}
-                  className="p-6 space-y-4 max-h-[75vh] overflow-y-auto"
+                  className="p-5 space-y-4 max-h-[75vh] overflow-y-auto"
                 >
                   {errorMessage && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 flex items-start gap-2">
+                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg text-xs text-red-700 flex items-start gap-2">
                       <HugeiconsIcon
                         icon={AlertCircleIcon}
                         className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
@@ -491,39 +496,41 @@ export const RestaurantManagementScreen: React.FC = () => {
                     </div>
                   )}
 
-                  <div className="space-y-3">
-                    <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
+                  <div className="space-y-2.5">
+                    <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
                       Establishment Profile
                     </h3>
 
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        Restaurant Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formName}
-                        onChange={(e) => handleNameChange(e.target.value)}
-                        placeholder="e.g. The Bombay Canteen"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                          Restaurant Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formName}
+                          onChange={(e) => handleNameChange(e.target.value)}
+                          placeholder="e.g. The Bombay Canteen"
+                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                        />
+                      </div>
 
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        URL Slug *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formSlug}
-                        onChange={(e) =>
-                          setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
-                        }
-                        placeholder="e.g. the-bombay-canteen"
-                        className="w-full px-3 py-2 text-xs font-mono rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                      />
+                      <div>
+                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                          URL Slug *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formSlug}
+                          onChange={(e) =>
+                            setFormSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))
+                          }
+                          placeholder="e.g. the-bombay-canteen"
+                          className="w-full px-2.5 py-1 text-xs font-mono rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                        />
+                      </div>
                     </div>
 
                     <div>
@@ -536,45 +543,47 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formReviewUrl}
                         onChange={(e) => setFormReviewUrl(e.target.value)}
                         placeholder="https://maps.app.goo.gl/..."
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                        className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
                       />
-                      <span className="text-[11px] text-stone-400 mt-1 block">
+                      <span className="text-[10px] text-stone-400 mt-1 block">
                         Must be a valid Google Maps / Place review link (un-gated).
                       </span>
                     </div>
                   </div>
 
-                  <div className="space-y-3 pt-3 border-t border-stone-100">
-                    <h3 className="text-xs font-semibold text-stone-700 uppercase tracking-wider">
+                  <div className="space-y-2.5 pt-3 border-t border-stone-100">
+                    <h3 className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">
                       Initial Owner Credentials
                     </h3>
 
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        Owner Full Name *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formOwnerName}
-                        onChange={(e) => setFormOwnerName(e.target.value)}
-                        placeholder="e.g. Sameer Seth"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                      />
-                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                          Owner Full Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formOwnerName}
+                          onChange={(e) => setFormOwnerName(e.target.value)}
+                          placeholder="e.g. Sameer Seth"
+                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                        />
+                      </div>
 
-                    <div>
-                      <label className="block text-xs font-medium text-stone-700 mb-1">
-                        Owner Email *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={formOwnerEmail}
-                        onChange={(e) => setFormOwnerEmail(e.target.value)}
-                        placeholder="owner@establishment.com"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
-                      />
+                      <div>
+                        <label className="block text-xs font-medium text-stone-700 mb-1">
+                          Owner Email *
+                        </label>
+                        <input
+                          type="email"
+                          required
+                          value={formOwnerEmail}
+                          onChange={(e) => setFormOwnerEmail(e.target.value)}
+                          placeholder="owner@establishment.com"
+                          className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
+                        />
+                      </div>
                     </div>
 
                     <div>
@@ -588,17 +597,18 @@ export const RestaurantManagementScreen: React.FC = () => {
                         value={formOwnerPassword}
                         onChange={(e) => setFormOwnerPassword(e.target.value)}
                         placeholder="At least 8 characters"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                        className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8"
                       />
                     </div>
                   </div>
 
-                  <div className="pt-4 flex items-center justify-end gap-2 border-t border-stone-100">
+                  <div className="pt-3 flex items-center justify-end gap-2 border-t border-stone-100">
                     <MotionButton
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setIsOnboardModalOpen(false)}
+                      className="px-3 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
                     >
                       Cancel
                     </MotionButton>
@@ -607,7 +617,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       variant="primary"
                       size="sm"
                       disabled={onboardMutation.isPending}
-                      className="bg-stone-900 hover:bg-stone-800 text-white"
+                      className="bg-stone-900 hover:bg-black text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
                     >
                       {onboardMutation.isPending ? 'Provisioning...' : 'Provision Restaurant'}
                     </MotionButton>
@@ -623,18 +633,18 @@ export const RestaurantManagementScreen: React.FC = () => {
       {suspendTarget &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 shrink-0">
-                    <HugeiconsIcon icon={AlertCircleIcon} className="w-5 h-5" />
+              <div className="bg-white rounded-xl max-w-md w-full border border-stone-200/90 shadow-xl overflow-hidden p-5 space-y-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/60 flex items-center justify-center text-amber-700 shrink-0">
+                    <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-stone-900">
                       Suspend &quot;{suspendTarget.name}&quot;
                     </h3>
-                    <p className="text-xs text-stone-500 mt-0.5">
+                    <p className="text-[11px] text-stone-500 mt-0.5">
                       Suspension will immediately disable customer QR placards.
                     </p>
                   </div>
@@ -645,20 +655,21 @@ export const RestaurantManagementScreen: React.FC = () => {
                     Reason for Suspension (Optional)
                   </label>
                   <textarea
-                    rows={3}
+                    rows={2}
                     value={suspensionReason}
                     onChange={(e) => setSuspensionReason(e.target.value)}
                     placeholder="e.g. Overdue payment on flat monthly plan, temporary operational shutdown..."
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                    className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 text-stone-900"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
                   <MotionButton
                     type="button"
                     variant="outline"
                     size="sm"
                     onClick={() => setSuspendTarget(null)}
+                    className="px-3 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
                   >
                     Cancel
                   </MotionButton>
@@ -668,7 +679,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     size="sm"
                     onClick={handleSuspendConfirm}
                     disabled={statusMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700 text-white"
+                    className="bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
                   >
                     {statusMutation.isPending ? 'Suspending...' : 'Confirm Suspension'}
                   </MotionButton>
@@ -683,32 +694,32 @@ export const RestaurantManagementScreen: React.FC = () => {
       {impersonateTarget &&
         typeof document !== 'undefined' &&
         createPortal(
-          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-fade-in">
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
-              <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200 shadow-xl overflow-hidden p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 shrink-0">
-                    <HugeiconsIcon icon={UserCheck01Icon} className="w-5 h-5" />
+              <div className="bg-white rounded-xl max-w-md w-full border border-stone-200/90 shadow-xl overflow-hidden p-5 space-y-3.5">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-stone-100 border border-stone-200 flex items-center justify-center text-stone-800 shrink-0">
+                    <HugeiconsIcon icon={UserCheck01Icon} className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-stone-900">
                       Enter Support Impersonation Mode: &quot;{impersonateTarget.name}&quot;
                     </h3>
-                    <p className="text-xs text-stone-500 mt-0.5">
+                    <p className="text-[11px] text-stone-500 mt-0.5">
                       Delegated live session. All actions are strictly audited.
                     </p>
                   </div>
                 </div>
 
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 space-y-1">
-                  <p className="font-semibold flex items-center gap-1.5">
+                <div className="p-2.5 bg-amber-50 border border-amber-200/70 rounded-lg text-xs text-amber-800 space-y-1">
+                  <p className="font-semibold flex items-center gap-1.5 text-[11px]">
                     <HugeiconsIcon
                       icon={AlertCircleIcon}
-                      className="w-4 h-4 text-amber-600 shrink-0"
+                      className="w-3.5 h-3.5 text-amber-600 shrink-0"
                     />
                     <span>Support Delegation Security Notice</span>
                   </p>
-                  <p className="text-[11px] leading-relaxed text-amber-700">
+                  <p className="text-[10px] leading-relaxed text-amber-700">
                     You are entering this restaurant&apos;s administration account as a delegated
                     owner. A high-visibility warning banner will be displayed throughout your
                     session.
@@ -724,11 +735,11 @@ export const RestaurantManagementScreen: React.FC = () => {
                     value={impersonateReason}
                     onChange={(e) => setImpersonateReason(e.target.value)}
                     placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-stone-200 bg-stone-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-stone-900"
+                    className="w-full px-2.5 py-1 text-xs rounded-lg border border-stone-200 bg-white focus:outline-none focus:ring-1 focus:ring-stone-900 h-8 text-stone-900"
                   />
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2">
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100">
                   <MotionButton
                     type="button"
                     variant="outline"
@@ -737,6 +748,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       setImpersonateTarget(null);
                       setImpersonateReason('');
                     }}
+                    className="px-3 py-1.5 text-xs text-stone-700 bg-white border border-stone-200 rounded-lg hover:bg-stone-50"
                   >
                     Cancel
                   </MotionButton>
@@ -746,7 +758,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     size="sm"
                     onClick={handleImpersonateConfirm}
                     disabled={impersonateMutation.isPending}
-                    className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                    className="bg-stone-900 hover:bg-black text-white px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs"
                   >
                     {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
                   </MotionButton>
