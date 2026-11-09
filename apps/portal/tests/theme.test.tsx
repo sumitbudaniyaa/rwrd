@@ -78,22 +78,20 @@ describe('ThemeContext & ThemeToggle System', () => {
     expect(localStorage.getItem('portal_theme')).toBe('light');
   });
 
-  it('renders ThemeToggle component with accessible switch role and handles click', () => {
+  it('renders ThemeToggle component as a round button and handles click', () => {
     render(
       <ThemeProvider>
         <ThemeToggle />
       </ThemeProvider>,
     );
 
-    const toggleSwitch = screen.getByRole('switch', { name: /switch to dark mode/i });
-    expect(toggleSwitch).toBeDefined();
-    expect(toggleSwitch.getAttribute('aria-checked')).toBe('false');
+    const toggleButton = screen.getByRole('button', { name: /switch to dark mode/i });
+    expect(toggleButton).toBeDefined();
 
-    fireEvent.click(toggleSwitch);
+    fireEvent.click(toggleButton);
 
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.body?.classList.contains('dark')).toBe(true);
-    expect(screen.getByRole('switch', { name: /switch to light mode/i })).toBeDefined();
-    expect(toggleSwitch.getAttribute('aria-checked')).toBe('true');
+    expect(screen.getByRole('button', { name: /switch to light mode/i })).toBeDefined();
   });
 });

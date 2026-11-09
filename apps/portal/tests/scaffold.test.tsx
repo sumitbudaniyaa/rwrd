@@ -82,11 +82,11 @@ describe('Portal App Scaffolding & Layout', () => {
     expect(screen.getByText('Global Audit')).toBeDefined();
     expect(screen.getByText('System Status')).toBeDefined();
 
-    // User profile in footer (no Super Admin badge, single theme toggle switch present)
+    // User profile in footer (no Super Admin badge, single round theme toggle button present)
     expect(screen.getByText('Ananya Deshmukh')).toBeDefined();
     expect(screen.getByText('admin@tiptable.in')).toBeDefined();
     expect(screen.queryByText('Super Admin')).toBeNull();
-    expect(screen.getByRole('switch', { name: /switch to (dark|light) mode/i })).toBeDefined();
+    expect(screen.getByRole('button', { name: /switch to (dark|light) mode/i })).toBeDefined();
     expect(screen.getByText('Sign Out')).toBeDefined();
   });
 

@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Restore Company Portal Theme Toggle as Single Round Button (M7-T56)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Single Round Sun/Moon Button**:
+    - In [`ThemeToggle.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/components/ThemeToggle.tsx), restored the theme toggle to a single circular icon button (`w-7 h-7 rounded-full` or `w-8 h-8 rounded-full`), removing the slider pill track.
+    - Displays `Sun01Icon` with an amber highlight (`text-amber-400 bg-stone-800/90 border-stone-700/80`) in dark mode, and `Moon02Icon` (`text-stone-600 bg-stone-100/80 border-stone-200`) in light mode.
+    - Retains `pointer-events-none` on the SVG and keeps `type="button"`, accessible `aria-label`, and `title` attributes with reliable toggle execution.
+  - **Tests & Verification**:
+    - Updated assertions in [`apps/portal/tests/theme.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/theme.test.tsx) and [`apps/portal/tests/scaffold.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/scaffold.test.tsx) for the round button role.
+    - All 9 portal test suites passed 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - Monorepo typecheck passed with zero errors (`pnpm typecheck`).
+    - Monorepo lint passed with zero errors (`pnpm lint`).
+    - Monorepo format check passed with zero warnings (`pnpm format:check`).
+
 ### 2026-11-10 - Isolate Subtle Alpha Badges to Company Portal & Restore Solid Admin Badges (M7-T55)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
