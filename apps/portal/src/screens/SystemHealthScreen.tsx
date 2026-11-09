@@ -14,7 +14,8 @@ import {
   RefreshIcon,
   Delete01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, Badge } from '@tiptable/ui';
+import { SlideUp, FadeIn } from '@tiptable/ui';
+import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, type UpsertFeatureFlagInput } from '../services/api.js';
 

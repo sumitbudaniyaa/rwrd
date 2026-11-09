@@ -13,7 +13,8 @@ import {
   RefreshIcon,
   AlertSquareIcon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, Badge, MotionButton } from '@tiptable/ui';
+import { SlideUp, FadeIn, MotionButton } from '@tiptable/ui';
+import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import {
   api,

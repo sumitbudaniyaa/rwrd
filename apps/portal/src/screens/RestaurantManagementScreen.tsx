@@ -11,7 +11,8 @@ import {
   Cancel01Icon,
   UserCheck01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, Badge, MotionButton } from '@tiptable/ui';
+import { SlideUp, FadeIn, MotionButton } from '@tiptable/ui';
+import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import { portalEnv } from '../config/env.js';
 import { api, type PortalRestaurantItem, type OnboardRestaurantInput } from '../services/api.js';

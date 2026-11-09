@@ -16,9 +16,10 @@ import {
   Clock01Icon,
   Calendar01Icon,
 } from '@hugeicons/core-free-icons';
-import { MotionCard, SlideUp, StaggerList, Badge, MotionButton } from '@tiptable/ui';
+import { MotionCard, SlideUp, StaggerList, MotionButton } from '@tiptable/ui';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
+import { Badge } from '../components/Badge.js';
 import { api, type PlatformMetricsResponse } from '../services/api.js';
 
 export const DashboardOverview: React.FC = () => {

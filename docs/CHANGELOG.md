@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Isolate Subtle Alpha Badges to Company Portal & Restore Solid Admin Badges (M7-T55)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Restored Admin Badges in Shared UI (`packages/ui/src/motion.tsx`)**:
+    - Reverted `<Badge>` in [`packages/ui/src/motion.tsx`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/motion.tsx) back to its original solid pastel styling (`bg-emerald-50 text-emerald-700 border-emerald-200`, `bg-amber-50`, `bg-rose-50`, `bg-stone-100`, `bg-indigo-50`), restoring the Restaurant Admin app (`apps/admin`) 100% to its original appearance.
+  - **Decoupled Company Portal Badges (`apps/portal/src/components/Badge.tsx`)**:
+    - Created a dedicated portal-scoped [`Badge.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/components/Badge.tsx) containing the subtle low-opacity alpha fills and dark mode support requested for the Company Portal.
+    - Updated all Company Portal screens ([`DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/DashboardOverview.tsx), [`RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx), [`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx), [`LeadsManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/LeadsManagementScreen.tsx), [`SystemHealthScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SystemHealthScreen.tsx)) to import `Badge` locally from `../components/Badge.js`.
+  - **Tests & Verification**:
+    - All 9 portal test suites passed 100% (`pnpm --filter @tiptable/portal test` - 31/31 tests).
+    - All 9 admin test suites passed 100% (`pnpm --filter @tiptable/admin test` - 48/48 tests).
+    - Monorepo typecheck passed with zero errors (`pnpm typecheck`).
+    - Monorepo lint passed with zero errors (`pnpm lint`).
+    - Monorepo format check passed with zero warnings (`pnpm format:check`).
+
 ### 2026-11-09 - Soften Badge Backgrounds, Fix Portal Theme Switch & Dynamic Activity Timeframe Controls (M7-T54)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
