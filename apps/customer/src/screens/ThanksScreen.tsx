@@ -2,12 +2,13 @@ import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle02Icon, StarIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { StarIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
 import rwrdLogo from '../assets/rwrd.png';
+import heartIcon from '../assets/heart.png';
 
 interface TipSessionState {
   staffName?: string | undefined;
@@ -108,11 +109,12 @@ export const ThanksScreen: React.FC = () => {
 
       {/* Main Appreciation Card */}
       <section className="my-auto py-6 flex flex-col items-center">
-        <div className="w-16 h-16 rounded-2xl bg-[#FFE862]/30 border border-[#FFE862]/60 text-stone-900 flex items-center justify-center mb-6 shadow-2xs">
-          <HugeiconsIcon
-            icon={CheckmarkCircle02Icon}
-            className="w-8 h-8 text-stone-900"
-            strokeWidth={1.5}
+        <div className="mb-5 flex items-center justify-center">
+          <img
+            src={heartIcon}
+            alt="Appreciation heart"
+            className="w-20 h-20 sm:w-24 sm:h-24 object-contain select-none"
+            loading="eager"
           />
         </div>
 

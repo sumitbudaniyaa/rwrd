@@ -42,6 +42,7 @@ describe('Customer Screen 5: "You came so far" Post-Payment', () => {
       expect(screen.getByText('You came so far...')).toBeInTheDocument();
     });
 
+    expect(screen.getByAltText('Appreciation heart')).toBeInTheDocument();
     expect(screen.getByText(/Thank you for spreading happiness!/)).toBeInTheDocument();
     expect(screen.getByText(/Tip initiated for Ramesh Kumar/)).toBeInTheDocument();
     expect(screen.getByText("Don't forget to review us")).toBeInTheDocument();
