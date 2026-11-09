@@ -7,7 +7,7 @@ interface LiquidGlassIntroProps {
 }
 
 export const LiquidGlassIntro: React.FC<LiquidGlassIntroProps> = ({ onComplete }) => {
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(() => import.meta.env.MODE !== 'test');
   const [isFading, setIsFading] = useState(false);
 
   const handleDismiss = useCallback(() => {
@@ -51,7 +51,7 @@ export const LiquidGlassIntro: React.FC<LiquidGlassIntroProps> = ({ onComplete }
   return (
     <div
       onClick={handleDismiss}
-      className={`fixed inset-0 z-[100] bg-black flex flex-col items-center justify-center cursor-pointer select-none transition-opacity duration-700 ease-out ${
+      className={`fixed inset-0 z-[100] bg-[#FAFAF9] flex flex-col items-center justify-center cursor-pointer select-none transition-opacity duration-700 ease-out ${
         isFading ? 'opacity-0 pointer-events-none' : 'opacity-100'
       }`}
       role="banner"
@@ -61,14 +61,18 @@ export const LiquidGlassIntro: React.FC<LiquidGlassIntroProps> = ({ onComplete }
         <LiquidGlassLogo
           logo={rwrdLogo}
           ending="logo"
-          theme="dark"
-          background="#000000"
+          theme="light"
+          background="#FAFAF9"
+          tileColor="#F5F5F4"
+          logoColor="original"
+          logoScale={0.82}
+          logoRelief={0.2}
           style={{ height: 480, width: '100%', maxWidth: 420 }}
         />
       </div>
 
       <div className="absolute bottom-8 text-center">
-        <p className="text-[11px] font-sans tracking-widest uppercase text-stone-500 opacity-60 hover:opacity-100 transition-opacity">
+        <p className="text-[11px] font-sans tracking-widest uppercase text-stone-400 opacity-70 hover:opacity-100 transition-opacity">
           Tap anywhere to skip
         </p>
       </div>

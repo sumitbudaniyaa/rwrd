@@ -4,7 +4,6 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   CheckmarkCircle02Icon,
   Alert01Icon,
-  ImageUpload01Icon,
   Add01Icon,
   Cancel01Icon,
 } from '@hugeicons/core-free-icons';
@@ -20,7 +19,6 @@ export const SettingsScreen: React.FC = () => {
 
   // Form states
   const [name, setName] = useState('');
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [googleReviewUrl, setGoogleReviewUrl] = useState('');
   const [tipPresets, setTipPresets] = useState<number[]>([20, 50, 100, 200]);
   const [newPresetValue, setNewPresetValue] = useState('');
@@ -29,7 +27,6 @@ export const SettingsScreen: React.FC = () => {
 
   // Field-wise editing toggles
   const [isEditingName, setIsEditingName] = useState(false);
-  const [isEditingLogo, setIsEditingLogo] = useState(false);
   const [isEditingGoogleReview, setIsEditingGoogleReview] = useState(false);
   const [isEditingTipPresets, setIsEditingTipPresets] = useState(false);
   const [isEditingTipBounds, setIsEditingTipBounds] = useState(false);
@@ -52,7 +49,6 @@ export const SettingsScreen: React.FC = () => {
   useEffect(() => {
     if (savedSettings) {
       setName(savedSettings.name);
-      setLogoPreview(savedSettings.logoUrl);
       setGoogleReviewUrl(savedSettings.googleReviewUrl || '');
       setTipPresets(savedSettings.tipPresets || [20, 50, 100, 200]);
       setMinTipInr(savedSettings.minTipInr || 10);
@@ -88,50 +84,6 @@ export const SettingsScreen: React.FC = () => {
     googleReviewUrl.includes('goo.gl') ||
     googleReviewUrl.includes('g.page');
 
-  // Client-side logo upload & compression (preserves alpha transparency and aspect ratio)
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const maxDim = 512;
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxDim || height > maxDim) {
-          if (width > height) {
-            height = Math.round((height * maxDim) / width);
-            width = maxDim;
-          } else {
-            width = Math.round((width * maxDim) / height);
-            height = maxDim;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.clearRect(0, 0, width, height);
-          ctx.drawImage(img, 0, 0, width, height);
-          // image/png preserves 100% alpha transparency
-          const compressed = canvas.toDataURL('image/png');
-          setLogoPreview(compressed);
-        }
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemoveLogo = () => {
-    setLogoPreview(null);
-  };
-
   const handleAddPreset = (e: React.FormEvent) => {
     e.preventDefault();
     const val = parseInt(newPresetValue.trim(), 10);
@@ -165,8 +117,6 @@ export const SettingsScreen: React.FC = () => {
   const isNameDirty = Boolean(
     savedSettings && name.trim() !== (savedSettings.name || '') && name.trim().length >= 2,
   );
-
-  const isLogoDirty = Boolean(savedSettings && logoPreview !== (savedSettings.logoUrl || null));
 
   const isGoogleDirty = Boolean(
     savedSettings &&
@@ -202,23 +152,6 @@ export const SettingsScreen: React.FC = () => {
       {
         onSuccess: () => {
           setIsEditingName(false);
-          setSavingField(null);
-        },
-        onError: () => setSavingField(null),
-      },
-    );
-  };
-
-  const handleSaveLogo = () => {
-    if (!isLogoDirty) return;
-    setFormError(null);
-    setSuccessMessage(null);
-    setSavingField('logo');
-    updateMutation.mutate(
-      { logoUrl: logoPreview },
-      {
-        onSuccess: () => {
-          setIsEditingLogo(false);
           setSavingField(null);
         },
         onError: () => setSavingField(null),
@@ -354,11 +287,11 @@ export const SettingsScreen: React.FC = () => {
                 brand & legal entity
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
-                Public name and logo displayed on the customer landing and tipping viewports.
+                Public legal name displayed on customer receipts and tipping viewports.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
               {/* Field 1: Restaurant Legal Name */}
               <div className="space-y-2">
                 {!isEditingName ? (
@@ -415,124 +348,6 @@ export const SettingsScreen: React.FC = () => {
                         disabled={!isNameDirty || savingField === 'name'}
                         isLoading={savingField === 'name'}
                         onClick={handleSaveName}
-                        className="px-3.5 py-1.5 text-xs"
-                      >
-                        Save
-                      </MotionButton>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Field 2: Restaurant Logo */}
-              <div className="space-y-2">
-                {!isEditingLogo ? (
-                  <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
-                    <div className="flex items-center gap-3.5 min-w-0">
-                      <div
-                        className={`w-12 h-12 rounded-xl border border-stone-200/60 overflow-hidden flex items-center justify-center shrink-0 text-stone-400 shadow-2xs ${
-                          logoPreview ? 'bg-transparent p-1' : 'bg-stone-100'
-                        }`}
-                      >
-                        {logoPreview ? (
-                          <img
-                            src={logoPreview}
-                            alt="Restaurant Logo"
-                            className="max-h-full max-w-full w-auto h-auto object-contain"
-                          />
-                        ) : (
-                          <HugeiconsIcon
-                            icon={ImageUpload01Icon}
-                            className="w-5 h-5"
-                            strokeWidth={1.5}
-                          />
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[11px] font-medium text-stone-500 block uppercase tracking-wider">
-                          Restaurant Logo
-                        </span>
-                        <span className="text-xs text-stone-600 mt-0.5 block truncate">
-                          {logoPreview ? 'Custom logo uploaded' : 'No logo configured'}
-                        </span>
-                      </div>
-                    </div>
-                    <MotionButton
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsEditingLogo(true)}
-                      className="px-3 py-1.5 text-xs shrink-0"
-                    >
-                      Edit
-                    </MotionButton>
-                  </div>
-                ) : (
-                  <div className="space-y-3 p-4 rounded-xl border border-stone-300/80 bg-white shadow-2xs">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className={`w-14 h-14 rounded-2xl border border-stone-200/60 overflow-hidden flex items-center justify-center shrink-0 text-stone-400 shadow-2xs ${
-                          logoPreview ? 'bg-transparent p-1' : 'bg-stone-100'
-                        }`}
-                      >
-                        {logoPreview ? (
-                          <img
-                            src={logoPreview}
-                            alt="Restaurant Logo"
-                            className="max-h-full max-w-full w-auto h-auto object-contain"
-                          />
-                        ) : (
-                          <HugeiconsIcon
-                            icon={ImageUpload01Icon}
-                            className="w-6 h-6"
-                            strokeWidth={1.5}
-                          />
-                        )}
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <label className="px-3 py-1.5 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 text-xs font-medium text-stone-700 cursor-pointer shadow-2xs transition-colors">
-                            <span>Change Logo</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              className="hidden"
-                              onChange={handleLogoUpload}
-                            />
-                          </label>
-                          {logoPreview && (
-                            <button
-                              type="button"
-                              onClick={handleRemoveLogo}
-                              className="px-2.5 py-1.5 text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                            >
-                              Remove
-                            </button>
-                          )}
-                        </div>
-                        <p className="text-[10px] text-stone-400">
-                          Auto-scaled with alpha transparency and natural proportions preserved.
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-end gap-2 pt-1 border-t border-stone-100">
-                      <MotionButton
-                        variant="ghost"
-                        size="sm"
-                        disabled={savingField === 'logo'}
-                        onClick={() => {
-                          setLogoPreview(savedSettings?.logoUrl || null);
-                          setIsEditingLogo(false);
-                        }}
-                        className="px-3 py-1.5 text-xs text-stone-600"
-                      >
-                        Cancel
-                      </MotionButton>
-                      <MotionButton
-                        variant="primary"
-                        size="sm"
-                        disabled={!isLogoDirty || savingField === 'logo'}
-                        isLoading={savingField === 'logo'}
-                        onClick={handleSaveLogo}
                         className="px-3.5 py-1.5 text-xs"
                       >
                         Save

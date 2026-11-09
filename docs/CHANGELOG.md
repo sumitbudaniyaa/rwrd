@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-09 - Customer Brand Aesthetics Polish & Elimination of Restaurant Logo Uploads (M7-T49)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Liquid Glass Opening Animation Harmonization**:
+    - Replaced the dark/black intro canvas (`bg-black`, `#000000`) with the customer app's warm signature background palette (`bg-[#FAFAF9]`, `background="#FAFAF9"`).
+    - Configured `theme="light"` with frosted glass bevel (`tileColor="#F5F5F4"`).
+    - Set `logoColor="original"` with calibrated scale (`logoScale={0.82}`) and soft relief (`logoRelief={0.2}`), preventing the WebGL renderer from bleaching the artwork and preserving the rich `#FFBD59` yellow brand badge and lettering.
+    - Updated skip prompt to clean low-contrast warm stone typography (`text-stone-400 opacity-70`).
+  - **Completely Eliminated Restaurant Logo Uploads in Admin**:
+    - Removed the "Restaurant Logo" card, file picker input, thumbnail preview, canvas compression routines, and logo mutation triggers from [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx).
+    - Simplified Section 1 to focus solely on the restaurant's legal brand name.
+    - Removed logo image rendering from the table placard print modal in [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx).
+  - **Centered Restaurant Name in Customer App Header**:
+    - Redesigned headers in [`HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx) and [`ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx), removing the avatar/logo container and centering the restaurant name at the top middle with uppercase tracked styling (`text-xs font-semibold tracking-wider uppercase text-stone-700`).
+  - **Tests & Verification**:
+    - Updated [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) for 4 discrete field-wise edit buttons.
+    - Updated [`apps/customer/tests/home.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/home.test.tsx) and [`liquidGlassIntro.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/liquidGlassIntro.test.tsx).
+    - Customer tests passing 100% (`pnpm --filter @tiptable/customer test` - 22 tests).
+    - Admin tests passing 100% (`pnpm --filter @tiptable/admin test` - 48 tests).
+    - API tests passing 100% (`pnpm --filter @tiptable/api test` - 177 tests).
+    - Full monorepo TypeScript typecheck clean with zero errors (`pnpm typecheck`).
+    - Monorepo ESLint clean with zero errors (`pnpm lint`).
+    - Prettier formatting clean (`pnpm format:check`).
+
 ### 2026-11-09 - ReactDrops Liquid Glass Logo Intro Animation (M7-T48)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

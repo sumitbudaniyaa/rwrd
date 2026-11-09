@@ -44,28 +44,11 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full">
-      {/* Header Section: Restaurant Logo on Left, Name & Table on Right */}
-      <header className="pt-2 pb-4 flex items-center justify-between w-full">
-        <div className="flex items-center flex-shrink-0">
-          {restaurant.logoUrl ? (
-            <img
-              src={restaurant.logoUrl}
-              alt={restaurant.name}
-              className="max-h-11 max-w-[120px] w-auto h-auto object-contain"
-              loading="eager"
-            />
-          ) : (
-            <div className="w-11 h-11 rounded-full bg-stone-100 flex items-center justify-center text-stone-700 font-serif text-lg font-medium border border-stone-200">
-              {restaurant.name.charAt(0)}
-            </div>
-          )}
-        </div>
-
-        <div className="flex flex-col items-end text-right pl-3 truncate">
-          <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[220px]">
-            {restaurant.name}
-          </h2>
-        </div>
+      {/* Header Section: Restaurant Name in Top Middle */}
+      <header className="pt-2 pb-4 flex items-center justify-center w-full text-center">
+        <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[280px]">
+          {restaurant.name}
+        </h2>
       </header>
 
       {/* Greeting Section: Editorial Serif Greeting */}

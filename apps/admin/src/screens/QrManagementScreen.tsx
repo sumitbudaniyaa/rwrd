@@ -24,7 +24,6 @@ import { api, ApiError, type QrTokenItem } from '../services/api.js';
 interface PlacardModalData {
   item: QrTokenItem;
   restaurantName: string;
-  logoUrl: string | null;
 }
 
 export const QrManagementScreen: React.FC = () => {
@@ -342,7 +341,6 @@ export const QrManagementScreen: React.FC = () => {
                         setPlacardData({
                           item: rootToken,
                           restaurantName: data?.restaurant.name || 'Restaurant',
-                          logoUrl: data?.restaurant.logoUrl || null,
                         })
                       }
                       className="px-3.5 py-1.5"
@@ -537,7 +535,6 @@ export const QrManagementScreen: React.FC = () => {
                           setPlacardData({
                             item,
                             restaurantName: data?.restaurant.name || 'Restaurant',
-                            logoUrl: data?.restaurant.logoUrl || null,
                           })
                         }
                         className="px-1 text-[11px] flex items-center justify-center gap-1"
@@ -765,14 +762,6 @@ const PlacardModal: React.FC<{ data: PlacardModalData; onClose: () => void }> = 
           id="printable-placard"
           className="p-8 border-2 border-stone-900 rounded-3xl bg-white text-center space-y-4 shadow-sm"
         >
-          {data.logoUrl && (
-            <img
-              src={data.logoUrl}
-              alt={data.restaurantName}
-              className="max-h-12 max-w-[140px] w-auto h-auto mx-auto object-contain"
-            />
-          )}
-
           <div>
             <h4 className="text-xl font-serif font-normal text-stone-900">{data.restaurantName}</h4>
             {data.item.tableNumber ? (

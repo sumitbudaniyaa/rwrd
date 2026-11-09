@@ -159,7 +159,7 @@ describe('SettingsScreen', () => {
     });
 
     // Find and click Edit for Google Review URL (second edit button in list)
-    const editReviewBtn = screen.getAllByRole('button', { name: /^Edit$/i })[2];
+    const editReviewBtn = screen.getAllByRole('button', { name: /^Edit$/i })[1];
     expect(editReviewBtn).toBeDefined();
     fireEvent.click(editReviewBtn!);
 
@@ -205,8 +205,8 @@ describe('SettingsScreen', () => {
       expect(screen.getByText('₹20')).toBeInTheDocument();
     });
 
-    // Click Edit on tip presets (third or fourth Edit button)
-    const editPresetBtn = screen.getAllByRole('button', { name: /^Edit$/i })[3];
+    // Click Edit on tip presets (third Edit button)
+    const editPresetBtn = screen.getAllByRole('button', { name: /^Edit$/i })[2];
     expect(editPresetBtn).toBeDefined();
     fireEvent.click(editPresetBtn!);
 
@@ -248,7 +248,7 @@ describe('SettingsScreen', () => {
     });
 
     // Click Edit on tip limits
-    const editBoundsBtn = screen.getAllByRole('button', { name: /^Edit$/i })[4];
+    const editBoundsBtn = screen.getAllByRole('button', { name: /^Edit$/i })[3];
     expect(editBoundsBtn).toBeDefined();
     fireEvent.click(editBoundsBtn!);
 
