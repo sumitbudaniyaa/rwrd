@@ -30,6 +30,8 @@ describe('Admin QR & Table Management Routes', () => {
     tipPresets: [20, 50, 100, 200],
     minTipInr: 10,
     maxTipInr: 5000,
+    tippingEnabled: true,
+    reviewsEnabled: true,
     isActive: true,
     isSuspended: false,
     suspensionReason: null,

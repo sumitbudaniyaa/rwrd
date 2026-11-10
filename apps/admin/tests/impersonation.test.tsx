@@ -9,6 +9,8 @@ import type { ImpersonationDetails } from '../src/services/api.js';
 const renderLayoutWithAuth = (
   impersonation: ImpersonationDetails | null = null,
   exitImpersonationSpy = vi.fn(),
+  userOverrides: Record<string, unknown> = {},
+  restaurantOverrides: Record<string, unknown> = {},
 ) => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -24,12 +26,14 @@ const renderLayoutWithAuth = (
       fullName: 'Sameer Seth',
       role: 'owner',
       restaurantId: 'rest-1111',
+      ...userOverrides,
     },
     restaurant: {
       id: 'rest-1111',
       name: 'The Bombay Canteen',
       slug: 'the-bombay-canteen',
       logoUrl: null,
+      ...restaurantOverrides,
     },
     accessToken: 'admin-access-token',
     tempToken: null,
@@ -56,7 +60,7 @@ const renderLayoutWithAuth = (
   );
 };
 
-describe('Admin Support Impersonation Banner', () => {
+describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -97,5 +101,34 @@ describe('Admin Support Impersonation Banner', () => {
 
     expect(screen.queryByRole('alert')).toBeNull();
     expect(screen.queryByText(/Impersonation Mode:/i)).toBeNull();
+  });
+
+  it('renders Google review link missing banner when subscriber has paid but not configured review link', () => {
+    renderLayoutWithAuth(null, vi.fn(), { hasActivePlan: true }, { googleReviewUrl: '' });
+
+    expect(screen.getByText(/Google Review Link Missing/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Add Review Link/i })).toBeInTheDocument();
+  });
+
+  it('does not render review missing banner when Google review URL is configured', () => {
+    renderLayoutWithAuth(
+      null,
+      vi.fn(),
+      { hasActivePlan: true },
+      { googleReviewUrl: 'https://maps.app.goo.gl/bombaycanteen' },
+    );
+
+    expect(screen.queryByText(/Google Review Link Missing/i)).toBeNull();
+  });
+
+  it('does not render review missing banner when account has not paid yet', () => {
+    renderLayoutWithAuth(
+      null,
+      vi.fn(),
+      { hasActivePlan: false, subscriptionStatus: 'unpaid' },
+      { googleReviewUrl: '' },
+    );
+
+    expect(screen.queryByText(/Google Review Link Missing/i)).toBeNull();
   });
 });

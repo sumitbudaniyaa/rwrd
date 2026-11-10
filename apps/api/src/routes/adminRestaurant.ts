@@ -56,6 +56,8 @@ adminRestaurantRouter.get(
           tipPresets: restaurant.tipPresets,
           minTipInr: restaurant.minTipInr,
           maxTipInr: restaurant.maxTipInr,
+          tippingEnabled: restaurant.tippingEnabled,
+          reviewsEnabled: restaurant.reviewsEnabled,
           isActive: restaurant.isActive,
           createdAt: restaurant.createdAt.toISOString(),
           updatedAt: restaurant.updatedAt.toISOString(),
@@ -108,6 +110,8 @@ adminRestaurantRouter.put(
       if (body.tipPresets !== undefined) updateData.tipPresets = body.tipPresets;
       if (body.minTipInr !== undefined) updateData.minTipInr = body.minTipInr;
       if (body.maxTipInr !== undefined) updateData.maxTipInr = body.maxTipInr;
+      if (body.tippingEnabled !== undefined) updateData.tippingEnabled = body.tippingEnabled;
+      if (body.reviewsEnabled !== undefined) updateData.reviewsEnabled = body.reviewsEnabled;
 
       const updated = await restaurantRepository.update(restaurantId, updateData);
       if (!updated) {
@@ -130,6 +134,8 @@ adminRestaurantRouter.put(
             tipPresets: existing.tipPresets,
             minTipInr: existing.minTipInr,
             maxTipInr: existing.maxTipInr,
+            tippingEnabled: existing.tippingEnabled,
+            reviewsEnabled: existing.reviewsEnabled,
           },
           afterState: {
             name: updated.name,
@@ -138,6 +144,8 @@ adminRestaurantRouter.put(
             tipPresets: updated.tipPresets,
             minTipInr: updated.minTipInr,
             maxTipInr: updated.maxTipInr,
+            tippingEnabled: updated.tippingEnabled,
+            reviewsEnabled: updated.reviewsEnabled,
           },
           ipAddress: req.ip,
           userAgent: req.get('user-agent'),
@@ -154,6 +162,8 @@ adminRestaurantRouter.put(
           tipPresets: updated.tipPresets,
           minTipInr: updated.minTipInr,
           maxTipInr: updated.maxTipInr,
+          tippingEnabled: updated.tippingEnabled,
+          reviewsEnabled: updated.reviewsEnabled,
           isActive: updated.isActive,
           createdAt: updated.createdAt.toISOString(),
           updatedAt: updated.updatedAt.toISOString(),

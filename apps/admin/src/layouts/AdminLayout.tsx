@@ -7,7 +7,12 @@ import logoImage from '../assets/logo.png';
 export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout, impersonation, exitImpersonation } = useAuth();
+  const { user, restaurant, logout, impersonation, exitImpersonation } = useAuth();
+
+  const hasPaid = Boolean(user?.hasActivePlan || user?.subscriptionStatus === 'active');
+  const isReviewLinkMissing =
+    !restaurant?.googleReviewUrl || restaurant.googleReviewUrl.trim() === '';
+  const showReviewBanner = hasPaid && isReviewLinkMissing;
 
   const handleLogout = async () => {
     await logout();
@@ -97,6 +102,32 @@ export const AdminLayout: React.FC = () => {
             className="px-3 py-1 bg-stone-950 hover:bg-stone-800 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer"
           >
             Exit Impersonation
+          </button>
+        </div>
+      )}
+
+      {/* Missing Google Review Link Banner */}
+      {showReviewBanner && (
+        <div
+          role="alert"
+          aria-label="Google review link missing notification"
+          className="bg-[#FFE862]/25 border-b border-[#FFE862]/80 px-6 sm:px-8 py-2.5 text-xs text-stone-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs z-40 sticky top-0"
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-base select-none" aria-hidden="true">
+              ⭐
+            </span>
+            <span>
+              <strong>Google Review Link Missing:</strong> Add your Google review link so diners can
+              leave 5-star ratings directly when scanning table QR codes.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate('/settings')}
+            className="px-3.5 py-1 bg-stone-900 hover:bg-black text-white rounded-lg text-xs font-semibold transition-colors shrink-0 cursor-pointer self-start sm:self-auto"
+          >
+            Add Review Link
           </button>
         </div>
       )}

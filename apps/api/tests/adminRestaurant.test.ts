@@ -28,6 +28,8 @@ describe('Admin Restaurant Settings Routes', () => {
     tipPresets: [20, 50, 100, 200],
     minTipInr: 10,
     maxTipInr: 5000,
+    tippingEnabled: true,
+    reviewsEnabled: true,
     isActive: true,
     isSuspended: false,
     suspensionReason: null,
@@ -54,6 +56,8 @@ describe('Admin Restaurant Settings Routes', () => {
     expect(res.body.restaurant.tipPresets).toEqual([20, 50, 100, 200]);
     expect(res.body.restaurant.minTipInr).toBe(10);
     expect(res.body.restaurant.maxTipInr).toBe(5000);
+    expect(res.body.restaurant.tippingEnabled).toBe(true);
+    expect(res.body.restaurant.reviewsEnabled).toBe(true);
   });
 
   it('GET /api/v1/admin/restaurants/:id/settings strictly forbids cross-tenant access with 403', async () => {

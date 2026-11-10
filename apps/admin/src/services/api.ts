@@ -36,6 +36,9 @@ export interface AdminRestaurant {
   name: string;
   slug: string;
   logoUrl?: string | null;
+  googleReviewUrl?: string | null;
+  tippingEnabled?: boolean;
+  reviewsEnabled?: boolean;
 }
 
 export interface LoginResponse {
@@ -133,6 +136,8 @@ export interface RestaurantSettings {
   tipPresets: number[];
   minTipInr: number;
   maxTipInr: number;
+  tippingEnabled?: boolean;
+  reviewsEnabled?: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -145,6 +150,8 @@ export interface UpdateRestaurantSettingsInput {
   tipPresets?: number[];
   minTipInr?: number;
   maxTipInr?: number;
+  tippingEnabled?: boolean;
+  reviewsEnabled?: boolean;
 }
 
 export interface QrTokenItem {

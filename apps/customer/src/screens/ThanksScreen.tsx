@@ -61,7 +61,14 @@ export const ThanksScreen: React.FC = () => {
     return <ErrorScreen />;
   }
 
+  const canReview = Boolean(
+    restaurant.reviewsEnabled !== false &&
+    restaurant.googleReviewUrl &&
+    restaurant.googleReviewUrl.trim().length > 0,
+  );
+
   const handleReviewClick = () => {
+    if (!restaurant.googleReviewUrl) return;
     // Record telemetry with source 'post_tip_reminder'
     api
       .trackReviewTap(restaurant.id, {
@@ -120,34 +127,36 @@ export const ThanksScreen: React.FC = () => {
 
       {/* Google Review Prompt Card */}
       <section className="pb-4 space-y-3">
-        <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-2xs text-left">
-          <div className="flex items-center gap-1 text-amber-400 mb-2">
-            {[...Array(5)].map((_, i) => (
-              <HugeiconsIcon
-                key={i}
-                icon={StarIcon}
-                className="w-4 h-4 fill-amber-400 text-amber-400"
-                strokeWidth={1.5}
-              />
-            ))}
+        {canReview && (
+          <div className="p-5 rounded-2xl bg-white border border-stone-200/80 shadow-2xs text-left">
+            <div className="flex items-center gap-1 text-amber-400 mb-2">
+              {[...Array(5)].map((_, i) => (
+                <HugeiconsIcon
+                  key={i}
+                  icon={StarIcon}
+                  className="w-4 h-4 fill-amber-400 text-amber-400"
+                  strokeWidth={1.5}
+                />
+              ))}
+            </div>
+
+            <h3 className="font-serif text-base font-medium text-stone-900 leading-snug">
+              {t('thanks.review_title')}
+            </h3>
+            <p className="mt-1 text-xs text-stone-500 font-sans leading-relaxed">
+              {t('thanks.review_desc')}
+            </p>
+
+            <button
+              type="button"
+              onClick={handleReviewClick}
+              className="mt-3.5 w-full py-3 rounded-xl bg-stone-900 hover:bg-stone-800 active:scale-[0.98] text-white text-xs font-semibold tracking-wide transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <span>{t('thanks.review_btn')}</span>
+              <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
+            </button>
           </div>
-
-          <h3 className="font-serif text-base font-medium text-stone-900 leading-snug">
-            {t('thanks.review_title')}
-          </h3>
-          <p className="mt-1 text-xs text-stone-500 font-sans leading-relaxed">
-            {t('thanks.review_desc')}
-          </p>
-
-          <button
-            type="button"
-            onClick={handleReviewClick}
-            className="mt-3.5 w-full py-3 rounded-xl bg-stone-900 hover:bg-stone-800 active:scale-[0.98] text-white text-xs font-semibold tracking-wide transition-all shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-          >
-            <span>{t('thanks.review_btn')}</span>
-            <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-          </button>
-        </div>
+        )}
 
         <button
           type="button"

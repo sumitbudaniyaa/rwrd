@@ -6,14 +6,7 @@ export const RestaurantPublicSchema = z.object({
   name: z.string().min(1).max(255),
   slug: z.string().min(1).max(100),
   logoUrl: z.string().url().nullable().optional(),
-  googleReviewUrl: z
-    .string()
-    .url()
-    .refine(
-      (url) =>
-        url.includes('google.com') || url.includes('g.page') || url.includes('maps.app.goo.gl'),
-      'Google review link must be a valid Google Maps / Google Business profile review URL',
-    ),
+  googleReviewUrl: z.string().nullable().optional(),
   tipPresets: z
     .array(z.number().int().positive())
     .min(1)
@@ -21,6 +14,9 @@ export const RestaurantPublicSchema = z.object({
     .default([...DEFAULT_TIP_PRESETS]),
   minTipInr: z.number().int().positive().default(TIP_BOUNDS.MIN_INR),
   maxTipInr: z.number().int().positive().default(TIP_BOUNDS.MAX_INR),
+  tippingEnabled: z.boolean().optional(),
+  reviewsEnabled: z.boolean().optional(),
+  hasActiveStaff: z.boolean().optional(),
 });
 
 export type RestaurantPublic = z.infer<typeof RestaurantPublicSchema>;
@@ -56,6 +52,8 @@ export const UpdateRestaurantSettingsSchema = z
     tipPresets: z.array(z.number().int().positive()).min(1).max(6).optional(),
     minTipInr: z.number().int().positive().optional(),
     maxTipInr: z.number().int().positive().optional(),
+    tippingEnabled: z.boolean().optional(),
+    reviewsEnabled: z.boolean().optional(),
   })
   .refine(
     (data) => {

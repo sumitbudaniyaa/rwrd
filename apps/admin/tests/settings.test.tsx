@@ -295,4 +295,47 @@ describe('SettingsScreen', () => {
     expect(screen.queryByText(/Grace Buffer Protection/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/48-Hour Renewal Buffer/i)).not.toBeInTheDocument();
   });
+
+  it('allows toggling guest experience controls for tipping and reviews', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        ...mockRestaurantSettings,
+        tippingEnabled: true,
+        reviewsEnabled: true,
+      },
+    });
+    const updateSpy = vi.spyOn(api, 'updateRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        ...mockRestaurantSettings,
+        tippingEnabled: false,
+        reviewsEnabled: false,
+      },
+    });
+
+    renderWithProviders(<SettingsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('guest experience controls')).toBeInTheDocument();
+      expect(screen.getByText('Waitstaff Tipping Option')).toBeInTheDocument();
+      expect(screen.getByText('Google Review Option')).toBeInTheDocument();
+    });
+
+    // Toggle tipping switch
+    const tippingSwitch = screen.getByRole('switch', { name: /Toggle waitstaff tipping option/i });
+    expect(tippingSwitch).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(tippingSwitch);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('rest-123', { tippingEnabled: false });
+    });
+
+    // Toggle reviews switch
+    const reviewsSwitch = screen.getByRole('switch', { name: /Toggle Google review option/i });
+    expect(reviewsSwitch).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(reviewsSwitch);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('rest-123', { reviewsEnabled: false });
+    });
+  });
 });

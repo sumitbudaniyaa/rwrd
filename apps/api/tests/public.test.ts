@@ -29,6 +29,8 @@ describe('Public Customer API Endpoints', () => {
     tipPresets: [20, 50, 100, 200],
     minTipInr: 10,
     maxTipInr: 5000,
+    tippingEnabled: true,
+    reviewsEnabled: true,
     isActive: true,
     isSuspended: false,
     suspensionReason: null,
@@ -108,6 +110,7 @@ describe('Public Customer API Endpoints', () => {
         createdAt: new Date(),
       });
       vi.spyOn(QrTokenRepository.prototype, 'findByToken').mockResolvedValue(mockResolvedToken);
+      vi.spyOn(StaffRepository.prototype, 'hasActiveStaff').mockResolvedValue(true);
 
       const res = await request(app)
         .get('/api/v1/public/restaurants/token/valid_table_token_123')
@@ -129,6 +132,9 @@ describe('Public Customer API Endpoints', () => {
           tipPresets: [20, 50, 100, 200],
           minTipInr: 10,
           maxTipInr: 5000,
+          tippingEnabled: true,
+          reviewsEnabled: true,
+          hasActiveStaff: true,
         },
         table: {
           id: mockTableId,

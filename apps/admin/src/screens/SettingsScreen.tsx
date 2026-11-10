@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { api, ApiError, type UpdateRestaurantSettingsInput } from '../services/api.js';
 
 export const SettingsScreen: React.FC = () => {
-  const { user, restaurant } = useAuth();
+  const { user, restaurant, refreshUser } = useAuth();
   const queryClient = useQueryClient();
   const toast = useToast();
   const restaurantId = user?.restaurantId || restaurant?.id || '';
@@ -26,6 +26,8 @@ export const SettingsScreen: React.FC = () => {
   const [newPresetValue, setNewPresetValue] = useState('');
   const [minTipInr, setMinTipInr] = useState<number>(10);
   const [maxTipInr, setMaxTipInr] = useState<number>(5000);
+  const [tippingEnabled, setTippingEnabled] = useState(true);
+  const [reviewsEnabled, setReviewsEnabled] = useState(true);
 
   // Field-wise editing toggles
   const [isEditingName, setIsEditingName] = useState(false);
@@ -55,6 +57,12 @@ export const SettingsScreen: React.FC = () => {
       setTipPresets(savedSettings.tipPresets || [20, 50, 100, 200]);
       setMinTipInr(savedSettings.minTipInr || 10);
       setMaxTipInr(savedSettings.maxTipInr || 5000);
+      if (savedSettings.tippingEnabled !== undefined) {
+        setTippingEnabled(savedSettings.tippingEnabled);
+      }
+      if (savedSettings.reviewsEnabled !== undefined) {
+        setReviewsEnabled(savedSettings.reviewsEnabled);
+      }
     }
   }, [savedSettings]);
 
@@ -65,6 +73,7 @@ export const SettingsScreen: React.FC = () => {
       void queryClient.invalidateQueries({
         queryKey: ['admin-restaurant-settings', restaurantId],
       });
+      void refreshUser?.();
       setSuccessMessage('Restaurant settings updated successfully.');
       toast.success('Settings Saved', 'Restaurant operational preferences updated successfully.');
       setFormError(null);
@@ -220,6 +229,44 @@ export const SettingsScreen: React.FC = () => {
           setSavingField(null);
         },
         onError: () => setSavingField(null),
+      },
+    );
+  };
+
+  const handleToggleTipping = (enabled: boolean) => {
+    setSavingField('tippingEnabled');
+    updateMutation.mutate(
+      { tippingEnabled: enabled },
+      {
+        onSettled: () => setSavingField(null),
+        onSuccess: () => {
+          setTippingEnabled(enabled);
+          toast.success(
+            enabled ? 'Tipping Enabled' : 'Tipping Disabled',
+            enabled
+              ? 'Guests can now tip staff from QR codes.'
+              : 'Waitstaff tipping option hidden from table QR codes.',
+          );
+        },
+      },
+    );
+  };
+
+  const handleToggleReviews = (enabled: boolean) => {
+    setSavingField('reviewsEnabled');
+    updateMutation.mutate(
+      { reviewsEnabled: enabled },
+      {
+        onSettled: () => setSavingField(null),
+        onSuccess: () => {
+          setReviewsEnabled(enabled);
+          toast.success(
+            enabled ? 'Google Reviews Enabled' : 'Google Reviews Disabled',
+            enabled
+              ? 'Guests can now tap to review on Google.'
+              : 'Google review prompt hidden from table QR codes.',
+          );
+        },
       },
     );
   };
@@ -768,6 +815,91 @@ export const SettingsScreen: React.FC = () => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </SlideUp>
+
+        {/* Section 5: Guest Experience Controls */}
+        <SlideUp delay={250}>
+          <div className="p-6 rounded-2xl border border-stone-200/70 bg-white/90 backdrop-blur-xs shadow-2xs space-y-4 hover:shadow-xs transition-all duration-200">
+            <div className="border-b border-stone-100 pb-3">
+              <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                guest experience controls
+              </h3>
+              <p className="text-xs text-stone-500 mt-0.5">
+                Enable or disable specific capabilities presented to diners when scanning table QR
+                codes.
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-1">
+              {/* Tipping Option Toggle */}
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-stone-900">
+                      Waitstaff Tipping Option
+                    </span>
+                    <Badge variant={tippingEnabled ? 'success' : 'neutral'}>
+                      {tippingEnabled ? 'ENABLED' : 'DISABLED'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-stone-500 mt-1">
+                    Shows tipping card and team roster to diners scanning table QR codes.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-label="Toggle waitstaff tipping option"
+                  aria-checked={tippingEnabled}
+                  disabled={savingField === 'tippingEnabled'}
+                  onClick={() => handleToggleTipping(!tippingEnabled)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FFE862] ${
+                    tippingEnabled ? 'bg-stone-900' : 'bg-stone-300'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                      tippingEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Review Option Toggle */}
+              <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold text-stone-900">
+                      Google Review Option
+                    </span>
+                    <Badge variant={reviewsEnabled ? 'success' : 'neutral'}>
+                      {reviewsEnabled ? 'ENABLED' : 'DISABLED'}
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-stone-500 mt-1">
+                    Shows &quot;Review us&quot; card to diners scanning table QR codes.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-label="Toggle Google review option"
+                  aria-checked={reviewsEnabled}
+                  disabled={savingField === 'reviewsEnabled'}
+                  onClick={() => handleToggleReviews(!reviewsEnabled)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FFE862] ${
+                    reviewsEnabled ? 'bg-stone-900' : 'bg-stone-300'
+                  }`}
+                >
+                  <span
+                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                      reviewsEnabled ? 'translate-x-5' : 'translate-x-0'
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
           </div>
         </SlideUp>

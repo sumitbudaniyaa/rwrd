@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +37,12 @@ export const StaffScreen: React.FC = () => {
   });
 
   const staffList = data?.staff || [];
+
+  useEffect(() => {
+    if (restaurant && restaurant.tippingEnabled === false) {
+      navigate(`/t/${token}`, { replace: true });
+    }
+  }, [restaurant, token, navigate]);
 
   const filteredStaff = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();

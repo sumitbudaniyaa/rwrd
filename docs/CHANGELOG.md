@@ -6,6 +6,38 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Guest Experience Controls, Missing Review Link Admin Banner & Customer Setup Holding View (M7-T74)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Database & Schema Updates**:
+    - Added `tipping_enabled` and `reviews_enabled` boolean columns (default `true`, not null) to the `restaurants` table in [`apps/api/src/db/schema/restaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/schema/restaurants.ts).
+    - Created migration `0003_experience_toggles.sql` and registered it in [`apps/api/src/db/migrations/meta/_journal.json`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/db/migrations/meta/_journal.json).
+    - Updated shared Zod schemas in [`packages/shared/src/schemas/restaurant.ts`](file:///Users/Sumit/Desktop/rwrd/packages/shared/src/schemas/restaurant.ts):
+      - Relaxed `googleReviewUrl` to nullable/optional (`z.string().nullable().optional()`).
+      - Added optional `tippingEnabled`, `reviewsEnabled`, and `hasActiveStaff` flags to `RestaurantPublicSchema` and `UpdateRestaurantSettingsSchema`.
+  - **API Endpoints**:
+    - Added `hasActiveStaff(restaurantId)` repository helper in [`apps/api/src/repositories/staffRepository.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/staffRepository.ts).
+    - Enriched `GET /api/v1/public/restaurants/token/:token` in [`apps/api/src/routes/public.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/public.ts) to return `tippingEnabled`, `reviewsEnabled`, and `hasActiveStaff`.
+    - Enriched `GET /api/v1/admin/auth/me` in [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) with `googleReviewUrl`, `tippingEnabled`, and `reviewsEnabled`.
+    - Added support for reading and auditing updates to `tippingEnabled` and `reviewsEnabled` in `GET` and `PUT /api/v1/admin/restaurants/:restaurantId/settings` in [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts).
+  - **Admin App Missing Review Link Banner & Experience Controls**:
+    - Added an amber alert banner in [`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx) that displays when an admin has an active plan (`user.hasActivePlan`) but has not yet added their Google Review link (`!user.restaurant.googleReviewUrl`), with an "Add Review Link" quick action linking to `/settings`.
+    - Added a "Guest Experience Controls" section in [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx) with interactive switch toggles for Staff Tipping and Google Reviews.
+    - Wired `refreshUser()` call upon saving settings to update `AuthContext` immediately and clear the missing review banner without needing a page refresh.
+  - **Customer App Dynamic Feature Gating & Setup Holding View**:
+    - Updated [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx):
+      - Gated Card A (Staff Tipping) to only show if `tippingEnabled !== false && hasActiveStaff !== false`.
+      - Gated Card B (Google Reviews) to only show if `reviewsEnabled !== false && Boolean(googleReviewUrl)`.
+      - When both options are disabled or missing (no active staff and no review link), rendered a friendly setup state displaying the restaurant name, `heart.png` illustration, `"is setting up"`, the tight-cropped rwrd logo, and `"come back later"`.
+    - Added safety redirects and gating in [`apps/customer/src/screens/StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx) and [`apps/customer/src/screens/ThanksScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/ThanksScreen.tsx) to prevent tipping or review interactions when disabled.
+  - **Testing & Verification**:
+    - Added customer unit tests in [`apps/customer/tests/home.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/home.test.tsx) testing review-only mode, tip-only mode, and the setup holding view with `heart.png`.
+    - Added admin unit tests in [`apps/admin/tests/impersonation.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/impersonation.test.tsx) for the missing review link banner and in [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) for the experience toggle switches.
+    - Verified all 8 customer test files (26 tests) and 10 admin test files (54 tests) pass.
+    - Verified `pnpm typecheck` and `pnpm lint` pass with 0 errors.
+
 ### 2026-11-10 - Remove Grace Buffer Protection from Admin Settings (M7-T73)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

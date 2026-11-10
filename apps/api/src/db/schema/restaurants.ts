@@ -24,6 +24,8 @@ export const restaurants = pgTable(
       .notNull(),
     minTipInr: integer('min_tip_inr').default(1).notNull(),
     maxTipInr: integer('max_tip_inr').default(10000).notNull(),
+    tippingEnabled: boolean('tipping_enabled').default(true).notNull(),
+    reviewsEnabled: boolean('reviews_enabled').default(true).notNull(),
     isActive: boolean('is_active').default(true).notNull(),
     isSuspended: boolean('is_suspended').default(false).notNull(),
     suspensionReason: text('suspension_reason'),

@@ -328,6 +328,9 @@ authAdminRouter.get(
         name: string;
         slug: string;
         logoUrl: string | null;
+        googleReviewUrl: string;
+        tippingEnabled: boolean;
+        reviewsEnabled: boolean;
       } | null = null;
 
       const [record] = await db
@@ -354,6 +357,9 @@ authAdminRouter.get(
           name: record.restaurant.name,
           slug: record.restaurant.slug,
           logoUrl: record.restaurant.logoUrl,
+          googleReviewUrl: record.restaurant.googleReviewUrl,
+          tippingEnabled: record.restaurant.tippingEnabled,
+          reviewsEnabled: record.restaurant.reviewsEnabled,
         };
       } else if (req.user?.isImpersonated && req.user.restaurantId) {
         const [targetRest] = await db
@@ -380,6 +386,9 @@ authAdminRouter.get(
           name: targetRest.name,
           slug: targetRest.slug,
           logoUrl: targetRest.logoUrl,
+          googleReviewUrl: targetRest.googleReviewUrl,
+          tippingEnabled: targetRest.tippingEnabled,
+          reviewsEnabled: targetRest.reviewsEnabled,
         };
       } else {
         throw new UnauthorizedError('User account not found or inactive');

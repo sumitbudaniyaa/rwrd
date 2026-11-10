@@ -103,4 +103,64 @@ describe('Customer Screen 1: Home', () => {
 
     expect(screen.getByText('scan table QR code')).toBeInTheDocument();
   });
+
+  it('hides review card when googleReviewUrl is empty or null', async () => {
+    vi.spyOn(api, 'resolveToken').mockResolvedValue({
+      ...mockResolveData,
+      restaurant: {
+        ...mockResolveData.restaurant,
+        googleReviewUrl: null,
+        hasActiveStaff: true,
+      },
+    });
+    window.history.pushState({}, 'Home', '/t/token-no-review');
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Make the people who fed you happy')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Review us')).not.toBeInTheDocument();
+  });
+
+  it('hides tip card when restaurant has no active staff', async () => {
+    vi.spyOn(api, 'resolveToken').mockResolvedValue({
+      ...mockResolveData,
+      restaurant: {
+        ...mockResolveData.restaurant,
+        hasActiveStaff: false,
+        googleReviewUrl: 'https://maps.app.goo.gl/exampleReview',
+      },
+    });
+    window.history.pushState({}, 'Home', '/t/token-no-staff');
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Review us')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Make the people who fed you happy')).not.toBeInTheDocument();
+  });
+
+  it('renders setup holding view with heart illustration when both tipping and reviews are unavailable', async () => {
+    vi.spyOn(api, 'resolveToken').mockResolvedValue({
+      ...mockResolveData,
+      restaurant: {
+        ...mockResolveData.restaurant,
+        hasActiveStaff: false,
+        googleReviewUrl: null,
+      },
+    });
+    window.history.pushState({}, 'Home', '/t/token-setting-up');
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/The Bombay Canteen is setting up/i)).toBeInTheDocument();
+      expect(screen.getByText(/come back later/i)).toBeInTheDocument();
+      expect(screen.getByAltText('rwrd heart')).toBeInTheDocument();
+    });
+    expect(screen.queryByText('Make the people who fed you happy')).not.toBeInTheDocument();
+    expect(screen.queryByText('Review us')).not.toBeInTheDocument();
+  });
 });

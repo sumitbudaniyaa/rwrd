@@ -22,6 +22,25 @@ export class StaffRepository {
   }
 
   /**
+   * Returns true if the restaurant has at least one active, non-deleted staff member.
+   */
+  async hasActiveStaff(restaurantId: string): Promise<boolean> {
+    const results = await this.database
+      .select({ id: staff.id })
+      .from(staff)
+      .where(
+        and(
+          eq(staff.restaurantId, restaurantId),
+          eq(staff.isActive, true),
+          isNull(staff.deletedAt),
+        ),
+      )
+      .limit(1);
+
+    return results.length > 0;
+  }
+
+  /**
    * Retrieves all non-deleted waitstaff for a restaurant (including inactive).
    */
   async findAllByRestaurant(restaurantId: string): Promise<Staff[]> {

@@ -156,6 +156,8 @@ publicRouter.get(
         logger.warn({ err, restaurantId: restaurant.id }, 'Failed to record qr_scan page event');
       }
 
+      const hasActiveStaff = await staffRepo.hasActiveStaff(restaurant.id);
+
       const response: ResolveTokenResponse = {
         restaurant: {
           id: restaurant.id,
@@ -166,6 +168,9 @@ publicRouter.get(
           tipPresets: (restaurant.tipPresets as number[]) || [20, 50, 100, 200],
           minTipInr: restaurant.minTipInr,
           maxTipInr: restaurant.maxTipInr,
+          tippingEnabled: restaurant.tippingEnabled,
+          reviewsEnabled: restaurant.reviewsEnabled,
+          hasActiveStaff,
         },
         table: table
           ? {
