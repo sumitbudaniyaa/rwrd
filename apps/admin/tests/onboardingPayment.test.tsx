@@ -149,6 +149,11 @@ describe('Onboarding Payment Screen', () => {
     expect(screen.getByText('₹549')).toBeInTheDocument();
     expect(screen.getByText('₹1029')).toBeInTheDocument();
 
+    // Check sticky dock typography: plan name on line 1 without dash, price on line 2
+    expect(screen.getByText('1 Month Plan Selected')).toBeInTheDocument();
+    expect(screen.getByText('₹99 INR')).toBeInTheDocument();
+    expect(screen.queryByText(/1 Month Plan Selected —/i)).not.toBeInTheDocument();
+
     // Click Proceed to Pay
     const proceedBtn = screen.getByRole('button', { name: /proceed to pay/i });
     fireEvent.click(proceedBtn);

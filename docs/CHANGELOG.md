@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Admin Onboarding Sticky Dock Typography Polish (M7-T71)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Sticky Pill Typography & Two-Line Price Layout**:
+    - Removed inline dash (`—` / `&mdash;`) separator in [`apps/admin/src/screens/OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx).
+    - Restructured the selected plan info into a clean two-line layout:
+      - Line 1: `{currentPlan.name} Plan Selected` (white text, font-semibold).
+      - Line 2: `₹{currentPlan.priceInr} INR` (brand yellow `#FFE862`, font-mono, font-bold).
+    - Maintains horizontal symmetry with the `Proceed to Pay` button on both mobile and desktop viewports.
+  - **Testing & Verification**:
+    - Updated assertions in [`apps/admin/tests/onboardingPayment.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/onboardingPayment.test.tsx) ensuring the two-line format renders and no dash is present.
+    - All 10 test files and 49 tests in `@tiptable/admin` pass.
+    - Monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Smooth beUI Plan Selection Animation & Removal of Sticky Payment Subtitle (M7-T70)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

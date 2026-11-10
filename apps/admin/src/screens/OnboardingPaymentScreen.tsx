@@ -379,11 +379,11 @@ export const OnboardingPaymentScreen: React.FC = () => {
             <SlideUp delay={50}>
               <div className="pointer-events-auto px-5 py-3.5 sm:px-6 sm:py-3.5 rounded-2xl bg-stone-900/95 backdrop-blur-md border border-stone-800 shadow-2xl shadow-stone-950/40 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 transition-all duration-300">
                 <div className="text-center sm:text-left">
-                  <p className="text-xs sm:text-sm font-semibold text-white flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
-                    <span>{currentPlan.name} Plan Selected &mdash;</span>
-                    <span className="text-[#FFE862] font-mono font-bold text-sm sm:text-base">
-                      ₹{currentPlan.priceInr} INR
-                    </span>
+                  <p className="text-xs sm:text-sm font-semibold text-white">
+                    {currentPlan.name} Plan Selected
+                  </p>
+                  <p className="text-[#FFE862] font-mono font-bold text-sm sm:text-base leading-tight mt-0.5">
+                    ₹{currentPlan.priceInr} INR
                   </p>
                 </div>
 
