@@ -263,4 +263,36 @@ describe('SettingsScreen', () => {
     // View mode restored with original values
     expect(screen.getByText('Min: ₹10 · Max: ₹5000')).toBeInTheDocument();
   });
+
+  it('renders active subscription plan details without grace buffer protection copy', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
+      restaurant: mockRestaurantSettings,
+      subscription: {
+        id: 'sub-active-1',
+        status: 'active',
+        planId: 'plan-6m',
+        planName: '6 Months',
+        planCode: 'semi_annual',
+        priceInr: 549,
+        durationMonths: 6,
+        monthlyFeeInr: 92,
+        currentPeriodStart: '2026-05-01T00:00:00.000Z',
+        currentPeriodEnd: '2026-11-01T00:00:00.000Z',
+        trialEndsAt: null,
+      },
+    });
+
+    renderWithProviders(<SettingsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Active Subscription Tier')).toBeInTheDocument();
+      expect(screen.getByText('6 Months')).toBeInTheDocument();
+      expect(screen.getByText('Billing Duration')).toBeInTheDocument();
+      expect(screen.getByText('Period Expiration')).toBeInTheDocument();
+    });
+
+    // Verify Grace Buffer Protection is absent
+    expect(screen.queryByText(/Grace Buffer Protection/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/48-Hour Renewal Buffer/i)).not.toBeInTheDocument();
+  });
 });

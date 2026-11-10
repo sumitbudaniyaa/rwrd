@@ -6,6 +6,19 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Remove Grace Buffer Protection from Admin Settings (M7-T73)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Admin Settings Subscription Card Streamlining**:
+    - Removed the `"Grace Buffer Protection"` / `"48-Hour Renewal Buffer"` metric card from the Active Subscription Plan section in [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx).
+    - Refactored the metric cards layout from a 3-column layout to a balanced 2-column grid (`grid-cols-1 sm:grid-cols-2`), cleanly displaying only the core operational metrics: **Billing Duration** (with monthly normalized fee) and **Period Expiration** date.
+  - **Testing & Verification**:
+    - Enhanced [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) with a test case verifying the subscription plan details render properly and asserting that neither `"Grace Buffer Protection"` nor `"48-Hour Renewal Buffer"` appears in the DOM.
+    - All 10 test files and 50 tests in `@tiptable/admin` pass.
+    - Typecheck (`pnpm typecheck`) and ESLint (`pnpm lint`) pass with 0 errors/warnings.
+
 ### 2026-11-10 - beUI Animated Toast Stack, Dynamic MRR & Admin Settings Plan Display (M7-T72)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

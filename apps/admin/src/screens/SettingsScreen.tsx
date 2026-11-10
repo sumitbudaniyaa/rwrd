@@ -313,7 +313,7 @@ export const SettingsScreen: React.FC = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
               <div className="p-3 bg-stone-50/70 rounded-xl border border-stone-200/60">
                 <span className="text-[10px] font-medium text-stone-500 block uppercase tracking-wider">
                   Billing Duration
@@ -335,15 +335,6 @@ export const SettingsScreen: React.FC = () => {
                     month: 'short',
                     year: 'numeric',
                   })}
-                </span>
-              </div>
-
-              <div className="p-3 bg-stone-50/70 rounded-xl border border-stone-200/60">
-                <span className="text-[10px] font-medium text-stone-500 block uppercase tracking-wider">
-                  Grace Buffer Protection
-                </span>
-                <span className="text-xs font-bold text-stone-900 mt-0.5 block">
-                  48-Hour Renewal Buffer
                 </span>
               </div>
             </div>

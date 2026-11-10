@@ -411,13 +411,17 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   );
 };
 
-const NOOP_TOAST_CONTEXT = {
+const NOOP_TOAST_CONTEXT: ToastContextValue['toast'] & {
+  showToast: ToastContextValue['showToast'];
+  updateToast: ToastContextValue['updateToast'];
+} = {
   success: () => 'noop',
   error: () => 'noop',
   warning: () => 'noop',
   info: () => 'noop',
   loading: () => 'noop',
   dismiss: () => {},
+  clear: () => {},
   showToast: () => 'noop',
   updateToast: () => {},
 };
