@@ -127,13 +127,18 @@ describe('Onboarding Payment Screen', () => {
       screen.queryByText(/authorized establishment billing and credentialing/i),
     ).not.toBeInTheDocument();
 
-    // Verify plans are displayed
+    // Verify plans and beUI duration tabs are displayed
     await waitFor(() => {
-      expect(screen.getByText('1 Month')).toBeInTheDocument();
-      expect(screen.getByText('3 Months')).toBeInTheDocument();
-      expect(screen.getByText('6 Months')).toBeInTheDocument();
-      expect(screen.getByText('12 Months')).toBeInTheDocument();
+      expect(screen.getAllByText('1 Month').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('3 Months').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('6 Months').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('12 Months').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByRole('tab')).toHaveLength(4);
     });
+
+    // Verify beUI tabs interaction: click 1 Month tab
+    const tabs = screen.getAllByRole('tab');
+    fireEvent.click(tabs[0]!); // Click '1 Month' tab
 
     // Check pricing values
     expect(screen.getByText('₹99')).toBeInTheDocument();
@@ -156,7 +161,7 @@ describe('Onboarding Payment Screen', () => {
     fireEvent.click(confirmBtn);
 
     await waitFor(() => {
-      expect(paySpy).toHaveBeenCalledWith('plan-3');
+      expect(paySpy).toHaveBeenCalledWith('plan-1');
       expect(refreshUserMock).toHaveBeenCalled();
     });
   });

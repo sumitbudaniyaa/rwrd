@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
+import { motion } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   CheckmarkCircle02Icon,
@@ -12,6 +13,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { FadeIn, SlideUp } from '@tiptable/ui';
 import { StatefulButton, type ButtonState } from '../components/motion/button.js';
+import { SPRING_LAYOUT } from '../components/motion/ease.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, setAccessToken, type BillingPlanItem, ApiError } from '../services/api.js';
 import logoImage from '../assets/logo.png';
@@ -179,6 +181,59 @@ export const OnboardingPaymentScreen: React.FC = () => {
           </div>
         </FadeIn>
 
+        {/* beUI Segmented Tabs Selector */}
+        {!isLoadingPlans && activePlanList.length > 0 && (
+          <FadeIn delay={40}>
+            <div className="flex items-center justify-center mt-7">
+              <div
+                role="tablist"
+                aria-label="Subscription billing duration"
+                className="inline-flex items-center p-1.5 bg-stone-100/90 rounded-2xl border border-stone-200/80 shadow-2xs max-w-full overflow-x-auto"
+              >
+                {activePlanList.map((plan) => {
+                  const isSelected = selectedPlanId === plan.id;
+                  const isYearly = plan.durationMonths === 12;
+                  const isSemi = plan.durationMonths === 6;
+
+                  return (
+                    <button
+                      key={plan.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isSelected}
+                      onClick={() => setSelectedPlanId(plan.id)}
+                      className={`relative px-4 py-2 rounded-xl text-xs font-semibold transition-colors duration-150 cursor-pointer select-none outline-none focus:outline-none whitespace-nowrap ${
+                        isSelected ? 'text-stone-900' : 'text-stone-500 hover:text-stone-800'
+                      }`}
+                    >
+                      {isSelected && (
+                        <motion.span
+                          layoutId="beui-plan-tab-active-pill"
+                          className="absolute inset-0 bg-white rounded-xl shadow-xs border border-stone-200/60"
+                          transition={SPRING_LAYOUT}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-1.5">
+                        <span>{plan.name}</span>
+                        {isSemi && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-[#FFE862] text-stone-900 border border-amber-300">
+                            Popular
+                          </span>
+                        )}
+                        {isYearly && (
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-md bg-stone-900 text-white">
+                            Save 15%
+                          </span>
+                        )}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </FadeIn>
+        )}
+
         {/* Pricing Cards Grid */}
         <div className="w-full mt-8">
           {isLoadingPlans ? (
@@ -200,14 +255,23 @@ export const OnboardingPaymentScreen: React.FC = () => {
                       onClick={() => setSelectedPlanId(plan.id)}
                       className={`relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? 'bg-white border-stone-900 shadow-lg ring-2 ring-stone-900/10'
+                          ? 'bg-white border-stone-900 shadow-lg'
                           : 'bg-white/80 border-stone-200 hover:border-stone-300 hover:bg-white shadow-2xs'
                       }`}
                     >
+                      {/* beUI Spring-Gliding Active Card Ring */}
+                      {isSelected && (
+                        <motion.div
+                          layoutId="beui-active-card-ring"
+                          className="absolute -inset-[2px] rounded-[18px] border-2 border-stone-900 ring-4 ring-stone-900/10 pointer-events-none z-10"
+                          transition={SPRING_LAYOUT}
+                        />
+                      )}
+
                       {/* Badge if Popular or Best Value */}
                       {(isYearly || isSemi) && (
                         <div
-                          className={`absolute -top-3 right-5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-tight shadow-2xs ${
+                          className={`absolute -top-3 right-5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-tight shadow-2xs z-20 ${
                             isYearly
                               ? 'bg-stone-900 text-white'
                               : 'bg-[#FFE862] text-stone-900 border border-amber-300'
@@ -283,13 +347,22 @@ export const OnboardingPaymentScreen: React.FC = () => {
                       {/* Select Pill */}
                       <button
                         type="button"
-                        className={`w-full mt-6 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
+                        className={`relative overflow-hidden w-full mt-6 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${
                           isSelected
                             ? 'bg-stone-900 text-white shadow-xs'
                             : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                         }`}
                       >
-                        {isSelected ? 'Selected' : 'Choose Plan'}
+                        {isSelected && (
+                          <motion.span
+                            layoutId="beui-card-button-active-pill"
+                            className="absolute inset-0 bg-stone-900 rounded-xl"
+                            transition={SPRING_LAYOUT}
+                          />
+                        )}
+                        <span className="relative z-10">
+                          {isSelected ? 'Selected' : 'Choose Plan'}
+                        </span>
                       </button>
                     </div>
                   );

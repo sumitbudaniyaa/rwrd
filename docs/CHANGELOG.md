@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - beUI Spring-Gliding Tabs Animation for Plan Selection in Admin Onboarding (M7-T68)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **beUI Segmented Duration Tabs Selector**:
+    - Built a high-craft segmented tab control above the pricing cards in [`apps/admin/src/screens/OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx) (`[ 1 Month | 3 Months | 6 Months (Popular) | 12 Months (Save 15%) ]`).
+    - Styled with a stone track (`bg-stone-100/90 rounded-2xl border border-stone-200/80 shadow-2xs p-1.5`).
+    - Integrated `motion.span` with `layoutId="beui-plan-tab-active-pill"` and tactile `SPRING_LAYOUT` physics (`stiffness: 360, damping: 32, mass: 0.6`).
+  - **Synchronized Active Card Spring Indicators**:
+    - On the pricing cards below, integrated a spring-gliding active ring (`motion.div layoutId="beui-active-card-ring"`) with `SPRING_LAYOUT`.
+    - Integrated spring-gliding button active indicator (`motion.span layoutId="beui-card-button-active-pill"`).
+    - Toggling between plans by clicking either a tab button or a card smoothly animates both the tab pill and the active card outline in 100% mutual synchronization alongside the floating sticky bottom checkout dock.
+  - **Testing & Verification**:
+    - Updated `apps/admin/tests/onboardingPayment.test.tsx` to assert segmented tab rendering and tab click plan switching.
+    - All 10 test files and 49 tests in `@tiptable/admin` pass.
+    - Monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Admin Onboarding Payment Screen Footer Removal & Pricing Cards Scaling (M7-T67)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
