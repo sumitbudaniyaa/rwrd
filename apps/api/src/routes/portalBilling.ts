@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { eq, and, desc, isNull, lte, ne } from 'drizzle-orm';
+import { eq, and, desc, isNull, lte, ne, or, ilike } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from '../db/index.js';
 import { billingPlans, subscriptions, invoices, restaurants } from '../db/schema/index.js';
@@ -26,20 +26,34 @@ const UpdateInvoiceStatusSchema = z.object({
   action: z.enum(['mark_paid', 'void']),
 });
 
+const UpdateBillingPlanSchema = z.object({
+  name: z.string().trim().min(1).max(100).optional(),
+  priceInr: z.number().int().positive('Price must be a positive integer in INR').optional(),
+  monthlyFeeInr: z
+    .number()
+    .int()
+    .positive('Monthly fee must be a positive integer in INR')
+    .optional(),
+  isActive: z.boolean().optional(),
+  maxStaff: z.number().int().positive().optional(),
+  maxTables: z.number().int().positive().optional(),
+});
+
 /**
  * GET /api/v1/portal/billing/plans
- * Lists all platform subscription plans.
+ * Lists platform subscription plans (active by default, or all if ?all=true).
  */
 portalBillingRouter.get(
   '/portal/billing/plans',
   requireAuth('portal'),
   requireRole(['super_admin', 'support', 'finance']),
-  async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const includeAll = (req.query.all as string) === 'true';
       const plans = await db
         .select()
         .from(billingPlans)
-        .where(eq(billingPlans.isActive, true))
+        .where(includeAll ? undefined : eq(billingPlans.isActive, true))
         .orderBy(billingPlans.durationMonths);
 
       res.status(200).json({ plans });
@@ -50,15 +64,126 @@ portalBillingRouter.get(
 );
 
 /**
+ * PATCH /api/v1/portal/billing/plans/:id
+ * Updates plan pricing and metadata (Super Admin only).
+ */
+portalBillingRouter.patch(
+  '/portal/billing/plans/:id',
+  requireAuth('portal'),
+  requireRole(['super_admin']),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const planId = req.params.id;
+      if (!planId) {
+        throw new ValidationError('Plan ID is required');
+      }
+
+      const parsed = UpdateBillingPlanSchema.safeParse(req.body);
+      if (!parsed.success) {
+        throw new ValidationError('Invalid billing plan update payload', [
+          {
+            name: parsed.error.issues[0]?.path.join('.') || 'body',
+            reason: parsed.error.issues[0]?.message || 'Validation failed',
+          },
+        ]);
+      }
+
+      const [existing] = await db
+        .select()
+        .from(billingPlans)
+        .where(eq(billingPlans.id, planId))
+        .limit(1);
+
+      if (!existing) {
+        throw new NotFoundError('Billing plan not found');
+      }
+
+      const updatePayload: Record<string, unknown> = {
+        updatedAt: new Date(),
+      };
+      if (parsed.data.name !== undefined) updatePayload.name = parsed.data.name;
+      if (parsed.data.priceInr !== undefined) updatePayload.priceInr = parsed.data.priceInr;
+      if (parsed.data.monthlyFeeInr !== undefined) {
+        updatePayload.monthlyFeeInr = parsed.data.monthlyFeeInr;
+      }
+      if (parsed.data.isActive !== undefined) updatePayload.isActive = parsed.data.isActive;
+      if (parsed.data.maxStaff !== undefined) updatePayload.maxStaff = parsed.data.maxStaff;
+      if (parsed.data.maxTables !== undefined) updatePayload.maxTables = parsed.data.maxTables;
+
+      const [updated] = await db
+        .update(billingPlans)
+        .set(updatePayload)
+        .where(eq(billingPlans.id, planId))
+        .returning();
+
+      if (!updated) {
+        throw new Error('Failed to update billing plan');
+      }
+
+      await auditService.record({
+        actorId: req.user!.id,
+        actorType: 'platform_user',
+        action: 'PLAN_PRICE_UPDATED',
+        entityType: 'billing_plan',
+        entityId: planId,
+        beforeState: {
+          name: existing.name,
+          priceInr: existing.priceInr,
+          monthlyFeeInr: existing.monthlyFeeInr,
+          isActive: existing.isActive,
+        },
+        afterState: {
+          name: updated.name,
+          priceInr: updated.priceInr,
+          monthlyFeeInr: updated.monthlyFeeInr,
+          isActive: updated.isActive,
+        },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+
+      res.status(200).json({ plan: updated });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
  * GET /api/v1/portal/billing/subscriptions
  * Lists subscriptions with joined restaurant details, plan tiers, and overdue indicators.
+ * Supports status, planId, and restaurant search filters.
  */
 portalBillingRouter.get(
   '/portal/billing/subscriptions',
   requireAuth('portal'),
   requireRole(['super_admin', 'support', 'finance']),
-  async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
+      const status = (req.query.status as string)?.trim().toLowerCase() || 'all';
+      const planId = (req.query.planId as string)?.trim();
+      const search = (req.query.search as string)?.trim();
+
+      const conditions = [isNull(restaurants.deletedAt)];
+
+      if (status !== 'all') {
+        conditions.push(eq(subscriptions.status, status));
+      }
+
+      if (planId && planId !== 'all') {
+        conditions.push(eq(subscriptions.planId, planId));
+      }
+
+      if (search) {
+        const searchCondition = or(
+          ilike(restaurants.name, `%${search}%`),
+          ilike(restaurants.slug, `%${search}%`),
+        );
+        if (searchCondition) {
+          conditions.push(searchCondition);
+        }
+      }
+
       const rows = await db
         .select({
           id: subscriptions.id,
@@ -82,7 +207,7 @@ portalBillingRouter.get(
         .from(subscriptions)
         .innerJoin(restaurants, eq(subscriptions.restaurantId, restaurants.id))
         .innerJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
-        .where(isNull(restaurants.deletedAt))
+        .where(conditions.length > 0 ? and(...conditions) : undefined)
         .orderBy(desc(subscriptions.createdAt));
 
       res.status(200).json({ subscriptions: rows });

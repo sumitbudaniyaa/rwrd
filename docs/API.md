@@ -543,3 +543,126 @@ The API supports three distinct authentication contexts:
   ]
 }
 ```
+
+#### List Restaurants with Subscription Tiers (`GET /api/v1/portal/restaurants`)
+
+- **Role Requirement**: `super_admin`, `support`, `finance`.
+- **Query Parameters**:
+  - `status`: `'all' | 'active' | 'unpaid' | 'suspended' | 'deleted'` (defaults to `'all'`).
+  - `planId`: Specific billing plan ID or `'unpaid'` to filter restaurants by their active tier.
+  - `search`: Keyword matching restaurant name or URL slug.
+  - `limit`: Integer (1-100, default 50).
+  - `offset`: Integer (default 0).
+- **Response `200 OK`**:
+
+```json
+{
+  "restaurants": [
+    {
+      "id": "11111111-1111-1111-1111-111111111111",
+      "name": "The Bombay Canteen",
+      "slug": "the-bombay-canteen",
+      "logoUrl": null,
+      "googleReviewUrl": "https://maps.app.goo.gl/tbc123",
+      "tipPresets": [20, 50, 100, 200],
+      "minTipInr": 10,
+      "maxTipInr": 5000,
+      "isActive": true,
+      "isSuspended": false,
+      "subscriptionStatus": "active",
+      "planId": "22222222-2222-2222-2222-222222222222",
+      "planName": "Quarterly Growth",
+      "planCode": "quarterly",
+      "planPriceInr": 2699,
+      "planDurationMonths": 3,
+      "createdAt": "2026-11-06T10:00:00.000Z"
+    }
+  ],
+  "pagination": { "limit": 50, "offset": 0, "count": 1 }
+}
+```
+
+#### List Billing Plans (`GET /api/v1/portal/billing/plans`)
+
+- **Role Requirement**: `super_admin`, `support`, `finance`.
+- **Query Parameters**:
+  - `all`: Boolean string (`true` returns all plans including archived ones).
+- **Response `200 OK`**:
+
+```json
+{
+  "plans": [
+    {
+      "id": "22222222-2222-2222-2222-222222222222",
+      "code": "quarterly",
+      "name": "Quarterly Growth",
+      "priceInr": 2699,
+      "monthlyFeeInr": 899,
+      "durationMonths": 3,
+      "isActive": true
+    }
+  ]
+}
+```
+
+#### Update Billing Plan Pricing (`PATCH /api/v1/portal/billing/plans/:id`)
+
+- **Role Requirement**: `super_admin` (`403 Forbidden` for finance/support).
+- **Audit Action**: `PLAN_PRICE_UPDATED` (records before and after pricing state).
+- **Request Body**:
+
+```json
+{
+  "name": "Quarterly Growth Plus",
+  "priceInr": 2999,
+  "monthlyFeeInr": 999,
+  "isActive": true
+}
+```
+
+- **Response `200 OK`**:
+
+```json
+{
+  "plan": {
+    "id": "22222222-2222-2222-2222-222222222222",
+    "code": "quarterly",
+    "name": "Quarterly Growth Plus",
+    "priceInr": 2999,
+    "monthlyFeeInr": 999,
+    "durationMonths": 3,
+    "isActive": true,
+    "updatedAt": "2026-11-10T12:00:00.000Z"
+  }
+}
+```
+
+#### List Subscriptions with Joined Establishments (`GET /api/v1/portal/billing/subscriptions`)
+
+- **Role Requirement**: `super_admin`, `support`, `finance`.
+- **Query Parameters**:
+  - `status`: `'all' | 'active' | 'past_due' | 'unpaid' | 'trial' | 'cancelled'` (defaults to `'all'`).
+  - `planId`: Specific billing plan ID.
+  - `search`: Search string matching restaurant name or slug.
+- **Response `200 OK`**:
+
+```json
+{
+  "subscriptions": [
+    {
+      "id": "sub_12345",
+      "restaurantId": "11111111-1111-1111-1111-111111111111",
+      "restaurantName": "The Bombay Canteen",
+      "restaurantSlug": "the-bombay-canteen",
+      "isRestaurantSuspended": false,
+      "planId": "22222222-2222-2222-2222-222222222222",
+      "planName": "Quarterly Growth",
+      "planCode": "quarterly",
+      "monthlyFeeInr": 899,
+      "status": "active",
+      "currentPeriodStart": "2026-11-01T00:00:00.000Z",
+      "currentPeriodEnd": "2027-02-01T00:00:00.000Z"
+    }
+  ]
+}
+```

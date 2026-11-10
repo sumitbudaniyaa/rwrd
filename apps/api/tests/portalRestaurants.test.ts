@@ -44,13 +44,27 @@ describe('Portal Restaurant Management Routes', () => {
     vi.clearAllMocks();
   });
 
-  it('GET /api/v1/portal/restaurants returns list of restaurants for staff', async () => {
+  it('GET /api/v1/portal/restaurants returns list of restaurants with subscription & plan for staff', async () => {
     vi.spyOn(db, 'select').mockReturnValueOnce({
       from: () => ({
-        where: () => ({
-          orderBy: () => ({
-            limit: () => ({
-              offset: () => [mockRestaurantRecord],
+        leftJoin: () => ({
+          leftJoin: () => ({
+            where: () => ({
+              orderBy: () => ({
+                limit: () => ({
+                  offset: () => [
+                    {
+                      ...mockRestaurantRecord,
+                      subscriptionStatus: 'active',
+                      planId: 'plan-1',
+                      planName: 'Quarterly Growth',
+                      planCode: 'quarterly',
+                      planPriceInr: 2699,
+                      planDurationMonths: 3,
+                    },
+                  ],
+                }),
+              }),
             }),
           }),
         }),
@@ -58,12 +72,52 @@ describe('Portal Restaurant Management Routes', () => {
     } as any);
 
     const res = await request(app)
-      .get('/api/v1/portal/restaurants?search=toit')
+      .get('/api/v1/portal/restaurants?search=toit&status=active&planId=plan-1')
       .set('Authorization', `Bearer ${supportToken}`);
 
     expect(res.status).toBe(200);
     expect(res.body.restaurants).toHaveLength(1);
     expect(res.body.restaurants[0].name).toBe('Toit Brewpub');
+    expect(res.body.restaurants[0].subscriptionStatus).toBe('active');
+    expect(res.body.restaurants[0].planName).toBe('Quarterly Growth');
+  });
+
+  it('GET /api/v1/portal/restaurants supports unpaid status filtering', async () => {
+    vi.spyOn(db, 'select').mockReturnValueOnce({
+      from: () => ({
+        leftJoin: () => ({
+          leftJoin: () => ({
+            where: () => ({
+              orderBy: () => ({
+                limit: () => ({
+                  offset: () => [
+                    {
+                      ...mockRestaurantRecord,
+                      id: 'rest-unpaid',
+                      name: 'Unpaid Signup Kitchen',
+                      isActive: false,
+                      subscriptionStatus: 'unpaid',
+                      planId: null,
+                      planName: null,
+                    },
+                  ],
+                }),
+              }),
+            }),
+          }),
+        }),
+      }),
+    } as any);
+
+    const res = await request(app)
+      .get('/api/v1/portal/restaurants?status=unpaid')
+      .set('Authorization', `Bearer ${supportToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.restaurants).toHaveLength(1);
+    expect(res.body.restaurants[0].name).toBe('Unpaid Signup Kitchen');
+    expect(res.body.restaurants[0].isActive).toBe(false);
+    expect(res.body.restaurants[0].subscriptionStatus).toBe('unpaid');
   });
 
   it('POST /api/v1/portal/restaurants creates restaurant, root QR, and owner user with audit log', async () => {

@@ -1,6 +1,13 @@
-import { gte } from 'drizzle-orm';
+import { gte, eq } from 'drizzle-orm';
 import { db, type Database } from '../db/index.js';
-import { restaurants, pageEvents, tipIntents, reviewTaps, leads } from '../db/schema/index.js';
+import {
+  restaurants,
+  subscriptions,
+  pageEvents,
+  tipIntents,
+  reviewTaps,
+  leads,
+} from '../db/schema/index.js';
 
 export interface GlobalMetricsSummary {
   activeRestaurants: number;
@@ -48,7 +55,7 @@ export class PlatformMetricsRepository {
     );
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    // 1. Fetch Restaurant counts
+    // 1. Fetch Restaurant counts with joined subscription status
     const allRestaurants = await this.database
       .select({
         id: restaurants.id,
@@ -56,8 +63,10 @@ export class PlatformMetricsRepository {
         isSuspended: restaurants.isSuspended,
         deletedAt: restaurants.deletedAt,
         createdAt: restaurants.createdAt,
+        subscriptionStatus: subscriptions.status,
       })
-      .from(restaurants);
+      .from(restaurants)
+      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId));
 
     let activeRestaurants = 0;
     let suspendedRestaurants = 0;
@@ -72,7 +81,11 @@ export class PlatformMetricsRepository {
         totalRestaurants++;
         if (r.isSuspended) {
           suspendedRestaurants++;
-        } else if (r.isActive) {
+        } else if (
+          r.isActive &&
+          r.subscriptionStatus !== 'unpaid' &&
+          r.subscriptionStatus !== 'cancelled'
+        ) {
           activeRestaurants++;
         }
 

@@ -18,7 +18,7 @@ import { useAuth } from '../context/AuthContext.js';
 import { portalEnv } from '../config/env.js';
 import { api, type PortalRestaurantItem, type OnboardRestaurantInput } from '../services/api.js';
 
-type StatusFilter = 'all' | 'active' | 'suspended';
+type StatusFilter = 'all' | 'active' | 'unpaid' | 'suspended';
 
 const establishmentTypes = [
   { id: 'casual_dining', label: 'Casual Dining' },
@@ -34,6 +34,7 @@ export const RestaurantManagementScreen: React.FC = () => {
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [planFilter, setPlanFilter] = useState<string>('all');
   const [isOnboardModalOpen, setIsOnboardModalOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<PortalRestaurantItem | null>(null);
   const [suspensionReason, setSuspensionReason] = useState('');
@@ -58,17 +59,24 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [formOwnerPassword, setFormOwnerPassword] = useState('');
   const [formOwnerConfirmPassword, setFormOwnerConfirmPassword] = useState('');
 
+  // Fetch billing plans for plan-wise filtering
+  const { data: plansData } = useQuery({
+    queryKey: ['portal-plans'],
+    queryFn: () => api.getBillingPlans(),
+  });
+
   const {
     data: restaurantsData,
     isLoading,
     isError,
     refetch,
   } = useQuery({
-    queryKey: ['portal-restaurants', search, statusFilter],
+    queryKey: ['portal-restaurants', search, statusFilter, planFilter],
     queryFn: () => {
-      const params: { search?: string; status?: string } = {};
+      const params: { search?: string; status?: string; planId?: string } = {};
       if (search) params.search = search;
       if (statusFilter !== 'all') params.status = statusFilter;
+      if (planFilter !== 'all') params.planId = planFilter;
       return api.getRestaurants(params);
     },
   });
@@ -340,27 +348,45 @@ export const RestaurantManagementScreen: React.FC = () => {
             />
           </div>
 
-          <div className="flex items-center gap-1">
-            {(
-              [
-                { id: 'all', label: 'All' },
-                { id: 'active', label: 'Active' },
-                { id: 'suspended', label: 'Suspended' },
-              ] as const
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setStatusFilter(tab.id)}
-                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                  statusFilter === tab.id
-                    ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
-                    : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-1">
+              {(
+                [
+                  { id: 'all', label: 'All' },
+                  { id: 'active', label: 'Active' },
+                  { id: 'unpaid', label: 'Unpaid' },
+                  { id: 'suspended', label: 'Suspended' },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setStatusFilter(tab.id)}
+                  className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all cursor-pointer ${
+                    statusFilter === tab.id
+                      ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900 shadow-2xs'
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
+            <select
+              value={planFilter}
+              onChange={(e) => setPlanFilter(e.target.value)}
+              className="px-2.5 py-1 text-xs rounded-md bg-stone-50 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-stone-700 dark:text-stone-300 font-medium focus:outline-none cursor-pointer h-7"
+              aria-label="Filter by subscription plan tier"
+            >
+              <option value="all">All Plans</option>
+              <option value="unpaid">Unpaid / Pending Plan</option>
+              {plansData?.plans.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} (₹{p.priceInr})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
       </SlideUp>
@@ -446,8 +472,33 @@ export const RestaurantManagementScreen: React.FC = () => {
                                 </span>
                               )}
                             </div>
+                          ) : rest.subscriptionStatus === 'unpaid' || !rest.isActive ? (
+                            <div className="flex flex-col gap-0.5">
+                              <Badge variant="warning">Unpaid</Badge>
+                              <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                                Pending Payment
+                              </span>
+                            </div>
+                          ) : rest.subscriptionStatus === 'past_due' ? (
+                            <div className="flex flex-col gap-0.5">
+                              <Badge variant="warning">Past Due</Badge>
+                              {rest.planName && (
+                                <span className="text-[10px] text-stone-400 dark:text-stone-500">
+                                  {rest.planName}
+                                </span>
+                              )}
+                            </div>
+                          ) : rest.subscriptionStatus === 'cancelled' ? (
+                            <Badge variant="danger">Cancelled</Badge>
                           ) : (
-                            <Badge variant="success">Active</Badge>
+                            <div className="flex flex-col gap-0.5">
+                              <Badge variant="success">Active</Badge>
+                              {rest.planName && (
+                                <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
+                                  {rest.planName} • ₹{rest.planPriceInr}
+                                </span>
+                              )}
+                            </div>
                           )}
                         </td>
                         <td className="py-3 px-4 text-stone-500 dark:text-stone-400 font-mono text-[11px]">

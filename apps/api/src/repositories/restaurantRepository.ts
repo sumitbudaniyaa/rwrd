@@ -43,9 +43,9 @@ export class RestaurantRepository {
     const match = results[0];
     if (!match) return null;
 
-    // Enforce 2-day plan grace period
+    // Enforce active plan requirement and 2-day plan grace period
     if (match.subscription) {
-      if (match.subscription.status === 'cancelled') {
+      if (match.subscription.status === 'cancelled' || match.subscription.status === 'unpaid') {
         return null;
       }
       const gracePeriodEnd =

@@ -41,11 +41,30 @@ const mockRestaurantsResponse: PortalRestaurantsResponse = {
       updatedAt: '2026-01-10T00:00:00.000Z',
       deletedAt: null,
     },
+    {
+      id: 'rest-003',
+      name: 'Unpaid Signup Bistro',
+      slug: 'unpaid-signup-bistro',
+      logoUrl: null,
+      googleReviewUrl: '',
+      tipPresets: [20, 50, 100],
+      minTipInr: 10,
+      maxTipInr: 2000,
+      isActive: false,
+      isSuspended: false,
+      suspensionReason: null,
+      subscriptionStatus: 'unpaid',
+      planName: null,
+      planPriceInr: null,
+      createdAt: '2026-02-01T00:00:00.000Z',
+      updatedAt: '2026-02-01T00:00:00.000Z',
+      deletedAt: null,
+    },
   ],
   pagination: {
     limit: 50,
     offset: 0,
-    count: 2,
+    count: 3,
   },
 };
 
@@ -189,7 +208,7 @@ describe('RestaurantManagementScreen Component', () => {
       expect(screen.getByText('The Bombay Canteen')).toBeDefined();
     });
 
-    const suspendBtn = screen.getByText('Suspend');
+    const suspendBtn = screen.getAllByRole('button', { name: /^Suspend$/i })[0]!;
     fireEvent.click(suspendBtn);
 
     await waitFor(() => {
@@ -270,5 +289,30 @@ describe('RestaurantManagementScreen Component', () => {
     expect(screen.queryByLabelText('Onboard New Restaurant')).toBeNull();
     expect(screen.queryByText('Suspend')).toBeNull();
     expect(screen.queryByText('Reactivate')).toBeNull();
+  });
+
+  it('renders Unpaid status badge for onboarding tenants without payment and filters correctly', async () => {
+    const getRestaurantsSpy = vi
+      .spyOn(api, 'getRestaurants')
+      .mockResolvedValue(mockRestaurantsResponse);
+
+    renderWithProviders(<RestaurantManagementScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Unpaid Signup Bistro')).toBeDefined();
+      expect(screen.getByText('Pending Payment')).toBeDefined();
+    });
+
+    // Click "Unpaid" filter tab
+    const unpaidTab = screen.getByRole('button', { name: /^Unpaid$/i });
+    fireEvent.click(unpaidTab);
+
+    await waitFor(() => {
+      expect(getRestaurantsSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: 'unpaid',
+        }),
+      );
+    });
   });
 });

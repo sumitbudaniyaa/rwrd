@@ -71,7 +71,8 @@ portalRestaurantsRouter.get(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const search = (req.query.search as string)?.trim();
-      const status = (req.query.status as string)?.trim() || 'all';
+      const status = (req.query.status as string)?.trim().toLowerCase() || 'all';
+      const planId = (req.query.planId as string)?.trim();
       const limit = Math.min(Number(req.query.limit) || 50, 100);
       const offset = Math.max(Number(req.query.offset) || 0, 0);
 
@@ -84,6 +85,18 @@ portalRestaurantsRouter.get(
             eq(restaurants.isActive, true),
             eq(restaurants.isSuspended, false),
             isNull(restaurants.deletedAt),
+            or(eq(subscriptions.status, 'active'), eq(subscriptions.status, 'trial')),
+          ),
+        );
+      } else if (status === 'unpaid') {
+        conditions.push(
+          and(
+            isNull(restaurants.deletedAt),
+            or(
+              eq(restaurants.isActive, false),
+              eq(subscriptions.status, 'unpaid'),
+              isNull(subscriptions.status),
+            ),
           ),
         );
       } else if (status === 'suspended') {
@@ -95,6 +108,15 @@ portalRestaurantsRouter.get(
         conditions.push(isNull(restaurants.deletedAt));
       }
 
+      // Plan filtering
+      if (planId && planId !== 'all') {
+        if (planId === 'unpaid') {
+          conditions.push(or(eq(subscriptions.status, 'unpaid'), isNull(subscriptions.planId)));
+        } else {
+          conditions.push(eq(subscriptions.planId, planId));
+        }
+      }
+
       // Search keyword
       if (search) {
         conditions.push(
@@ -103,8 +125,33 @@ portalRestaurantsRouter.get(
       }
 
       const rows = await db
-        .select()
+        .select({
+          id: restaurants.id,
+          name: restaurants.name,
+          slug: restaurants.slug,
+          logoUrl: restaurants.logoUrl,
+          googleReviewUrl: restaurants.googleReviewUrl,
+          tipPresets: restaurants.tipPresets,
+          minTipInr: restaurants.minTipInr,
+          maxTipInr: restaurants.maxTipInr,
+          isActive: restaurants.isActive,
+          isSuspended: restaurants.isSuspended,
+          suspensionReason: restaurants.suspensionReason,
+          createdAt: restaurants.createdAt,
+          updatedAt: restaurants.updatedAt,
+          deletedAt: restaurants.deletedAt,
+          subscriptionId: subscriptions.id,
+          subscriptionStatus: subscriptions.status,
+          currentPeriodEnd: subscriptions.currentPeriodEnd,
+          planId: billingPlans.id,
+          planName: billingPlans.name,
+          planCode: billingPlans.code,
+          planPriceInr: billingPlans.priceInr,
+          planDurationMonths: billingPlans.durationMonths,
+        })
         .from(restaurants)
+        .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
         .where(conditions.length ? and(...conditions) : undefined)
         .orderBy(desc(restaurants.createdAt))
         .limit(limit)

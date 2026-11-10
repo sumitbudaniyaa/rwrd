@@ -6,6 +6,43 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Super Admin SaaS Plan Price Management, Subscription-Wise Filters, and Unpaid Onboarding Tenant Status Gating (M7-T63)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Unpaid Onboarding Tenant Status Gating**:
+    - Fixed self-registration in `POST /api/v1/auth/admin/register` ([`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts)) to insert restaurants with `isActive: false` while subscription status is `unpaid`.
+    - Updated onboarding mock payment confirmation in `POST /api/v1/admin/billing/onboarding/pay` to activate the restaurant tenant (`isActive: true`, `updatedAt: now`) upon payment receipt.
+    - Updated `restaurantRepository.ts` and `qrTokenRepository.ts` to strictly reject active QR token resolution and public restaurant retrieval for tenants with `status: 'unpaid'`.
+    - Updated `platformMetricsRepository.ts` to join `subscriptions` so active restaurant KPI calculations only count tenants with `isActive: true` AND `subscriptionStatus !== 'unpaid'` AND `subscriptionStatus !== 'cancelled'`.
+  - **Super Admin SaaS Plan Price & Metadata Management**:
+    - Added `PATCH /api/v1/portal/billing/plans/:id` ([`apps/api/src/routes/portalBilling.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalBilling.ts)) guarded by Portal Super Admin role check.
+    - Supports atomic updates to tier display name, total upfront price (`priceInr`), monthly equivalent fee (`monthlyFeeInr`), staff limits, table limits, and active status.
+    - Records immutable audit trail entries (`PLAN_PRICE_UPDATED`) tracking before and after pricing states.
+    - Extended `GET /api/v1/portal/billing/plans` to support `?all=true` allowing retrieval of archived tiers in management views.
+  - **Portal Subscription-Wise Filtering & Search**:
+    - Enhanced `GET /api/v1/portal/restaurants` ([`apps/api/src/routes/portalRestaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalRestaurants.ts)) with left-joins on `subscriptions` and `billingPlans`.
+    - Added query parameters: `status` (`'all' | 'active' | 'unpaid' | 'suspended' | 'deleted'`) and `planId`.
+    - Enhanced `GET /api/v1/portal/billing/subscriptions` with `status`, `planId`, and `search` query parameters.
+  - **Portal Frontend Enhancements**:
+    - **Restaurant Management Screen (`RestaurantManagementScreen.tsx`)**:
+      - Added "Unpaid" filter tab (`All`, `Active`, `Unpaid`, `Suspended`).
+      - Added Plan Tier filter dropdown (`All Plans`, `Unpaid / Pending Plan`, and dynamic SaaS tiers from backend).
+      - Updated status table cell to show `<Badge variant="warning">Unpaid</Badge>` with "Pending Payment" subtitle for unpaid signups, and plan badges (`{planName} • ₹{planPriceInr}`) for active subscriptions.
+    - **Billing Management Screen (`BillingManagementScreen.tsx`)**:
+      - Added 3rd tab: `SaaS Plans Pricing (${plansData?.plans.length || 4})`.
+      - Built interactive card grid displaying plan duration, pricing, monthly equivalent, and active status.
+      - Built Super Admin modal with form controls (`htmlFor`/`id` accessible inputs), price validation, and `updatePlanMutation`.
+      - Added Status tabs (`All`, `Active`, `Past Due`, `Unpaid`, `Trial`, `Cancelled`) and Plan dropdown to the Subscriptions tab toolbar.
+  - **Automated Testing & Verification**:
+    - Added unit and integration tests in `apps/api/tests/portalBilling.test.ts` verifying plan pricing updates, audit logging, RBAC rejection for finance/support, and subscription filtering.
+    - Updated `apps/api/tests/portalRestaurants.test.ts` and `apps/api/tests/e2eSupertestApi.test.ts` with joined subscription/plan mocking and unpaid status filtering assertions.
+    - Added unit tests in `apps/portal/tests/billingManagement.test.tsx` verifying SaaS Plans Pricing tab navigation, edit modal opening, and form submission.
+    - Added unit tests in `apps/portal/tests/restaurantManagement.test.tsx` verifying Unpaid badge rendering and status tab filtering.
+    - All test suites pass: `@tiptable/api` (27 files, 190 tests), `@tiptable/portal` (9 files, 34 tests), `@tiptable/admin` (10 files, 49 tests), `@tiptable/customer` (8 files, 23 tests).
+    - Monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Server Dummy Profile Avatar Fallback for Staff Members Without Uploaded Photos (M7-T62)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

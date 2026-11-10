@@ -85,6 +85,74 @@ describe('Portal Billing & Subscription Routes', () => {
     });
   });
 
+  describe('PATCH /api/v1/portal/billing/plans/:id', () => {
+    it('allows super admin to update plan pricing with audit log', async () => {
+      const existingPlan = {
+        id: planId,
+        code: 'quarterly',
+        name: 'Quarterly Growth',
+        priceInr: 2699,
+        monthlyFeeInr: 899,
+        durationMonths: 3,
+        isActive: true,
+      };
+
+      const updatedPlan = {
+        ...existingPlan,
+        priceInr: 2999,
+        monthlyFeeInr: 999,
+      };
+
+      // Mock select existing plan
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([existingPlan]),
+          }),
+        }),
+      } as any);
+
+      // Mock update plan
+      vi.spyOn(db, 'update').mockReturnValueOnce({
+        set: () => ({
+          where: () => ({
+            returning: () => Promise.resolve([updatedPlan]),
+          }),
+        }),
+      } as any);
+
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      const res = await request(app)
+        .patch(`/api/v1/portal/billing/plans/${planId}`)
+        .set('Authorization', `Bearer ${superAdminToken}`)
+        .send({
+          priceInr: 2999,
+          monthlyFeeInr: 999,
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.plan.priceInr).toBe(2999);
+      expect(res.body.plan.monthlyFeeInr).toBe(999);
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'PLAN_PRICE_UPDATED',
+          entityType: 'billing_plan',
+          entityId: planId,
+        }),
+      );
+    });
+
+    it('rejects finance or support role with 403 on plan update', async () => {
+      const res = await request(app)
+        .patch(`/api/v1/portal/billing/plans/${planId}`)
+        .set('Authorization', `Bearer ${financeToken}`)
+        .send({ priceInr: 3500 });
+
+      expect(res.status).toBe(403);
+    });
+  });
+
   describe('GET /api/v1/portal/billing/subscriptions', () => {
     it('returns subscriptions joined with restaurant and plan details', async () => {
       const mockSubscriptions = [

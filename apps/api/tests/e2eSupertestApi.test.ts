@@ -213,10 +213,14 @@ describe('End-to-End Supertest API Suite (M6-T01)', () => {
     it('allows portal super_admin token to access portal routes', async () => {
       vi.spyOn(db, 'select').mockReturnValueOnce({
         from: () => ({
-          where: () => ({
-            orderBy: () => ({
-              limit: () => ({
-                offset: () => [],
+          leftJoin: () => ({
+            leftJoin: () => ({
+              where: () => ({
+                orderBy: () => ({
+                  limit: () => ({
+                    offset: () => [],
+                  }),
+                }),
               }),
             }),
           }),

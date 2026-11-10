@@ -51,6 +51,14 @@ export interface PortalRestaurantItem {
   createdAt: string;
   updatedAt: string;
   deletedAt: string | null;
+  subscriptionId?: string | null;
+  subscriptionStatus?: 'unpaid' | 'trial' | 'active' | 'past_due' | 'cancelled' | null;
+  currentPeriodEnd?: string | null;
+  planId?: string | null;
+  planName?: string | null;
+  planCode?: string | null;
+  planPriceInr?: number | null;
+  planDurationMonths?: number | null;
 }
 
 export interface PortalRestaurantsResponse {
@@ -214,6 +222,15 @@ export interface BillingPlanItem {
   priceInr?: number;
   durationMonths?: number;
   isActive: boolean;
+  maxStaff?: number;
+  maxTables?: number;
+}
+
+export interface UpdateBillingPlanInput {
+  name?: string;
+  priceInr?: number;
+  monthlyFeeInr?: number;
+  isActive?: boolean;
 }
 
 export interface SubscriptionItem {
@@ -228,7 +245,7 @@ export interface SubscriptionItem {
   monthlyFeeInr: number;
   priceInr?: number;
   durationMonths?: number;
-  status: 'trial' | 'active' | 'past_due' | 'cancelled';
+  status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'unpaid';
   trialEndsAt: string | null;
   currentPeriodStart: string;
   currentPeriodEnd: string;
@@ -386,12 +403,14 @@ export const api = {
   getRestaurants(params?: {
     search?: string;
     status?: string;
+    planId?: string;
     limit?: number;
     offset?: number;
   }): Promise<PortalRestaurantsResponse> {
     const searchParams = new URLSearchParams();
     if (params?.search) searchParams.set('search', params.search);
     if (params?.status) searchParams.set('status', params.status);
+    if (params?.planId) searchParams.set('planId', params.planId);
     if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
     if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
     const qs = searchParams.toString();
@@ -447,16 +466,39 @@ export const api = {
     });
   },
 
-  getBillingPlans(): Promise<{ plans: BillingPlanItem[] }> {
-    return request<{ plans: BillingPlanItem[] }>('/portal/billing/plans', {
+  getBillingPlans(params?: { all?: boolean }): Promise<{ plans: BillingPlanItem[] }> {
+    const qs = params?.all ? '?all=true' : '';
+    return request<{ plans: BillingPlanItem[] }>(`/portal/billing/plans${qs}`, {
       method: 'GET',
     });
   },
 
-  getSubscriptions(): Promise<{ subscriptions: SubscriptionItem[] }> {
-    return request<{ subscriptions: SubscriptionItem[] }>('/portal/billing/subscriptions', {
-      method: 'GET',
+  updateBillingPlan(
+    planId: string,
+    payload: UpdateBillingPlanInput,
+  ): Promise<{ plan: BillingPlanItem }> {
+    return request<{ plan: BillingPlanItem }>(`/portal/billing/plans/${planId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
     });
+  },
+
+  getSubscriptions(params?: {
+    status?: string;
+    planId?: string;
+    search?: string;
+  }): Promise<{ subscriptions: SubscriptionItem[] }> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.planId) searchParams.set('planId', params.planId);
+    if (params?.search) searchParams.set('search', params.search);
+    const qs = searchParams.toString();
+    return request<{ subscriptions: SubscriptionItem[] }>(
+      `/portal/billing/subscriptions${qs ? `?${qs}` : ''}`,
+      {
+        method: 'GET',
+      },
+    );
   },
 
   getInvoices(params?: {

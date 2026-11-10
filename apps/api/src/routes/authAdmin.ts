@@ -141,7 +141,7 @@ authAdminRouter.post(
             tipPresets: [20, 50, 100, 200],
             minTipInr: 10,
             maxTipInr: 5000,
-            isActive: true,
+            isActive: false,
             isSuspended: false,
           })
           .returning();
@@ -494,6 +494,15 @@ authAdminRouter.post(
             .returning();
           subId = newSub!.id;
         }
+
+        // Activate restaurant tenant now that payment is confirmed
+        await tx
+          .update(restaurants)
+          .set({
+            isActive: true,
+            updatedAt: now,
+          })
+          .where(eq(restaurants.id, restaurantId));
 
         const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${generateSecureToken(4).toUpperCase()}`;
         await tx.insert(invoices).values({

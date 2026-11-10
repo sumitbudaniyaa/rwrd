@@ -10,6 +10,7 @@ import {
   type InvoiceItem,
   type InvoicesResponse,
   type AutoSuspendSweepResult,
+  type BillingPlanItem,
 } from '../src/services/api.js';
 import { AuthContext } from '../src/context/AuthContext.js';
 
@@ -77,6 +78,20 @@ const mockInvoices: InvoiceItem[] = [
   },
 ];
 
+const mockPlans: BillingPlanItem[] = [
+  {
+    id: 'plan-quarterly',
+    code: 'quarterly',
+    name: 'Quarterly Growth',
+    priceInr: 2699,
+    monthlyFeeInr: 899,
+    durationMonths: 3,
+    maxStaff: 50,
+    maxTables: 100,
+    isActive: true,
+  },
+];
+
 const mockInvoicesResponse: InvoicesResponse = {
   invoices: mockInvoices,
   pagination: {
@@ -124,6 +139,7 @@ describe('BillingManagementScreen', () => {
     vi.clearAllMocks();
     vi.spyOn(api, 'getSubscriptions').mockResolvedValue({ subscriptions: mockSubscriptions });
     vi.spyOn(api, 'getInvoices').mockResolvedValue(mockInvoicesResponse);
+    vi.spyOn(api, 'getBillingPlans').mockResolvedValue({ plans: mockPlans });
   });
 
   it('renders billing header, stats overview, and subscriptions list', async () => {
@@ -233,5 +249,52 @@ describe('BillingManagementScreen', () => {
       screen.queryByRole('button', { name: /Run Grace Period Sweep/i }),
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Create Invoice/i })).not.toBeInTheDocument();
+  });
+
+  it('switches to SaaS Plans Pricing tab and opens edit price modal for super admin', async () => {
+    const updateSpy = vi.spyOn(api, 'updateBillingPlan').mockResolvedValue({
+      plan: {
+        ...mockPlans[0]!,
+        priceInr: 2999,
+        monthlyFeeInr: 999,
+      },
+    });
+
+    renderWithProviders(<BillingManagementScreen />, 'super_admin');
+
+    // Click SaaS Plans Pricing tab
+    const plansTab = screen.getByRole('button', { name: /SaaS Plans Pricing/i });
+    fireEvent.click(plansTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('SaaS Subscription Pricing Architecture')).toBeInTheDocument();
+      expect(screen.getByText('Quarterly Growth')).toBeInTheDocument();
+      expect(screen.getByText('₹2699')).toBeInTheDocument();
+    });
+
+    // Click Edit Pricing
+    const editBtn = screen.getByRole('button', { name: /Edit Pricing/i });
+    fireEvent.click(editBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Edit Plan Pricing: Quarterly Growth/)).toBeInTheDocument();
+    });
+
+    // Change total price
+    const priceInput = screen.getByLabelText(/Total Price/i);
+    fireEvent.change(priceInput, { target: { value: '2999' } });
+
+    // Submit form
+    const saveBtn = screen.getByRole('button', { name: /Save Price Changes/i });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith(
+        'plan-quarterly',
+        expect.objectContaining({
+          priceInr: 2999,
+        }),
+      );
+    });
   });
 });
