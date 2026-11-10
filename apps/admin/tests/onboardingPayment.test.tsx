@@ -126,6 +126,9 @@ describe('Onboarding Payment Screen', () => {
     expect(
       screen.queryByText(/authorized establishment billing and credentialing/i),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/instant activation via upi deep link or standard checkout/i),
+    ).not.toBeInTheDocument();
 
     // Verify plans and beUI duration tabs are displayed
     await waitFor(() => {

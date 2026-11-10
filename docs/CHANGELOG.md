@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Smooth beUI Plan Selection Animation & Removal of Sticky Payment Subtitle (M7-T70)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Fluid beUI Tab Physics**:
+    - Replaced twitchy overdamped spring physics with organic, fluid spring parameters (`stiffness: 340, damping: 30, mass: 0.8`) on the segmented tabs active pill (`layoutId="beui-plan-tab-active-pill"`) in [`apps/admin/src/screens/OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx).
+    - Resulting damping ratio ($\zeta \approx 0.91$) produces a silky, tactile glide that matches iOS/macOS segmented controls and beUI motion primitives without sudden deceleration.
+  - **Eliminated Cross-Grid Ring Teleportation**:
+    - Replaced the cross-column `layoutId="beui-active-card-ring"` and button layout pill with localized, graceful `AnimatePresence` fade and micro-scale ring expansion (`opacity` & `scale: 0.98 -> 1`, `duration: 0.22s, ease: [0.16, 1, 0.3, 1]`) and subtle card elevation (`scale-[1.01]`, `transition-all duration-300 ease-out`).
+    - Eliminates border snap flickers and flying rectangles over disconnected grid cards.
+  - **Sticky Payment Dock Clutter Removal**:
+    - Removed redundant explanatory subtitle (`"Instant activation via UPI deep link or standard checkout."`) from the floating bottom checkout dock.
+    - Compacted dock layout into an ultra-sleek, balanced single-row component featuring the selected tier name, high-visibility brand yellow price (`₹[price] INR`), and `Proceed to Pay` button.
+  - **Testing & Verification**:
+    - Updated [`apps/admin/tests/onboardingPayment.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/onboardingPayment.test.tsx) asserting that the subtitle line is completely absent from the DOM and tab interactions operate smoothly.
+    - All 10 test files and 49 tests in `@tiptable/admin` pass.
+    - Full monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Super Admin SaaS Plan Deletion with Grandfathered Grace Enforcement (M7-T69)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

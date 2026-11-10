@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   CheckmarkCircle02Icon,
@@ -13,10 +13,16 @@ import {
 } from '@hugeicons/core-free-icons';
 import { FadeIn, SlideUp } from '@tiptable/ui';
 import { StatefulButton, type ButtonState } from '../components/motion/button.js';
-import { SPRING_LAYOUT } from '../components/motion/ease.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, setAccessToken, type BillingPlanItem, ApiError } from '../services/api.js';
 import logoImage from '../assets/logo.png';
+
+const TAB_SPRING = {
+  type: 'spring',
+  stiffness: 340,
+  damping: 30,
+  mass: 0.8,
+} as const;
 
 interface FallbackPlan {
   id: string;
@@ -210,7 +216,7 @@ export const OnboardingPaymentScreen: React.FC = () => {
                         <motion.span
                           layoutId="beui-plan-tab-active-pill"
                           className="absolute inset-0 bg-white rounded-xl shadow-xs border border-stone-200/60"
-                          transition={SPRING_LAYOUT}
+                          transition={TAB_SPRING}
                         />
                       )}
                       <span className="relative z-10 flex items-center gap-1.5">
@@ -253,20 +259,24 @@ export const OnboardingPaymentScreen: React.FC = () => {
                     <div
                       key={plan.id}
                       onClick={() => setSelectedPlanId(plan.id)}
-                      className={`relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-200 cursor-pointer ${
+                      className={`relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-300 ease-out cursor-pointer ${
                         isSelected
-                          ? 'bg-white border-stone-900 shadow-lg'
+                          ? 'bg-white border-stone-900 shadow-lg scale-[1.01]'
                           : 'bg-white/80 border-stone-200 hover:border-stone-300 hover:bg-white shadow-2xs'
                       }`}
                     >
-                      {/* beUI Spring-Gliding Active Card Ring */}
-                      {isSelected && (
-                        <motion.div
-                          layoutId="beui-active-card-ring"
-                          className="absolute -inset-[2px] rounded-[18px] border-2 border-stone-900 ring-4 ring-stone-900/10 pointer-events-none z-10"
-                          transition={SPRING_LAYOUT}
-                        />
-                      )}
+                      {/* beUI Smooth Active Card Highlight */}
+                      <AnimatePresence>
+                        {isSelected && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                            className="absolute -inset-[2px] rounded-[18px] border-2 border-stone-900 ring-4 ring-stone-900/10 pointer-events-none z-10"
+                          />
+                        )}
+                      </AnimatePresence>
 
                       {/* Badge if Popular or Best Value */}
                       {(isYearly || isSemi) && (
@@ -347,22 +357,13 @@ export const OnboardingPaymentScreen: React.FC = () => {
                       {/* Select Pill */}
                       <button
                         type="button"
-                        className={`relative overflow-hidden w-full mt-6 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-colors cursor-pointer ${
+                        className={`w-full mt-6 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                           isSelected
                             ? 'bg-stone-900 text-white shadow-xs'
                             : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                         }`}
                       >
-                        {isSelected && (
-                          <motion.span
-                            layoutId="beui-card-button-active-pill"
-                            className="absolute inset-0 bg-stone-900 rounded-xl"
-                            transition={SPRING_LAYOUT}
-                          />
-                        )}
-                        <span className="relative z-10">
-                          {isSelected ? 'Selected' : 'Choose Plan'}
-                        </span>
+                        <span>{isSelected ? 'Selected' : 'Choose Plan'}</span>
                       </button>
                     </div>
                   );
@@ -374,18 +375,15 @@ export const OnboardingPaymentScreen: React.FC = () => {
 
         {/* Sticky Selected Plan Floating Bar */}
         {currentPlan && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4 pointer-events-none">
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-lg px-4 pointer-events-none">
             <SlideUp delay={50}>
-              <div className="pointer-events-auto p-4 sm:px-5 sm:py-4 rounded-2xl bg-stone-900/95 backdrop-blur-md border border-stone-800 shadow-2xl shadow-stone-950/40 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300">
-                <div className="space-y-0.5 text-center sm:text-left">
+              <div className="pointer-events-auto px-5 py-3.5 sm:px-6 sm:py-3.5 rounded-2xl bg-stone-900/95 backdrop-blur-md border border-stone-800 shadow-2xl shadow-stone-950/40 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 transition-all duration-300">
+                <div className="text-center sm:text-left">
                   <p className="text-xs sm:text-sm font-semibold text-white flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
                     <span>{currentPlan.name} Plan Selected &mdash;</span>
                     <span className="text-[#FFE862] font-mono font-bold text-sm sm:text-base">
                       ₹{currentPlan.priceInr} INR
                     </span>
-                  </p>
-                  <p className="text-[11px] text-stone-400">
-                    Instant activation via UPI deep link or standard checkout.
                   </p>
                 </div>
 
