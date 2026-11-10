@@ -114,9 +114,6 @@ export const AdminLayout: React.FC = () => {
           className="bg-[#FFE862]/25 border-b border-[#FFE862]/80 px-6 sm:px-8 py-2.5 text-xs text-stone-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-2xs z-40 sticky top-0"
         >
           <div className="flex items-center gap-2">
-            <span className="text-base select-none" aria-hidden="true">
-              ⭐
-            </span>
             <span>
               <strong>Google Review Link Missing:</strong> Add your Google review link so diners can
               leave 5-star ratings directly when scanning table QR codes.

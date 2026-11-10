@@ -160,6 +160,9 @@ describe('Customer Screen 1: Home', () => {
       expect(screen.getByText(/come back later/i)).toBeInTheDocument();
       expect(screen.getByAltText('rwrd heart')).toBeInTheDocument();
     });
+    // Top standalone restaurant name header and bottom footer logo are removed
+    expect(screen.queryByRole('heading', { level: 2 })).not.toBeInTheDocument();
+    expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
     expect(screen.queryByText('Make the people who fed you happy')).not.toBeInTheDocument();
     expect(screen.queryByText('Review us')).not.toBeInTheDocument();
   });

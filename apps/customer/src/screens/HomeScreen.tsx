@@ -55,16 +55,9 @@ export const HomeScreen: React.FC = () => {
   // If both tipping and Google review options are unavailable / missing
   if (!showTipOption && !showReviewOption) {
     return (
-      <main className="flex-1 flex flex-col justify-between p-6 max-w-[420px] mx-auto w-full text-center">
-        {/* Header Section: Restaurant Name in Top Middle */}
-        <header className="pt-2 pb-4 flex items-center justify-center w-full text-center">
-          <h2 className="text-xs font-semibold tracking-wider uppercase text-stone-700 font-sans truncate max-w-[280px]">
-            {restaurant.name}
-          </h2>
-        </header>
-
+      <main className="flex-1 flex flex-col items-center justify-center p-6 max-w-[420px] mx-auto w-full text-center">
         {/* Setup In-Progress Illustration & Copy */}
-        <section className="my-auto py-8 flex flex-col items-center">
+        <section className="py-8 flex flex-col items-center">
           <div className="mb-6 flex items-center justify-center">
             <img
               src={heartIcon}
@@ -85,16 +78,6 @@ export const HomeScreen: React.FC = () => {
 
           <p className="mt-3 text-sm text-stone-500 font-sans">come back later</p>
         </section>
-
-        {/* Footer: Official rwrd Brand Logo */}
-        <footer className="text-center pt-3 pb-2">
-          <span className="sr-only">rwrd</span>
-          <img
-            src={rwrdLogo}
-            alt="rwrd"
-            className="h-8 sm:h-9 w-auto object-contain mx-auto select-none"
-          />
-        </footer>
       </main>
     );
   }

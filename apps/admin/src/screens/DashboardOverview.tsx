@@ -46,6 +46,19 @@ export const DashboardOverview: React.FC = () => {
     staleTime: 30000,
   });
 
+  const { data: staffData, isLoading: isStaffLoading } = useQuery({
+    queryKey: ['admin-staff', restaurant?.id],
+    queryFn: () => {
+      if (!restaurant?.id) return Promise.reject(new Error('Restaurant not selected'));
+      return api.getStaffList(restaurant.id);
+    },
+    enabled: Boolean(restaurant?.id),
+    staleTime: 30000,
+  });
+
+  const hasNoStaff =
+    !isStaffLoading && staffData?.staff !== undefined && staffData.staff.length === 0;
+
   const stats: StatItem[] = [
     {
       title: 'QR Scans',
@@ -94,7 +107,43 @@ export const DashboardOverview: React.FC = () => {
               Here is your restaurant&apos;s direct tipping and Google review performance overview.
             </p>
           </div>
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-3 shrink-0 relative">
+            {hasNoStaff && (
+              <div
+                className="flex items-center gap-1.5 text-stone-700 select-none animate-fade-in"
+                aria-label="Add staff callout"
+              >
+                <span
+                  className="font-caveat text-xl sm:text-2xl text-stone-800 font-medium -rotate-3 tracking-wide"
+                  style={{ fontFamily: "'Caveat', cursive, sans-serif" }}
+                >
+                  add staff
+                </span>
+                <svg
+                  width="44"
+                  height="24"
+                  viewBox="0 0 44 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="text-stone-700 w-10 h-6 shrink-0"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M 4 14 C 16 8, 28 20, 40 12"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M 32 7 L 41 12 L 34 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            )}
             <MotionButton
               variant="primary"
               size="sm"

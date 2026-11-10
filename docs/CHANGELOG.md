@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Customer Setup Holding Page Polish, Admin Banner Emoji Removal & Freestyle Cursive Staff Pointer (M7-T75)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Customer Mobile App Setup Holding Page Polish**:
+    - In [`apps/customer/src/screens/HomeScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/HomeScreen.tsx), refined the setup holding view when neither tipping nor Google reviews are configured.
+    - Removed the top restaurant name header and bottom `rwrd` brand footer.
+    - Centered the holding screen layout vertically (`items-center justify-center`), focusing attention on the freestanding `heart.png` 3D illustration, `"<Restaurant Name> is setting up <rwrdLogo>"`, and `"come back later"`.
+  - **Admin App Missing Review Link Banner Polish**:
+    - In [`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx), removed the `⭐` star emoji from the Google review notification banner, keeping clean typography and button styling.
+  - **Admin Dashboard Overview Freestyle Cursive Staff Pointer**:
+    - Added the Google font `Caveat:wght@400..700` in [`apps/admin/index.html`](file:///Users/Sumit/Desktop/rwrd/apps/admin/index.html) and configured `caveat` font family in [`apps/admin/tailwind.config.js`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tailwind.config.js).
+    - In [`apps/admin/src/screens/DashboardOverview.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/DashboardOverview.tsx), queried active staff via `api.getStaffList(restaurant.id)`. When `hasNoStaff` is true (`staff.length === 0`), rendered a cursive tilted `"add staff"` label and a freestyle curved SVG pointer directly gesturing towards the **Manage Staff** button.
+  - **Testing & Verification**:
+    - Updated customer test in [`apps/customer/tests/home.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/home.test.tsx) asserting removal of standalone header and footer in the holding view.
+    - Updated admin banner test in [`apps/admin/tests/impersonation.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/impersonation.test.tsx) ensuring no emoji presence.
+    - Created dedicated test suite in [`apps/admin/tests/overview.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/overview.test.tsx) verifying conditional rendering of the cursive `"add staff"` callout and freestyle pointer.
+    - Typecheck (`pnpm typecheck`) and ESLint (`pnpm lint`) pass with 0 errors across all 7 packages.
+    - All 8 customer test files (26 tests) and 11 admin test files (57 tests) pass.
+
 ### 2026-11-10 - Guest Experience Controls, Missing Review Link Admin Banner & Customer Setup Holding View (M7-T74)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

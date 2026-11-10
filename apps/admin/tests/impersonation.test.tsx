@@ -108,6 +108,7 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
 
     expect(screen.getByText(/Google Review Link Missing/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Add Review Link/i })).toBeInTheDocument();
+    expect(screen.queryByText('⭐')).toBeNull();
   });
 
   it('does not render review missing banner when Google review URL is configured', () => {
