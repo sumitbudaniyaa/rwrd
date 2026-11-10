@@ -6,6 +6,43 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - beUI Animated Toast Stack, Dynamic MRR & Admin Settings Plan Display (M7-T72)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Dynamic Platform MRR Calculation**:
+    - Identified and fixed the root cause of `estimatedMrrInr` returning a static ₹999 in [`apps/api/src/repositories/platformMetricsRepository.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/repositories/platformMetricsRepository.ts). Replaced the static `FLAT_MONTHLY_FEE_INR = 999` multiplier with a live relational join between `subscriptions` and `billingPlans` (`leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))`), dynamically summing actual normalized monthly subscriber plan revenue (`estimatedMrrInr += r.monthlyFeeInr || 0`).
+  - **Subscription Plan Details in Admin Settings**:
+    - Updated `GET /api/v1/admin/restaurants/:restaurantId/settings` in [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts) to join `subscriptions` and `billingPlans`, returning an enriched `subscription` payload (tier name, code, price in INR, duration months, monthly equivalent fee, status, and current period start/end dates).
+    - Updated [`apps/admin/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/services/api.ts) with `RestaurantSubscriptionInfo` and enhanced [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx) with an Active Subscription Plan Card displaying live tier details, period renewal countdown, 48h grace buffer info, and direct activation link for unactivated accounts.
+  - **beUI Animated Toast Stack Implementation**:
+    - Created the complete [beUI Animated Toast Stack](https://beui.dev/components/motion/animated-toast-stack) component system in [`packages/ui/src/AnimatedToastStack.tsx`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/AnimatedToastStack.tsx) powered by `framer-motion`:
+      - 3D spatial depth stacking with micro-scale scaling (`scale: 1 - index * 0.04`) and offset elevations (`y: -index * 10`).
+      - Hover vertical fanning expansion (`gap: 12px`, 0 scale offset).
+      - Gesture swipe drag-to-dismiss (`drag="x"`).
+      - Auto-dismiss countdown with hover freeze/pause.
+      - 5 semantic status variants: `success`, `error`, `warning`, `info`, and `loading`.
+      - Exported `AnimatedToastStack`, `ToastProvider`, `useToast`, and `useAnimatedToastStack` through [`packages/ui/src/index.ts`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/index.ts).
+    - Wrapped top-level application roots in `<ToastProvider position="bottom-right">` in both [`apps/admin/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/App.tsx) and [`apps/portal/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/App.tsx).
+  - **Universal Toast Wiring Across Admin & Super Admin Apps**:
+    - **Admin App**:
+      - [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx): Settings saved / update failures.
+      - [`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx): Staff member onboarded, modified, deactivated/activated, and removed.
+      - [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx): Table created, QR rotated, table deleted, link copied, PNG/SVG placard downloaded.
+      - [`apps/admin/src/screens/OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx): Subscription activated.
+    - **Super Admin Company Portal**:
+      - [`apps/portal/src/screens/BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx): Plan pricing updated, plan deleted, invoice created, invoice status marked paid/void, delinquent sweep completed.
+      - [`apps/portal/src/screens/RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx): Restaurant onboarded, suspended/reactivated, deleted, impersonation session initiated.
+      - [`apps/portal/src/screens/SystemHealthScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SystemHealthScreen.tsx): Feature flag created, toggled, deleted.
+      - [`apps/portal/src/screens/LeadsManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/LeadsManagementScreen.tsx): Inbound lead pipeline status changed.
+  - **Testing & Verification**:
+    - Vitest unit tests in `@tiptable/admin`: 10 passed out of 10 test files (49 tests).
+    - Vitest unit tests in `@tiptable/portal`: 10 passed out of 10 test files (38 tests).
+    - Vitest integration tests in `@tiptable/api` (`tests/portalMetrics.test.ts`): 4 passed out of 4 tests.
+    - Full repository typecheck (`pnpm typecheck`): 0 errors across 7 packages.
+    - Full repository linting (`pnpm lint`): 0 warnings, 0 errors.
+
 ### 2026-11-10 - Admin Onboarding Sticky Dock Typography Polish (M7-T71)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

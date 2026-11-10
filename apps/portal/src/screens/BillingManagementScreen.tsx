@@ -15,7 +15,7 @@ import {
   Edit01Icon,
   Delete02Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, MotionButton } from '@tiptable/ui';
+import { SlideUp, FadeIn, MotionButton, useToast } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import {
@@ -34,6 +34,7 @@ type InvoiceStatusFilter = 'all' | 'unpaid' | 'paid' | 'void';
 export const BillingManagementScreen: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const isRestrictedRole = user?.role === 'support';
 
@@ -99,9 +100,15 @@ export const BillingManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
       setEditingPlan(null);
       setSuccessMessage(`Pricing for "${res.plan.name}" updated to ₹${res.plan.priceInr}.`);
+      toast.success(
+        'Pricing Updated',
+        `Pricing for "${res.plan.name}" updated to ₹${res.plan.priceInr}.`,
+      );
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to update plan pricing.');
+      const msg = err instanceof Error ? err.message : 'Failed to update plan pricing.';
+      setErrorMessage(msg);
+      toast.error('Update Failed', msg);
     },
   });
 
@@ -114,9 +121,12 @@ export const BillingManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
       setPlanToDelete(null);
       setSuccessMessage(res.message);
+      toast.success('Plan Deleted', res.message);
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to delete billing plan.');
+      const msg = err instanceof Error ? err.message : 'Failed to delete billing plan.';
+      setErrorMessage(msg);
+      toast.error('Delete Failed', msg);
     },
   });
 
@@ -151,9 +161,15 @@ export const BillingManagementScreen: React.FC = () => {
       setFormAmountInr(999);
       setFormNotes('');
       setSuccessMessage(`Invoice ${data.invoice.invoiceNumber} created successfully.`);
+      toast.success(
+        'Invoice Issued',
+        `Invoice #${data.invoice.invoiceNumber} created for ₹${data.invoice.amountInr}.`,
+      );
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to create invoice.');
+      const msg = err instanceof Error ? err.message : 'Failed to create invoice.';
+      setErrorMessage(msg);
+      toast.error('Invoice Failed', msg);
     },
   });
 
@@ -167,9 +183,15 @@ export const BillingManagementScreen: React.FC = () => {
       setSuccessMessage(
         `Invoice ${data.invoice.invoiceNumber} status updated to "${data.invoice.status}".`,
       );
+      toast.success(
+        'Invoice Updated',
+        `Invoice #${data.invoice.invoiceNumber} marked as ${data.invoice.status}.`,
+      );
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to update invoice status.');
+      const msg = err instanceof Error ? err.message : 'Failed to update invoice status.';
+      setErrorMessage(msg);
+      toast.error('Update Failed', msg);
     },
   });
 
@@ -184,9 +206,15 @@ export const BillingManagementScreen: React.FC = () => {
       setSuccessMessage(
         `Grace period sweep completed. Evaluated ${result.evaluatedInvoicesCount} overdue invoice(s); newly suspended ${result.newlySuspendedCount} delinquent account(s).`,
       );
+      toast.info(
+        'Auto-Suspend Sweep Complete',
+        `Checked delinquent accounts: ${result.newlySuspendedCount} newly suspended.`,
+      );
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to run auto-suspend sweep.');
+      const msg = err instanceof Error ? err.message : 'Failed to run auto-suspend sweep.';
+      setErrorMessage(msg);
+      toast.error('Sweep Failed', msg);
     },
   });
 

@@ -1,5 +1,8 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import { eq } from 'drizzle-orm';
 import { UpdateRestaurantSettingsSchema } from '@tiptable/shared';
+import { db } from '../db/index.js';
+import { subscriptions, billingPlans } from '../db/schema/index.js';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
@@ -24,6 +27,25 @@ adminRestaurantRouter.get(
         throw new NotFoundError('Restaurant not found');
       }
 
+      const [sub] = await db
+        .select({
+          id: subscriptions.id,
+          status: subscriptions.status,
+          currentPeriodStart: subscriptions.currentPeriodStart,
+          currentPeriodEnd: subscriptions.currentPeriodEnd,
+          trialEndsAt: subscriptions.trialEndsAt,
+          planId: billingPlans.id,
+          planName: billingPlans.name,
+          planCode: billingPlans.code,
+          priceInr: billingPlans.priceInr,
+          durationMonths: billingPlans.durationMonths,
+          monthlyFeeInr: billingPlans.monthlyFeeInr,
+        })
+        .from(subscriptions)
+        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+        .where(eq(subscriptions.restaurantId, restaurantId))
+        .limit(1);
+
       res.status(200).json({
         restaurant: {
           id: restaurant.id,
@@ -38,6 +60,21 @@ adminRestaurantRouter.get(
           createdAt: restaurant.createdAt.toISOString(),
           updatedAt: restaurant.updatedAt.toISOString(),
         },
+        subscription: sub
+          ? {
+              id: sub.id,
+              status: sub.status,
+              planId: sub.planId,
+              planName: sub.planName,
+              planCode: sub.planCode,
+              priceInr: sub.priceInr,
+              durationMonths: sub.durationMonths,
+              monthlyFeeInr: sub.monthlyFeeInr,
+              currentPeriodStart: sub.currentPeriodStart.toISOString(),
+              currentPeriodEnd: sub.currentPeriodEnd.toISOString(),
+              trialEndsAt: sub.trialEndsAt ? sub.trialEndsAt.toISOString() : null,
+            }
+          : null,
       });
     } catch (error) {
       next(error);

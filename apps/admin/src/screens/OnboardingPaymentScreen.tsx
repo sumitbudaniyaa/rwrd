@@ -11,7 +11,7 @@ import {
   Logout01Icon,
   Wallet01Icon,
 } from '@hugeicons/core-free-icons';
-import { FadeIn, SlideUp } from '@tiptable/ui';
+import { FadeIn, SlideUp, useToast } from '@tiptable/ui';
 import { StatefulButton, type ButtonState } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, setAccessToken, type BillingPlanItem, ApiError } from '../services/api.js';
@@ -72,6 +72,7 @@ const DEFAULT_PLANS: FallbackPlan[] = [
 export const OnboardingPaymentScreen: React.FC = () => {
   const navigate = useNavigate();
   const { user, restaurant, logout, refreshUser } = useAuth();
+  const toast = useToast();
 
   const [plans, setPlans] = useState<BillingPlanItem[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
@@ -133,17 +134,22 @@ export const OnboardingPaymentScreen: React.FC = () => {
       }
       await refreshUser?.();
       setPaymentStatus('success');
+      toast.success(
+        'Subscription Activated',
+        `Your ${currentPlan.name} plan is now active! Welcome aboard.`,
+      );
       setTimeout(() => {
         setIsModalOpen(false);
         navigate('/', { replace: true });
       }, 700);
     } catch (err) {
       setPaymentStatus('idle');
-      if (err instanceof ApiError) {
-        setErrorMessage(err.problem.detail || err.problem.title);
-      } else {
-        setErrorMessage('Failed to complete plan payment. Please try again.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to complete plan payment. Please try again.';
+      setErrorMessage(msg);
+      toast.error('Activation Failed', msg);
     }
   };
 

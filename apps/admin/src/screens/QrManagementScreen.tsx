@@ -16,7 +16,7 @@ import {
   Copy01Icon,
   ArrowUpRight01Icon,
 } from '@hugeicons/core-free-icons';
-import { Badge, SlideUp } from '@tiptable/ui';
+import { Badge, SlideUp, useToast } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, ApiError, type QrTokenItem } from '../services/api.js';
@@ -29,6 +29,7 @@ interface PlacardModalData {
 export const QrManagementScreen: React.FC = () => {
   const { user, restaurant } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
   const restaurantId = user?.restaurantId || restaurant?.id || '';
 
   const [rotatingToken, setRotatingToken] = useState<QrTokenItem | null>(null);
@@ -59,13 +60,15 @@ export const QrManagementScreen: React.FC = () => {
       setRotatingToken(null);
       setSuccessMessage('QR token rotated successfully. Previous QR codes are now deactivated.');
       setTimeout(() => setSuccessMessage(null), 4000);
+      toast.success('QR Code Rotated', 'Previous QR codes are now deactivated.');
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        setFormError(err.problem.detail || err.problem.title);
-      } else {
-        setFormError('Failed to rotate QR token.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to rotate QR token.';
+      setFormError(msg);
+      toast.error('Rotation Failed', msg);
     },
   });
 
@@ -79,13 +82,15 @@ export const QrManagementScreen: React.FC = () => {
       setSectionName('');
       setSuccessMessage('New dining table created with provisioned QR code.');
       setTimeout(() => setSuccessMessage(null), 4000);
+      toast.success('Dining Table Created', 'Table provisioned with new QR code.');
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        setFormError(err.problem.detail || err.problem.title);
-      } else {
-        setFormError('Failed to create dining table.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to create dining table.';
+      setFormError(msg);
+      toast.error('Creation Failed', msg);
     },
   });
 
@@ -96,13 +101,15 @@ export const QrManagementScreen: React.FC = () => {
       setDeletingTable(null);
       setSuccessMessage('Dining table deleted and its QR codes deactivated.');
       setTimeout(() => setSuccessMessage(null), 4000);
+      toast.success('Table Deleted', 'Dining table and its QR codes have been deactivated.');
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        setFormError(err.problem.detail || err.problem.title);
-      } else {
-        setFormError('Failed to delete dining table.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to delete dining table.';
+      setFormError(msg);
+      toast.error('Deletion Failed', msg);
     },
   });
 
@@ -110,11 +117,13 @@ export const QrManagementScreen: React.FC = () => {
     try {
       await navigator.clipboard.writeText(url);
       setCopiedTokenId(tokenId);
+      toast.info('Link Copied', 'QR code link copied to clipboard.');
       setTimeout(() => {
         setCopiedTokenId((prev) => (prev === tokenId ? null : prev));
       }, 2000);
     } catch {
       setFormError('Failed to copy link to clipboard.');
+      toast.error('Copy Failed', 'Failed to copy link to clipboard.');
     }
   };
 
@@ -132,8 +141,10 @@ export const QrManagementScreen: React.FC = () => {
       link.href = dataUrl;
       link.download = `${filename}.png`;
       link.click();
+      toast.success('QR Downloaded', `Saved ${filename}.png`);
     } catch {
       setFormError('Failed to export QR PNG.');
+      toast.error('Export Failed', 'Failed to export QR PNG.');
     }
   };
 
@@ -154,8 +165,10 @@ export const QrManagementScreen: React.FC = () => {
       link.download = `${filename}.svg`;
       link.click();
       URL.revokeObjectURL(blobUrl);
+      toast.success('Placard Downloaded', `Saved vector ${filename}.svg`);
     } catch {
       setFormError('Failed to export QR SVG.');
+      toast.error('Export Failed', 'Failed to export QR SVG.');
     }
   };
 

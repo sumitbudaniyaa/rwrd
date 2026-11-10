@@ -14,7 +14,7 @@ import {
   Cancel01Icon,
   ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn } from '@tiptable/ui';
+import { SlideUp, FadeIn, useToast } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import {
@@ -30,6 +30,7 @@ export const LeadsManagementScreen: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const toast = useToast();
 
   const isRestrictedRole = user?.role === 'finance';
 
@@ -64,12 +65,17 @@ export const LeadsManagementScreen: React.FC = () => {
       if (selectedLead && selectedLead.id === res.lead.id) {
         setSelectedLead(res.lead);
       }
-      setSuccessMessage(
-        `Lead "${res.lead.restaurantName}" updated to "${res.lead.status.replace('_', ' ')}".`,
+      const readableStatus = res.lead.status.replace('_', ' ');
+      setSuccessMessage(`Lead "${res.lead.restaurantName}" updated to "${readableStatus}".`);
+      toast.success(
+        'Lead Pipeline Updated',
+        `Lead "${res.lead.restaurantName}" moved to "${readableStatus}".`,
       );
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to update lead status.');
+      const msg = err instanceof Error ? err.message : 'Failed to update lead status.';
+      setErrorMessage(msg);
+      toast.error('Update Failed', msg);
     },
   });
 

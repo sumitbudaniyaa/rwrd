@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -7,7 +8,7 @@ import {
   Add01Icon,
   Cancel01Icon,
 } from '@hugeicons/core-free-icons';
-import { Badge, SlideUp } from '@tiptable/ui';
+import { Badge, SlideUp, useToast } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, ApiError, type UpdateRestaurantSettingsInput } from '../services/api.js';
@@ -15,6 +16,7 @@ import { api, ApiError, type UpdateRestaurantSettingsInput } from '../services/a
 export const SettingsScreen: React.FC = () => {
   const { user, restaurant } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
   const restaurantId = user?.restaurantId || restaurant?.id || '';
 
   // Form states
@@ -64,16 +66,18 @@ export const SettingsScreen: React.FC = () => {
         queryKey: ['admin-restaurant-settings', restaurantId],
       });
       setSuccessMessage('Restaurant settings updated successfully.');
+      toast.success('Settings Saved', 'Restaurant operational preferences updated successfully.');
       setFormError(null);
       if (res?.restaurant?.name) setName(res.restaurant.name);
       setTimeout(() => setSuccessMessage(null), 4000);
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        setFormError(err.problem.detail || err.problem.title);
-      } else {
-        setFormError('Failed to update settings. Please check values.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to update settings. Please check values.';
+      setFormError(msg);
+      toast.error('Settings Update Failed', msg);
     },
   });
 
@@ -277,6 +281,93 @@ export const SettingsScreen: React.FC = () => {
           </div>
         </SlideUp>
       )}
+
+      {/* Active Subscription Plan Details */}
+      {data?.subscription ? (
+        <SlideUp delay={50}>
+          <div className="p-5 sm:p-6 rounded-2xl bg-white border border-stone-200/90 shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-stone-100">
+              <div>
+                <span className="text-[11px] font-semibold text-stone-500 uppercase tracking-wider block">
+                  Active Subscription Tier
+                </span>
+                <h3 className="text-lg font-bold text-stone-900 mt-0.5">
+                  {data.subscription.planName}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant={
+                    data.subscription.status === 'active'
+                      ? 'success'
+                      : data.subscription.status === 'past_due'
+                        ? 'warning'
+                        : 'neutral'
+                  }
+                >
+                  {data.subscription.status.toUpperCase()}
+                </Badge>
+                <span className="text-xs font-mono font-bold text-stone-900 bg-stone-100 px-2.5 py-1 rounded-lg border border-stone-200/70">
+                  ₹{data.subscription.priceInr} INR
+                </span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-1">
+              <div className="p-3 bg-stone-50/70 rounded-xl border border-stone-200/60">
+                <span className="text-[10px] font-medium text-stone-500 block uppercase tracking-wider">
+                  Billing Duration
+                </span>
+                <span className="text-xs font-bold font-mono text-stone-900 mt-0.5 block">
+                  {data.subscription.durationMonths}{' '}
+                  {data.subscription.durationMonths === 1 ? 'Month' : 'Months'} (₹
+                  {data.subscription.monthlyFeeInr}/mo)
+                </span>
+              </div>
+
+              <div className="p-3 bg-stone-50/70 rounded-xl border border-stone-200/60">
+                <span className="text-[10px] font-medium text-stone-500 block uppercase tracking-wider">
+                  Period Expiration
+                </span>
+                <span className="text-xs font-bold font-mono text-stone-900 mt-0.5 block">
+                  {new Date(data.subscription.currentPeriodEnd).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                  })}
+                </span>
+              </div>
+
+              <div className="p-3 bg-stone-50/70 rounded-xl border border-stone-200/60">
+                <span className="text-[10px] font-medium text-stone-500 block uppercase tracking-wider">
+                  Grace Buffer Protection
+                </span>
+                <span className="text-xs font-bold text-stone-900 mt-0.5 block">
+                  48-Hour Renewal Buffer
+                </span>
+              </div>
+            </div>
+          </div>
+        </SlideUp>
+      ) : data ? (
+        <SlideUp delay={50}>
+          <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-semibold text-amber-900">No Active Subscription Plan</h3>
+              <p className="text-xs text-amber-800/80 mt-0.5">
+                Activate an establishment subscription to unlock live dining table QR codes and
+                waitstaff tipping.
+              </p>
+            </div>
+            <Link
+              to="/onboarding/payment"
+              className="px-4 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-semibold shadow-xs shrink-0 text-center"
+            >
+              Select Plan
+            </Link>
+          </div>
+        </SlideUp>
+      ) : null}
 
       <div className="space-y-6">
         {/* Section 1: Brand & Profile */}

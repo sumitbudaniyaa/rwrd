@@ -14,7 +14,7 @@ import {
   RefreshIcon,
   Delete01Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn } from '@tiptable/ui';
+import { SlideUp, FadeIn, useToast } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api, type UpsertFeatureFlagInput } from '../services/api.js';
@@ -34,6 +34,7 @@ const PRESET_FLAG_KEYS = [
 export const SystemHealthScreen: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const isSuperAdmin = user?.role === 'super_admin';
 
@@ -86,9 +87,15 @@ export const SystemHealthScreen: React.FC = () => {
       setFormRestaurantId('');
       setFormConfigJson('{}');
       setSuccessMessage(`Feature flag "${res.flag.key}" saved for ${res.flag.restaurantName}.`);
+      toast.success(
+        'Feature Flag Saved',
+        `Flag "${res.flag.key}" saved for ${res.flag.restaurantName}.`,
+      );
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to save feature flag.');
+      const msg = err instanceof Error ? err.message : 'Failed to save feature flag.';
+      setErrorMessage(msg);
+      toast.error('Save Failed', msg);
     },
   });
 
@@ -98,12 +105,14 @@ export const SystemHealthScreen: React.FC = () => {
       api.updateFeatureFlag(id, { enabled }),
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['portal-feature-flags'] });
-      setSuccessMessage(
-        `Feature flag "${res.flag.key}" is now ${res.flag.enabled ? 'enabled' : 'disabled'}.`,
-      );
+      const statusText = res.flag.enabled ? 'enabled' : 'disabled';
+      setSuccessMessage(`Feature flag "${res.flag.key}" is now ${statusText}.`);
+      toast.info('Feature Flag Toggled', `"${res.flag.key}" is now ${statusText}.`);
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to toggle feature flag.');
+      const msg = err instanceof Error ? err.message : 'Failed to toggle feature flag.';
+      setErrorMessage(msg);
+      toast.error('Toggle Failed', msg);
     },
   });
 
@@ -113,9 +122,12 @@ export const SystemHealthScreen: React.FC = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portal-feature-flags'] });
       setSuccessMessage('Feature flag override deleted successfully.');
+      toast.success('Feature Flag Deleted', 'Override removed successfully.');
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to delete feature flag.');
+      const msg = err instanceof Error ? err.message : 'Failed to delete feature flag.';
+      setErrorMessage(msg);
+      toast.error('Deletion Failed', msg);
     },
   });
 

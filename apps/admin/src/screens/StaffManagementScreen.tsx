@@ -11,7 +11,7 @@ import {
   Search01Icon,
   QrCodeIcon,
 } from '@hugeicons/core-free-icons';
-import { Badge, SlideUp, ServerAvatar } from '@tiptable/ui';
+import { Badge, SlideUp, ServerAvatar, useToast } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import {
@@ -26,6 +26,7 @@ import { VpaQrScannerModal } from '../components/VpaQrScannerModal.js';
 export const StaffManagementScreen: React.FC = () => {
   const { user, restaurant } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
   const restaurantId = user?.restaurantId || restaurant?.id || '';
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,32 +68,39 @@ export const StaffManagementScreen: React.FC = () => {
 
   const createMutation = useMutation({
     mutationFn: (newStaff: CreateStaffInput) => api.createStaff(restaurantId, newStaff),
-    onSuccess: () => {
+    onSuccess: (_, newStaff) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      toast.success('Staff Member Added', `${newStaff.displayName} was successfully registered.`);
       closeModals();
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        setFormError(err.problem.detail || err.problem.title);
-      } else {
-        setFormError('Failed to create staff member. Please check details.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to create staff member. Please check details.';
+      setFormError(msg);
+      toast.error('Registration Failed', msg);
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: (vars: { staffId: string; data: UpdateStaffInput }) =>
       api.updateStaff(restaurantId, vars.staffId, vars.data),
-    onSuccess: () => {
+    onSuccess: (_, vars) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      toast.success(
+        'Staff Updated',
+        `${vars.data.displayName || 'Staff member'} updated successfully.`,
+      );
       closeModals();
     },
     onError: (err) => {
-      if (err instanceof ApiError) {
-        setFormError(err.problem.detail || err.problem.title);
-      } else {
-        setFormError('Failed to update staff member.');
-      }
+      const msg =
+        err instanceof ApiError
+          ? err.problem.detail || err.problem.title
+          : 'Failed to update staff member.';
+      setFormError(msg);
+      toast.error('Update Failed', msg);
     },
   });
 
@@ -100,14 +108,31 @@ export const StaffManagementScreen: React.FC = () => {
     mutationFn: (staffId: string) => api.deleteStaff(restaurantId, staffId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      toast.success(
+        'Staff Member Deleted',
+        'Staff profile and payment routing credentials removed.',
+      );
       setDeletingStaff(null);
+    },
+    onError: (err) => {
+      toast.error(
+        'Deletion Failed',
+        err instanceof Error ? err.message : 'Failed to delete staff.',
+      );
     },
   });
 
   const toggleStatusMutation = useMutation({
     mutationFn: (staffId: string) => api.toggleStaffActive(restaurantId, staffId),
-    onSuccess: () => {
+    onSuccess: (res) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      toast.info(
+        'Staff Status Changed',
+        `${res.staff.displayName} is now ${res.staff.isActive ? 'active on floor' : 'off-duty'}.`,
+      );
+    },
+    onError: (err) => {
+      toast.error('Toggle Failed', err instanceof Error ? err.message : 'Failed to toggle status.');
     },
   });
 

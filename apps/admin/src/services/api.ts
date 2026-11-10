@@ -110,6 +110,20 @@ export interface UpdateStaffInput {
   isActive?: boolean;
 }
 
+export interface RestaurantSubscriptionInfo {
+  id: string;
+  status: string;
+  planId: string;
+  planName: string;
+  planCode: string;
+  priceInr: number;
+  durationMonths: number;
+  monthlyFeeInr: number;
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  trialEndsAt: string | null;
+}
+
 export interface RestaurantSettings {
   id: string;
   name: string;
@@ -398,13 +412,15 @@ export const api = {
     );
   },
 
-  getRestaurantSettings(restaurantId: string): Promise<{ restaurant: RestaurantSettings }> {
-    return request<{ restaurant: RestaurantSettings }>(
-      `/admin/restaurants/${restaurantId}/settings`,
-      {
-        method: 'GET',
-      },
-    );
+  getRestaurantSettings(
+    restaurantId: string,
+  ): Promise<{ restaurant: RestaurantSettings; subscription?: RestaurantSubscriptionInfo | null }> {
+    return request<{
+      restaurant: RestaurantSettings;
+      subscription?: RestaurantSubscriptionInfo | null;
+    }>(`/admin/restaurants/${restaurantId}/settings`, {
+      method: 'GET',
+    });
   },
 
   updateRestaurantSettings(

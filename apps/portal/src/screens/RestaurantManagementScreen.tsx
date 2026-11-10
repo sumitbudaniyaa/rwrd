@@ -12,7 +12,7 @@ import {
   UserCheck01Icon,
   Delete02Icon,
 } from '@hugeicons/core-free-icons';
-import { SlideUp, FadeIn, MotionButton } from '@tiptable/ui';
+import { SlideUp, FadeIn, MotionButton, useToast } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
 import { useAuth } from '../context/AuthContext.js';
 import { portalEnv } from '../config/env.js';
@@ -31,6 +31,7 @@ const establishmentTypes = [
 export const RestaurantManagementScreen: React.FC = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
@@ -91,9 +92,12 @@ export const RestaurantManagementScreen: React.FC = () => {
       setSuccessMessage(
         `Successfully onboarded "${data.restaurant.name}". Owner credentials generated for ${data.owner.email}.`,
       );
+      toast.success('Restaurant Onboarded', `${data.restaurant.name} has been provisioned.`);
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to onboard restaurant.');
+      const msg = err instanceof Error ? err.message : 'Failed to onboard restaurant.';
+      setErrorMessage(msg);
+      toast.error('Onboarding Failed', msg);
     },
   });
 
@@ -110,16 +114,21 @@ export const RestaurantManagementScreen: React.FC = () => {
     }) => api.updateRestaurantStatus(id, action, reason),
     onSuccess: (_, vars) => {
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
+      const targetName = suspendTarget?.name || 'Restaurant';
       setSuspendTarget(null);
       setSuspensionReason('');
-      setSuccessMessage(
-        vars.action === 'suspend'
-          ? 'Restaurant has been suspended.'
-          : 'Restaurant has been reactivated.',
-      );
+      if (vars.action === 'suspend') {
+        setSuccessMessage('Restaurant has been suspended.');
+        toast.warning('Restaurant Suspended', `${targetName} has been suspended.`);
+      } else {
+        setSuccessMessage('Restaurant has been reactivated.');
+        toast.success('Restaurant Reactivated', `${targetName} is now active.`);
+      }
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to update restaurant status.');
+      const msg = err instanceof Error ? err.message : 'Failed to update restaurant status.';
+      setErrorMessage(msg);
+      toast.error('Status Update Failed', msg);
     },
   });
 
@@ -127,12 +136,16 @@ export const RestaurantManagementScreen: React.FC = () => {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.deleteRestaurant(id),
     onSuccess: () => {
+      const targetName = deleteTarget?.name || 'Restaurant';
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
       setDeleteTarget(null);
       setSuccessMessage('Restaurant has been deleted.');
+      toast.success('Restaurant Deleted', `${targetName} has been deactivated.`);
     },
     onError: (err) => {
-      setErrorMessage(err instanceof Error ? err.message : 'Failed to delete restaurant.');
+      const msg = err instanceof Error ? err.message : 'Failed to delete restaurant.';
+      setErrorMessage(msg);
+      toast.error('Deletion Failed', msg);
     },
   });
 
@@ -146,15 +159,16 @@ export const RestaurantManagementScreen: React.FC = () => {
       setSuccessMessage(
         `Impersonation session established for ${res.restaurant.name}. Launching admin console...`,
       );
+      toast.info('Impersonation Active', `Launching ${res.restaurant.name} admin console...`);
       const adminUrl = `${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
         res.impersonationToken,
       )}`;
       window.open(adminUrl, '_blank', 'noopener,noreferrer');
     },
     onError: (err) => {
-      setErrorMessage(
-        err instanceof Error ? err.message : 'Failed to create impersonation session.',
-      );
+      const msg = err instanceof Error ? err.message : 'Failed to create impersonation session.';
+      setErrorMessage(msg);
+      toast.error('Impersonation Failed', msg);
     },
   });
 

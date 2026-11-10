@@ -3,6 +3,7 @@ import { db, type Database } from '../db/index.js';
 import {
   restaurants,
   subscriptions,
+  billingPlans,
   pageEvents,
   tipIntents,
   reviewTaps,
@@ -55,7 +56,7 @@ export class PlatformMetricsRepository {
     );
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
-    // 1. Fetch Restaurant counts with joined subscription status
+    // 1. Fetch Restaurant counts with joined subscription and plan details
     const allRestaurants = await this.database
       .select({
         id: restaurants.id,
@@ -64,15 +65,18 @@ export class PlatformMetricsRepository {
         deletedAt: restaurants.deletedAt,
         createdAt: restaurants.createdAt,
         subscriptionStatus: subscriptions.status,
+        monthlyFeeInr: billingPlans.monthlyFeeInr,
       })
       .from(restaurants)
-      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId));
+      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+      .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id));
 
     let activeRestaurants = 0;
     let suspendedRestaurants = 0;
     let totalRestaurants = 0;
     let churnedRestaurants = 0;
     let newRestaurants30d = 0;
+    let estimatedMrrInr = 0;
 
     for (const r of allRestaurants) {
       if (r.deletedAt) {
@@ -87,6 +91,7 @@ export class PlatformMetricsRepository {
           r.subscriptionStatus !== 'cancelled'
         ) {
           activeRestaurants++;
+          estimatedMrrInr += r.monthlyFeeInr || 0;
         }
 
         if (r.createdAt >= thirtyDaysAgo) {
@@ -98,10 +103,6 @@ export class PlatformMetricsRepository {
     const totalEver = totalRestaurants + churnedRestaurants;
     const churnRatePercent =
       totalEver > 0 ? Number(((churnedRestaurants / totalEver) * 100).toFixed(1)) : 0;
-
-    // Flat monthly platform fee per active restaurant in INR (₹999 standard)
-    const FLAT_MONTHLY_FEE_INR = 999;
-    const estimatedMrrInr = activeRestaurants * FLAT_MONTHLY_FEE_INR;
 
     // 2. Fetch Page Events (Scans)
     const recentEvents = await this.database
