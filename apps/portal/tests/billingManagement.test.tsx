@@ -67,6 +67,24 @@ const mockSubscriptions: SubscriptionItem[] = [
     createdAt: '2026-11-10T00:00:00.000Z',
     updatedAt: '2026-11-10T00:00:00.000Z',
   },
+  {
+    id: 'sub-4',
+    restaurantId: 'rest-4',
+    restaurantName: 'Jaipur Cafe',
+    restaurantSlug: 'jaipur-cafe',
+    isRestaurantActive: false,
+    isRestaurantSuspended: false,
+    planId: 'legacy-starter',
+    planName: '1 Month',
+    planCode: 'starter',
+    monthlyFeeInr: 99,
+    status: 'unpaid',
+    trialEndsAt: null,
+    currentPeriodStart: '2026-11-10T16:45:50.000Z',
+    currentPeriodEnd: '2026-11-10T16:45:50.000Z',
+    createdAt: '2026-11-10T16:45:50.000Z',
+    updatedAt: '2026-11-10T16:45:50.000Z',
+  },
 ];
 
 const mockInvoices: InvoiceItem[] = [
@@ -173,9 +191,12 @@ describe('BillingManagementScreen', () => {
       expect(screen.getByText('Delinquent Cafe')).toBeInTheDocument();
       expect(screen.getByText('/toit-brewpub')).toBeInTheDocument();
       expect(screen.getByText('Unpaid Onboarding Diner')).toBeInTheDocument();
-      expect(screen.getByText('Pending Selection')).toBeInTheDocument();
-      expect(screen.getByText('Inactive QR')).toBeInTheDocument();
-      expect(screen.getByText('Pending Payment')).toBeInTheDocument();
+      expect(screen.getByText('Jaipur Cafe')).toBeInTheDocument();
+      expect(screen.getAllByText('Pending Selection')).toHaveLength(2);
+      expect(screen.getAllByText('Inactive QR')).toHaveLength(2);
+      expect(screen.getAllByText('Pending Payment')).toHaveLength(2);
+      // Ensure the legacy unpaid plan data is strictly masked out
+      expect(screen.queryByText('1 Month')).not.toBeInTheDocument();
     });
 
     expect(screen.getByText('Active Subscriptions')).toBeInTheDocument();

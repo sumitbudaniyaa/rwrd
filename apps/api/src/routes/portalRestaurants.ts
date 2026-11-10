@@ -157,12 +157,26 @@ portalRestaurantsRouter.get(
         .limit(limit)
         .offset(offset);
 
+      const sanitizedRows = rows.map((r) => {
+        const isUnpaid = !r.subscriptionStatus || r.subscriptionStatus === 'unpaid' || !r.isActive;
+        return {
+          ...r,
+          subscriptionStatus: isUnpaid ? 'unpaid' : r.subscriptionStatus,
+          currentPeriodEnd: isUnpaid ? null : r.currentPeriodEnd,
+          planId: isUnpaid ? null : r.planId,
+          planName: isUnpaid ? null : r.planName,
+          planCode: isUnpaid ? null : r.planCode,
+          planPriceInr: isUnpaid ? null : r.planPriceInr,
+          planDurationMonths: isUnpaid ? null : r.planDurationMonths,
+        };
+      });
+
       res.status(200).json({
-        restaurants: rows,
+        restaurants: sanitizedRows,
         pagination: {
           limit,
           offset,
-          count: rows.length,
+          count: sanitizedRows.length,
         },
       });
     } catch (error) {

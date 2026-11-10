@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Unpaid Subscription Plan Invariant Gating (Zero Plan/Period Leaks for Unpaid Tenants) & DB Cleanup (M7-T65)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Unpaid Subscription Plan Invariant Gating**:
+    - **Backend API Invariant**: Updated `GET /api/v1/portal/billing/subscriptions` ([`apps/api/src/routes/portalBilling.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalBilling.ts)) and `GET /api/v1/portal/restaurants` ([`apps/api/src/routes/portalRestaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalRestaurants.ts)) to strictly sanitize all plan and period fields for unpaid establishments. If a restaurant has `status === 'unpaid'` or `!isRestaurantActive`, the API enforces `planId: null`, `planName: null`, `planCode: null`, `monthlyFeeInr: null`, `durationMonths: null`, `priceInr: null`, `currentPeriodStart: null`, and `currentPeriodEnd: null`.
+    - **Portal UI Guarding**: In `BillingManagementScreen.tsx` ([`apps/portal/src/screens/BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx)), explicitly enforced that any establishment with `sub.status === 'unpaid'` or `sub.isRestaurantActive === false` displays:
+      - Plan Tier: `Pending Selection` (italic caption)
+      - Monthly Fee: `—`
+      - Current Period: `—`
+      - Status: `<Badge variant="warning">Unpaid</Badge>`
+      - Account Status: `<Badge variant="warning">Inactive QR</Badge>` (`Pending Payment`)
+  - **Database Cleanup & State Correction**:
+    - Purged legacy `unpaid` subscription rows in the PostgreSQL database for establishments that registered prior to plan gating removal.
+    - Synchronized `restaurants.is_active = false` for Jaipur Cafe (and all establishments without active/trial subscriptions) ensuring zero QR or dashboard access until payment is completed.
+  - **Testing & Verification**:
+    - Updated `apps/api/tests/portalBilling.test.ts` to assert that unpaid subscriptions return `null` for plan and period fields.
+    - Updated `apps/portal/tests/billingManagement.test.tsx` to verify that legacy unpaid plan details (`1 Month`, `₹99`) are strictly masked into `Pending Selection` and `—`.
+    - All workspace test suites (`@tiptable/api`, `@tiptable/portal`, `@tiptable/admin`, `@tiptable/customer`, `@tiptable/landing`, `@tiptable/shared`) pass with 0 errors.
+    - Monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Subscriptions Inactive QR Gating, Dynamic Plan Selection, Monthly Price Auto-Calc & Company-Portal-Only Global Audit (M7-T64)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

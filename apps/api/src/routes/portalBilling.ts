@@ -240,26 +240,38 @@ portalBillingRouter.get(
         .where(activeConditions.length > 0 ? and(...activeConditions) : undefined)
         .orderBy(desc(restaurants.createdAt));
 
-      const mapped = rows.map((r) => ({
-        id: r.id || `unpaid-${r.restaurantId}`,
-        restaurantId: r.restaurantId,
-        restaurantName: r.restaurantName,
-        restaurantSlug: r.restaurantSlug,
-        isRestaurantActive: r.isRestaurantActive,
-        isRestaurantSuspended: r.isRestaurantSuspended,
-        planId: r.planId || null,
-        planName: r.planName || null,
-        planCode: r.planCode || null,
-        monthlyFeeInr: r.monthlyFeeInr ?? null,
-        durationMonths: r.durationMonths ?? null,
-        priceInr: r.priceInr ?? null,
-        status: (r.status || 'unpaid') as 'trial' | 'active' | 'past_due' | 'cancelled' | 'unpaid',
-        trialEndsAt: r.trialEndsAt ? r.trialEndsAt.toISOString() : null,
-        currentPeriodStart: r.currentPeriodStart ? r.currentPeriodStart.toISOString() : null,
-        currentPeriodEnd: r.currentPeriodEnd ? r.currentPeriodEnd.toISOString() : null,
-        createdAt: r.createdAt ? r.createdAt.toISOString() : new Date().toISOString(),
-        updatedAt: r.updatedAt ? r.updatedAt.toISOString() : new Date().toISOString(),
-      }));
+      const mapped = rows.map((r) => {
+        const isUnpaid = !r.status || r.status === 'unpaid' || !r.isRestaurantActive;
+        return {
+          id: r.id || `unpaid-${r.restaurantId}`,
+          restaurantId: r.restaurantId,
+          restaurantName: r.restaurantName,
+          restaurantSlug: r.restaurantSlug,
+          isRestaurantActive: r.isRestaurantActive,
+          isRestaurantSuspended: r.isRestaurantSuspended,
+          planId: isUnpaid ? null : r.planId || null,
+          planName: isUnpaid ? null : r.planName || null,
+          planCode: isUnpaid ? null : r.planCode || null,
+          monthlyFeeInr: isUnpaid ? null : (r.monthlyFeeInr ?? null),
+          durationMonths: isUnpaid ? null : (r.durationMonths ?? null),
+          priceInr: isUnpaid ? null : (r.priceInr ?? null),
+          status: (isUnpaid ? 'unpaid' : r.status || 'unpaid') as
+            'trial' | 'active' | 'past_due' | 'cancelled' | 'unpaid',
+          trialEndsAt: isUnpaid ? null : r.trialEndsAt ? r.trialEndsAt.toISOString() : null,
+          currentPeriodStart: isUnpaid
+            ? null
+            : r.currentPeriodStart
+              ? r.currentPeriodStart.toISOString()
+              : null,
+          currentPeriodEnd: isUnpaid
+            ? null
+            : r.currentPeriodEnd
+              ? r.currentPeriodEnd.toISOString()
+              : null,
+          createdAt: r.createdAt ? r.createdAt.toISOString() : new Date().toISOString(),
+          updatedAt: r.updatedAt ? r.updatedAt.toISOString() : new Date().toISOString(),
+        };
+      });
 
       res.status(200).json({ subscriptions: mapped });
     } catch (error) {

@@ -582,58 +582,64 @@ export const BillingManagementScreen: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredSubs.map((sub) => (
-                      <tr
-                        key={sub.id}
-                        className="hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors"
-                      >
-                        <td className="py-2.5 px-4">
-                          <p className="font-semibold text-stone-900 dark:text-stone-100">
-                            {sub.restaurantName}
-                          </p>
-                          <p className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
-                            /{sub.restaurantSlug}
-                          </p>
-                        </td>
-                        <td className="py-2.5 px-4 font-medium text-stone-700 dark:text-stone-300">
-                          {sub.planName || (
-                            <span className="text-stone-400 dark:text-stone-500 italic font-normal">
-                              Pending Selection
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-2.5 px-4 font-semibold text-stone-900 dark:text-stone-100 font-mono">
-                          {sub.monthlyFeeInr ? (
-                            <>
-                              {sub.priceInr ? `₹${sub.priceInr}` : `₹${sub.monthlyFeeInr}/mo`}
-                              {sub.durationMonths && sub.durationMonths > 1 && (
-                                <span className="text-[10px] text-stone-400 font-normal ml-1">
-                                  ({sub.durationMonths}m)
-                                </span>
-                              )}
-                            </>
-                          ) : (
-                            <span className="text-stone-400 dark:text-stone-500 font-normal">
-                              &mdash;
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-2.5 px-4">{getSubStatusBadge(sub.status)}</td>
-                        <td className="py-2.5 px-4 text-stone-500 dark:text-stone-400 font-mono text-[11px]">
-                          {sub.currentPeriodStart && sub.currentPeriodEnd ? (
-                            <>
-                              {new Date(sub.currentPeriodStart).toLocaleDateString()} &rarr;{' '}
-                              {new Date(sub.currentPeriodEnd).toLocaleDateString()}
-                            </>
-                          ) : (
-                            <span className="text-stone-400 dark:text-stone-500 font-normal">
-                              &mdash;
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-2.5 px-4 text-right">{getAccountQrStatusBadge(sub)}</td>
-                      </tr>
-                    ))
+                    filteredSubs.map((sub) => {
+                      const isSubUnpaid =
+                        sub.status === 'unpaid' || sub.isRestaurantActive === false;
+                      return (
+                        <tr
+                          key={sub.id}
+                          className="hover:bg-stone-50/50 dark:hover:bg-stone-800/50 transition-colors"
+                        >
+                          <td className="py-2.5 px-4">
+                            <p className="font-semibold text-stone-900 dark:text-stone-100">
+                              {sub.restaurantName}
+                            </p>
+                            <p className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
+                              /{sub.restaurantSlug}
+                            </p>
+                          </td>
+                          <td className="py-2.5 px-4 font-medium text-stone-700 dark:text-stone-300">
+                            {!isSubUnpaid && sub.planName ? (
+                              sub.planName
+                            ) : (
+                              <span className="text-stone-400 dark:text-stone-500 italic font-normal">
+                                Pending Selection
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-4 font-semibold text-stone-900 dark:text-stone-100 font-mono">
+                            {!isSubUnpaid && sub.monthlyFeeInr ? (
+                              <>
+                                {sub.priceInr ? `₹${sub.priceInr}` : `₹${sub.monthlyFeeInr}/mo`}
+                                {sub.durationMonths && sub.durationMonths > 1 && (
+                                  <span className="text-[10px] text-stone-400 font-normal ml-1">
+                                    ({sub.durationMonths}m)
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              <span className="text-stone-400 dark:text-stone-500 font-normal">
+                                &mdash;
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-4">{getSubStatusBadge(sub.status)}</td>
+                          <td className="py-2.5 px-4 text-stone-500 dark:text-stone-400 font-mono text-[11px]">
+                            {!isSubUnpaid && sub.currentPeriodStart && sub.currentPeriodEnd ? (
+                              <>
+                                {new Date(sub.currentPeriodStart).toLocaleDateString()} &rarr;{' '}
+                                {new Date(sub.currentPeriodEnd).toLocaleDateString()}
+                              </>
+                            ) : (
+                              <span className="text-stone-400 dark:text-stone-500 font-normal">
+                                &mdash;
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-4 text-right">{getAccountQrStatusBadge(sub)}</td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>

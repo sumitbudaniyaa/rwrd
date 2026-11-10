@@ -161,12 +161,31 @@ describe('Portal Billing & Subscription Routes', () => {
           restaurantId,
           restaurantName: 'Toit Brewpub',
           restaurantSlug: 'toit-brewpub',
+          isRestaurantActive: true,
           isRestaurantSuspended: false,
           planId,
           planName: 'Standard Flat',
           planCode: 'standard',
           monthlyFeeInr: 999,
           status: 'active',
+          trialEndsAt: null,
+          currentPeriodStart: new Date(),
+          currentPeriodEnd: new Date(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: 'sub-unpaid',
+          restaurantId: 'unpaid-rest',
+          restaurantName: 'Jaipur Cafe',
+          restaurantSlug: 'jaipur-cafe',
+          isRestaurantActive: false,
+          isRestaurantSuspended: false,
+          planId: 'legacy-plan',
+          planName: '1 Month',
+          planCode: 'starter',
+          monthlyFeeInr: 99,
+          status: 'unpaid',
           trialEndsAt: null,
           currentPeriodStart: new Date(),
           currentPeriodEnd: new Date(),
@@ -192,8 +211,20 @@ describe('Portal Billing & Subscription Routes', () => {
         .set('Authorization', `Bearer ${financeToken}`);
 
       expect(res.status).toBe(200);
-      expect(res.body.subscriptions).toHaveLength(1);
+      expect(res.body.subscriptions).toHaveLength(2);
       expect(res.body.subscriptions[0].restaurantName).toBe('Toit Brewpub');
+      expect(res.body.subscriptions[0].planName).toBe('Standard Flat');
+      expect(res.body.subscriptions[0].monthlyFeeInr).toBe(999);
+
+      // Verify invariant: Unpaid restaurant must have null plan and period fields
+      const unpaidSub = res.body.subscriptions[1];
+      expect(unpaidSub.restaurantName).toBe('Jaipur Cafe');
+      expect(unpaidSub.status).toBe('unpaid');
+      expect(unpaidSub.planId).toBeNull();
+      expect(unpaidSub.planName).toBeNull();
+      expect(unpaidSub.monthlyFeeInr).toBeNull();
+      expect(unpaidSub.currentPeriodStart).toBeNull();
+      expect(unpaidSub.currentPeriodEnd).toBeNull();
     });
   });
 
