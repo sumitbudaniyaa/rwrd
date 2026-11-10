@@ -168,24 +168,6 @@ authAdminRouter.post(
           role: 'admin',
           isActive: true,
         });
-
-        // Initialize unpaid subscription pending mandatory onboarding plan selection & payment
-        const [defaultPlan] = await tx
-          .select({ id: billingPlans.id })
-          .from(billingPlans)
-          .where(eq(billingPlans.isActive, true))
-          .orderBy(billingPlans.durationMonths)
-          .limit(1);
-
-        if (defaultPlan) {
-          await tx.insert(subscriptions).values({
-            restaurantId: createdRestaurant.id,
-            planId: defaultPlan.id,
-            status: 'unpaid',
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: new Date(),
-          });
-        }
       });
 
       // Automatically log the newly registered admin in

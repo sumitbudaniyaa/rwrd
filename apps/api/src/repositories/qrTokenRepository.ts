@@ -50,16 +50,18 @@ export class QrTokenRepository {
     const match = results[0];
     if (!match) return null;
 
-    // Enforce active plan requirement and 2-day plan grace period
-    if (match.subscription) {
-      if (match.subscription.status === 'cancelled' || match.subscription.status === 'unpaid') {
-        return null;
-      }
-      const gracePeriodEnd =
-        new Date(match.subscription.currentPeriodEnd).getTime() + PLAN_GRACE_PERIOD_MS;
-      if (Date.now() > gracePeriodEnd) {
-        return null;
-      }
+    // Require active subscription and enforce 2-day plan grace period
+    if (
+      !match.subscription ||
+      match.subscription.status === 'cancelled' ||
+      match.subscription.status === 'unpaid'
+    ) {
+      return null;
+    }
+    const gracePeriodEnd =
+      new Date(match.subscription.currentPeriodEnd).getTime() + PLAN_GRACE_PERIOD_MS;
+    if (Date.now() > gracePeriodEnd) {
+      return null;
     }
 
     return {

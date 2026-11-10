@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Subscriptions Inactive QR Gating, Dynamic Plan Selection, Monthly Price Auto-Calc & Company-Portal-Only Global Audit (M7-T64)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Subscriptions Inactive QR Gating & Dynamic Plan Selection**:
+    - **Inactive QR Status Badge**: Fixed Account Status in Company Portal Subscriptions ledger ([`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx)) where unpaid onboarding establishments defaulted to `Active QR`. Now explicitly inspects subscription status and restaurant activation: unpaid or inactive establishments display `<Badge variant="warning">Inactive QR</Badge>` with "Pending Payment".
+    - **Dynamic Plan Selection (No Hardcoded Plan Tier)**: Eliminated automatic default plan insertion upon registration in `POST /api/v1/auth/admin/register` ([`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts)). Unpaid restaurants now have no hardcoded plan tier until they make a selection on the onboarding payment wall (`/onboarding/payment`). In the Company Portal Subscriptions table, unpaid onboarding tenants without a subscription show `Pending Selection` for Plan and `—` for Monthly Fee.
+  - **Auto-Calculation of Monthly Price on Total Price Change**:
+    - In the Super Admin "Edit SaaS Plan Pricing" modal ([`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx)), editing Total Upfront Price (`priceInr`) automatically recalculates and populates the Monthly Fee equivalent (`monthlyFeeInr = Math.round(newPrice / durationMonths)`), with a helper caption indicating dynamic derivation.
+    - Updated `PATCH /api/v1/portal/billing/plans/:id` ([`apps/api/src/routes/portalBilling.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalBilling.ts)) to auto-compute `monthlyFeeInr` if omitted when updating total price.
+  - **Company Portal Global Audit (Platform Operations Only)**:
+    - Built dedicated backend endpoint `GET /api/v1/portal/audit` ([`apps/api/src/routes/portalAudit.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalAudit.ts)) mounted under `/api/v1/portal/audit`.
+    - Strictly filters `auditLogs.actorType = 'platform_user'` to ensure global audit records represent strictly platform/super admin operations (e.g. plan pricing modifications, restaurant status suspensions, portal user invites, invoice updates) and zero restaurant tenant/waitstaff actions.
+    - Left-joins `platformUsers` (name, email, role) and `restaurants` (name, slug).
+    - Built `AuditLogScreen.tsx` ([`apps/portal/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/AuditLogScreen.tsx)) in Company Portal with live search, action filters, actor identity cards, network IP details, and an interactive Before $\rightarrow$ After state diff inspector modal.
+  - **Testing & Verification**:
+    - Added unit and integration tests in `apps/api/tests/portalAudit.test.ts` (4/4 passing) verifying strictly platform audit isolation, RBAC checks, and unauthenticated rejections.
+    - Added portal unit tests in `apps/portal/tests/auditLog.test.tsx` (3/3 passing) verifying rendering, filtering, and diff modal interactions.
+    - Updated `apps/portal/tests/billingManagement.test.tsx` (6/6 passing) verifying `Inactive QR`, `Pending Selection`, and auto-calculating monthly fee.
+    - Monorepo typecheck, ESLint, and all workspace test suites pass with 0 errors.
+
 ### 2026-11-10 - Super Admin SaaS Plan Price Management, Subscription-Wise Filters, and Unpaid Onboarding Tenant Status Gating (M7-T63)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

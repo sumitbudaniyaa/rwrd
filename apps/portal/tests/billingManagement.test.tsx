@@ -49,6 +49,24 @@ const mockSubscriptions: SubscriptionItem[] = [
     createdAt: '2026-10-01T00:00:00.000Z',
     updatedAt: '2026-11-06T00:00:00.000Z',
   },
+  {
+    id: 'sub-3',
+    restaurantId: 'rest-3',
+    restaurantName: 'Unpaid Onboarding Diner',
+    restaurantSlug: 'unpaid-onboarding-diner',
+    isRestaurantActive: false,
+    isRestaurantSuspended: false,
+    planId: null,
+    planName: null,
+    planCode: null,
+    monthlyFeeInr: null,
+    status: 'unpaid',
+    trialEndsAt: null,
+    currentPeriodStart: null,
+    currentPeriodEnd: null,
+    createdAt: '2026-11-10T00:00:00.000Z',
+    updatedAt: '2026-11-10T00:00:00.000Z',
+  },
 ];
 
 const mockInvoices: InvoiceItem[] = [
@@ -154,6 +172,10 @@ describe('BillingManagementScreen', () => {
       expect(screen.getByText('Toit Brewpub')).toBeInTheDocument();
       expect(screen.getByText('Delinquent Cafe')).toBeInTheDocument();
       expect(screen.getByText('/toit-brewpub')).toBeInTheDocument();
+      expect(screen.getByText('Unpaid Onboarding Diner')).toBeInTheDocument();
+      expect(screen.getByText('Pending Selection')).toBeInTheDocument();
+      expect(screen.getByText('Inactive QR')).toBeInTheDocument();
+      expect(screen.getByText('Pending Payment')).toBeInTheDocument();
     });
 
     expect(screen.getByText('Active Subscriptions')).toBeInTheDocument();
@@ -280,9 +302,13 @@ describe('BillingManagementScreen', () => {
       expect(screen.getByText(/Edit Plan Pricing: Quarterly Growth/)).toBeInTheDocument();
     });
 
-    // Change total price
+    // Change total price and verify real-time auto-calculation of monthly fee
     const priceInput = screen.getByLabelText(/Total Price/i);
-    fireEvent.change(priceInput, { target: { value: '2999' } });
+    const monthlyInput = screen.getByLabelText(/Monthly Fee/i) as HTMLInputElement;
+
+    fireEvent.change(priceInput, { target: { value: '3000' } });
+    // Plan duration is 3 months, so 3000 / 3 = 1000
+    expect(monthlyInput.value).toBe('1000');
 
     // Submit form
     const saveBtn = screen.getByRole('button', { name: /Save Price Changes/i });
@@ -292,7 +318,8 @@ describe('BillingManagementScreen', () => {
       expect(updateSpy).toHaveBeenCalledWith(
         'plan-quarterly',
         expect.objectContaining({
-          priceInr: 2999,
+          priceInr: 3000,
+          monthlyFeeInr: 1000,
         }),
       );
     });

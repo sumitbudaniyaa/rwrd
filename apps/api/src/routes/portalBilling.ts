@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { eq, and, desc, isNull, lte, ne, or, ilike } from 'drizzle-orm';
+import { eq, and, desc, isNull, lte, ne, or, ilike, type SQL } from 'drizzle-orm';
 import { randomUUID } from 'node:crypto';
 import { db } from '../db/index.js';
 import { billingPlans, subscriptions, invoices, restaurants } from '../db/schema/index.js';
@@ -102,7 +102,14 @@ portalBillingRouter.patch(
         updatedAt: new Date(),
       };
       if (parsed.data.name !== undefined) updatePayload.name = parsed.data.name;
-      if (parsed.data.priceInr !== undefined) updatePayload.priceInr = parsed.data.priceInr;
+      if (parsed.data.priceInr !== undefined) {
+        updatePayload.priceInr = parsed.data.priceInr;
+        if (parsed.data.monthlyFeeInr === undefined) {
+          updatePayload.monthlyFeeInr = Math.round(
+            parsed.data.priceInr / (existing.durationMonths || 1),
+          );
+        }
+      }
       if (parsed.data.monthlyFeeInr !== undefined) {
         updatePayload.monthlyFeeInr = parsed.data.monthlyFeeInr;
       }
@@ -164,14 +171,34 @@ portalBillingRouter.get(
       const planId = (req.query.planId as string)?.trim();
       const search = (req.query.search as string)?.trim();
 
-      const conditions = [isNull(restaurants.deletedAt)];
+      const conditions: (SQL<unknown> | undefined)[] = [isNull(restaurants.deletedAt)];
 
-      if (status !== 'all') {
+      if (status === 'unpaid') {
+        conditions.push(
+          or(
+            eq(subscriptions.status, 'unpaid'),
+            isNull(subscriptions.id),
+            eq(restaurants.isActive, false),
+          ),
+        );
+      } else if (status === 'active') {
+        conditions.push(
+          and(
+            eq(subscriptions.status, 'active'),
+            eq(restaurants.isActive, true),
+            eq(restaurants.isSuspended, false),
+          ),
+        );
+      } else if (status !== 'all') {
         conditions.push(eq(subscriptions.status, status));
       }
 
       if (planId && planId !== 'all') {
-        conditions.push(eq(subscriptions.planId, planId));
+        if (planId === 'unpaid') {
+          conditions.push(or(eq(subscriptions.status, 'unpaid'), isNull(subscriptions.planId)));
+        } else {
+          conditions.push(eq(subscriptions.planId, planId));
+        }
       }
 
       if (search) {
@@ -184,12 +211,15 @@ portalBillingRouter.get(
         }
       }
 
+      const activeConditions = conditions.filter((c): c is SQL<unknown> => c !== undefined);
+
       const rows = await db
         .select({
           id: subscriptions.id,
-          restaurantId: subscriptions.restaurantId,
+          restaurantId: restaurants.id,
           restaurantName: restaurants.name,
           restaurantSlug: restaurants.slug,
+          isRestaurantActive: restaurants.isActive,
           isRestaurantSuspended: restaurants.isSuspended,
           planId: subscriptions.planId,
           planName: billingPlans.name,
@@ -204,13 +234,34 @@ portalBillingRouter.get(
           createdAt: subscriptions.createdAt,
           updatedAt: subscriptions.updatedAt,
         })
-        .from(subscriptions)
-        .innerJoin(restaurants, eq(subscriptions.restaurantId, restaurants.id))
-        .innerJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(subscriptions.createdAt));
+        .from(restaurants)
+        .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+        .where(activeConditions.length > 0 ? and(...activeConditions) : undefined)
+        .orderBy(desc(restaurants.createdAt));
 
-      res.status(200).json({ subscriptions: rows });
+      const mapped = rows.map((r) => ({
+        id: r.id || `unpaid-${r.restaurantId}`,
+        restaurantId: r.restaurantId,
+        restaurantName: r.restaurantName,
+        restaurantSlug: r.restaurantSlug,
+        isRestaurantActive: r.isRestaurantActive,
+        isRestaurantSuspended: r.isRestaurantSuspended,
+        planId: r.planId || null,
+        planName: r.planName || null,
+        planCode: r.planCode || null,
+        monthlyFeeInr: r.monthlyFeeInr ?? null,
+        durationMonths: r.durationMonths ?? null,
+        priceInr: r.priceInr ?? null,
+        status: (r.status || 'unpaid') as 'trial' | 'active' | 'past_due' | 'cancelled' | 'unpaid',
+        trialEndsAt: r.trialEndsAt ? r.trialEndsAt.toISOString() : null,
+        currentPeriodStart: r.currentPeriodStart ? r.currentPeriodStart.toISOString() : null,
+        currentPeriodEnd: r.currentPeriodEnd ? r.currentPeriodEnd.toISOString() : null,
+        createdAt: r.createdAt ? r.createdAt.toISOString() : new Date().toISOString(),
+        updatedAt: r.updatedAt ? r.updatedAt.toISOString() : new Date().toISOString(),
+      }));
+
+      res.status(200).json({ subscriptions: mapped });
     } catch (error) {
       next(error);
     }

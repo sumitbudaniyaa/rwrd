@@ -25,6 +25,7 @@ import { portalMetricsRouter } from './routes/portalMetrics.js';
 import { portalBillingRouter } from './routes/portalBilling.js';
 import { portalLeadsRouter } from './routes/portalLeads.js';
 import { portalHealthRouter } from './routes/portalHealth.js';
+import { portalAuditRouter } from './routes/portalAudit.js';
 import { requireAuth, requireActiveSubscription } from './middleware/rbac.js';
 import { NotFoundError } from './errors/appError.js';
 
@@ -161,6 +162,7 @@ export function createApp(): Express {
   app.use('/api/v1', portalBillingRouter);
   app.use('/api/v1', portalLeadsRouter);
   app.use('/api/v1', portalHealthRouter);
+  app.use('/api/v1', portalAuditRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

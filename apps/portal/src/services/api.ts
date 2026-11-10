@@ -238,19 +238,49 @@ export interface SubscriptionItem {
   restaurantId: string;
   restaurantName: string;
   restaurantSlug: string;
+  isRestaurantActive?: boolean;
   isRestaurantSuspended: boolean;
-  planId: string;
-  planName: string;
-  planCode: string;
-  monthlyFeeInr: number;
-  priceInr?: number;
-  durationMonths?: number;
+  planId?: string | null;
+  planName?: string | null;
+  planCode?: string | null;
+  monthlyFeeInr?: number | null;
+  priceInr?: number | null;
+  durationMonths?: number | null;
   status: 'trial' | 'active' | 'past_due' | 'cancelled' | 'unpaid';
-  trialEndsAt: string | null;
-  currentPeriodStart: string;
-  currentPeriodEnd: string;
+  trialEndsAt?: string | null;
+  currentPeriodStart?: string | null;
+  currentPeriodEnd?: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface PortalAuditLogItem {
+  id: string;
+  action: string;
+  actorId: string;
+  actorType: 'platform_user';
+  actorName: string | null;
+  actorEmail: string | null;
+  actorRole: string | null;
+  entityType: string;
+  entityId: string;
+  restaurantId: string | null;
+  restaurantName: string | null;
+  restaurantSlug: string | null;
+  beforeState: Record<string, unknown> | null;
+  afterState: Record<string, unknown> | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  createdAt: string;
+}
+
+export interface PortalAuditResponse {
+  logs: PortalAuditLogItem[];
+  pagination: {
+    limit: number;
+    offset: number;
+    count: number;
+  };
 }
 
 export interface InvoiceItem {
@@ -610,6 +640,25 @@ export const api = {
   deleteFeatureFlag(id: string): Promise<{ message: string }> {
     return request<{ message: string }>(`/portal/system/feature-flags/${id}`, {
       method: 'DELETE',
+    });
+  },
+
+  getPortalAuditLogs(params?: {
+    action?: string;
+    entityType?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<PortalAuditResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.action) searchParams.set('action', params.action);
+    if (params?.entityType) searchParams.set('entityType', params.entityType);
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+    if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+    const qs = searchParams.toString();
+    return request<PortalAuditResponse>(`/portal/audit${qs ? `?${qs}` : ''}`, {
+      method: 'GET',
     });
   },
 };

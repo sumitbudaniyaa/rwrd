@@ -654,6 +654,7 @@ The API supports three distinct authentication contexts:
       "restaurantId": "11111111-1111-1111-1111-111111111111",
       "restaurantName": "The Bombay Canteen",
       "restaurantSlug": "the-bombay-canteen",
+      "isRestaurantActive": true,
       "isRestaurantSuspended": false,
       "planId": "22222222-2222-2222-2222-222222222222",
       "planName": "Quarterly Growth",
@@ -664,5 +665,55 @@ The API supports three distinct authentication contexts:
       "currentPeriodEnd": "2027-02-01T00:00:00.000Z"
     }
   ]
+}
+```
+
+---
+
+## 7. Company Portal Global Audit (`/api/v1/portal/audit`)
+
+Tamper-evident, immutable audit trail strictly tracking operational actions performed by Company Portal staff (`actorType = 'platform_user'`). Tenant-level restaurant actions (such as waitstaff creation or tipping intents) are strictly excluded.
+
+#### List Portal Platform Audits (`GET /api/v1/portal/audit`)
+
+- **Role Requirement**: `super_admin`, `support`, `finance`.
+- **Network Requirement**: Protected by `portalIpAllowlist()` in production.
+- **Query Parameters**:
+  - `action`: Specific audit action filter (e.g. `PLAN_PRICE_UPDATED`, `RESTAURANT_CREATED`, `RESTAURANT_SUSPENDED`, `RESTAURANT_UNSUSPENDED`, `INVOICE_CREATED`, `INVOICE_PAID`, `USER_INVITED`).
+  - `actorId`: Specific platform user UUID.
+  - `restaurantId`: Filter platform actions targeted at a specific restaurant UUID.
+  - `search`: Case-insensitive substring search matching action, actor name, actor email, or restaurant name.
+  - `limit`: Number of records per page (default: 50, max: 200).
+  - `offset`: Pagination offset (default: 0).
+- **Response `200 OK`**:
+
+```json
+{
+  "logs": [
+    {
+      "id": "audit-01j7q3b2x8e30k5j4v",
+      "action": "PLAN_PRICE_UPDATED",
+      "actorId": "usr-portal-1",
+      "actorType": "platform_user",
+      "actorName": "Super Admin Sumit",
+      "actorEmail": "sumit@rwrd.live",
+      "actorRole": "super_admin",
+      "entityType": "billing_plan",
+      "entityId": "plan-quarterly",
+      "restaurantId": null,
+      "restaurantName": null,
+      "restaurantSlug": null,
+      "beforeState": { "priceInr": 2699, "monthlyFeeInr": 900 },
+      "afterState": { "priceInr": 2999, "monthlyFeeInr": 1000 },
+      "ipAddress": "127.0.0.1",
+      "userAgent": "Mozilla/5.0",
+      "createdAt": "2026-11-10T12:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "count": 1
+  }
 }
 ```

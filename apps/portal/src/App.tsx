@@ -11,6 +11,7 @@ import { RestaurantManagementScreen } from './screens/RestaurantManagementScreen
 import { BillingManagementScreen } from './screens/BillingManagementScreen.js';
 import { LeadsManagementScreen } from './screens/LeadsManagementScreen.js';
 import { SystemHealthScreen } from './screens/SystemHealthScreen.js';
+import { AuditLogScreen } from './screens/AuditLogScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,19 +41,7 @@ export const App: React.FC = () => {
                   <Route path="restaurants" element={<RestaurantManagementScreen />} />
                   <Route path="billing" element={<BillingManagementScreen />} />
                   <Route path="leads" element={<LeadsManagementScreen />} />
-                  <Route
-                    path="audit"
-                    element={
-                      <div className="p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-2xl">
-                        <h2 className="text-lg font-semibold text-stone-900 dark:text-stone-100">
-                          Platform Global Audit Log
-                        </h2>
-                        <p className="text-xs text-stone-500 dark:text-stone-400 mt-1">
-                          Cross-tenant and platform-level tamper-evident event stream.
-                        </p>
-                      </div>
-                    }
-                  />
+                  <Route path="audit" element={<AuditLogScreen />} />
                   <Route path="health" element={<SystemHealthScreen />} />
                 </Route>
               </Route>

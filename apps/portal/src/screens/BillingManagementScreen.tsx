@@ -180,7 +180,7 @@ export const BillingManagementScreen: React.FC = () => {
     return (
       sub.restaurantName.toLowerCase().includes(q) ||
       sub.restaurantSlug.toLowerCase().includes(q) ||
-      sub.planName.toLowerCase().includes(q)
+      (sub.planName ? sub.planName.toLowerCase().includes(q) : false)
     );
   });
 
@@ -215,6 +215,39 @@ export const BillingManagementScreen: React.FC = () => {
       default:
         return <Badge variant="neutral">{status}</Badge>;
     }
+  };
+
+  const getAccountQrStatusBadge = (sub: SubscriptionItem) => {
+    if (sub.isRestaurantSuspended) {
+      return <Badge variant="danger">Suspended</Badge>;
+    }
+    if (sub.status === 'unpaid' || sub.isRestaurantActive === false) {
+      return (
+        <div className="flex flex-col items-end gap-0.5">
+          <Badge variant="warning">Inactive QR</Badge>
+          <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+            Pending Payment
+          </span>
+        </div>
+      );
+    }
+    if (sub.status === 'past_due') {
+      return (
+        <div className="flex flex-col items-end gap-0.5">
+          <Badge variant="warning">Paused QR</Badge>
+          <span className="text-[10px] text-stone-400 dark:text-stone-500 font-medium">
+            Past Due
+          </span>
+        </div>
+      );
+    }
+    if (sub.status === 'cancelled') {
+      return <Badge variant="neutral">Cancelled QR</Badge>;
+    }
+    if (sub.status === 'trial') {
+      return <Badge variant="accent">Trial QR</Badge>;
+    }
+    return <Badge variant="success">Active QR</Badge>;
   };
 
   const getInvoiceStatusBadge = (status: InvoiceItem['status']) => {
@@ -563,28 +596,42 @@ export const BillingManagementScreen: React.FC = () => {
                           </p>
                         </td>
                         <td className="py-2.5 px-4 font-medium text-stone-700 dark:text-stone-300">
-                          {sub.planName}
+                          {sub.planName || (
+                            <span className="text-stone-400 dark:text-stone-500 italic font-normal">
+                              Pending Selection
+                            </span>
+                          )}
                         </td>
                         <td className="py-2.5 px-4 font-semibold text-stone-900 dark:text-stone-100 font-mono">
-                          {sub.priceInr ? `₹${sub.priceInr}` : `₹${sub.monthlyFeeInr}/mo`}
-                          {sub.durationMonths && sub.durationMonths > 1 && (
-                            <span className="text-[10px] text-stone-400 font-normal ml-1">
-                              ({sub.durationMonths}m)
+                          {sub.monthlyFeeInr ? (
+                            <>
+                              {sub.priceInr ? `₹${sub.priceInr}` : `₹${sub.monthlyFeeInr}/mo`}
+                              {sub.durationMonths && sub.durationMonths > 1 && (
+                                <span className="text-[10px] text-stone-400 font-normal ml-1">
+                                  ({sub.durationMonths}m)
+                                </span>
+                              )}
+                            </>
+                          ) : (
+                            <span className="text-stone-400 dark:text-stone-500 font-normal">
+                              &mdash;
                             </span>
                           )}
                         </td>
                         <td className="py-2.5 px-4">{getSubStatusBadge(sub.status)}</td>
                         <td className="py-2.5 px-4 text-stone-500 dark:text-stone-400 font-mono text-[11px]">
-                          {new Date(sub.currentPeriodStart).toLocaleDateString()} &rarr;{' '}
-                          {new Date(sub.currentPeriodEnd).toLocaleDateString()}
-                        </td>
-                        <td className="py-2.5 px-4 text-right">
-                          {sub.isRestaurantSuspended ? (
-                            <Badge variant="danger">Suspended</Badge>
+                          {sub.currentPeriodStart && sub.currentPeriodEnd ? (
+                            <>
+                              {new Date(sub.currentPeriodStart).toLocaleDateString()} &rarr;{' '}
+                              {new Date(sub.currentPeriodEnd).toLocaleDateString()}
+                            </>
                           ) : (
-                            <Badge variant="success">Active QR</Badge>
+                            <span className="text-stone-400 dark:text-stone-500 font-normal">
+                              &mdash;
+                            </span>
                           )}
                         </td>
+                        <td className="py-2.5 px-4 text-right">{getAccountQrStatusBadge(sub)}</td>
                       </tr>
                     ))
                   )}
@@ -905,7 +952,15 @@ export const BillingManagementScreen: React.FC = () => {
                         required
                         min={1}
                         value={editPlanPrice}
-                        onChange={(e) => setEditPlanPrice(Number(e.target.value))}
+                        onChange={(e) => {
+                          const newPrice = Number(e.target.value);
+                          setEditPlanPrice(newPrice);
+                          if (editingPlan && editingPlan.durationMonths) {
+                            setEditPlanMonthlyFee(
+                              Math.round(newPrice / editingPlan.durationMonths),
+                            );
+                          }
+                        }}
                         className="w-full px-3 py-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono text-stone-900 dark:text-stone-100 outline-none"
                       />
                     </div>
@@ -926,6 +981,10 @@ export const BillingManagementScreen: React.FC = () => {
                         onChange={(e) => setEditPlanMonthlyFee(Number(e.target.value))}
                         className="w-full px-3 py-2 rounded-xl bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 text-xs font-mono text-stone-900 dark:text-stone-100 outline-none"
                       />
+                      <p className="text-[10px] text-stone-400 dark:text-stone-500 mt-1 font-mono">
+                        Auto-computed: ₹{editPlanPrice || 0} ÷ {editingPlan?.durationMonths || 1}m
+                        (editable)
+                      </p>
                     </div>
                   </div>
 

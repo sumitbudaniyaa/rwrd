@@ -177,8 +177,8 @@ describe('Portal Billing & Subscription Routes', () => {
 
       vi.spyOn(db, 'select').mockReturnValueOnce({
         from: () => ({
-          innerJoin: () => ({
-            innerJoin: () => ({
+          leftJoin: () => ({
+            leftJoin: () => ({
               where: () => ({
                 orderBy: () => Promise.resolve(mockSubscriptions),
               }),
