@@ -513,6 +513,17 @@ export const api = {
     });
   },
 
+  deleteBillingPlan(
+    planId: string,
+  ): Promise<{ message: string; planId: string; action: 'deleted' | 'deactivated' }> {
+    return request<{ message: string; planId: string; action: 'deleted' | 'deactivated' }>(
+      `/portal/billing/plans/${planId}`,
+      {
+        method: 'DELETE',
+      },
+    );
+  },
+
   getSubscriptions(params?: {
     status?: string;
     planId?: string;

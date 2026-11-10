@@ -345,4 +345,46 @@ describe('BillingManagementScreen', () => {
       );
     });
   });
+
+  it('allows super admin to open delete confirmation dialog and safely delete a plan', async () => {
+    const deleteSpy = vi.spyOn(api, 'deleteBillingPlan').mockResolvedValueOnce({
+      message:
+        'Plan has associated subscription records and was safely deactivated. Existing subscribers will continue until period end.',
+      planId: 'plan-quarterly',
+      action: 'deactivated',
+    });
+
+    renderWithProviders(<BillingManagementScreen />, 'super_admin');
+
+    // Click SaaS Plans Pricing tab
+    const plansTab = screen.getByRole('button', { name: /SaaS Plans Pricing/i });
+    fireEvent.click(plansTab);
+
+    await waitFor(() => {
+      expect(screen.getByText('Quarterly Growth')).toBeInTheDocument();
+    });
+
+    // Click Delete button on the plan
+    const deleteBtn = screen.getByRole('button', { name: /Delete Quarterly Growth plan/i });
+    fireEvent.click(deleteBtn);
+
+    // Verify confirmation modal opens
+    await waitFor(() => {
+      expect(screen.getByText(/Delete "Quarterly Growth" Plan\?/i)).toBeInTheDocument();
+      expect(screen.getByText(/Grandfathered Subscriber Protection/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /If any restaurants currently subscribe to this tier, the plan is safely archived/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    // Confirm deletion in dialog
+    const confirmDeleteBtn = screen.getByRole('button', { name: /^Delete Plan$/i });
+    fireEvent.click(confirmDeleteBtn);
+
+    await waitFor(() => {
+      expect(deleteSpy).toHaveBeenCalledWith('plan-quarterly');
+    });
+  });
 });

@@ -153,6 +153,140 @@ describe('Portal Billing & Subscription Routes', () => {
     });
   });
 
+  describe('DELETE /api/v1/portal/billing/plans/:id', () => {
+    const existingPlan = {
+      id: planId,
+      code: 'quarterly',
+      name: 'Quarterly Growth',
+      priceInr: 2699,
+      monthlyFeeInr: 899,
+      durationMonths: 3,
+      isActive: true,
+    };
+
+    it('hard deletes plan when 0 subscriptions reference it', async () => {
+      // Mock 1: select plan
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([existingPlan]),
+          }),
+        }),
+      } as any);
+
+      // Mock 2: select subscriptions (empty)
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      } as any);
+
+      // Mock 3: delete plan
+      vi.spyOn(db, 'delete').mockReturnValueOnce({
+        where: () => Promise.resolve(),
+      } as any);
+
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      const res = await request(app)
+        .delete(`/api/v1/portal/billing/plans/${planId}`)
+        .set('Authorization', `Bearer ${superAdminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.action).toBe('deleted');
+      expect(res.body.planId).toBe(planId);
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'PLAN_DELETED',
+          entityType: 'billing_plan',
+          entityId: planId,
+          afterState: {
+            deletionType: 'hard_deleted',
+          },
+        }),
+      );
+    });
+
+    it('safely deactivates plan when subscribers reference it (grandfathered period)', async () => {
+      // Mock 1: select plan
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([existingPlan]),
+          }),
+        }),
+      } as any);
+
+      // Mock 2: select subscriptions (found active subscriber)
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([{ id: 'sub-active-1' }]),
+          }),
+        }),
+      } as any);
+
+      // Mock 3: update plan to inactive
+      vi.spyOn(db, 'update').mockReturnValueOnce({
+        set: () => ({
+          where: () => Promise.resolve(),
+        }),
+      } as any);
+
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      const res = await request(app)
+        .delete(`/api/v1/portal/billing/plans/${planId}`)
+        .set('Authorization', `Bearer ${superAdminToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.action).toBe('deactivated');
+      expect(res.body.message).toContain('Existing subscribers will continue until period end');
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'PLAN_DELETED',
+          entityType: 'billing_plan',
+          entityId: planId,
+          afterState: expect.objectContaining({
+            isActive: false,
+            deletionType: 'archived_due_to_subscribers',
+          }),
+        }),
+      );
+    });
+
+    it('returns 404 if plan does not exist', async () => {
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => Promise.resolve([]),
+          }),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .delete(`/api/v1/portal/billing/plans/${planId}`)
+        .set('Authorization', `Bearer ${superAdminToken}`);
+
+      expect(res.status).toBe(404);
+    });
+
+    it('rejects finance or support role with 403 on plan delete', async () => {
+      const res = await request(app)
+        .delete(`/api/v1/portal/billing/plans/${planId}`)
+        .set('Authorization', `Bearer ${financeToken}`);
+
+      expect(res.status).toBe(403);
+    });
+
+    it('rejects unauthenticated requests with 401', async () => {
+      const res = await request(app).delete(`/api/v1/portal/billing/plans/${planId}`);
+      expect(res.status).toBe(401);
+    });
+  });
+
   describe('GET /api/v1/portal/billing/subscriptions', () => {
     it('returns subscriptions joined with restaurant and plan details', async () => {
       const mockSubscriptions = [

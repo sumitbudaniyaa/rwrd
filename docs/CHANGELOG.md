@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Super Admin SaaS Plan Deletion with Grandfathered Grace Enforcement (M7-T69)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Super Admin Plan Deletion API (`DELETE /api/v1/portal/billing/plans/:id`)**:
+    - Created protected deletion endpoint requiring `requireAuth('portal')` and `requireRole(['super_admin'])`.
+    - Enforced database invariant: if subscribers reference the plan, safely deactivates the plan (`isActive: false`) preserving foreign key relationships, ensuring existing subscribers continue on their plan uninterrupted until `currentPeriodEnd` (+ 48h grace).
+    - If 0 subscribers reference the plan, executes clean database deletion (`DELETE FROM billing_plans WHERE id = :id`).
+    - Recorded comprehensive audit event with action `PLAN_DELETED` and metadata (`deletionType: 'hard_deleted'` vs `'archived_due_to_subscribers'`).
+  - **Grandfathered Renewal Invariant**:
+    - Re-verified that prospective/renewing plan queries in [`apps/api/src/routes/public.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/public.ts) (`GET /public/billing/plans`) and [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) (`POST /admin/billing/onboarding/pay`) strictly filter `where(eq(billingPlans.isActive, true))`. Deactivated plans never appear for future subscriptions; expiring subscribers choose from active tiers.
+  - **Portal Client & UI Confirmation Modal**:
+    - Added `deleteBillingPlan` client method to [`apps/portal/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/services/api.ts).
+    - Enhanced [`apps/portal/src/screens/BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx) with a Delete button on each SaaS tier card for Super Admin users.
+    - Integrated an accessible confirmation dialog (`role="dialog"`, `aria-labelledby`) with grandfathered subscriber safeguards explaining uninterrupted active terms and post-expiry migration to available active plans.
+    - Added `PLAN_DELETED` option in the action filter dropdown in [`apps/portal/src/screens/AuditLogScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/AuditLogScreen.tsx).
+  - **Testing & Verification**:
+    - Added integration tests in [`apps/api/tests/portalBilling.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/portalBilling.test.ts) covering hard deletion, deactivation with subscriber grace, RBAC authorization (403 for finance/support), 404 for nonexistent plan, and unauthenticated rejection (401).
+    - Added UI unit test in [`apps/portal/tests/billingManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/billingManagement.test.tsx) verifying delete confirmation dialog rendering and mutation trigger.
+    - Full suite verified: 38 portal tests passed, 16 portal billing API tests passed, 0 typecheck errors, 0 ESLint warnings.
+
 ### 2026-11-10 - beUI Spring-Gliding Tabs Animation for Plan Selection in Admin Onboarding (M7-T68)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

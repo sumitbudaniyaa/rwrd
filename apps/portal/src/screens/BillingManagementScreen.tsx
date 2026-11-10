@@ -13,6 +13,7 @@ import {
   RefreshIcon,
   AlertSquareIcon,
   Edit01Icon,
+  Delete02Icon,
 } from '@hugeicons/core-free-icons';
 import { SlideUp, FadeIn, MotionButton } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
@@ -48,6 +49,7 @@ export const BillingManagementScreen: React.FC = () => {
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = useState(false);
   const [isSweepModalOpen, setIsSweepModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<BillingPlanItem | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<BillingPlanItem | null>(null);
   const [editPlanName, setEditPlanName] = useState('');
   const [editPlanPrice, setEditPlanPrice] = useState<number>(0);
   const [editPlanMonthlyFee, setEditPlanMonthlyFee] = useState<number>(0);
@@ -100,6 +102,21 @@ export const BillingManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       setErrorMessage(err instanceof Error ? err.message : 'Failed to update plan pricing.');
+    },
+  });
+
+  // Delete Plan Mutation
+  const deletePlanMutation = useMutation({
+    mutationFn: (id: string) => api.deleteBillingPlan(id),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ['portal-plans-all'] });
+      queryClient.invalidateQueries({ queryKey: ['portal-plans'] });
+      queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
+      setPlanToDelete(null);
+      setSuccessMessage(res.message);
+    },
+    onError: (err) => {
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to delete billing plan.');
     },
   });
 
@@ -855,24 +872,40 @@ export const BillingManagementScreen: React.FC = () => {
 
                   <div className="pt-4 mt-4 border-t border-stone-100 dark:border-stone-800">
                     {!isRestrictedRole && user?.role === 'super_admin' ? (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingPlan(plan);
-                          setEditPlanName(plan.name);
-                          setEditPlanPrice(plan.priceInr || 0);
-                          setEditPlanMonthlyFee(plan.monthlyFeeInr || 0);
-                          setEditPlanIsActive(plan.isActive);
-                        }}
-                        className="w-full py-1.5 px-3 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <HugeiconsIcon
-                          icon={Edit01Icon}
-                          className="w-3.5 h-3.5"
-                          strokeWidth={1.5}
-                        />
-                        <span>Edit Pricing</span>
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingPlan(plan);
+                            setEditPlanName(plan.name);
+                            setEditPlanPrice(plan.priceInr || 0);
+                            setEditPlanMonthlyFee(plan.monthlyFeeInr || 0);
+                            setEditPlanIsActive(plan.isActive);
+                          }}
+                          className="flex-1 py-1.5 px-3 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <HugeiconsIcon
+                            icon={Edit01Icon}
+                            className="w-3.5 h-3.5"
+                            strokeWidth={1.5}
+                          />
+                          <span>Edit Pricing</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPlanToDelete(plan)}
+                          className="py-1.5 px-2.5 rounded-lg text-xs font-medium bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 border border-rose-200/60 dark:border-rose-900/50 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                          title={`Delete ${plan.name} plan`}
+                          aria-label={`Delete ${plan.name} plan`}
+                        >
+                          <HugeiconsIcon
+                            icon={Delete02Icon}
+                            className="w-3.5 h-3.5"
+                            strokeWidth={1.5}
+                          />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                     ) : (
                       <span className="text-[11px] text-stone-400 dark:text-stone-500 italic block text-center">
                         Read-only for {user?.role}
@@ -1029,6 +1062,92 @@ export const BillingManagementScreen: React.FC = () => {
                     </MotionButton>
                   </div>
                 </form>
+              </div>
+            </FadeIn>
+          </div>,
+          document.body,
+        )}
+
+      {/* Delete Plan Confirmation Modal */}
+      {planToDelete &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="delete-plan-dialog-title"
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans"
+          >
+            <FadeIn>
+              <div className="bg-white dark:bg-stone-900 rounded-2xl max-w-md w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden p-6 space-y-4 transition-colors duration-200">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/20 dark:border-rose-900 flex items-center justify-center text-rose-700 dark:text-rose-400 shrink-0">
+                    <HugeiconsIcon icon={Delete02Icon} className="w-4 h-4" strokeWidth={1.5} />
+                  </div>
+                  <div>
+                    <h3
+                      id="delete-plan-dialog-title"
+                      className="text-sm font-semibold text-stone-900 dark:text-stone-100"
+                    >
+                      Delete &quot;{planToDelete.name}&quot; Plan?
+                    </h3>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5 font-mono">
+                      Code: {planToDelete.code} • Duration: {planToDelete.durationMonths}m • Total:
+                      ₹{planToDelete.priceInr}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-amber-500/10 dark:bg-amber-950/30 border border-amber-500/20 dark:border-amber-900/40 rounded-xl text-xs text-amber-900 dark:text-amber-200 space-y-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-[11px] text-amber-800 dark:text-amber-300">
+                    <HugeiconsIcon
+                      icon={AlertCircleIcon}
+                      className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0"
+                      strokeWidth={1.5}
+                    />
+                    <span>Grandfathered Subscriber Protection</span>
+                  </div>
+                  <ul className="text-[11px] leading-relaxed text-amber-800/90 dark:text-amber-300/90 list-disc list-inside space-y-1">
+                    <li>
+                      If any restaurants currently subscribe to this tier, the plan is safely
+                      archived. Their active billing period continues <strong>uninterrupted</strong>{' '}
+                      until its scheduled expiration date.
+                    </li>
+                    <li>
+                      When their subscription ends, this plan will no longer be available for
+                      renewal; they must select from available active plans.
+                    </li>
+                    <li>
+                      If 0 restaurants are subscribed, this plan is permanently deleted from the
+                      database.
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100 dark:border-stone-800">
+                  <MotionButton
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setPlanToDelete(null)}
+                  >
+                    Cancel
+                  </MotionButton>
+                  <MotionButton
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                      if (planToDelete) {
+                        deletePlanMutation.mutate(planToDelete.id);
+                      }
+                    }}
+                    disabled={deletePlanMutation.isPending}
+                    className="bg-rose-600 hover:bg-rose-700 text-white font-medium"
+                  >
+                    {deletePlanMutation.isPending ? 'Deleting...' : 'Delete Plan'}
+                  </MotionButton>
+                </div>
               </div>
             </FadeIn>
           </div>,

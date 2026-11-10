@@ -157,6 +157,125 @@ portalBillingRouter.patch(
 );
 
 /**
+ * DELETE /api/v1/portal/billing/plans/:id
+ * Deletes or deactivates a billing plan (Super Admin only).
+ * If subscribers currently reference the plan, safely deactivates (isActive = false) so existing
+ * subscribers continue uninterrupted until period end (+ grace). Future signups/onboardings cannot pick it.
+ * If 0 subscribers reference the plan, performs a clean database deletion.
+ */
+portalBillingRouter.delete(
+  '/portal/billing/plans/:id',
+  requireAuth('portal'),
+  requireRole(['super_admin']),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const planId = req.params.id;
+      if (!planId) {
+        throw new ValidationError('Plan ID is required');
+      }
+
+      const [existing] = await db
+        .select()
+        .from(billingPlans)
+        .where(eq(billingPlans.id, planId))
+        .limit(1);
+
+      if (!existing) {
+        throw new NotFoundError('Billing plan not found');
+      }
+
+      // Check if any subscriptions reference this plan
+      const [existingSub] = await db
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(eq(subscriptions.planId, planId))
+        .limit(1);
+
+      if (existingSub) {
+        // Safe deactivation: preserve historical & current period subscriber foreign keys
+        await db
+          .update(billingPlans)
+          .set({
+            isActive: false,
+          })
+          .where(eq(billingPlans.id, planId));
+
+        await auditService.record({
+          actorId: req.user!.id,
+          actorType: 'platform_user',
+          action: 'PLAN_DELETED',
+          entityType: 'billing_plan',
+          entityId: planId,
+          beforeState: {
+            name: existing.name,
+            code: existing.code,
+            priceInr: existing.priceInr,
+            isActive: existing.isActive,
+          },
+          afterState: {
+            name: existing.name,
+            code: existing.code,
+            priceInr: existing.priceInr,
+            isActive: false,
+            deletionType: 'archived_due_to_subscribers',
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+
+        logger.info(
+          { planId, planName: existing.name, actorId: req.user!.id },
+          'Billing plan archived/deactivated due to active or historical subscriptions',
+        );
+
+        res.status(200).json({
+          message:
+            'Plan has associated subscription records and was safely deactivated. Existing subscribers will continue until period end.',
+          planId,
+          action: 'deactivated',
+        });
+        return;
+      }
+
+      // No subscribers reference this plan: perform clean hard deletion
+      await db.delete(billingPlans).where(eq(billingPlans.id, planId));
+
+      await auditService.record({
+        actorId: req.user!.id,
+        actorType: 'platform_user',
+        action: 'PLAN_DELETED',
+        entityType: 'billing_plan',
+        entityId: planId,
+        beforeState: {
+          name: existing.name,
+          code: existing.code,
+          priceInr: existing.priceInr,
+          isActive: existing.isActive,
+        },
+        afterState: {
+          deletionType: 'hard_deleted',
+        },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+
+      logger.info(
+        { planId, planName: existing.name, actorId: req.user!.id },
+        'Billing plan permanently deleted',
+      );
+
+      res.status(200).json({
+        message: 'Plan successfully deleted.',
+        planId,
+        action: 'deleted',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
  * GET /api/v1/portal/billing/subscriptions
  * Lists subscriptions with joined restaurant details, plan tiers, and overdue indicators.
  * Supports status, planId, and restaurant search filters.

@@ -153,6 +153,7 @@ export const AuditLogScreen: React.FC = () => {
             >
               <option value="ALL">All Actions</option>
               <option value="PLAN_PRICE_UPDATED">PLAN_PRICE_UPDATED</option>
+              <option value="PLAN_DELETED">PLAN_DELETED</option>
               <option value="RESTAURANT_CREATED">RESTAURANT_CREATED</option>
               <option value="RESTAURANT_SUSPENDED">RESTAURANT_SUSPENDED</option>
               <option value="RESTAURANT_REACTIVATED">RESTAURANT_REACTIVATED</option>

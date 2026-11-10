@@ -345,6 +345,8 @@ The API supports three distinct authentication contexts:
 | `POST`   | `/portal/restaurants/:id/impersonate` |    Bearer (Support)    | Generate temporary support delegation token with full audit trail. |
 | `GET`    | `/portal/metrics`                     |         Bearer         | Global system metrics, MRR, active scans, and health aggregates.   |
 | `GET`    | `/portal/billing/plans`               |    Bearer (Portal)     | List active platform subscription plan tiers.                      |
+| `PATCH`  | `/portal/billing/plans/:id`           |  Bearer (Super Admin)  | Update plan pricing and monthly fee calculation with audit log.    |
+| `DELETE` | `/portal/billing/plans/:id`           |  Bearer (Super Admin)  | Delete or safely deactivate plan preserving grandfathered terms.   |
 | `GET`    | `/portal/billing/subscriptions`       |    Bearer (Portal)     | List restaurant subscriptions with joined plan and status.         |
 | `GET`    | `/portal/billing/invoices`            |    Bearer (Portal)     | Paginated invoices ledger with status/restaurant filtering.        |
 | `POST`   | `/portal/billing/invoices`            | Bearer (Finance/Admin) | Generate and issue an invoice for a dining establishment.          |
@@ -634,6 +636,33 @@ The API supports three distinct authentication contexts:
     "isActive": true,
     "updatedAt": "2026-11-10T12:00:00.000Z"
   }
+}
+```
+
+#### Delete or Deactivate Billing Plan (`DELETE /api/v1/portal/billing/plans/:id`)
+
+- **Role Requirement**: `super_admin` (`403 Forbidden` for finance/support).
+- **Audit Action**: `PLAN_DELETED` (records `deletionType: 'hard_deleted'` or `'archived_due_to_subscribers'`).
+- **Grandfathered Protection Behavior**:
+  - If subscribers currently reference the plan, the plan is safely deactivated (`isActive = false`). Existing subscribers run uninterrupted on that plan until `currentPeriodEnd` (+ 48h grace). When their subscription expires, the deactivated plan is omitted from future onboarding or renewal options (`GET /public/billing/plans` and `POST /admin/billing/onboarding/pay` filter `isActive = true`), prompting them to choose from active plans.
+  - If 0 subscribers reference the plan, it is permanently deleted from `billing_plans`.
+- **Response `200 OK` (when subscribers exist)**:
+
+```json
+{
+  "message": "Plan has associated subscription records and was safely deactivated. Existing subscribers will continue until period end.",
+  "planId": "22222222-2222-2222-2222-222222222222",
+  "action": "deactivated"
+}
+```
+
+- **Response `200 OK` (when 0 subscribers exist)**:
+
+```json
+{
+  "message": "Plan successfully deleted.",
+  "planId": "22222222-2222-2222-2222-222222222222",
+  "action": "deleted"
 }
 ```
 
