@@ -6,12 +6,9 @@ import {
   CheckmarkCircle02Icon,
   ArrowRight01Icon,
   Store01Icon,
-  QrCodeIcon,
-  Shield01Icon,
   Tick01Icon,
   Logout01Icon,
   Wallet01Icon,
-  Clock01Icon,
 } from '@hugeicons/core-free-icons';
 import { FadeIn, SlideUp } from '@tiptable/ui';
 import { StatefulButton, type ButtonState } from '../components/motion/button.js';
@@ -173,20 +170,12 @@ export const OnboardingPaymentScreen: React.FC = () => {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 flex-1 flex flex-col items-center">
+      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 pb-28 flex-1 flex flex-col items-center">
         <FadeIn>
-          <div className="text-center max-w-xl mx-auto space-y-2.5">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#FFE862]/30 border border-[#FFE862]/60 text-[11px] font-semibold text-stone-900">
-              <HugeiconsIcon icon={Shield01Icon} className="w-3.5 h-3.5" />
-              <span>Mandatory Plan Activation</span>
-            </div>
+          <div className="text-center max-w-xl mx-auto">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-stone-900">
               activate your establishment
             </h1>
-            <p className="text-xs sm:text-sm text-stone-500 leading-relaxed">
-              Select your subscription tier to unlock live table QR placard generation,
-              direct-to-server guest tipping, and multi-period performance analytics.
-            </p>
           </div>
         </FadeIn>
 
@@ -310,63 +299,35 @@ export const OnboardingPaymentScreen: React.FC = () => {
           )}
         </div>
 
-        {/* Action Callout */}
+        {/* Sticky Selected Plan Floating Bar */}
         {currentPlan && (
-          <FadeIn delay={200}>
-            <div className="w-full max-w-xl mx-auto mt-8 p-4 bg-white rounded-2xl border border-stone-200/90 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="space-y-0.5 text-center sm:text-left">
-                <p className="text-xs font-semibold text-stone-900">
-                  {currentPlan.name} Plan Selected — ₹{currentPlan.priceInr} INR
-                </p>
-                <p className="text-[11px] text-stone-500">
-                  Instant activation via UPI deep link or standard checkout.
-                </p>
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4 pointer-events-none">
+            <SlideUp delay={50}>
+              <div className="pointer-events-auto p-4 sm:px-5 sm:py-4 rounded-2xl bg-stone-900/95 backdrop-blur-md border border-stone-800 shadow-2xl shadow-stone-950/40 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-300">
+                <div className="space-y-0.5 text-center sm:text-left">
+                  <p className="text-xs sm:text-sm font-semibold text-white flex items-center justify-center sm:justify-start gap-1.5 flex-wrap">
+                    <span>{currentPlan.name} Plan Selected &mdash;</span>
+                    <span className="text-[#FFE862] font-mono font-bold text-sm sm:text-base">
+                      ₹{currentPlan.priceInr} INR
+                    </span>
+                  </p>
+                  <p className="text-[11px] text-stone-400">
+                    Instant activation via UPI deep link or standard checkout.
+                  </p>
+                </div>
+
+                <StatefulButton
+                  state="idle"
+                  onClick={handleOpenPayment}
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-[#FFE862] hover:bg-[#FADC32] text-stone-900 text-xs font-bold shadow-sm flex items-center justify-center gap-2 shrink-0 transition-transform active:scale-[0.98] cursor-pointer"
+                >
+                  <span>Proceed to Pay</span>
+                  <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
+                </StatefulButton>
               </div>
-
-              <StatefulButton
-                state="idle"
-                onClick={handleOpenPayment}
-                className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-semibold shadow-xs flex items-center justify-center gap-2 shrink-0 transition-transform active:scale-[0.98]"
-              >
-                <span>Proceed to Pay</span>
-                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3.5 h-3.5" />
-              </StatefulButton>
-            </div>
-          </FadeIn>
+            </SlideUp>
+          </div>
         )}
-
-        {/* Operational Invariants Feature Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-3xl w-full mt-12 pt-8 border-t border-stone-200/70 text-center sm:text-left">
-          <div className="space-y-1.5">
-            <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-stone-700 mx-auto sm:mx-0">
-              <HugeiconsIcon icon={QrCodeIcon} className="w-4 h-4" />
-            </div>
-            <h4 className="text-xs font-semibold text-stone-900">Instant QR Placards</h4>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Export high-resolution PDF & SVG placards ready for dining table stands.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-stone-700 mx-auto sm:mx-0">
-              <HugeiconsIcon icon={Wallet01Icon} className="w-4 h-4" />
-            </div>
-            <h4 className="text-xs font-semibold text-stone-900">Direct Staff UPI</h4>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Dinners tip directly to waitstaff UPI accounts with zero intermediate escrow.
-            </p>
-          </div>
-
-          <div className="space-y-1.5">
-            <div className="w-7 h-7 rounded-lg bg-stone-100 flex items-center justify-center text-stone-700 mx-auto sm:mx-0">
-              <HugeiconsIcon icon={Clock01Icon} className="w-4 h-4" />
-            </div>
-            <h4 className="text-xs font-semibold text-stone-900">48-Hour Grace Protection</h4>
-            <p className="text-[11px] text-stone-500 leading-relaxed">
-              Keep table operations smooth with an automatic 2-day buffer upon renewal dates.
-            </p>
-          </div>
-        </div>
       </main>
 
       {/* Footer */}

@@ -6,6 +6,26 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Admin Payment Screen Minimalist Cleanup & Sticky Attractive Plan Selector Floating Dock (M7-T66)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Onboarding Payment Screen Visual Cleanup**:
+    - Removed the `"Mandatory Plan Activation"` badge and lengthy subtitle description from the header in [`apps/admin/src/screens/OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx), leaving the clean editorial heading `activate your establishment`.
+    - Removed the bottom 3-column Operational Invariants feature grid (_"Instant QR Placards"_, _"Direct Staff UPI"_, _"48-Hour Grace Protection"_).
+    - Cleaned up unused iconography imports (`Shield01Icon`, `QrCodeIcon`, `Clock01Icon`).
+  - **Floating Sticky Selected Plan Bar**:
+    - Replaced the static in-flow checkout box with an elevated, fixed-bottom floating dock (`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-full max-w-xl px-4`) featuring smooth `SlideUp` entry animation.
+    - Designed with deep stone-900 backdrop (`bg-stone-900/95 backdrop-blur-md border border-stone-800 text-white shadow-2xl shadow-stone-950/40 rounded-2xl p-4 sm:px-5`).
+    - Prominently displays `{plan.name} Plan Selected — ` with brand yellow price highlight (`text-[#FFE862] font-mono font-bold`) and microcopy `Instant activation via UPI deep link or standard checkout.`.
+    - Styled primary CTA with brand yellow button (`bg-[#FFE862] hover:bg-[#FADC32] text-stone-900 font-bold`) and active click feedback.
+    - Added bottom padding (`pb-28`) to main content container to prevent card occlusion.
+  - **Testing & Verification**:
+    - Updated `apps/admin/tests/onboardingPayment.test.tsx` to verify clean header, absence of removed copy/feature grid, and interaction with the sticky bottom dock.
+    - All 10 test files and 49 tests in `@tiptable/admin` pass.
+    - Monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Unpaid Subscription Plan Invariant Gating (Zero Plan/Period Leaks for Unpaid Tenants) & DB Cleanup (M7-T65)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
