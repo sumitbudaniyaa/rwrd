@@ -183,4 +183,34 @@ describe('Admin Restaurant Settings Routes', () => {
     expect(res.status).toBe(400);
     expect(res.body.code).toBe('REVIEW_URL_REQUIRED');
   });
+
+  it('PUT /api/v1/admin/restaurants/:id/settings automatically enables Google reviews when valid review URL is provided', async () => {
+    vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce({
+      ...mockRestaurantRecord,
+      googleReviewUrl: '',
+      reviewsEnabled: false,
+    });
+    const updateSpy = vi.spyOn(restaurantRepository, 'update').mockResolvedValueOnce({
+      ...mockRestaurantRecord,
+      googleReviewUrl: 'https://maps.app.goo.gl/newreview123',
+      reviewsEnabled: true,
+    });
+    vi.spyOn(auditService, 'record').mockResolvedValueOnce({} as any);
+
+    const res = await request(app)
+      .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        googleReviewUrl: 'https://maps.app.goo.gl/newreview123',
+      });
+
+    expect(res.status).toBe(200);
+    expect(updateSpy).toHaveBeenCalledWith(
+      restaurantId,
+      expect.objectContaining({
+        googleReviewUrl: 'https://maps.app.goo.gl/newreview123',
+        reviewsEnabled: true,
+      }),
+    );
+  });
 });

@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
 import { staffRepository } from '../repositories/staffRepository.js';
+import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { encryptVpa, maskVpa } from '../services/crypto.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
@@ -100,6 +101,12 @@ adminStaffRouter.post(
         isOnShift: true,
         consentRecordedAt: new Date(),
       });
+
+      // Automatically enable tipping now that active staff is present
+      const restaurant = await restaurantRepository.findById(restaurantId);
+      if (restaurant && !restaurant.tippingEnabled) {
+        await restaurantRepository.update(restaurantId, { tippingEnabled: true });
+      }
 
       // Record audit log
       if (req.user?.id) {
@@ -216,6 +223,17 @@ adminStaffRouter.put(
         throw new NotFoundError('Staff member not found');
       }
 
+      // Synchronize restaurant tipping status based on active staff presence
+      const hasActive = await staffRepository.hasActiveStaff(restaurantId);
+      const restaurant = await restaurantRepository.findById(restaurantId);
+      if (restaurant) {
+        if (hasActive && !restaurant.tippingEnabled) {
+          await restaurantRepository.update(restaurantId, { tippingEnabled: true });
+        } else if (!hasActive && restaurant.tippingEnabled) {
+          await restaurantRepository.update(restaurantId, { tippingEnabled: false });
+        }
+      }
+
       // Record audit log
       if (req.user?.id) {
         await auditService.record({
@@ -284,6 +302,15 @@ adminStaffRouter.delete(
         throw new NotFoundError('Staff member not found');
       }
 
+      // If no active staff remain, auto-disable tipping
+      const hasActive = await staffRepository.hasActiveStaff(restaurantId);
+      if (!hasActive) {
+        const restaurant = await restaurantRepository.findById(restaurantId);
+        if (restaurant && restaurant.tippingEnabled) {
+          await restaurantRepository.update(restaurantId, { tippingEnabled: false });
+        }
+      }
+
       if (req.user?.id) {
         await auditService.record({
           restaurantId,
@@ -333,6 +360,17 @@ adminStaffRouter.post(
 
       if (!updated) {
         throw new NotFoundError('Staff member not found');
+      }
+
+      // Synchronize restaurant tipping status based on active staff presence
+      const hasActive = await staffRepository.hasActiveStaff(restaurantId);
+      const restaurant = await restaurantRepository.findById(restaurantId);
+      if (restaurant) {
+        if (hasActive && !restaurant.tippingEnabled) {
+          await restaurantRepository.update(restaurantId, { tippingEnabled: true });
+        } else if (!hasActive && restaurant.tippingEnabled) {
+          await restaurantRepository.update(restaurantId, { tippingEnabled: false });
+        }
       }
 
       if (req.user?.id) {

@@ -24,7 +24,7 @@ import {
 import { VpaQrScannerModal } from '../components/VpaQrScannerModal.js';
 
 export const StaffManagementScreen: React.FC = () => {
-  const { user, restaurant } = useAuth();
+  const { user, restaurant, refreshUser } = useAuth();
   const queryClient = useQueryClient();
   const toast = useToast();
   const restaurantId = user?.restaurantId || restaurant?.id || '';
@@ -70,6 +70,9 @@ export const StaffManagementScreen: React.FC = () => {
     mutationFn: (newStaff: CreateStaffInput) => api.createStaff(restaurantId, newStaff),
     onSuccess: (_, newStaff) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['restaurant-settings', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-overview-analytics', restaurantId] });
+      void refreshUser?.();
       toast.success('Staff Member Added', `${newStaff.displayName} was successfully registered.`);
       closeModals();
     },
@@ -88,6 +91,9 @@ export const StaffManagementScreen: React.FC = () => {
       api.updateStaff(restaurantId, vars.staffId, vars.data),
     onSuccess: (_, vars) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['restaurant-settings', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-overview-analytics', restaurantId] });
+      void refreshUser?.();
       toast.success(
         'Staff Updated',
         `${vars.data.displayName || 'Staff member'} updated successfully.`,
@@ -108,6 +114,9 @@ export const StaffManagementScreen: React.FC = () => {
     mutationFn: (staffId: string) => api.deleteStaff(restaurantId, staffId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['restaurant-settings', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-overview-analytics', restaurantId] });
+      void refreshUser?.();
       toast.success(
         'Staff Member Deleted',
         'Staff profile and payment routing credentials removed.',
@@ -126,6 +135,9 @@ export const StaffManagementScreen: React.FC = () => {
     mutationFn: (staffId: string) => api.toggleStaffActive(restaurantId, staffId),
     onSuccess: (res) => {
       void queryClient.invalidateQueries({ queryKey: ['admin-staff', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['restaurant-settings', restaurantId] });
+      void queryClient.invalidateQueries({ queryKey: ['admin-overview-analytics', restaurantId] });
+      void refreshUser?.();
       toast.info(
         'Staff Status Changed',
         `${res.staff.displayName} is now ${res.staff.isActive ? 'active on floor' : 'off-duty'}.`,

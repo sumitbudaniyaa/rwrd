@@ -134,7 +134,17 @@ adminRestaurantRouter.put(
       const updateData: Parameters<typeof restaurantRepository.update>[1] = {};
       if (body.name !== undefined) updateData.name = body.name;
       if (body.logoUrl !== undefined) updateData.logoUrl = body.logoUrl;
-      if (body.googleReviewUrl !== undefined) updateData.googleReviewUrl = body.googleReviewUrl;
+      if (body.googleReviewUrl !== undefined) {
+        updateData.googleReviewUrl = body.googleReviewUrl;
+        // Auto-enable Google reviews when a valid review URL is provided (unless explicitly set)
+        if (body.reviewsEnabled === undefined) {
+          if (body.googleReviewUrl && body.googleReviewUrl.trim().length > 0) {
+            updateData.reviewsEnabled = true;
+          } else {
+            updateData.reviewsEnabled = false;
+          }
+        }
+      }
       if (body.tipPresets !== undefined) updateData.tipPresets = body.tipPresets;
       if (body.minTipInr !== undefined) updateData.minTipInr = body.minTipInr;
       if (body.maxTipInr !== undefined) updateData.maxTipInr = body.maxTipInr;

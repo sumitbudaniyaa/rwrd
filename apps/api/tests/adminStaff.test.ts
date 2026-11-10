@@ -3,6 +3,7 @@ import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { authService } from '../src/services/authService.js';
 import { staffRepository } from '../src/repositories/staffRepository.js';
+import { restaurantRepository } from '../src/repositories/restaurantRepository.js';
 import { auditService } from '../src/services/auditService.js';
 import type { Staff } from '../src/db/schema/index.js';
 
@@ -39,7 +40,15 @@ describe('Admin Staff Management Endpoints', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.spyOn(restaurantRepository, 'findById').mockResolvedValue({
+      id: restaurantId,
+      name: 'The Bombay Canteen',
+      slug: 'the-bombay-canteen',
+      tippingEnabled: false,
+    } as any);
+    vi.spyOn(restaurantRepository, 'update').mockResolvedValue({} as any);
+    vi.spyOn(staffRepository, 'hasActiveStaff').mockResolvedValue(true);
   });
 
   it('GET /api/v1/admin/restaurants/:id/staff returns roster with masked VPAs', async () => {
@@ -88,6 +97,24 @@ describe('Admin Staff Management Endpoints', () => {
       }),
     );
     expect(res.body.staff.maskedVpa).toBe('r***l@okaxis');
+  });
+
+  it('POST /api/v1/admin/restaurants/:id/staff auto-enables tipping on restaurant when adding staff member', async () => {
+    vi.spyOn(staffRepository, 'create').mockResolvedValueOnce(mockStaffRecord);
+    vi.spyOn(auditService, 'record').mockResolvedValueOnce({} as any);
+    const updateSpy = vi.spyOn(restaurantRepository, 'update').mockResolvedValueOnce({} as any);
+
+    const res = await request(app)
+      .post(`/api/v1/admin/restaurants/${restaurantId}/staff`)
+      .set('Authorization', `Bearer ${validAdminToken}`)
+      .send({
+        displayName: 'Rahul Sharma',
+        roleLabel: 'Senior Waiter',
+        vpa: 'rahul@okaxis',
+      });
+
+    expect(res.status).toBe(201);
+    expect(updateSpy).toHaveBeenCalledWith(restaurantId, { tippingEnabled: true });
   });
 
   it('POST /api/v1/admin/restaurants/:id/staff rejects invalid UPI format with RFC 7807 problem', async () => {

@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-11 - Auto-Enable Guest Experience Capabilities on Adding Staff or Review Link & Tenant Database Purge (M7-T79)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Auto-Enable Tipping on Adding or Activating Staff**:
+    - In [`apps/api/src/routes/adminStaff.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminStaff.ts), updated `POST /admin/restaurants/:restaurantId/staff` to automatically enable `tippingEnabled: true` when a restaurant adds a staff member if tipping was previously disabled.
+    - Updated `PUT /admin/restaurants/:restaurantId/staff/:staffId` to synchronize `tippingEnabled` based on remaining active staff when `isActive` status is edited.
+    - Updated `DELETE /admin/restaurants/:restaurantId/staff/:staffId` to automatically set `tippingEnabled: false` if no active staff remain after deletion.
+    - Updated `POST /admin/restaurants/:restaurantId/staff/:staffId/toggle-active` to automatically enable tipping when active staff exist or disable tipping when all staff are deactivated.
+    - In [`apps/admin/src/screens/StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx), invalidated `['restaurant-settings', restaurantId]` and `['admin-overview-analytics', restaurantId]`, and triggered `refreshUser?.()` on every roster mutation so capability state synchronizes immediately across UI screens.
+  - **Auto-Enable Google Reviews on Adding Review URL**:
+    - In [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts) (`PUT /admin/restaurants/:restaurantId/settings`), updated settings handling to automatically enable `reviewsEnabled: true` whenever a valid, non-empty `googleReviewUrl` is provided (unless `reviewsEnabled` is explicitly passed in the payload).
+    - If `googleReviewUrl` is cleared or empty, automatically sets `reviewsEnabled: false`.
+    - In [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx), updated `handleSaveGoogleReview` onSuccess handler to immediately update local state `setReviewsEnabled(true)` when a review link is saved.
+  - **Database Purge**:
+    - Purged all tenant and restaurant test data from PostgreSQL `tiptable_dev` (`restaurants`, `restaurant_users`, `sessions`, `staff`, `tables`, `qr_tokens`, `subscriptions`, `invoices`, `audit_logs`, `tip_intents`, `review_taps`, `page_events`, `leads`, `feature_flags`), strictly preserving platform super admin credentials (`sumit@rwrd.live` in `platform_users`) and platform billing plans (`billing_plans`).
+  - **Testing & Verification**:
+    - Added tests in [`apps/api/tests/adminStaff.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminStaff.test.ts) (`POST /api/v1/admin/restaurants/:id/staff auto-enables tipping on restaurant when adding staff member`).
+    - Added tests in [`apps/api/tests/adminRestaurant.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminRestaurant.test.ts) (`PUT /api/v1/admin/restaurants/:id/settings automatically enables Google reviews when valid review URL is provided`).
+    - Verified `pnpm typecheck` (0 errors across 7 packages) and `pnpm lint` (0 warnings/errors).
+    - Ran unit & integration test suites:
+      - `@tiptable/api`: 28 test files, 204 tests passed.
+      - `@tiptable/admin`: 11 test files, 59 tests passed.
+      - `@tiptable/customer`: 8 test files, 26 tests passed.
+
 ### 2026-11-11 - Fix Onboarding Restaurant Self-Service Registration `isActive: true` & Inactive Account Login Lockout (M7-T78)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

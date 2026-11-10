@@ -189,6 +189,7 @@ export const SettingsScreen: React.FC = () => {
         onSuccess: () => {
           setIsEditingGoogleReview(false);
           setSavingField(null);
+          setReviewsEnabled(true);
         },
         onError: () => setSavingField(null),
       },
