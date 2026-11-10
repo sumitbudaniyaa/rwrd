@@ -30,6 +30,9 @@ Welcome to the TipTable codebase. This document defines the mandatory protocol a
    - If security, payments, data isolation, or product flows are ambiguous, ask the user. Never guess.
 6. **Honest Verification**:
    - Never claim code works unless you have personally executed the typecheck, lint, and test suites. Report exact command outputs and status.
+7. **Mandatory Database Migration Execution**:
+   - Whenever a task introduces, modifies, or generates a database migration (`apps/api/src/db/migrations/*` or `apps/api/src/db/schema/*`), you must immediately run `pnpm db:migrate` against the active development database (requesting bypass permissions if needed for local PostgreSQL socket/network access) and verify the schema columns in PostgreSQL.
+   - Under no circumstances should code or tests be marked 'Done' while leaving the active database unmigrated. Schema TypeScript definitions must never be ahead of the active database.
 
 ---
 
@@ -114,3 +117,4 @@ A task in `docs/TODO.md` is considered **Done** only when:
 6. Associated documentation files (`docs/ARCHITECTURE.md`, `docs/API.md`, `docs/DATA_MODEL.md`, `docs/SECURITY.md`, `docs/RUNBOOK.md`) are updated.
 7. `docs/CHANGELOG.md` is updated with a summary of changes.
 8. `docs/TODO.md` status is updated to `Done` with date and notes.
+9. All database migrations generated for schema changes are executed on the active database (`pnpm db:migrate`) and verified against the live PostgreSQL catalog.

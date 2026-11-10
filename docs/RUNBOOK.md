@@ -119,6 +119,7 @@ Review the resulting SQL migration file in `apps/api/src/db/migrations/` before 
   ```bash
   pnpm db:migrate
   ```
+  _Mandatory Invariant:_ Schema migrations must always be applied to the active database immediately following `pnpm db:generate`. Never commit schema TypeScript updates without running and verifying `pnpm db:migrate` against the active PostgreSQL database.
 - **Production Deployment**:
   Executed as an immutable pre-deploy task in the CI/CD pipeline. Application containers do not start until the migration exit code is `0`.
 
