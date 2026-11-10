@@ -123,6 +123,9 @@ describe('Onboarding Payment Screen', () => {
     expect(screen.queryByText(/instant qr placards/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/direct staff upi/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/48-hour grace protection/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByText(/authorized establishment billing and credentialing/i),
+    ).not.toBeInTheDocument();
 
     // Verify plans are displayed
     await waitFor(() => {

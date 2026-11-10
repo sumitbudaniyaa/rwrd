@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Admin Onboarding Payment Screen Footer Removal & Pricing Cards Scaling (M7-T67)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Payment Screen Footer Removal**:
+    - Completely removed the redundant footer (`rwrd platform — Authorized establishment billing and credentialing`) from [`apps/admin/src/screens/OnboardingPaymentScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/OnboardingPaymentScreen.tsx).
+  - **Pricing Cards Scaling & Typography Enhancement**:
+    - Expanded main page container from `max-w-4xl` to `max-w-5xl` providing spacious horizontal breathing room for the 4 pricing tiers.
+    - Scaled up pricing card internal padding from `p-5` to `p-6 sm:p-7`.
+    - Enlarged tier title from `text-sm` (14px) to `text-base sm:text-lg font-bold text-stone-900`.
+    - Scaled upfront price typography from `text-2xl` to **`text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-stone-900`**.
+    - Scaled monthly billing equivalent and feature checklist items to `text-xs` with `space-y-2.5` spacing and larger icons (`w-4 h-4`).
+    - Enlarged radio selector to `w-5 h-5` and action button to `py-2.5 px-4 text-xs sm:text-sm font-semibold`.
+  - **Testing & Verification**:
+    - Updated `apps/admin/tests/onboardingPayment.test.tsx` asserting footer removal alongside clean minimalist layout.
+    - All 10 test files and 49 tests in `@tiptable/admin` pass.
+    - Monorepo typecheck and ESLint pass with 0 errors.
+
 ### 2026-11-10 - Admin Payment Screen Minimalist Cleanup & Sticky Attractive Plan Selector Floating Dock (M7-T66)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

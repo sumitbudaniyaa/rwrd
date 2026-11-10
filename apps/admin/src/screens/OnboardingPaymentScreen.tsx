@@ -170,7 +170,7 @@ export const OnboardingPaymentScreen: React.FC = () => {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-4xl mx-auto w-full px-4 sm:px-6 py-10 pb-28 flex-1 flex flex-col items-center">
+      <main className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-10 pb-28 flex-1 flex flex-col items-center">
         <FadeIn>
           <div className="text-center max-w-xl mx-auto">
             <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-stone-900">
@@ -187,7 +187,7 @@ export const OnboardingPaymentScreen: React.FC = () => {
             </div>
           ) : (
             <SlideUp delay={100}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {activePlanList.map((plan) => {
                   const isSelected = selectedPlanId === plan.id;
                   const monthlyEquivalent = Math.round(plan.priceInr / plan.durationMonths);
@@ -198,16 +198,16 @@ export const OnboardingPaymentScreen: React.FC = () => {
                     <div
                       key={plan.id}
                       onClick={() => setSelectedPlanId(plan.id)}
-                      className={`relative flex flex-col justify-between p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
+                      className={`relative flex flex-col justify-between p-6 sm:p-7 rounded-2xl border transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? 'bg-white border-stone-900 shadow-md ring-2 ring-stone-900/10'
-                          : 'bg-white/70 border-stone-200 hover:border-stone-300 hover:bg-white shadow-2xs'
+                          ? 'bg-white border-stone-900 shadow-lg ring-2 ring-stone-900/10'
+                          : 'bg-white/80 border-stone-200 hover:border-stone-300 hover:bg-white shadow-2xs'
                       }`}
                     >
                       {/* Badge if Popular or Best Value */}
                       {(isYearly || isSemi) && (
                         <div
-                          className={`absolute -top-2.5 right-4 px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-tight shadow-2xs ${
+                          className={`absolute -top-3 right-5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-tight shadow-2xs ${
                             isYearly
                               ? 'bg-stone-900 text-white'
                               : 'bg-[#FFE862] text-stone-900 border border-amber-300'
@@ -219,61 +219,61 @@ export const OnboardingPaymentScreen: React.FC = () => {
 
                       <div>
                         {/* Radio Selector & Plan Name */}
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm font-semibold text-stone-900">{plan.name}</h3>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-base sm:text-lg font-bold text-stone-900">
+                            {plan.name}
+                          </h3>
                           <div
-                            className={`w-4 h-4 rounded-full border flex items-center justify-center transition-all ${
+                            className={`w-5 h-5 rounded-full border flex items-center justify-center transition-all ${
                               isSelected
                                 ? 'border-stone-900 bg-stone-900 text-white'
                                 : 'border-stone-300 bg-white'
                             }`}
                           >
-                            {isSelected && (
-                              <HugeiconsIcon icon={Tick01Icon} className="w-2.5 h-2.5" />
-                            )}
+                            {isSelected && <HugeiconsIcon icon={Tick01Icon} className="w-3 h-3" />}
                           </div>
                         </div>
 
                         {/* Price */}
-                        <div className="mb-4">
-                          <div className="flex items-baseline gap-1">
-                            <span className="text-2xl font-bold tracking-tight text-stone-900">
+                        <div className="mb-5">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-stone-900">
                               ₹{plan.priceInr}
                             </span>
-                            <span className="text-[11px] text-stone-500 font-normal">total</span>
+                            <span className="text-xs text-stone-500 font-medium">total</span>
                           </div>
-                          <p className="text-[11px] text-stone-500 mt-0.5">
+                          <p className="text-xs text-stone-500 mt-1 font-medium">
                             ₹{monthlyEquivalent}/month billing
                           </p>
                         </div>
 
                         {/* Core Invariants Included */}
-                        <div className="space-y-2 border-t border-stone-100 pt-3 text-[11px] text-stone-600">
-                          <div className="flex items-center gap-1.5">
+                        <div className="space-y-2.5 border-t border-stone-100 pt-4 text-xs text-stone-600">
+                          <div className="flex items-center gap-2">
                             <HugeiconsIcon
                               icon={CheckmarkCircle02Icon}
-                              className="w-3.5 h-3.5 text-emerald-600 shrink-0"
+                              className="w-4 h-4 text-emerald-600 shrink-0"
                             />
                             <span>Unlimited tables & QRs</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <HugeiconsIcon
                               icon={CheckmarkCircle02Icon}
-                              className="w-3.5 h-3.5 text-emerald-600 shrink-0"
+                              className="w-4 h-4 text-emerald-600 shrink-0"
                             />
                             <span>Zero tip fund custody</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <HugeiconsIcon
                               icon={CheckmarkCircle02Icon}
-                              className="w-3.5 h-3.5 text-emerald-600 shrink-0"
+                              className="w-4 h-4 text-emerald-600 shrink-0"
                             />
                             <span>Staff shifts & VPA routing</span>
                           </div>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-2">
                             <HugeiconsIcon
                               icon={CheckmarkCircle02Icon}
-                              className="w-3.5 h-3.5 text-emerald-600 shrink-0"
+                              className="w-4 h-4 text-emerald-600 shrink-0"
                             />
                             <span>48h plan grace window</span>
                           </div>
@@ -283,9 +283,9 @@ export const OnboardingPaymentScreen: React.FC = () => {
                       {/* Select Pill */}
                       <button
                         type="button"
-                        className={`w-full mt-5 py-1.5 px-3 rounded-xl text-xs font-medium transition-colors ${
+                        className={`w-full mt-6 py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
                           isSelected
-                            ? 'bg-stone-900 text-white'
+                            ? 'bg-stone-900 text-white shadow-xs'
                             : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
                         }`}
                       >
@@ -329,11 +329,6 @@ export const OnboardingPaymentScreen: React.FC = () => {
           </div>
         )}
       </main>
-
-      {/* Footer */}
-      <footer className="w-full text-center py-4 border-t border-stone-200/60 text-[11px] text-stone-400">
-        rwrd platform — Authorized establishment billing and credentialing
-      </footer>
 
       {/* Payment Simulation & Checkout Modal */}
       {isModalOpen &&
