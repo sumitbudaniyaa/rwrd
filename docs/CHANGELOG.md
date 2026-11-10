@@ -6,6 +6,23 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-11 - Fix Onboarding Restaurant Self-Service Registration `isActive: true` & Inactive Account Login Lockout (M7-T78)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Onboarding Registration Active State Fix**:
+    - Identified and fixed the root cause of the `"Invalid email or password"` error during restaurant onboarding in [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) (`POST /admin/auth/register`).
+    - The registration transaction was previously inserting new restaurants with `isActive: false`. When `authService.loginAdmin()` immediately followed registration to issue initial session tokens, it rejected the login with `401 Unauthorized` (`Invalid email or password`) because the restaurant tenant was flagged inactive.
+    - Updated `POST /admin/auth/register` to insert newly created restaurants with `isActive: true`. This matches schema defaults and aligns with TipTable's multi-tenancy model, where subscription activation status (`hasActivePlan: false`, `subscriptionStatus: 'unpaid'`) gates dashboard routes through `ProtectedRoute` rather than locking the tenant out of authentication.
+  - **Database Cleanup**:
+    - Purged the failed registration attempts from `tiptable_dev` (`restaurants` and `restaurant_users`), leaving the database in a clean state ready for new self-service onboardings.
+  - **Testing & Verification**:
+    - Added dedicated test `POST /api/v1/admin/auth/register registers new restaurant with isActive: true and logs in` in [`apps/api/tests/adminAuth.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminAuth.test.ts).
+    - Ran `pnpm --filter @tiptable/api test tests/adminAuth.test.ts` (9 tests passed).
+    - Ran `pnpm --filter @tiptable/admin test tests/auth.test.tsx` (7 tests passed).
+    - Verified `pnpm typecheck` (0 errors across 7 packages) and `pnpm lint` (0 warnings/errors).
+
 ### 2026-11-11 - Auto-Logout on Restaurant Account Deletion, Session Revocation, Cascade Tenant Data Purge & Database Cleanup (M7-T77)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

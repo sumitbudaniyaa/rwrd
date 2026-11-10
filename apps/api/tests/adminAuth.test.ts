@@ -48,6 +48,70 @@ describe('Restaurant Admin Authentication & MFA Endpoints', () => {
     expect(hasAdminRf).toBe(false);
   });
 
+  it('POST /api/v1/admin/auth/register registers new restaurant with isActive: true and logs in', async () => {
+    vi.spyOn(db, 'select').mockReturnValue({
+      from: () => ({
+        where: () => ({
+          limit: () => Promise.resolve([]),
+        }),
+      }),
+    } as any);
+
+    let insertedRestaurantValues: any = null;
+    vi.spyOn(db, 'transaction').mockImplementationOnce(async (cb: any) => {
+      const mockTx = {
+        insert: vi.fn().mockImplementation((_table: any) => ({
+          values: vi.fn().mockImplementation((val: any) => {
+            if (!insertedRestaurantValues) {
+              insertedRestaurantValues = val;
+            }
+            return {
+              returning: () =>
+                Promise.resolve([
+                  {
+                    id: 'rest-new-123',
+                    name: 'Jaipur Cafe',
+                    slug: 'jaipur-cafe',
+                    ...val,
+                  },
+                ]),
+            };
+          }),
+        })),
+      };
+      return cb(mockTx);
+    });
+
+    vi.spyOn(authService, 'loginAdmin').mockResolvedValueOnce({
+      mfaRequired: false,
+      tokens: {
+        accessToken: 'access.jwt.token',
+        refreshToken: 'refresh.token.value',
+        expiresInSeconds: 900,
+      },
+      user: {
+        id: 'usr-new-1',
+        email: 'founder@jaipurcafe.com',
+        fullName: 'Ajay Sharma',
+        role: 'admin',
+        restaurantId: 'rest-new-123',
+        hasActivePlan: false,
+      },
+    });
+
+    const res = await request(app).post('/api/v1/admin/auth/register').send({
+      restaurantName: 'Jaipur Cafe',
+      fullName: 'Ajay Sharma',
+      email: 'founder@jaipurcafe.com',
+      password: 'SecurePassword123!',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.accessToken).toBe('access.jwt.token');
+    expect(res.body.user.email).toBe('founder@jaipurcafe.com');
+    expect(insertedRestaurantValues.isActive).toBe(true);
+  });
+
   it('POST /api/v1/admin/auth/login returns accessToken & sets cookie when MFA is not required', async () => {
     vi.spyOn(authService, 'loginAdmin').mockResolvedValueOnce({
       mfaRequired: false,

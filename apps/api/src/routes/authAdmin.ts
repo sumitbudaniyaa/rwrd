@@ -144,7 +144,7 @@ authAdminRouter.post(
             maxTipInr: 5000,
             tippingEnabled: false,
             reviewsEnabled: false,
-            isActive: false,
+            isActive: true,
             isSuspended: false,
           })
           .returning();
