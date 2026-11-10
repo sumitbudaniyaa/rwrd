@@ -8,7 +8,6 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
-import { ServerAvatar } from '@tiptable/ui';
 import rwrdLogo from '../assets/rwrd.png';
 import type { StaffPublic } from '@tiptable/shared';
 
@@ -149,16 +148,36 @@ export const StaffScreen: React.FC = () => {
               onClick={() => handleSelectStaff(staff)}
               className="group text-left p-2.5 rounded-2xl bg-white border border-stone-200/80 shadow-2xs hover:shadow-xs hover:border-stone-300 active:scale-[0.98] transition-all focus:outline-none cursor-pointer"
             >
-              {/* Photo or Server Dummy Avatar */}
-              <ServerAvatar
-                photoUrl={staff.photoUrl}
-                name={staff.displayName}
-                roleLabel={staff.roleLabel}
-                size="full"
-                shape="rounded"
-                className="mb-2.5 group-hover:border-stone-300 transition-colors"
-                imgClassName="group-hover:scale-105"
-              />
+              {/* Photo or Initials Avatar */}
+              <div className="aspect-square w-full rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden relative mb-2.5 flex items-center justify-center">
+                {staff.photoUrl ? (
+                  <img
+                    src={staff.photoUrl}
+                    alt={staff.displayName}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      // Fallback to initials if image fails to load
+                      e.currentTarget.style.display = 'none';
+                      if (e.currentTarget.nextElementSibling) {
+                        (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                      }
+                    }}
+                  />
+                ) : null}
+                <div
+                  className={`w-full h-full flex items-center justify-center font-serif text-2xl font-medium text-stone-700 ${
+                    staff.photoUrl ? 'hidden' : 'flex'
+                  }`}
+                >
+                  {staff.displayName
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .slice(0, 2)
+                    .toUpperCase()}
+                </div>
+              </div>
 
               {/* Staff Details */}
               <h2 className="font-serif text-sm font-medium text-stone-900 truncate leading-snug">

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { authService } from '../services/authService.js';
 import { auditService } from '../services/auditService.js';
+import { staffRepository } from '../repositories/staffRepository.js';
 import { requireAuth } from '../middleware/rbac.js';
 import { db } from '../db/index.js';
 import {
@@ -141,6 +142,8 @@ authAdminRouter.post(
             tipPresets: [20, 50, 100, 200],
             minTipInr: 10,
             maxTipInr: 5000,
+            tippingEnabled: false,
+            reviewsEnabled: false,
             isActive: false,
             isSuspended: false,
           })
@@ -331,6 +334,7 @@ authAdminRouter.get(
         googleReviewUrl: string;
         tippingEnabled: boolean;
         reviewsEnabled: boolean;
+        hasActiveStaff: boolean;
       } | null = null;
 
       const [record] = await db
@@ -352,14 +356,19 @@ authAdminRouter.get(
           restaurantId: record.restaurant.id,
           totpEnabled: record.user.totpEnabled,
         };
+        const hasActiveStaff = await staffRepository.hasActiveStaff(record.restaurant.id);
+        const hasReviewUrl = Boolean(
+          record.restaurant.googleReviewUrl && record.restaurant.googleReviewUrl.trim().length > 0,
+        );
         restaurantData = {
           id: record.restaurant.id,
           name: record.restaurant.name,
           slug: record.restaurant.slug,
           logoUrl: record.restaurant.logoUrl,
           googleReviewUrl: record.restaurant.googleReviewUrl,
-          tippingEnabled: record.restaurant.tippingEnabled,
-          reviewsEnabled: record.restaurant.reviewsEnabled,
+          tippingEnabled: hasActiveStaff ? record.restaurant.tippingEnabled : false,
+          reviewsEnabled: hasReviewUrl ? record.restaurant.reviewsEnabled : false,
+          hasActiveStaff,
         };
       } else if (req.user?.isImpersonated && req.user.restaurantId) {
         const [targetRest] = await db
@@ -381,14 +390,19 @@ authAdminRouter.get(
           totpEnabled: false,
         };
 
+        const hasActiveStaff = await staffRepository.hasActiveStaff(targetRest.id);
+        const hasReviewUrl = Boolean(
+          targetRest.googleReviewUrl && targetRest.googleReviewUrl.trim().length > 0,
+        );
         restaurantData = {
           id: targetRest.id,
           name: targetRest.name,
           slug: targetRest.slug,
           logoUrl: targetRest.logoUrl,
           googleReviewUrl: targetRest.googleReviewUrl,
-          tippingEnabled: targetRest.tippingEnabled,
-          reviewsEnabled: targetRest.reviewsEnabled,
+          tippingEnabled: hasActiveStaff ? targetRest.tippingEnabled : false,
+          reviewsEnabled: hasReviewUrl ? targetRest.reviewsEnabled : false,
+          hasActiveStaff,
         };
       } else {
         throw new UnauthorizedError('User account not found or inactive');

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { restaurantRepository } from '../src/repositories/restaurantRepository.js';
+import { staffRepository } from '../src/repositories/staffRepository.js';
 import { authService } from '../src/services/authService.js';
 import { auditService } from '../src/services/auditService.js';
 import type { Restaurant } from '../src/db/schema/index.js';
@@ -39,7 +40,8 @@ describe('Admin Restaurant Settings Routes', () => {
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
+    vi.spyOn(staffRepository, 'hasActiveStaff').mockResolvedValue(true);
   });
 
   it('GET /api/v1/admin/restaurants/:id/settings returns restaurant profile and limits', async () => {
@@ -107,8 +109,6 @@ describe('Admin Restaurant Settings Routes', () => {
   });
 
   it('PUT /api/v1/admin/restaurants/:id/settings rejects non-Google review URLs with 422', async () => {
-    vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
-
     const res = await request(app)
       .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
       .set('Authorization', `Bearer ${adminToken}`)
@@ -121,8 +121,6 @@ describe('Admin Restaurant Settings Routes', () => {
   });
 
   it('PUT /api/v1/admin/restaurants/:id/settings rejects when maxTipInr < minTipInr with 422', async () => {
-    vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
-
     const res = await request(app)
       .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
       .set('Authorization', `Bearer ${adminToken}`)
@@ -152,5 +150,37 @@ describe('Admin Restaurant Settings Routes', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.restaurant.tipPresets).toEqual([25, 50, 75, 100]);
+  });
+
+  it('PUT /api/v1/admin/restaurants/:id/settings rejects enabling tipping when restaurant has no active staff with 400', async () => {
+    vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
+    vi.spyOn(staffRepository, 'hasActiveStaff').mockResolvedValueOnce(false);
+
+    const res = await request(app)
+      .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        tippingEnabled: true,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('ACTIVE_STAFF_REQUIRED');
+  });
+
+  it('PUT /api/v1/admin/restaurants/:id/settings rejects enabling Google reviews when review URL is missing with 400', async () => {
+    vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce({
+      ...mockRestaurantRecord,
+      googleReviewUrl: '',
+    });
+
+    const res = await request(app)
+      .put(`/api/v1/admin/restaurants/${restaurantId}/settings`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        reviewsEnabled: true,
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.code).toBe('REVIEW_URL_REQUIRED');
   });
 });

@@ -63,15 +63,11 @@ describe('Customer Screen 2: Staff Directory', () => {
     // Initials fallback for Priya Sharma
     expect(screen.getByText('PS')).toBeInTheDocument();
 
-    // Server dummy avatar fallback & photo image verification
-    expect(screen.getByTestId('server-avatar-fallback')).toBeInTheDocument();
-    expect(screen.getByTestId('server-avatar-image')).toBeInTheDocument();
-
     // rwrd brand logo in top bar
     expect(screen.getByAltText('rwrd')).toBeInTheDocument();
   });
 
-  it('falls back to server dummy avatar when photo fails to load via onError', async () => {
+  it('falls back to initials when photo fails to load via onError', async () => {
     vi.spyOn(api, 'resolveToken').mockResolvedValue(mockResolveData);
     vi.spyOn(api, 'getStaff').mockResolvedValue({
       staff: [
@@ -92,15 +88,15 @@ describe('Customer Screen 2: Staff Directory', () => {
       expect(screen.getByText('Broken Photo Staff')).toBeInTheDocument();
     });
 
-    const img = screen.getByTestId('server-avatar-image');
+    const img = screen.getByAltText('Broken Photo Staff');
     expect(img).toBeInTheDocument();
 
     // Simulate image load error
     fireEvent.error(img);
 
-    // Fallback vector illustration should now be displayed
+    // Fallback initials should now be displayed
     await waitFor(() => {
-      expect(screen.getByTestId('server-avatar-fallback')).toBeInTheDocument();
+      expect(screen.getByText('BP')).toBeInTheDocument();
     });
   });
 

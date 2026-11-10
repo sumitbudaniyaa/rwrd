@@ -39,6 +39,7 @@ export interface AdminRestaurant {
   googleReviewUrl?: string | null;
   tippingEnabled?: boolean;
   reviewsEnabled?: boolean;
+  hasActiveStaff?: boolean;
 }
 
 export interface LoginResponse {
@@ -138,6 +139,7 @@ export interface RestaurantSettings {
   maxTipInr: number;
   tippingEnabled?: boolean;
   reviewsEnabled?: boolean;
+  hasActiveStaff?: boolean;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

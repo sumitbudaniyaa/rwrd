@@ -6,6 +6,36 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Restore Customer Amount & Staff Clean UI, Enforce Guest Experience Controls Prerequisites & Auto-Disable Missing Capabilities (M7-T76)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Customer Mobile App UI Restoration**:
+    - In [`apps/customer/src/screens/AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx) and [`apps/customer/src/screens/StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx), removed the cartoon silhouette avatar (`ServerAvatar`) and restored the clean, editorial serif initials square (`w-14 h-14 rounded-xl bg-stone-100 border border-stone-200/60 font-serif text-xl/2xl font-medium text-stone-700`).
+    - Staff cards display the staff member's uploaded photo if available (with smooth hover zoom), falling back gracefully to uppercase two-letter initials on load error or if no photo is configured.
+  - **Admin Guest Experience Controls Prerequisite Enforcement**:
+    - In [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx), both "Waitstaff Tipping Option" and "Google Review Option" switch toggles now strictly check prerequisite readiness:
+      - Tipping toggle is permanently disabled (`disabled={true}`, `opacity-60`, `cursor-not-allowed`) and displays `DISABLED` badge when the restaurant has zero active staff members. Renders an amber guidance notice directing the admin to the Staff Roster.
+      - Google Review toggle is permanently disabled and displays `DISABLED` badge when the restaurant does not have a valid Google review link configured. Renders an amber guidance notice with an in-place trigger to edit the review link in Brand & Profile.
+      - Attempting to toggle an unavailable capability pops an immediate informative toast rejection.
+  - **Backend Prerequisite Validation & Database Auto-Correction**:
+    - In [`apps/api/src/errors/appError.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/errors/appError.ts), introduced `BadRequestError` (400 HTTP problem details).
+    - In `PUT /api/v1/admin/restaurants/:restaurantId/settings` in [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts), added strict prerequisite enforcement rejecting attempts to enable tipping without active staff (`400 BAD_REQUEST`, code `ACTIVE_STAFF_REQUIRED`) or enable reviews without a valid review URL (`400 BAD_REQUEST`, code `REVIEW_URL_REQUIRED`).
+    - Enriched `GET /api/v1/admin/restaurants/:restaurantId/settings` and `GET /api/v1/admin/auth/me` to compute and return live `hasActiveStaff` and enforce effective `tippingEnabled` and `reviewsEnabled`.
+    - Initialized new restaurant registrations in [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) with `tippingEnabled: false` and `reviewsEnabled: false` by default.
+    - Sanitized the live database to ensure no restaurants have dangling enabled flags without meeting their prerequisites.
+  - **Testing & Verification**:
+    - Updated customer unit tests in [`apps/customer/tests/staff.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/staff.test.tsx) asserting clean initials fallback (`PS`, `BP`).
+    - Added admin unit tests in [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) testing disabled and locked guest experience toggles with prerequisite warnings.
+    - Added API integration tests in [`apps/api/tests/adminRestaurant.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminRestaurant.test.ts) verifying 400 rejection on missing prerequisites.
+    - Monorepo full verification:
+      - `pnpm --filter @tiptable/customer test` -> 8 test files, 26 tests passed.
+      - `pnpm --filter @tiptable/admin test` -> 11 test files, 58 tests passed.
+      - `pnpm --filter @tiptable/api test` -> 28 test files, 201 tests passed.
+      - `pnpm typecheck` -> 0 errors across 7 packages.
+      - `pnpm lint` -> 0 errors/warnings.
+
 ### 2026-11-10 - Customer Setup Holding Page Polish, Admin Banner Emoji Removal & Freestyle Cursive Staff Pointer (M7-T75)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

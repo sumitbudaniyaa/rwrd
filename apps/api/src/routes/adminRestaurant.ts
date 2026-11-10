@@ -4,9 +4,10 @@ import { UpdateRestaurantSettingsSchema } from '@tiptable/shared';
 import { db } from '../db/index.js';
 import { subscriptions, billingPlans } from '../db/schema/index.js';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
+import { staffRepository } from '../repositories/staffRepository.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
-import { NotFoundError } from '../errors/appError.js';
+import { NotFoundError, BadRequestError } from '../errors/appError.js';
 
 export const adminRestaurantRouter = Router();
 
@@ -46,6 +47,11 @@ adminRestaurantRouter.get(
         .where(eq(subscriptions.restaurantId, restaurantId))
         .limit(1);
 
+      const hasActiveStaff = await staffRepository.hasActiveStaff(restaurantId);
+      const hasReviewUrl = Boolean(
+        restaurant.googleReviewUrl && restaurant.googleReviewUrl.trim().length > 0,
+      );
+
       res.status(200).json({
         restaurant: {
           id: restaurant.id,
@@ -56,8 +62,9 @@ adminRestaurantRouter.get(
           tipPresets: restaurant.tipPresets,
           minTipInr: restaurant.minTipInr,
           maxTipInr: restaurant.maxTipInr,
-          tippingEnabled: restaurant.tippingEnabled,
-          reviewsEnabled: restaurant.reviewsEnabled,
+          tippingEnabled: hasActiveStaff ? restaurant.tippingEnabled : false,
+          reviewsEnabled: hasReviewUrl ? restaurant.reviewsEnabled : false,
+          hasActiveStaff,
           isActive: restaurant.isActive,
           createdAt: restaurant.createdAt.toISOString(),
           updatedAt: restaurant.updatedAt.toISOString(),
@@ -101,6 +108,27 @@ adminRestaurantRouter.put(
       const existing = await restaurantRepository.findById(restaurantId);
       if (!existing || existing.deletedAt) {
         throw new NotFoundError('Restaurant not found');
+      }
+
+      if (body.tippingEnabled === true) {
+        const hasStaff = await staffRepository.hasActiveStaff(restaurantId);
+        if (!hasStaff) {
+          throw new BadRequestError(
+            'Cannot enable waitstaff tipping without active team members. Please add staff in Staff Roster first.',
+            'ACTIVE_STAFF_REQUIRED',
+          );
+        }
+      }
+
+      if (body.reviewsEnabled === true) {
+        const effectiveReviewUrl =
+          body.googleReviewUrl !== undefined ? body.googleReviewUrl : existing.googleReviewUrl;
+        if (!effectiveReviewUrl || effectiveReviewUrl.trim().length === 0) {
+          throw new BadRequestError(
+            'Cannot enable Google reviews without a valid review URL. Please configure your Google review link first.',
+            'REVIEW_URL_REQUIRED',
+          );
+        }
       }
 
       const updateData: Parameters<typeof restaurantRepository.update>[1] = {};
@@ -152,6 +180,11 @@ adminRestaurantRouter.put(
         });
       }
 
+      const hasActiveStaff = await staffRepository.hasActiveStaff(restaurantId);
+      const hasReviewUrl = Boolean(
+        updated.googleReviewUrl && updated.googleReviewUrl.trim().length > 0,
+      );
+
       res.status(200).json({
         restaurant: {
           id: updated.id,
@@ -162,8 +195,9 @@ adminRestaurantRouter.put(
           tipPresets: updated.tipPresets,
           minTipInr: updated.minTipInr,
           maxTipInr: updated.maxTipInr,
-          tippingEnabled: updated.tippingEnabled,
-          reviewsEnabled: updated.reviewsEnabled,
+          tippingEnabled: hasActiveStaff ? updated.tippingEnabled : false,
+          reviewsEnabled: hasReviewUrl ? updated.reviewsEnabled : false,
+          hasActiveStaff,
           isActive: updated.isActive,
           createdAt: updated.createdAt.toISOString(),
           updatedAt: updated.updatedAt.toISOString(),

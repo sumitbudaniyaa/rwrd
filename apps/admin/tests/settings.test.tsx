@@ -16,6 +16,7 @@ const mockRestaurantSettings: RestaurantSettings = {
   tipPresets: [20, 50, 100, 200],
   minTipInr: 10,
   maxTipInr: 5000,
+  hasActiveStaff: true,
   isActive: true,
   createdAt: '2026-01-01T00:00:00Z',
   updatedAt: '2026-01-01T00:00:00Z',
@@ -337,5 +338,37 @@ describe('SettingsScreen', () => {
     await waitFor(() => {
       expect(updateSpy).toHaveBeenCalledWith('rest-123', { reviewsEnabled: false });
     });
+  });
+
+  it('disables and locks guest experience toggles when staff or review link prerequisites are missing', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        ...mockRestaurantSettings,
+        hasActiveStaff: false,
+        googleReviewUrl: '',
+        tippingEnabled: true,
+        reviewsEnabled: true,
+      },
+    });
+
+    renderWithProviders(<SettingsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('guest experience controls')).toBeInTheDocument();
+    });
+
+    // Both badges must show DISABLED despite database columns being true
+    const badges = screen.getAllByText('DISABLED');
+    expect(badges.length).toBeGreaterThanOrEqual(2);
+
+    // Switches must be disabled
+    const tippingSwitch = screen.getByRole('switch', { name: /Toggle waitstaff tipping option/i });
+    const reviewsSwitch = screen.getByRole('switch', { name: /Toggle Google review option/i });
+    expect(tippingSwitch).toBeDisabled();
+    expect(reviewsSwitch).toBeDisabled();
+
+    // Guidance text and links must be displayed
+    expect(screen.getByText(/No active team members/i)).toBeInTheDocument();
+    expect(screen.getByText(/Google review link missing/i)).toBeInTheDocument();
   });
 });

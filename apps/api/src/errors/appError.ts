@@ -26,6 +26,12 @@ export class AppError extends Error {
   }
 }
 
+export class BadRequestError extends AppError {
+  constructor(message = 'Bad request', code = 'BAD_REQUEST') {
+    super({ statusCode: 400, message, code });
+  }
+}
+
 export class NotFoundError extends AppError {
   constructor(message = 'Resource not found', code = 'NOT_FOUND') {
     super({ statusCode: 404, message, code });

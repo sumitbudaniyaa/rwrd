@@ -233,7 +233,22 @@ export const SettingsScreen: React.FC = () => {
     );
   };
 
+  const hasActiveStaff = Boolean(savedSettings?.hasActiveStaff);
+  const hasReviewUrl = Boolean(
+    savedSettings?.googleReviewUrl && savedSettings.googleReviewUrl.trim().length > 0,
+  );
+
+  const effectiveTippingEnabled = Boolean(hasActiveStaff && tippingEnabled);
+  const effectiveReviewsEnabled = Boolean(hasReviewUrl && reviewsEnabled);
+
   const handleToggleTipping = (enabled: boolean) => {
+    if (enabled && !hasActiveStaff) {
+      toast.error(
+        'Staff Required',
+        'Cannot enable tipping without active team members. Add staff in Staff Roster first.',
+      );
+      return;
+    }
     setSavingField('tippingEnabled');
     updateMutation.mutate(
       { tippingEnabled: enabled },
@@ -253,6 +268,13 @@ export const SettingsScreen: React.FC = () => {
   };
 
   const handleToggleReviews = (enabled: boolean) => {
+    if (enabled && !hasReviewUrl) {
+      toast.error(
+        'Review Link Required',
+        'Cannot enable Google reviews without a valid review URL. Add a review link first.',
+      );
+      return;
+    }
     setSavingField('reviewsEnabled');
     updateMutation.mutate(
       { reviewsEnabled: enabled },
@@ -834,71 +856,111 @@ export const SettingsScreen: React.FC = () => {
 
             <div className="space-y-3 pt-1">
               {/* Tipping Option Toggle */}
-              <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-stone-900">
-                      Waitstaff Tipping Option
-                    </span>
-                    <Badge variant={tippingEnabled ? 'success' : 'neutral'}>
-                      {tippingEnabled ? 'ENABLED' : 'DISABLED'}
-                    </Badge>
+              <div className="flex flex-col p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-stone-900">
+                        Waitstaff Tipping Option
+                      </span>
+                      <Badge variant={effectiveTippingEnabled ? 'success' : 'neutral'}>
+                        {effectiveTippingEnabled ? 'ENABLED' : 'DISABLED'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-stone-500 mt-1">
+                      Shows tipping card and team roster to diners scanning table QR codes.
+                    </p>
                   </div>
-                  <p className="text-xs text-stone-500 mt-1">
-                    Shows tipping card and team roster to diners scanning table QR codes.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-label="Toggle waitstaff tipping option"
-                  aria-checked={tippingEnabled}
-                  disabled={savingField === 'tippingEnabled'}
-                  onClick={() => handleToggleTipping(!tippingEnabled)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FFE862] ${
-                    tippingEnabled ? 'bg-stone-900' : 'bg-stone-300'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                      tippingEnabled ? 'translate-x-5' : 'translate-x-0'
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-label="Toggle waitstaff tipping option"
+                    aria-checked={effectiveTippingEnabled}
+                    disabled={!hasActiveStaff || savingField === 'tippingEnabled'}
+                    onClick={() => handleToggleTipping(!effectiveTippingEnabled)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FFE862] ${
+                      !hasActiveStaff
+                        ? 'bg-stone-200 cursor-not-allowed opacity-60'
+                        : effectiveTippingEnabled
+                          ? 'bg-stone-900 cursor-pointer'
+                          : 'bg-stone-300 cursor-pointer'
                     }`}
-                  />
-                </button>
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        effectiveTippingEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                {!hasActiveStaff && (
+                  <p className="text-xs text-amber-800 font-medium mt-2 pt-2 border-t border-stone-200/50 flex items-center gap-1.5">
+                    <span>⚠️</span>
+                    <span>
+                      No active team members. Add at least one server in{' '}
+                      <Link to="/staff" className="underline font-semibold hover:text-amber-950">
+                        Staff Roster
+                      </Link>{' '}
+                      to enable tipping.
+                    </span>
+                  </p>
+                )}
               </div>
 
               {/* Review Option Toggle */}
-              <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-stone-900">
-                      Google Review Option
-                    </span>
-                    <Badge variant={reviewsEnabled ? 'success' : 'neutral'}>
-                      {reviewsEnabled ? 'ENABLED' : 'DISABLED'}
-                    </Badge>
+              <div className="flex flex-col p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-semibold text-stone-900">
+                        Google Review Option
+                      </span>
+                      <Badge variant={effectiveReviewsEnabled ? 'success' : 'neutral'}>
+                        {effectiveReviewsEnabled ? 'ENABLED' : 'DISABLED'}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-stone-500 mt-1">
+                      Shows &quot;Review us&quot; card to diners scanning table QR codes.
+                    </p>
                   </div>
-                  <p className="text-xs text-stone-500 mt-1">
-                    Shows &quot;Review us&quot; card to diners scanning table QR codes.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-label="Toggle Google review option"
-                  aria-checked={reviewsEnabled}
-                  disabled={savingField === 'reviewsEnabled'}
-                  onClick={() => handleToggleReviews(!reviewsEnabled)}
-                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FFE862] ${
-                    reviewsEnabled ? 'bg-stone-900' : 'bg-stone-300'
-                  }`}
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                      reviewsEnabled ? 'translate-x-5' : 'translate-x-0'
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-label="Toggle Google review option"
+                    aria-checked={effectiveReviewsEnabled}
+                    disabled={!hasReviewUrl || savingField === 'reviewsEnabled'}
+                    onClick={() => handleToggleReviews(!effectiveReviewsEnabled)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-[#FFE862] ${
+                      !hasReviewUrl
+                        ? 'bg-stone-200 cursor-not-allowed opacity-60'
+                        : effectiveReviewsEnabled
+                          ? 'bg-stone-900 cursor-pointer'
+                          : 'bg-stone-300 cursor-pointer'
                     }`}
-                  />
-                </button>
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                        effectiveReviewsEnabled ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+                {!hasReviewUrl && (
+                  <p className="text-xs text-amber-800 font-medium mt-2 pt-2 border-t border-stone-200/50 flex items-center gap-1.5">
+                    <span>⚠️</span>
+                    <span>
+                      Google review link missing. Configure your review URL in{' '}
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingGoogleReview(true)}
+                        className="underline font-semibold hover:text-amber-950 cursor-pointer"
+                      >
+                        Brand & Profile
+                      </button>{' '}
+                      above to enable reviews.
+                    </span>
+                  </p>
+                )}
               </div>
             </div>
           </div>
