@@ -243,6 +243,13 @@ export interface AuditLogsResponse {
 let inMemoryToken: string | null = null;
 let activeRefreshPromise: Promise<RefreshResponse> | null = null;
 
+type UnauthorizedHandler = (problem?: ProblemDetails) => void;
+let unauthorizedHandler: UnauthorizedHandler | null = null;
+
+export function setOnUnauthorized(handler: UnauthorizedHandler | null): void {
+  unauthorizedHandler = handler;
+}
+
 export function setAccessToken(token: string | null): void {
   inMemoryToken = token;
 }
@@ -310,6 +317,15 @@ async function request<T>(
         requestId: 'unknown',
       };
     }
+
+    if (
+      response.status === 401 &&
+      !endpoint.includes('/auth/login') &&
+      !endpoint.includes('/auth/register')
+    ) {
+      unauthorizedHandler?.(problem);
+    }
+
     throw new ApiError(problem, response.status);
   }
 

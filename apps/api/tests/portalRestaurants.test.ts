@@ -314,7 +314,7 @@ describe('Portal Restaurant Management Routes', () => {
     );
   });
 
-  it('DELETE /api/v1/portal/restaurants/:id soft-deletes restaurant and records audit', async () => {
+  it('DELETE /api/v1/portal/restaurants/:id permanently deletes restaurant, purges tenant data, and records audit', async () => {
     vi.spyOn(db, 'select').mockReturnValueOnce({
       from: () => ({
         where: () => ({
@@ -323,11 +323,13 @@ describe('Portal Restaurant Management Routes', () => {
       }),
     } as any);
 
-    vi.spyOn(db, 'update').mockReturnValueOnce({
-      set: () => ({
-        where: () => ({}),
-      }),
-    } as any);
+    const deleteMock = vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue({}) });
+    vi.spyOn(db, 'transaction').mockImplementation(async (callback: any) => {
+      const tx = {
+        delete: deleteMock,
+      };
+      return callback(tx);
+    });
 
     const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValueOnce({} as any);
 
@@ -336,7 +338,8 @@ describe('Portal Restaurant Management Routes', () => {
       .set('Authorization', `Bearer ${superAdminToken}`);
 
     expect(res.status).toBe(200);
-    expect(res.body.message).toContain('soft-deleted');
+    expect(res.body.message).toContain('permanently deleted');
+    expect(deleteMock).toHaveBeenCalled();
     expect(auditSpy).toHaveBeenCalledWith(
       expect.objectContaining({
         action: 'RESTAURANT_DELETED',

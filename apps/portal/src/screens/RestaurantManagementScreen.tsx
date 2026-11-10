@@ -140,7 +140,10 @@ export const RestaurantManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
       setDeleteTarget(null);
       setSuccessMessage('Restaurant has been deleted.');
-      toast.success('Restaurant Deleted', `${targetName} has been deactivated.`);
+      toast.success(
+        'Restaurant Deleted',
+        `${targetName} and all associated data have been permanently removed.`,
+      );
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to delete restaurant.';
@@ -911,7 +914,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       Delete &quot;{deleteTarget.name}&quot;?
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      This will permanently deactivate this restaurant.
+                      This will permanently delete this restaurant and all associated data.
                     </p>
                   </div>
                 </div>
@@ -925,8 +928,8 @@ export const RestaurantManagementScreen: React.FC = () => {
                     <span>Destructive Action Warning</span>
                   </p>
                   <p className="text-[10px] leading-relaxed text-rose-700 dark:text-rose-400">
-                    Deleting this restaurant will revoke all staff and admin logins, deactivate
-                    associated table QR codes, and halt public customer tipping immediately.
+                    Deleting this restaurant will permanently purge all staff, dining tables, QR
+                    codes, and subscriptions, and immediately log out any active admin sessions.
                   </p>
                 </div>
 

@@ -6,6 +6,35 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-11 - Auto-Logout on Restaurant Account Deletion, Session Revocation, Cascade Tenant Data Purge & Database Cleanup (M7-T77)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Cascade Tenant Purge on Restaurant Deletion**:
+    - In [`apps/api/src/routes/portalRestaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalRestaurants.ts) (`DELETE /api/v1/portal/restaurants/:id`), updated the deletion flow to execute a complete relational database transaction purging all records associated with the restaurant (`tip_intents`, `review_taps`, `page_events`, `sessions`, `qr_tokens`, `tables`, `staff`, `invoices`, `subscriptions`, `feature_flags`, `audit_logs`, `restaurant_users`, and the `restaurants` row itself).
+    - Recorded the deletion in `auditService.record` as a platform-level event (`restaurantId: undefined`), ensuring platform audit logs survive tenant data destruction.
+    - Updated confirmation modal and toast copy in [`apps/portal/src/screens/RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx) to clarify that all staff, QR codes, tables, and active admin sessions are permanently purged.
+  - **Immediate Session Invalidation & 401 Rejections**:
+    - In [`apps/api/src/routes/authAdmin.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/authAdmin.ts) (`GET /admin/auth/me`), eliminated the fallback dummy data return (`staff@tiptable.in` / `Your Restaurant`) when a user or restaurant is deleted. It now strictly enforces `record.restaurant.isActive && !record.restaurant.deletedAt` and throws `401 Unauthorized` (`RESTAURANT_DELETED` / `User account or restaurant not found or inactive`).
+    - In [`apps/api/src/services/authService.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/services/authService.ts) (`rotateRefreshToken`), added tenant verification against the `restaurants` table during token rotation and grace-period recovery, throwing `401 Unauthorized` (`Restaurant account inactive or suspended`) when the restaurant is deleted or missing.
+  - **Real-Time Client Auto-Logout in Admin Web App**:
+    - In [`apps/admin/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/services/api.ts), implemented `setOnUnauthorized` global subscriber. When any API call receives a 401 or refresh fails, it broadcasts to the handler.
+    - In [`apps/admin/src/context/AuthContext.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/context/AuthContext.tsx), registered the `setOnUnauthorized` hook to trigger `forceLogout`: cleans up `inMemoryToken`, `user`, `restaurant`, and `impersonation` tokens, clears storage, and displays an error toast.
+    - Implemented a 15-second background interval and `visibilitychange` window focus check calling `api.getMe()`, ensuring idle or backgrounded tabs automatically detect tenant deletion and boot to `/login` without requiring manual page refresh or button clicks.
+    - Re-ordered top-level provider hierarchy in [`apps/admin/src/App.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/App.tsx) placing `<ToastProvider>` outside `<AuthProvider>` to provide toast capabilities directly within authentication contexts.
+  - **Database Cleanup**:
+    - Executed a complete PostgreSQL purge across `tiptable_dev` wiping all residual test data (`restaurants`, `restaurant_users`, `sessions`, `staff`, `tables`, `qr_tokens`, `subscriptions`, `invoices`, `audit_logs`, `tip_intents`, `review_taps`, `page_events`, `leads`, `feature_flags`), leaving solely the Super Admin credentials (`sumit@rwrd.live` in `platform_users`) and platform `billing_plans`.
+  - **Testing & Verification**:
+    - Added unit test in [`apps/admin/tests/auth.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/auth.test.tsx) asserting automatic logout and redirection to `/login` when an unauthorized/deleted account event fires.
+    - Updated integration tests in [`apps/api/tests/portalRestaurants.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/portalRestaurants.test.ts) verifying permanent purge transaction and platform audit logging.
+    - Full verification:
+      - `@tiptable/customer`: 8 test files, 26 tests passed.
+      - `@tiptable/admin`: 11 test files, 59 tests passed.
+      - `@tiptable/api`: 28 test files, 201 tests passed.
+      - Monorepo typecheck: 0 errors across all 7 packages.
+      - Monorepo lint: 0 warnings/errors.
+
 ### 2026-11-10 - Restore Customer Amount & Staff Clean UI, Enforce Guest Experience Controls Prerequisites & Auto-Disable Missing Capabilities (M7-T76)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

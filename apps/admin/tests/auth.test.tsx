@@ -223,4 +223,67 @@ describe('Admin Authentication Flow', () => {
       });
     });
   });
+
+  it('automatically logs out and redirects to login when account is deleted or unauthorized', async () => {
+    let capturedHandler: ((problem?: any) => void) | null = null;
+    const apiModule = await import('../src/services/api.js');
+    const originalSet = apiModule.setOnUnauthorized;
+    vi.spyOn(apiModule, 'setOnUnauthorized').mockImplementation((handler) => {
+      capturedHandler = handler;
+      originalSet(handler);
+    });
+
+    vi.spyOn(api, 'refresh').mockRejectedValue(new Error('No session'));
+    vi.spyOn(api, 'login').mockResolvedValueOnce({
+      mfaRequired: false,
+      accessToken: 'access.jwt.123',
+      expiresInSeconds: 900,
+      user: {
+        id: 'usr-1',
+        email: 'owner@restaurant.com',
+        fullName: 'Sarah Miller',
+        role: 'owner',
+      },
+    });
+    vi.spyOn(api, 'getMe').mockResolvedValueOnce({
+      user: {
+        id: 'usr-1',
+        email: 'owner@restaurant.com',
+        fullName: 'Sarah Miller',
+        role: 'owner',
+      },
+      restaurant: {
+        id: 'rest-1',
+        name: 'The Bombay Canteen',
+        slug: 'the-bombay-canteen',
+      },
+    });
+
+    window.history.pushState({}, 'Login', '/admin/login');
+    render(<App />);
+
+    fireEvent.change(screen.getByLabelText(/^email/i), {
+      target: { value: 'owner@restaurant.com' },
+    });
+    fireEvent.change(screen.getByLabelText(/^password/i), {
+      target: { value: 'ValidPassword123!' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText('Sarah Miller')).toBeInTheDocument();
+    });
+
+    // Trigger unauthorized callback (account deleted or session revoked)
+    const handler = capturedHandler as ((problem?: any) => void) | null;
+    handler?.({
+      detail: 'Restaurant account has been deleted',
+      code: 'RESTAURANT_DELETED',
+    });
+
+    // User is automatically logged out and redirected to login screen
+    await waitFor(() => {
+      expect(screen.getByText('Sign in to rwrd Admin')).toBeInTheDocument();
+    });
+  });
 });

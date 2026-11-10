@@ -28,8 +28,8 @@ const queryClient = new QueryClient({
 export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <ToastProvider position="bottom-right">
+      <ToastProvider position="bottom-right">
+        <AuthProvider>
           <BrowserRouter>
             <Routes>
               {/* Public Auth Routes (Root & Subdomain-Ready) */}
@@ -68,8 +68,8 @@ export const App: React.FC = () => {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </BrowserRouter>
-        </ToastProvider>
-      </AuthProvider>
+        </AuthProvider>
+      </ToastProvider>
     </QueryClientProvider>
   );
 };

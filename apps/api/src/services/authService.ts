@@ -453,13 +453,25 @@ export class AuthService {
 
         if (latestActiveSession.userType === 'restaurant_user') {
           const [u] = await db
-            .select()
+            .select({
+              user: restaurantUsers,
+              restaurant: restaurants,
+            })
             .from(restaurantUsers)
+            .innerJoin(restaurants, eq(restaurantUsers.restaurantId, restaurants.id))
             .where(eq(restaurantUsers.id, latestActiveSession.userId))
             .limit(1);
-          if (!u || !u.isActive) throw new UnauthorizedError('User account inactive');
-          role = u.role;
-          restaurantId = u.restaurantId;
+          if (
+            !u ||
+            !u.user.isActive ||
+            !u.restaurant.isActive ||
+            u.restaurant.deletedAt ||
+            u.restaurant.isSuspended
+          ) {
+            throw new UnauthorizedError('Restaurant account inactive or suspended');
+          }
+          role = u.user.role;
+          restaurantId = u.restaurant.id;
         } else {
           const [u] = await db
             .select()
@@ -532,13 +544,26 @@ export class AuthService {
 
     if (session.userType === 'restaurant_user') {
       const [u] = await db
-        .select()
+        .select({
+          user: restaurantUsers,
+          restaurant: restaurants,
+        })
         .from(restaurantUsers)
+        .innerJoin(restaurants, eq(restaurantUsers.restaurantId, restaurants.id))
         .where(eq(restaurantUsers.id, session.userId))
         .limit(1);
-      if (!u || !u.isActive) throw new UnauthorizedError('User account inactive');
-      role = u.role;
-      restaurantId = u.restaurantId;
+
+      if (
+        !u ||
+        !u.user.isActive ||
+        !u.restaurant.isActive ||
+        u.restaurant.deletedAt ||
+        u.restaurant.isSuspended
+      ) {
+        throw new UnauthorizedError('Restaurant account inactive or suspended');
+      }
+      role = u.user.role;
+      restaurantId = u.restaurant.id;
     } else {
       const [u] = await db
         .select()

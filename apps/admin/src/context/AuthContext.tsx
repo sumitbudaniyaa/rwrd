@@ -1,7 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useToast } from '@tiptable/ui';
 import {
   api,
   setAccessToken,
+  setOnUnauthorized,
   type AdminUser,
   type AdminRestaurant,
   type LoginResponse,
@@ -43,6 +45,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [tempToken, setTempToken] = useState<string | null>(null);
   const [impersonation, setImpersonation] = useState<ImpersonationDetails | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const toast = useToast();
+
+  const forceLogout = useCallback(
+    (reason?: string) => {
+      activeRestorePromise = null;
+      sessionStorage.removeItem('tiptable_impersonate_token');
+      setAccessToken(null);
+      setAccessTokenState(null);
+      setUser(null);
+      setRestaurant(null);
+      setTempToken(null);
+      setImpersonation(null);
+      if (reason) {
+        toast.error('Session Terminated', reason);
+      }
+    },
+    [toast],
+  );
+
+  // Subscribe to 401 unauthorized events across all API calls
+  useEffect(() => {
+    setOnUnauthorized((problem) => {
+      const detail =
+        problem?.detail ||
+        'Your restaurant account has been deleted or your session has expired. You have been logged out.';
+      forceLogout(detail);
+    });
+
+    return () => {
+      setOnUnauthorized(null);
+    };
+  }, [forceLogout]);
+
+  // Periodic heartbeat & tab focus check to detect remote restaurant deletion
+  useEffect(() => {
+    if (!user || !accessTokenState) return;
+
+    let isChecking = false;
+    const checkSession = async () => {
+      if (isChecking || typeof document === 'undefined' || document.visibilityState === 'hidden') {
+        return;
+      }
+      isChecking = true;
+      try {
+        await api.getMe();
+      } catch {
+        // onUnauthorized callback handles forceLogout if 401 is returned
+      } finally {
+        isChecking = false;
+      }
+    };
+
+    const intervalId = setInterval(checkSession, 15_000);
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        void checkSession();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      clearInterval(intervalId);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, [user, accessTokenState]);
 
   // Attempt session restoration on app load (including support impersonation)
   useEffect(() => {

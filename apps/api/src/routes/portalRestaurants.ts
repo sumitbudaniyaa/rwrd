@@ -10,6 +10,13 @@ import {
   tables,
   billingPlans,
   subscriptions,
+  invoices,
+  tipIntents,
+  reviewTaps,
+  pageEvents,
+  sessions,
+  auditLogs,
+  featureFlags,
 } from '../db/schema/index.js';
 import { hashPassword, generateSecureToken } from '../utils/authCrypto.js';
 import { auditService } from '../services/auditService.js';
@@ -456,7 +463,8 @@ portalRestaurantsRouter.patch(
 
 /**
  * DELETE /api/v1/portal/restaurants/:id
- * Soft deletes a restaurant account.
+ * Permanently deletes a restaurant account, invalidates all sessions,
+ * and purges all associated tenant records.
  */
 portalRestaurantsRouter.delete(
   '/portal/restaurants/:id',
@@ -465,39 +473,46 @@ portalRestaurantsRouter.delete(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const id = req.params.id as string;
-      const [existing] = await db
-        .select()
-        .from(restaurants)
-        .where(and(eq(restaurants.id, id), isNull(restaurants.deletedAt)))
-        .limit(1);
+      const [existing] = await db.select().from(restaurants).where(eq(restaurants.id, id)).limit(1);
 
       if (!existing) {
-        throw new NotFoundError('Restaurant not found or already deleted');
+        throw new NotFoundError('Restaurant not found');
       }
 
-      await db
-        .update(restaurants)
-        .set({
-          isActive: false,
-          deletedAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(restaurants.id, id));
+      // In a transaction, cascade delete all tenant data and active sessions
+      await db.transaction(async (tx) => {
+        await tx.delete(tipIntents).where(eq(tipIntents.restaurantId, id));
+        await tx.delete(reviewTaps).where(eq(reviewTaps.restaurantId, id));
+        await tx.delete(pageEvents).where(eq(pageEvents.restaurantId, id));
+        await tx.delete(sessions).where(eq(sessions.restaurantId, id));
+        await tx.delete(qrTokens).where(eq(qrTokens.restaurantId, id));
+        await tx.delete(tables).where(eq(tables.restaurantId, id));
+        await tx.delete(staff).where(eq(staff.restaurantId, id));
+        await tx.delete(invoices).where(eq(invoices.restaurantId, id));
+        await tx.delete(subscriptions).where(eq(subscriptions.restaurantId, id));
+        await tx.delete(featureFlags).where(eq(featureFlags.restaurantId, id));
+        await tx.delete(auditLogs).where(eq(auditLogs.restaurantId, id));
+        await tx.delete(restaurantUsers).where(eq(restaurantUsers.restaurantId, id));
+        await tx.delete(restaurants).where(eq(restaurants.id, id));
+      });
 
+      // Record platform audit log (restaurantId: undefined so it survives tenant purge)
       await auditService.record({
-        restaurantId: id,
+        restaurantId: undefined,
         actorId: req.user!.id,
         actorType: 'platform_user',
         action: 'RESTAURANT_DELETED',
         entityType: 'restaurant',
         entityId: id,
-        beforeState: { isActive: existing.isActive, deletedAt: null },
-        afterState: { isActive: false, deletedAt: new Date().toISOString() },
+        beforeState: { name: existing.name, slug: existing.slug, id },
+        afterState: { deleted: true, purged: true },
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       });
 
-      res.status(200).json({ message: 'Restaurant successfully soft-deleted' });
+      res
+        .status(200)
+        .json({ message: 'Restaurant and all associated tenant data permanently deleted' });
     } catch (error) {
       next(error);
     }

@@ -347,7 +347,12 @@ authAdminRouter.get(
         .where(eq(restaurantUsers.id, req.user!.id))
         .limit(1);
 
-      if (record && record.user.isActive) {
+      if (
+        record &&
+        record.user.isActive &&
+        record.restaurant.isActive &&
+        !record.restaurant.deletedAt
+      ) {
         userProfile = {
           id: record.user.id,
           email: record.user.email,
