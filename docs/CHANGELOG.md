@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-10 - Server Dummy Profile Avatar Fallback for Staff Members Without Uploaded Photos (M7-T62)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Shared Vector Server Avatar Component (`@tiptable/ui`)**:
+    - Created [`ServerAvatar`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/ServerAvatar.tsx) and [`ServerDummyIllustration`](file:///Users/Sumit/Desktop/rwrd/packages/ui/src/ServerAvatar.tsx) in `packages/ui` featuring an elegant, hospitality-themed server silhouette (warm stone palette `#F5F5F4`, vest, shirt collar, bowtie accent, and head contour).
+    - Supports multiple predefined sizes (`xs`, `sm`, `md`, `lg`, `xl`, `full`) and shapes (`circle`, `rounded`, `square`), maintaining strict aspect ratios to eliminate layout shifts (CLS).
+    - Features built-in `onError` handling that automatically transitions from failed photo URLs to the vector illustration with accessible screen-reader initials fallback.
+  - **Customer App Integration**:
+    - Replaced the square text initials block in [`StaffScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/StaffScreen.tsx) with `<ServerAvatar size="full" shape="rounded" />`.
+    - Integrated `<ServerAvatar size="lg" shape="rounded" />` into the selected staff profile banner in [`AmountScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/screens/AmountScreen.tsx).
+  - **Admin App Integration**:
+    - Replaced table row avatars in [`StaffManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/StaffManagementScreen.tsx) with circular `<ServerAvatar size="sm" shape="circle" />`.
+    - Replaced modal photo preview fallback with `<ServerAvatar size="md" shape="rounded" />`.
+  - **Public API Avatar Fallback Endpoint**:
+    - Added `GET /api/v1/public/avatars/server-fallback.svg` in [`apps/api/src/routes/public.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/public.ts) serving the SVG dummy profile avatar with immutable public cache headers (`public, max-age=86400, immutable`).
+  - **Automated Testing & Verification**:
+    - Added unit tests in [`apps/customer/tests/staff.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/customer/tests/staff.test.tsx) verifying dummy server avatar rendering for staff without photos and dynamic transition upon image load failure (`onError`).
+    - Added assertions in [`apps/admin/tests/staffManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/staffManagement.test.tsx) validating dummy avatar fallbacks in the staff roster table.
+    - Added integration test in [`apps/api/tests/public.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/public.test.ts) asserting the SVG fallback endpoint returns 200 with `image/svg+xml`.
+    - All 27 test files (187 tests) in `@tiptable/api`, 8 test files (23 tests) in `@tiptable/customer`, and 10 test files (49 tests) in `@tiptable/admin` pass cleanly.
+    - Monorepo typecheck and ESLint pass with zero errors.
+
 ### 2026-11-10 - Admin Onboarding Mandatory Plan Selection & Payment Gateway Wall Gating Dashboard Access (M7-T61)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

@@ -9,6 +9,7 @@ import { useRestaurant } from '../context/RestaurantContext.js';
 import { api } from '../services/api.js';
 import { LoadingScreen } from './LoadingScreen.js';
 import { ErrorScreen } from './ErrorScreen.js';
+import { ServerAvatar } from '@tiptable/ui';
 import rwrdLogo from '../assets/rwrd.png';
 import type { StaffPublic } from '@tiptable/shared';
 
@@ -134,23 +135,13 @@ export const AmountScreen: React.FC = () => {
 
         {/* Selected Staff Profile Card */}
         <div className="mt-2 p-4 rounded-2xl bg-white border border-stone-200/80 shadow-2xs flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden flex-shrink-0 flex items-center justify-center font-serif text-xl font-medium text-stone-700">
-            {staff.photoUrl ? (
-              <img
-                src={staff.photoUrl}
-                alt={staff.displayName}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              staff.displayName
-                .split(' ')
-                .map((n) => n[0])
-                .join('')
-                .slice(0, 2)
-                .toUpperCase()
-            )}
-          </div>
+          <ServerAvatar
+            photoUrl={staff.photoUrl}
+            name={staff.displayName}
+            roleLabel={staff.roleLabel}
+            size="lg"
+            shape="rounded"
+          />
           <div>
             <h2 className="font-serif text-lg font-medium text-stone-900 leading-snug">
               {staff.displayName}

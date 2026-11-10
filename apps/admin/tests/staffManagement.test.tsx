@@ -97,6 +97,10 @@ describe('StaffManagementScreen', () => {
     expect(screen.getByText('p***l@okhdfcbank')).toBeInTheDocument();
     expect(screen.getByText('Active')).toBeInTheDocument();
     expect(screen.getByText('Inactive')).toBeInTheDocument();
+
+    // Verify Server dummy avatar fallbacks rendered for staff without photos
+    const avatarFallbacks = screen.getAllByTestId('server-avatar-fallback');
+    expect(avatarFallbacks.length).toBe(2);
   });
 
   it('filters staff list when typing in the search input', async () => {

@@ -426,6 +426,9 @@ importers:
       '@tiptable/shared':
         specifier: workspace:*
         version: link:../../packages/shared
+      '@tiptable/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       clsx:
         specifier: ^2.1.1
         version: 2.1.1

@@ -543,5 +543,17 @@ describe('Public Customer API Endpoints', () => {
       const activeRestaurant = await repo.findActiveById(mockRestaurantId);
       expect(activeRestaurant).toBeNull();
     });
+
+    it('serves SVG dummy server profile avatar with public cache headers', async () => {
+      const response = await request(app)
+        .get('/api/v1/public/avatars/server-fallback.svg')
+        .expect(200);
+
+      expect(response.headers['content-type']).toContain('image/svg+xml');
+      expect(response.headers['cache-control']).toContain('public');
+      const content = response.text || (response.body as Buffer).toString('utf8');
+      expect(content).toContain('<svg');
+      expect(content).toContain('</svg>');
+    });
   });
 });

@@ -11,7 +11,7 @@ import {
   Search01Icon,
   QrCodeIcon,
 } from '@hugeicons/core-free-icons';
-import { Badge, SlideUp } from '@tiptable/ui';
+import { Badge, SlideUp, ServerAvatar } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import {
@@ -280,22 +280,12 @@ export const StaffManagementScreen: React.FC = () => {
                     <tr key={staff.id} className="hover:bg-stone-50/60 transition-colors">
                       <td className="py-3.5 px-5">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-stone-100 border border-stone-200/60 overflow-hidden flex-shrink-0 flex items-center justify-center text-stone-700 font-semibold text-xs shadow-2xs">
-                            {staff.photoUrl ? (
-                              <img
-                                src={staff.photoUrl}
-                                alt={staff.displayName}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              staff.displayName
-                                .split(' ')
-                                .map((n) => n[0])
-                                .join('')
-                                .slice(0, 2)
-                                .toUpperCase()
-                            )}
-                          </div>
+                          <ServerAvatar
+                            photoUrl={staff.photoUrl}
+                            name={staff.displayName}
+                            size="sm"
+                            shape="circle"
+                          />
                           <div>
                             <span className="font-medium text-stone-900 block text-sm tracking-tight">
                               {staff.displayName}
@@ -492,17 +482,12 @@ export const StaffManagementScreen: React.FC = () => {
                     Photo (client-side square crop & compression)
                   </label>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-stone-100 border border-stone-200/60 overflow-hidden flex items-center justify-center flex-shrink-0 text-stone-400 shadow-2xs">
-                      {photoPreview ? (
-                        <img
-                          src={photoPreview}
-                          alt="Preview"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <HugeiconsIcon icon={UserGroupIcon} className="w-5 h-5" strokeWidth={1.5} />
-                      )}
-                    </div>
+                    <ServerAvatar
+                      photoUrl={photoPreview}
+                      name={displayName || 'Preview'}
+                      size="md"
+                      shape="rounded"
+                    />
                     <div className="flex-1">
                       <input
                         type="file"

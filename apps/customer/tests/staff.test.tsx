@@ -47,7 +47,7 @@ describe('Customer Screen 2: Staff Directory', () => {
     vi.spyOn(api, 'resolveToken').mockResolvedValue(mockResolveData);
     vi.spyOn(api, 'getStaff').mockResolvedValue(mockStaffData);
 
-    window.history.pushState({}, 'Staff', '/t/valid-token-123/staff');
+    window.history.pushState({}, 'Staff', '/t/staff-token-1/staff');
 
     render(<App />);
 
@@ -63,15 +63,52 @@ describe('Customer Screen 2: Staff Directory', () => {
     // Initials fallback for Priya Sharma
     expect(screen.getByText('PS')).toBeInTheDocument();
 
+    // Server dummy avatar fallback & photo image verification
+    expect(screen.getByTestId('server-avatar-fallback')).toBeInTheDocument();
+    expect(screen.getByTestId('server-avatar-image')).toBeInTheDocument();
+
     // rwrd brand logo in top bar
     expect(screen.getByAltText('rwrd')).toBeInTheDocument();
+  });
+
+  it('falls back to server dummy avatar when photo fails to load via onError', async () => {
+    vi.spyOn(api, 'resolveToken').mockResolvedValue(mockResolveData);
+    vi.spyOn(api, 'getStaff').mockResolvedValue({
+      staff: [
+        {
+          id: 'staff-broken',
+          displayName: 'Broken Photo Staff',
+          roleLabel: 'Server',
+          photoUrl: 'https://media.tiptable.in/staff/broken-image.jpg',
+        },
+      ],
+    });
+
+    window.history.pushState({}, 'Staff', '/t/staff-token-2/staff');
+
+    render(<App />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Broken Photo Staff')).toBeInTheDocument();
+    });
+
+    const img = screen.getByTestId('server-avatar-image');
+    expect(img).toBeInTheDocument();
+
+    // Simulate image load error
+    fireEvent.error(img);
+
+    // Fallback vector illustration should now be displayed
+    await waitFor(() => {
+      expect(screen.getByTestId('server-avatar-fallback')).toBeInTheDocument();
+    });
   });
 
   it('filters staff roster by search query', async () => {
     vi.spyOn(api, 'resolveToken').mockResolvedValue(mockResolveData);
     vi.spyOn(api, 'getStaff').mockResolvedValue(mockStaffData);
 
-    window.history.pushState({}, 'Staff', '/t/valid-token-123/staff');
+    window.history.pushState({}, 'Staff', '/t/staff-token-3/staff');
 
     render(<App />);
 
@@ -90,7 +127,7 @@ describe('Customer Screen 2: Staff Directory', () => {
     vi.spyOn(api, 'resolveToken').mockResolvedValue(mockResolveData);
     vi.spyOn(api, 'getStaff').mockResolvedValue(mockStaffData);
 
-    window.history.pushState({}, 'Staff', '/t/valid-token-123/staff');
+    window.history.pushState({}, 'Staff', '/t/staff-token-4/staff');
 
     render(<App />);
 

@@ -42,6 +42,26 @@ function parseDeviceOs(userAgent?: string | null): string {
 }
 
 /**
+ * GET /api/v1/public/avatars/server-fallback.svg
+ * Serves an SVG dummy profile avatar fallback for staff members without uploaded photos.
+ */
+publicRouter.get('/public/avatars/server-fallback.svg', (_req: Request, res: Response) => {
+  const svg = `<svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="80" height="80" fill="#F5F5F4"/>
+  <circle cx="40" cy="36" r="32" fill="#E7E5E4" fill-opacity="0.45"/>
+  <path d="M16 74C16 61.8497 25.8497 52 38 52H42C54.1503 52 64 61.8497 64 74V80H16V74Z" fill="#A8A29E"/>
+  <path d="M32 52L40 63L48 52H32Z" fill="#FAFAF9"/>
+  <path d="M37 54.5L40 56.5L43 54.5L41.5 58.5L43 62.5L40 60.5L37 62.5L38.5 58.5L37 54.5Z" fill="#57534E"/>
+  <path d="M35 44H45V53C45 53 42.5 54 40 54C37.5 54 35 53 35 53V44Z" fill="#D6D3D1"/>
+  <ellipse cx="40" cy="33" rx="14" ry="16" fill="#78716C"/>
+  <path d="M26 31C26 23.268 32.268 17 40 17C47.732 17 54 23.268 54 31C54 32.5 53.5 34 52.8 35.2C50.5 28.5 45.5 25.5 40 25.5C34.5 25.5 29.5 28.5 27.2 35.2C26.5 34 26 32.5 26 31Z" fill="#57534E"/>
+</svg>`;
+  res.setHeader('Content-Type', 'image/svg+xml');
+  res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
+  res.status(200).send(svg);
+});
+
+/**
  * GET /api/v1/public/billing/plans
  * Returns active subscription pricing plans for prospective dining establishments and onboarding.
  */
