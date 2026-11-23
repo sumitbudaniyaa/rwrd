@@ -156,6 +156,14 @@ export interface UpdateRestaurantSettingsInput {
   reviewsEnabled?: boolean;
 }
 
+export interface GooglePlaceResult {
+  placeId: string;
+  name: string;
+  address: string;
+  reviewUrl: string;
+  isSimulated?: boolean;
+}
+
 export interface QrTokenItem {
   id: string;
   restaurantId: string;
@@ -457,6 +465,19 @@ export const api = {
       {
         method: 'PUT',
         body: JSON.stringify(data),
+      },
+    );
+  },
+
+  searchGooglePlaces(
+    restaurantId: string,
+    query: string,
+  ): Promise<{ results: GooglePlaceResult[] }> {
+    return request<{ results: GooglePlaceResult[] }>(
+      `/admin/restaurants/${restaurantId}/places-search`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ query }),
       },
     );
   },

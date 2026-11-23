@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -7,11 +8,19 @@ import {
   Alert01Icon,
   Add01Icon,
   Cancel01Icon,
+  Search01Icon,
+  Location01Icon,
+  ArrowUpRight01Icon,
 } from '@hugeicons/core-free-icons';
 import { Badge, SlideUp, useToast } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
-import { api, ApiError, type UpdateRestaurantSettingsInput } from '../services/api.js';
+import {
+  api,
+  ApiError,
+  type UpdateRestaurantSettingsInput,
+  type GooglePlaceResult,
+} from '../services/api.js';
 
 export const SettingsScreen: React.FC = () => {
   const { user, restaurant, refreshUser } = useAuth();
@@ -34,6 +43,14 @@ export const SettingsScreen: React.FC = () => {
   const [isEditingGoogleReview, setIsEditingGoogleReview] = useState(false);
   const [isEditingTipPresets, setIsEditingTipPresets] = useState(false);
   const [isEditingTipBounds, setIsEditingTipBounds] = useState(false);
+
+  // Google Review Link Generator modal state
+  const [isGeneratorOpen, setIsGeneratorOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<GooglePlaceResult[]>([]);
+  const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<GooglePlaceResult | null>(null);
 
   // Field currently performing save mutation
   const [savingField, setSavingField] = useState<string | null>(null);
@@ -190,6 +207,62 @@ export const SettingsScreen: React.FC = () => {
           setIsEditingGoogleReview(false);
           setSavingField(null);
           setReviewsEnabled(true);
+        },
+        onError: () => setSavingField(null),
+      },
+    );
+  };
+
+  const handleOpenGenerator = () => {
+    setIsGeneratorOpen(true);
+    const initialQuery = (name || restaurant?.name || '').trim();
+    setSearchQuery(initialQuery);
+    setSelectedPlace(null);
+    setSearchError(null);
+    setSearchResults([]);
+    if (initialQuery) {
+      void executePlacesSearch(initialQuery);
+    }
+  };
+
+  const executePlacesSearch = async (queryText: string) => {
+    const trimmed = queryText.trim();
+    if (!trimmed || trimmed.length < 2) {
+      setSearchError('Please enter at least 2 characters to search.');
+      return;
+    }
+    setIsSearchingPlaces(true);
+    setSearchError(null);
+    try {
+      const res = await api.searchGooglePlaces(restaurantId, trimmed);
+      setSearchResults(res.results);
+      if (res.results.length === 0) {
+        setSearchError('No matching places found. Try entering your Google Place ID directly.');
+      } else if (res.results[0]) {
+        setSelectedPlace(res.results[0]);
+      }
+    } catch {
+      setSearchError('Search failed. You can paste your Google Place ID directly.');
+    } finally {
+      setIsSearchingPlaces(false);
+    }
+  };
+
+  const handleApplyGeneratedReviewUrl = (url: string) => {
+    setGoogleReviewUrl(url);
+    setIsEditingGoogleReview(false);
+    setIsGeneratorOpen(false);
+    setSavingField('googleReviewUrl');
+    updateMutation.mutate(
+      { googleReviewUrl: url },
+      {
+        onSuccess: () => {
+          setSavingField(null);
+          setReviewsEnabled(true);
+          toast.success(
+            'Review Link Saved',
+            'Official Google review link generated and saved successfully.',
+          );
         },
         onError: () => setSavingField(null),
       },
@@ -527,7 +600,7 @@ export const SettingsScreen: React.FC = () => {
 
             <div className="space-y-3">
               {!isEditingGoogleReview ? (
-                <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl border border-stone-200/70 bg-stone-50/40">
                   <div className="min-w-0 flex-1">
                     <span className="text-[11px] font-medium text-stone-500 block uppercase tracking-wider">
                       Google Review URL <span className="text-rose-500">*</span>
@@ -545,28 +618,53 @@ export const SettingsScreen: React.FC = () => {
                       <span className="text-xs text-stone-400 block mt-0.5">Not configured</span>
                     )}
                   </div>
-                  <MotionButton
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsEditingGoogleReview(true)}
-                    className="px-3 py-1.5 text-xs shrink-0"
-                  >
-                    Edit
-                  </MotionButton>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <MotionButton
+                      variant={googleReviewUrl ? 'outline' : 'primary'}
+                      size="sm"
+                      onClick={handleOpenGenerator}
+                      className="px-3 py-1.5 text-xs flex items-center gap-1.5"
+                    >
+                      <HugeiconsIcon
+                        icon={Search01Icon}
+                        className="w-3.5 h-3.5"
+                        strokeWidth={1.5}
+                      />
+                      <span>{googleReviewUrl ? 'Find on Google' : 'Generate Review Link'}</span>
+                    </MotionButton>
+                    <MotionButton
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditingGoogleReview(true)}
+                      className="px-3 py-1.5 text-xs"
+                    >
+                      Edit
+                    </MotionButton>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-3 p-4 rounded-xl border border-stone-300/80 bg-white shadow-2xs">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium text-stone-700">
-                      Google Review URL <span className="text-rose-500">*</span>
-                    </label>
+                    <div className="flex items-center justify-between">
+                      <label className="block text-xs font-medium text-stone-700">
+                        Google Review URL <span className="text-rose-500">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleOpenGenerator}
+                        className="text-[11px] text-stone-600 hover:text-stone-900 font-medium underline underline-offset-2 flex items-center gap-1 cursor-pointer"
+                      >
+                        <HugeiconsIcon icon={Search01Icon} className="w-3 h-3" strokeWidth={1.5} />
+                        <span>Find restaurant on Google</span>
+                      </button>
+                    </div>
                     <input
                       type="url"
                       required
                       autoFocus
                       value={googleReviewUrl}
                       onChange={(e) => setGoogleReviewUrl(e.target.value)}
-                      placeholder="https://maps.app.goo.gl/... or https://g.page/r/..."
+                      placeholder="https://maps.app.goo.gl/... or https://search.google.com/local/writereview?placeid=..."
                       className={`w-full px-3 py-2 rounded-xl text-xs border font-mono outline-none transition-all duration-150 ${
                         !isGoogleUrlValid
                           ? 'border-rose-400 bg-rose-50/30 text-rose-900 focus:border-rose-500 focus:shadow-[0_0_0_3px_rgba(244,63,94,0.08)]'
@@ -967,6 +1065,189 @@ export const SettingsScreen: React.FC = () => {
           </div>
         </SlideUp>
       </div>
+
+      {/* Whitespark-Style Google Review Link Generator Modal */}
+      {isGeneratorOpen &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
+            <div className="w-full max-w-lg bg-white/95 backdrop-blur-md rounded-3xl border border-stone-200/80 shadow-2xl p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                <div>
+                  <h3 className="text-base font-semibold text-stone-900 tracking-tight">
+                    generate google review link
+                  </h3>
+                  <p className="text-xs text-stone-500 mt-0.5">
+                    Find your restaurant on Google Maps to generate a direct 5-star review link.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsGeneratorOpen(false)}
+                  aria-label="Close generator modal"
+                  className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
+                >
+                  <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
+                </button>
+              </div>
+
+              {/* Search Form */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void executePlacesSearch(searchQuery);
+                }}
+                className="space-y-2"
+              >
+                <label className="block text-xs font-medium text-stone-700">
+                  Restaurant Name or Location
+                </label>
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="e.g. The Bombay Canteen Mumbai"
+                      className="w-full px-3.5 py-2 pl-9 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none"
+                    />
+                    <HugeiconsIcon
+                      icon={Search01Icon}
+                      className="w-4 h-4 text-stone-400 absolute left-3 top-2.5"
+                      strokeWidth={1.5}
+                    />
+                  </div>
+                  <MotionButton
+                    variant="primary"
+                    size="sm"
+                    type="submit"
+                    isLoading={isSearchingPlaces}
+                    className="px-4 py-2 text-xs shrink-0"
+                  >
+                    Search
+                  </MotionButton>
+                </div>
+              </form>
+
+              {/* Search Error */}
+              {searchError && (
+                <p className="text-xs text-rose-600 bg-rose-50/50 p-2.5 rounded-xl border border-rose-100">
+                  {searchError}
+                </p>
+              )}
+
+              {/* Results List */}
+              {searchResults.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block">
+                    Matching Locations ({searchResults.length})
+                  </span>
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {searchResults.map((result) => {
+                      const isSelected = selectedPlace?.placeId === result.placeId;
+                      return (
+                        <button
+                          key={result.placeId}
+                          type="button"
+                          onClick={() => setSelectedPlace(result)}
+                          className={`w-full text-left p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
+                            isSelected
+                              ? 'border-stone-900 bg-stone-50 shadow-2xs ring-1 ring-stone-900'
+                              : 'border-stone-200/80 bg-white hover:bg-stone-50/60'
+                          }`}
+                        >
+                          <HugeiconsIcon
+                            icon={Location01Icon}
+                            className={`w-4 h-4 mt-0.5 shrink-0 ${isSelected ? 'text-stone-900' : 'text-stone-400'}`}
+                            strokeWidth={1.5}
+                          />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-stone-900 truncate">
+                              {result.name}
+                            </p>
+                            <p className="text-[11px] text-stone-500 truncate mt-0.5">
+                              {result.address}
+                            </p>
+                            <span className="text-[10px] font-mono text-stone-400 mt-1 block">
+                              Place ID: {result.placeId}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Selected Result Review URL Preview & Actions */}
+              {selectedPlace && (
+                <div className="p-4 rounded-2xl border border-stone-200 bg-stone-50/70 space-y-3">
+                  <div className="space-y-1">
+                    <span className="text-[11px] font-semibold text-stone-700 uppercase tracking-wider block">
+                      Generated Google Review URL
+                    </span>
+                    <p className="text-xs font-mono text-stone-900 break-all bg-white p-2.5 rounded-xl border border-stone-200">
+                      {selectedPlace.reviewUrl}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 pt-1">
+                    <a
+                      href={selectedPlace.reviewUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-stone-600 hover:text-stone-950 font-medium underline underline-offset-2"
+                    >
+                      <span>Test Review Link</span>
+                      <HugeiconsIcon
+                        icon={ArrowUpRight01Icon}
+                        className="w-3.5 h-3.5"
+                        strokeWidth={1.5}
+                      />
+                    </a>
+                    <MotionButton
+                      variant="primary"
+                      size="sm"
+                      isLoading={savingField === 'googleReviewUrl'}
+                      onClick={() => handleApplyGeneratedReviewUrl(selectedPlace.reviewUrl)}
+                      className="px-4 py-2 text-xs"
+                    >
+                      Save & Enable Reviews
+                    </MotionButton>
+                  </div>
+                </div>
+              )}
+
+              {/* Helper footer */}
+              <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
+                <span>
+                  Need manual Place ID?{' '}
+                  <a
+                    href="https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-stone-800 hover:underline inline-flex items-center gap-0.5 font-medium"
+                  >
+                    Open Google Place ID Finder
+                    <HugeiconsIcon
+                      icon={ArrowUpRight01Icon}
+                      className="w-3 h-3"
+                      strokeWidth={1.5}
+                    />
+                  </a>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsGeneratorOpen(false)}
+                  className="text-xs text-stone-500 hover:text-stone-800 font-medium cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };

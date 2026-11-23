@@ -1,11 +1,35 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { App } from '../src/App.js';
-import { api } from '../src/services/api.js';
+import { api, setAccessToken } from '../src/services/api.js';
 
 describe('Admin Authentication Flow', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    setAccessToken(null);
+    vi.spyOn(api, 'getAnalytics').mockResolvedValue({
+      period: 'all',
+      metrics: {
+        placardScans: 0,
+        uniqueDiners: 0,
+        staffViews: 0,
+        reviewTaps: 0,
+        tipsCount: 0,
+        tipsTotalInr: 0,
+        averageTipInr: 0,
+      },
+      dailyTrends: [],
+    } as any);
+    vi.spyOn(api, 'getStaffList').mockResolvedValue({ staff: [] });
+    vi.spyOn(api, 'getQrList').mockResolvedValue({
+      restaurant: {
+        id: 'rest-1',
+        name: 'The Bombay Canteen',
+        slug: 'the-bombay-canteen',
+        logoUrl: null,
+      },
+      tokens: [],
+    });
   });
 
   it('renders login screen with email, password fields and sign-in button', () => {
@@ -45,7 +69,7 @@ describe('Admin Authentication Flow', () => {
         role: 'owner',
       },
     });
-    vi.spyOn(api, 'getMe').mockResolvedValueOnce({
+    vi.spyOn(api, 'getMe').mockResolvedValue({
       user: {
         id: 'usr-1',
         email: 'owner@restaurant.com',
@@ -245,7 +269,7 @@ describe('Admin Authentication Flow', () => {
         role: 'owner',
       },
     });
-    vi.spyOn(api, 'getMe').mockResolvedValueOnce({
+    vi.spyOn(api, 'getMe').mockResolvedValue({
       user: {
         id: 'usr-1',
         email: 'owner@restaurant.com',

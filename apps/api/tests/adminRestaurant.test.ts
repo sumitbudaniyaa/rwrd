@@ -213,4 +213,59 @@ describe('Admin Restaurant Settings Routes', () => {
       }),
     );
   });
+
+  describe('POST /api/v1/admin/restaurants/:id/places-search', () => {
+    it('returns place search results with direct review URLs for business name query', async () => {
+      vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
+
+      const res = await request(app)
+        .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ query: 'The Bombay Canteen' });
+
+      expect(res.status).toBe(200);
+      expect(Array.isArray(res.body.results)).toBe(true);
+      expect(res.body.results.length).toBeGreaterThan(0);
+      const first = res.body.results[0];
+      expect(first.name).toBe('The Bombay Canteen');
+      expect(first.placeId).toMatch(/^ChIJ/);
+      expect(first.reviewUrl).toContain('https://search.google.com/local/writereview?placeid=');
+    });
+
+    it('returns direct place candidate when query is already a Place ID', async () => {
+      vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
+
+      const customPlaceId = 'ChIJN1t_tDeuEmsRUsoyG83frY4';
+      const res = await request(app)
+        .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ query: customPlaceId });
+
+      expect(res.status).toBe(200);
+      expect(res.body.results).toHaveLength(1);
+      expect(res.body.results[0].placeId).toBe(customPlaceId);
+      expect(res.body.results[0].reviewUrl).toBe(
+        `https://search.google.com/local/writereview?placeid=${customPlaceId}`,
+      );
+    });
+
+    it('rejects empty query with 400 Bad Request', async () => {
+      const res = await request(app)
+        .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ query: ' ' });
+
+      expect(res.status).toBe(400);
+    });
+
+    it('enforces multi-tenancy: admin cannot search places for other restaurant (403)', async () => {
+      const otherRestaurantId = 'rest-9999';
+      const res = await request(app)
+        .post(`/api/v1/admin/restaurants/${otherRestaurantId}/places-search`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ query: 'The Bombay Canteen' });
+
+      expect(res.status).toBe(403);
+    });
+  });
 });

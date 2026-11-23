@@ -71,6 +71,7 @@ const EnvSchema = z.object({
   RATE_LIMIT_INTENT_WINDOW_MS: z.coerce.number().int().positive().default(60000),
 
   // Optional External Services
+  GOOGLE_PLACES_API_KEY: z.string().optional().or(z.literal('')),
   TURNSTILE_SECRET_KEY: z.string().optional().or(z.literal('')),
   PORTAL_ALLOWED_IPS: z
     .string()

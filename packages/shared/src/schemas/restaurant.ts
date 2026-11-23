@@ -69,3 +69,19 @@ export const UpdateRestaurantSettingsSchema = z
   );
 
 export type UpdateRestaurantSettings = z.infer<typeof UpdateRestaurantSettingsSchema>;
+
+export const PlacesSearchRequestSchema = z.object({
+  query: z.string().trim().min(2, 'Search query must be at least 2 characters').max(150),
+});
+
+export type PlacesSearchRequest = z.infer<typeof PlacesSearchRequestSchema>;
+
+export const GooglePlaceResultSchema = z.object({
+  placeId: z.string(),
+  name: z.string(),
+  address: z.string(),
+  reviewUrl: z.string().url(),
+  isSimulated: z.boolean().optional(),
+});
+
+export type GooglePlaceResult = z.infer<typeof GooglePlaceResultSchema>;

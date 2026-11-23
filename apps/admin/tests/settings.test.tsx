@@ -371,4 +371,71 @@ describe('SettingsScreen', () => {
     expect(screen.getByText(/No active team members/i)).toBeInTheDocument();
     expect(screen.getByText(/Google review link missing/i)).toBeInTheDocument();
   });
+
+  it('opens Google Review Link Generator modal, searches places, and applies generated review URL', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        ...mockRestaurantSettings,
+        googleReviewUrl: '',
+      },
+    });
+
+    const searchPlacesSpy = vi.spyOn(api, 'searchGooglePlaces').mockResolvedValue({
+      results: [
+        {
+          placeId: 'ChIJ1234567890abcdef',
+          name: 'The Bombay Canteen Mumbai',
+          address: 'Unit 1, Process House, Mumbai',
+          reviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJ1234567890abcdef',
+        },
+      ],
+    });
+
+    const updateSpy = vi.spyOn(api, 'updateRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        ...mockRestaurantSettings,
+        googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJ1234567890abcdef',
+        reviewsEnabled: true,
+      },
+    });
+
+    renderWithProviders(<SettingsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('google review integration')).toBeInTheDocument();
+    });
+
+    // Click "Generate Review Link" button
+    const generateBtn = screen.getByRole('button', { name: /Generate Review Link/i });
+    fireEvent.click(generateBtn);
+
+    // Modal opens
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /generate google review link/i }),
+      ).toBeInTheDocument();
+    });
+
+    expect(searchPlacesSpy).toHaveBeenCalledWith('rest-123', 'The Bombay Canteen');
+
+    // Matching location and generated URL should appear
+    await waitFor(() => {
+      expect(screen.getByText('Unit 1, Process House, Mumbai')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'https://search.google.com/local/writereview?placeid=ChIJ1234567890abcdef',
+        ),
+      ).toBeInTheDocument();
+    });
+
+    // Click "Save & Enable Reviews"
+    const saveReviewBtn = screen.getByRole('button', { name: /Save & Enable Reviews/i });
+    fireEvent.click(saveReviewBtn);
+
+    await waitFor(() => {
+      expect(updateSpy).toHaveBeenCalledWith('rest-123', {
+        googleReviewUrl: 'https://search.google.com/local/writereview?placeid=ChIJ1234567890abcdef',
+      });
+    });
+  });
 });

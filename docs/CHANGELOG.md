@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-23 - QR Placard Copy Polish, Sticky Header Banner Fix & Whitespark-Style Google Review Link Generator (M7-T80)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Placard Footer Text Polish**:
+    - In [`apps/admin/src/screens/QrManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/QrManagementScreen.tsx), removed `" • Safe & Direct Peer-to-Peer"` from the printed table QR placard footer, keeping the clean branding `"Powered by rwrd"`.
+    - Updated [`apps/admin/tests/qrManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/qrManagement.test.tsx) with assertions verifying `"Powered by rwrd"` is present and `"Safe & Direct Peer-to-Peer"` is absent.
+  - **Sticky Header Stacking & Banner Overlap Fix**:
+    - In [`apps/admin/src/layouts/AdminLayout.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/layouts/AdminLayout.tsx), resolved the issue where scrolling down the page caused the `<header>` element to slide over and conceal the missing Google review link warning banner.
+    - Encapsulated the impersonation alert banner, missing review link banner, and sticky top header into a single unified sticky parent container (`sticky top-0 z-40 w-full flex flex-col`), ensuring all alert banners and the header scroll together smoothly without visual collision or covering.
+    - Verified all 6 layout and banner tests in [`apps/admin/tests/impersonation.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/impersonation.test.tsx).
+  - **Whitespark-Style Google Review Link Generator**:
+    - **Shared Schemas**: In [`packages/shared/src/schemas/restaurant.ts`](file:///Users/Sumit/Desktop/rwrd/packages/shared/src/schemas/restaurant.ts), defined `PlacesSearchRequestSchema`, `type PlacesSearchRequest`, `GooglePlaceResultSchema`, and `type GooglePlaceResult`.
+    - **Environment Configuration**: In [`apps/api/src/config/env.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/config/env.ts), added optional `GOOGLE_PLACES_API_KEY`. Documented in [`docs/ENV.md`](file:///Users/Sumit/Desktop/rwrd/docs/ENV.md) and [`.env.example`](file:///Users/Sumit/Desktop/rwrd/.env.example).
+    - **Backend Places Search Endpoint**: In [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts), implemented `POST /api/v1/admin/restaurants/:restaurantId/places-search`. Supports live Google Places API (Find Place From Text API), direct Place ID string entry (`ChIJ...`), and robust simulated search fallback for offline/development/testing environments. Generates standard direct review URLs conforming to `https://search.google.com/local/writereview?placeid=${placeId}`.
+    - **Admin Client & UI Generator Modal**: In [`apps/admin/src/services/api.ts`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/services/api.ts), implemented `api.searchGooglePlaces()`. In [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx), built an interactive modal allowing restaurant managers to search their restaurant name/location, inspect matching places with addresses and Place IDs, live preview and test the direct Google review URL (`https://search.google.com/local/writereview?placeid=...`), and apply it directly into their restaurant review settings with 1 click.
+  - **Testing & Verification**:
+    - Added comprehensive unit and integration tests in [`apps/api/tests/adminRestaurant.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminRestaurant.test.ts) covering name search, direct Place ID lookup, validation, and cross-tenant isolation (403).
+    - Added UI test in [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) verifying generator modal opening, searching, review link preview, testing, and saving.
+    - Verified `pnpm typecheck` (0 errors across 7 packages) and `pnpm lint` (0 warnings/errors).
+    - Verified all test suites pass:
+      - `@tiptable/admin`: 11 test files, 60 tests passed.
+      - `@tiptable/customer`: 8 test files, 26 tests passed.
+      - `@tiptable/api`: 28 test files, 208 tests passed.
+
 ### 2026-11-11 - Auto-Enable Guest Experience Capabilities on Adding Staff or Review Link & Tenant Database Purge (M7-T79)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

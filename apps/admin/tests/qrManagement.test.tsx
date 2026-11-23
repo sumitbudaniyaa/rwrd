@@ -254,6 +254,8 @@ describe('QrManagementScreen', () => {
     expect(
       screen.getByText('अपने वेटर को सीधे UPI द्वारा टिप देने के लिए स्कैन करें'),
     ).toBeInTheDocument();
+    expect(screen.getByText('Powered by rwrd')).toBeInTheDocument();
+    expect(screen.queryByText(/Safe & Direct Peer-to-Peer/i)).toBeNull();
 
     const printPdfBtn = screen.getByRole('button', { name: /Print \/ Save PDF/i });
     fireEvent.click(printPdfBtn);
