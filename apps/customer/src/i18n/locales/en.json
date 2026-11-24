@@ -7,7 +7,7 @@
     "error_ask_server": "Please ask your server for assistance."
   },
   "home": {
-    "greeting": "You are here for...",
+    "greeting": "You are here to...",
     "subtitle": "Choose an option below to show your appreciation",
     "cardA_title": "Make the people who fed you happy",
     "cardA_desc": "Tip your waiter directly into their personal UPI account",

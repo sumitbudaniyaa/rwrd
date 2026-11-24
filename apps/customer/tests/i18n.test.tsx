@@ -34,7 +34,7 @@ describe('Customer App: English-Only Interface', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('You are here for...')).toBeInTheDocument();
+      expect(screen.getByText('You are here to...')).toBeInTheDocument();
     });
 
     expect(screen.getByText('Make the people who fed you happy')).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('Customer App: English-Only Interface', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('You are here for...')).toBeInTheDocument();
+      expect(screen.getByText('You are here to...')).toBeInTheDocument();
     });
 
     expect(screen.queryByRole('button', { name: /हिंदी/i })).not.toBeInTheDocument();

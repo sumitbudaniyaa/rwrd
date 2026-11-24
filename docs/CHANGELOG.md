@@ -6,6 +6,18 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Customer App Greeting Copy Polish (M7-T84)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Updated Customer App Greeting Copy**:
+    - Changed `home.greeting` in [`apps/customer/src/i18n/locales/en.json`](file:///Users/Sumit/Desktop/rwrd/apps/customer/src/i18n/locales/en.json) from `"You are here for..."` to `"You are here to..."`.
+    - Synchronized all test assertions across customer test suites (`home.test.tsx`, `i18n.test.tsx`, `scaffold.test.tsx`).
+  - **Testing & Verification**:
+    - All 8 customer test suites passed (26/26 tests passing).
+    - Production build via `pnpm --filter @tiptable/customer build` succeeded.
+
 ### 2026-11-24 - Remove Client-Side Google Maps Script Injection to Eliminate Google Popup Alert (M7-T83)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

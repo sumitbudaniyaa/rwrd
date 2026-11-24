@@ -24,7 +24,7 @@ describe('Customer App Scaffolding', () => {
     render(<App />);
 
     await waitFor(() => {
-      expect(screen.getByText('You are here for...')).toBeInTheDocument();
+      expect(screen.getByText('You are here to...')).toBeInTheDocument();
     });
   });
 });

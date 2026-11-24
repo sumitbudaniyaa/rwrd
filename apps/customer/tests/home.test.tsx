@@ -38,7 +38,7 @@ describe('Customer Screen 1: Home', () => {
 
     expect(screen.queryByText('Table 14')).not.toBeInTheDocument();
     expect(screen.queryByText('Terrace Garden')).not.toBeInTheDocument();
-    expect(screen.getByText('You are here for...')).toBeInTheDocument();
+    expect(screen.getByText('You are here to...')).toBeInTheDocument();
     expect(screen.getByText('Make the people who fed you happy')).toBeInTheDocument();
     expect(screen.getByText('Review us')).toBeInTheDocument();
     expect(screen.queryByAltText('The Bombay Canteen')).not.toBeInTheDocument();
