@@ -17,10 +17,11 @@ import {
   invoices,
   auditLogs,
   featureFlags,
+  impersonationRequests,
 } from '../src/db/schema/index.js';
 
 describe('Drizzle Database Schema Definitions', () => {
-  it('exports all 16 database tables with correct SQL names', () => {
+  it('exports all 17 database tables with correct SQL names', () => {
     expect(getTableName(restaurants)).toBe('restaurants');
     expect(getTableName(restaurantUsers)).toBe('restaurant_users');
     expect(getTableName(platformUsers)).toBe('platform_users');
@@ -37,6 +38,7 @@ describe('Drizzle Database Schema Definitions', () => {
     expect(getTableName(invoices)).toBe('invoices');
     expect(getTableName(auditLogs)).toBe('audit_logs');
     expect(getTableName(featureFlags)).toBe('feature_flags');
+    expect(getTableName(impersonationRequests)).toBe('impersonation_requests');
   });
 
   it('validates restaurant schema defaults', () => {

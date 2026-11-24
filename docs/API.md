@@ -510,6 +510,85 @@ The API supports three distinct authentication contexts:
 }
 ```
 
+#### Request Impersonation Access with Restaurant Consent (`POST /api/v1/portal/restaurants/:id/impersonation-request`)
+
+- **Role Requirement**: `super_admin`, `support`.
+- **Purpose**: Creates a pending support access request requiring explicit approval from the restaurant administrator. Sets a 5-minute approval window. Logs `IMPERSONATION_REQUESTED` event.
+- **Request Body** (optional):
+
+```json
+{
+  "reason": "Ticket #4021 - Staff onboarding assistance"
+}
+```
+
+- **Response `201 Created`**:
+
+```json
+{
+  "requestId": "33333333-3333-3333-3333-333333333333",
+  "status": "pending",
+  "restaurantName": "The Bombay Canteen",
+  "expiresAt": "2026-11-24T15:20:00.000Z",
+  "reason": "Ticket #4021 - Staff onboarding assistance"
+}
+```
+
+#### Poll Impersonation Request Status (`GET /api/v1/portal/impersonation-requests/:requestId`)
+
+- **Role Requirement**: `super_admin`, `support`.
+- **Purpose**: Returns the real-time consent status (`pending`, `approved`, `declined`, `expired`). Once approved, delivers the 1-hour delegated admin session token.
+- **Response `200 OK`**:
+
+```json
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "status": "approved",
+  "reason": "Ticket #4021 - Staff onboarding assistance",
+  "impersonationToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresAt": "2026-11-24T15:20:00.000Z",
+  "respondedAt": "2026-11-24T15:16:30.000Z"
+}
+```
+
+#### Fetch Pending Impersonation Request (`GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending`)
+
+- **Role Requirement**: `admin` (tenant scoped).
+- **Purpose**: Polled by active restaurant sessions to detect incoming support access requests and display the approval modal.
+- **Response `200 OK`**:
+
+```json
+{
+  "pendingRequest": {
+    "id": "33333333-3333-3333-3333-333333333333",
+    "impersonatorEmail": "support@tiptable.in",
+    "reason": "Ticket #4021 - Staff onboarding assistance",
+    "expiresAt": "2026-11-24T15:20:00.000Z",
+    "createdAt": "2026-11-24T15:15:00.000Z"
+  }
+}
+```
+
+#### Approve or Decline Impersonation Request (`POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond`)
+
+- **Role Requirement**: `admin` (tenant scoped).
+- **Request Body**:
+
+```json
+{
+  "action": "approve" // or "decline"
+}
+```
+
+- **Response `200 OK`**:
+
+```json
+{
+  "message": "Support access request approved",
+  "status": "approved"
+}
+```
+
 #### Global Platform Telemetry & Metrics (`GET /api/v1/portal/metrics`)
 
 - **Role Requirement**: `super_admin`, `support`, `finance`.

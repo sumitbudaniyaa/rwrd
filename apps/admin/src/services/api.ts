@@ -31,6 +31,18 @@ export interface BillingPlanItem {
   monthlyFeeInr: number;
 }
 
+export interface PendingImpersonationRequest {
+  id: string;
+  impersonatorEmail: string;
+  reason: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface PendingImpersonationResponse {
+  pendingRequest: PendingImpersonationRequest | null;
+}
+
 export interface AdminRestaurant {
   id: string;
   name: string;
@@ -607,5 +619,26 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ planId }),
     });
+  },
+
+  getPendingImpersonationRequest(restaurantId: string): Promise<PendingImpersonationResponse> {
+    return request<PendingImpersonationResponse>(
+      `/admin/restaurants/${restaurantId}/impersonation-requests/pending`,
+      { method: 'GET' },
+    );
+  },
+
+  respondToImpersonationRequest(
+    restaurantId: string,
+    requestId: string,
+    action: 'approve' | 'decline',
+  ): Promise<{ message: string; status: 'approved' | 'declined' }> {
+    return request<{ message: string; status: 'approved' | 'declined' }>(
+      `/admin/restaurants/${restaurantId}/impersonation-requests/${requestId}/respond`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ action }),
+      },
+    );
   },
 };

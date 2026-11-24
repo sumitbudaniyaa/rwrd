@@ -17,6 +17,7 @@ import {
   sessions,
   auditLogs,
   featureFlags,
+  impersonationRequests,
 } from '../db/schema/index.js';
 import { hashPassword, generateSecureToken } from '../utils/authCrypto.js';
 import { auditService } from '../services/auditService.js';
@@ -574,6 +575,7 @@ portalRestaurantsRouter.delete(
         await tx.delete(invoices).where(eq(invoices.restaurantId, id));
         await tx.delete(subscriptions).where(eq(subscriptions.restaurantId, id));
         await tx.delete(featureFlags).where(eq(featureFlags.restaurantId, id));
+        await tx.delete(impersonationRequests).where(eq(impersonationRequests.restaurantId, id));
         await tx.delete(auditLogs).where(eq(auditLogs.restaurantId, id));
         await tx.delete(restaurantUsers).where(eq(restaurantUsers.restaurantId, id));
         await tx.delete(restaurants).where(eq(restaurants.id, id));

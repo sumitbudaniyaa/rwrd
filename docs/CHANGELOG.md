@@ -6,6 +6,34 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Two-Way Platform Support Impersonation Request & Restaurant Consent Approval Flow (M7-T87)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Two-Way Support Consent Architecture & Database Migration**:
+    - Created `impersonation_requests` PostgreSQL table (`apps/api/src/db/schema/impersonationRequests.ts`) with status lifecycle (`pending`, `approved`, `declined`, `expired`), 5-minute approval TTL, and encrypted temporary admin JWT storage upon consent.
+    - Executed database migration `0004_classy_expediter.sql` with `pnpm db:migrate` against active PostgreSQL development database.
+    - Added `impersonationRequests` to cascade purges in `cleanTenantData.ts`, `accountLifecycleService.ts`, and `portalRestaurants.ts`.
+  - **Backend API Endpoints**:
+    - `POST /api/v1/portal/restaurants/:id/impersonation-request`: Dispatches a support impersonation request with optional support ticket reason, generates a 5-minute approval window, and records `IMPERSONATION_REQUESTED` audit log.
+    - `GET /api/v1/portal/impersonation-requests/:requestId`: Polls request state, handles automatic expiration past TTL, and securely returns ephemeral JWT once approved.
+    - `GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending`: Tenant-scoped polling endpoint for active restaurant sessions to detect incoming platform access requests.
+    - `POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond`: Restaurant administrator approves or declines request. Approving generates 1-hour delegated admin session token; records `IMPERSONATION_APPROVED` or `IMPERSONATION_DECLINED` audit log.
+  - **Admin Real-Time In-App Consent Modal**:
+    - Created `ImpersonationApprovalModal` in `apps/admin/src/components/ImpersonationApprovalModal.tsx` and mounted in `AdminLayout.tsx`.
+    - Polls for pending requests every 3s, displaying an attention modal with engineer identity, reason, countdown note, and clear "Approve Access" and "Decline" actions.
+  - **Company Portal Dynamic Polling & Session Launch Flow**:
+    - Overhauled impersonation modal in `RestaurantManagementScreen.tsx` (`apps/portal`) to support 4 operational states (`idle` -> `pending` -> `approved` / `declined` / `expired`).
+    - Added TanStack Query status polling every 2s while pending.
+    - Upon restaurant approval, renders verified badge and unlocks "Launch Admin Session" button, opening `${VITE_ADMIN_APP_URL}/admin?impersonate_token=${token}` in a new tab.
+    - Gracefully handles manager rejection with explicit declined alert.
+  - **Testing & Verification**:
+    - Added 5 integration tests in `apps/api/tests/portalImpersonation.test.ts` verifying request dispatch, status check, pending retrieval, approval token generation, and decline handling (all 10/10 tests passed).
+    - Updated `apps/portal/tests/impersonation.test.tsx` verifying consent protocol disclosure, waiting indicator, approval token handling, and decline state (all 4/4 tests passed).
+    - Added 3 unit tests in `apps/admin/tests/impersonation.test.tsx` verifying popup rendering, approve mutation, and decline mutation (all 9/9 tests passed).
+    - Monorepo `pnpm typecheck` passed (0 errors across 7 packages) and `pnpm lint` passed with 0 errors.
+
 ### 2026-11-24 - Company Portal Restaurant Directory Details Slide-Over Drawer (M7-T86)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

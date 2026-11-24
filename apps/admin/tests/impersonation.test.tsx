@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminLayout } from '../src/layouts/AdminLayout.js';
 import { AuthContext } from '../src/context/AuthContext.js';
-import type { ImpersonationDetails } from '../src/services/api.js';
+import { api, type ImpersonationDetails } from '../src/services/api.js';
 
 const renderLayoutWithAuth = (
   impersonation: ImpersonationDetails | null = null,
@@ -131,5 +131,87 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
     );
 
     expect(screen.queryByText(/Google Review Link Missing/i)).toBeNull();
+  });
+
+  it('renders support access request popup when a pending impersonation request exists', async () => {
+    vi.spyOn(api, 'getPendingImpersonationRequest').mockResolvedValueOnce({
+      pendingRequest: {
+        id: 'req-pending-1',
+        impersonatorEmail: 'tech-support@tiptable.in',
+        reason: 'Ticket #8092 - QR code sync issue',
+        expiresAt: new Date(Date.now() + 300000).toISOString(),
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    renderLayoutWithAuth(null);
+
+    await waitFor(() => {
+      expect(screen.getByText('Support Access Request')).toBeInTheDocument();
+      expect(screen.getByText('tech-support@tiptable.in')).toBeInTheDocument();
+      expect(screen.getByText('Ticket #8092 - QR code sync issue')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Approve Access/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /Decline/i })).toBeInTheDocument();
+    });
+  });
+
+  it('approves support access request when Approve Access is clicked', async () => {
+    vi.spyOn(api, 'getPendingImpersonationRequest').mockResolvedValueOnce({
+      pendingRequest: {
+        id: 'req-pending-2',
+        impersonatorEmail: 'tech-support@tiptable.in',
+        reason: 'Investigating bill sync',
+        expiresAt: new Date(Date.now() + 300000).toISOString(),
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    const respondSpy = vi.spyOn(api, 'respondToImpersonationRequest').mockResolvedValueOnce({
+      message: 'Support access request approved',
+      status: 'approved',
+    });
+
+    renderLayoutWithAuth(null);
+
+    await waitFor(() => {
+      expect(screen.getByText('Support Access Request')).toBeInTheDocument();
+    });
+
+    const approveBtn = screen.getByRole('button', { name: /Approve Access/i });
+    fireEvent.click(approveBtn);
+
+    await waitFor(() => {
+      expect(respondSpy).toHaveBeenCalledWith('rest-1111', 'req-pending-2', 'approve');
+    });
+  });
+
+  it('declines support access request when Decline is clicked', async () => {
+    vi.spyOn(api, 'getPendingImpersonationRequest').mockResolvedValueOnce({
+      pendingRequest: {
+        id: 'req-pending-3',
+        impersonatorEmail: 'tech-support@tiptable.in',
+        reason: 'Unrequested check',
+        expiresAt: new Date(Date.now() + 300000).toISOString(),
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    const respondSpy = vi.spyOn(api, 'respondToImpersonationRequest').mockResolvedValueOnce({
+      message: 'Support access request declined',
+      status: 'declined',
+    });
+
+    renderLayoutWithAuth(null);
+
+    await waitFor(() => {
+      expect(screen.getByText('Support Access Request')).toBeInTheDocument();
+    });
+
+    const declineBtn = screen.getByRole('button', { name: /Decline/i });
+    fireEvent.click(declineBtn);
+
+    await waitFor(() => {
+      expect(respondSpy).toHaveBeenCalledWith('rest-1111', 'req-pending-3', 'decline');
+    });
   });
 });

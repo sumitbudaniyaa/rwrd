@@ -174,7 +174,7 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
       expect(purged).not.toBeNull();
       expect(purged?.restaurantId).toBe(restId);
       expect(purged?.restaurantName).toBe('Unpaid Cafe');
-      expect(txDeleteSpy).toHaveBeenCalledTimes(13); // 13 tenant tables cascade deleted
+      expect(txDeleteSpy).toHaveBeenCalledTimes(14); // 14 tenant tables cascade deleted (including impersonationRequests)
       expect(auditSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'RESTAURANT_AUTO_PURGED_UNPAID_EXPIRED',

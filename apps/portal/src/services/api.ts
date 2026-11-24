@@ -225,6 +225,23 @@ export interface ImpersonateResponse {
   };
 }
 
+export interface CreateImpersonationRequestResponse {
+  requestId: string;
+  status: 'pending';
+  restaurantName: string;
+  expiresAt: string;
+  reason: string;
+}
+
+export interface ImpersonationRequestStatusResponse {
+  id: string;
+  status: 'pending' | 'approved' | 'declined' | 'expired';
+  reason: string;
+  impersonationToken: string | null;
+  expiresAt: string;
+  respondedAt: string | null;
+}
+
 export interface GlobalMetricsSummary {
   activeRestaurants: number;
   suspendedRestaurants: number;
@@ -538,6 +555,28 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
+  },
+
+  createImpersonationRequest(
+    restaurantId: string,
+    reason?: string,
+  ): Promise<CreateImpersonationRequestResponse> {
+    const payload: { reason?: string } = {};
+    if (reason) payload.reason = reason;
+    return request<CreateImpersonationRequestResponse>(
+      `/portal/restaurants/${restaurantId}/impersonation-request`,
+      {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      },
+    );
+  },
+
+  getImpersonationRequestStatus(requestId: string): Promise<ImpersonationRequestStatusResponse> {
+    return request<ImpersonationRequestStatusResponse>(
+      `/portal/impersonation-requests/${requestId}`,
+      { method: 'GET' },
+    );
   },
 
   getGlobalMetrics(): Promise<PlatformMetricsResponse> {

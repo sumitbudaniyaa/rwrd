@@ -384,3 +384,26 @@ CREATE TABLE feature_flags (
     CONSTRAINT uq_restaurant_flag_key UNIQUE (restaurant_id, key)
 );
 ```
+
+### 3.15 `impersonation_requests`
+
+Two-way platform support impersonation request and consent tracking.
+
+```sql
+CREATE TABLE impersonation_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+    impersonator_id UUID NOT NULL REFERENCES platform_users(id) ON DELETE CASCADE,
+    impersonator_email VARCHAR(255) NOT NULL,
+    reason TEXT NOT NULL,
+    status VARCHAR(20) DEFAULT 'pending' NOT NULL, -- 'pending' | 'approved' | 'declined' | 'expired'
+    token TEXT,                                    -- Ephemeral Admin JWT once approved
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,  -- 5-minute consent TTL
+    responded_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_impersonation_requests_tenant ON impersonation_requests(restaurant_id);
+CREATE INDEX idx_impersonation_requests_status ON impersonation_requests(status);
+```

@@ -1,17 +1,19 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
-import { eq } from 'drizzle-orm';
+import { eq, and, desc, gt } from 'drizzle-orm';
+import { z } from 'zod';
 import {
   UpdateRestaurantSettingsSchema,
   PlacesSearchRequestSchema,
   type GooglePlaceResult,
 } from '@tiptable/shared';
 import { db } from '../db/index.js';
-import { subscriptions, billingPlans } from '../db/schema/index.js';
+import { subscriptions, billingPlans, impersonationRequests } from '../db/schema/index.js';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { staffRepository } from '../repositories/staffRepository.js';
 import { auditService } from '../services/auditService.js';
+import { authService } from '../services/authService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
-import { NotFoundError, BadRequestError } from '../errors/appError.js';
+import { NotFoundError, BadRequestError, ConflictError } from '../errors/appError.js';
 import { env } from '../config/env.js';
 
 export const adminRestaurantRouter = Router();
@@ -413,6 +415,177 @@ adminRestaurantRouter.post(
               : 'Google Places API key is not configured for automatic name search. Please paste your Google Maps link or Place ID directly, or use the Google Place ID Finder.'
             : undefined,
       });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+const RespondImpersonationSchema = z.object({
+  action: z.enum(['approve', 'decline']),
+});
+
+/**
+ * GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending
+ * Returns active pending impersonation requests awaiting restaurant administrator decision.
+ */
+adminRestaurantRouter.get(
+  '/admin/restaurants/:restaurantId/impersonation-requests/pending',
+  requireAuth('admin'),
+  requireTenant('restaurantId'),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const restaurantId = req.params.restaurantId as string;
+      const now = new Date();
+
+      const [pending] = await db
+        .select()
+        .from(impersonationRequests)
+        .where(
+          and(
+            eq(impersonationRequests.restaurantId, restaurantId),
+            eq(impersonationRequests.status, 'pending'),
+            gt(impersonationRequests.expiresAt, now),
+          ),
+        )
+        .orderBy(desc(impersonationRequests.createdAt))
+        .limit(1);
+
+      res.status(200).json({
+        pendingRequest: pending
+          ? {
+              id: pending.id,
+              impersonatorEmail: pending.impersonatorEmail,
+              reason: pending.reason,
+              expiresAt: pending.expiresAt,
+              createdAt: pending.createdAt,
+            }
+          : null,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond
+ * Restaurant administrator approves or declines an impersonation request from company portal.
+ */
+adminRestaurantRouter.post(
+  '/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond',
+  requireAuth('admin'),
+  requireTenant('restaurantId'),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { restaurantId, requestId } = req.params;
+      const { action } = RespondImpersonationSchema.parse(req.body);
+
+      const [requestRecord] = await db
+        .select()
+        .from(impersonationRequests)
+        .where(
+          and(
+            eq(impersonationRequests.id, requestId!),
+            eq(impersonationRequests.restaurantId, restaurantId!),
+          ),
+        )
+        .limit(1);
+
+      if (!requestRecord) {
+        throw new NotFoundError('Impersonation request not found');
+      }
+
+      if (requestRecord.status !== 'pending') {
+        throw new ConflictError(`This request has already been ${requestRecord.status}`);
+      }
+
+      const now = new Date();
+      if (now > new Date(requestRecord.expiresAt)) {
+        await db
+          .update(impersonationRequests)
+          .set({ status: 'expired', updatedAt: now })
+          .where(eq(impersonationRequests.id, requestRecord.id));
+        throw new ConflictError('This support request has expired');
+      }
+
+      if (action === 'approve') {
+        // Issue delegated impersonation token
+        const impersonationToken = authService.generateAccessToken({
+          sub: req.user!.id,
+          role: 'admin',
+          realm: 'admin',
+          restaurantId: restaurantId!,
+          isImpersonated: true,
+          impersonatorId: requestRecord.impersonatorId,
+          impersonatorEmail: requestRecord.impersonatorEmail,
+        });
+
+        await db
+          .update(impersonationRequests)
+          .set({
+            status: 'approved',
+            token: impersonationToken,
+            respondedAt: now,
+            updatedAt: now,
+          })
+          .where(eq(impersonationRequests.id, requestRecord.id));
+
+        await auditService.record({
+          restaurantId: restaurantId!,
+          actorId: req.user!.id,
+          actorType: 'restaurant_user',
+          action: 'IMPERSONATION_APPROVED',
+          entityType: 'impersonation_request',
+          entityId: requestRecord.id,
+          beforeState: { status: 'pending' },
+          afterState: {
+            status: 'approved',
+            impersonatorId: requestRecord.impersonatorId,
+            impersonatorEmail: requestRecord.impersonatorEmail,
+            reason: requestRecord.reason,
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+
+        res.status(200).json({
+          message: 'Support access request approved',
+          status: 'approved',
+        });
+      } else {
+        await db
+          .update(impersonationRequests)
+          .set({
+            status: 'declined',
+            respondedAt: now,
+            updatedAt: now,
+          })
+          .where(eq(impersonationRequests.id, requestRecord.id));
+
+        await auditService.record({
+          restaurantId: restaurantId!,
+          actorId: req.user!.id,
+          actorType: 'restaurant_user',
+          action: 'IMPERSONATION_DECLINED',
+          entityType: 'impersonation_request',
+          entityId: requestRecord.id,
+          beforeState: { status: 'pending' },
+          afterState: {
+            status: 'declined',
+            impersonatorId: requestRecord.impersonatorId,
+            impersonatorEmail: requestRecord.impersonatorEmail,
+            reason: requestRecord.reason,
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+
+        res.status(200).json({
+          message: 'Support access request declined',
+          status: 'declined',
+        });
+      }
     } catch (error) {
       next(error);
     }

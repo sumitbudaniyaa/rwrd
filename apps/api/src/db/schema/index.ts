@@ -12,3 +12,4 @@ export * from './leads';
 export * from './billing';
 export * from './auditLogs';
 export * from './featureFlags';
+export * from './impersonationRequests';

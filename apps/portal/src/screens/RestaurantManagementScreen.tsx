@@ -46,6 +46,13 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<PortalRestaurantItem | null>(null);
   const [impersonateTarget, setImpersonateTarget] = useState<PortalRestaurantItem | null>(null);
   const [impersonateReason, setImpersonateReason] = useState('');
+  const [activeImpersonationRequestId, setActiveImpersonationRequestId] = useState<string | null>(
+    null,
+  );
+  const [approvedImpersonationToken, setApprovedImpersonationToken] = useState<string | null>(null);
+  const [impersonationStatus, setImpersonationStatus] = useState<
+    'idle' | 'pending' | 'approved' | 'declined' | 'expired'
+  >('idle');
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -168,28 +175,79 @@ export const RestaurantManagementScreen: React.FC = () => {
     },
   });
 
-  // Impersonate Mutation
-  const impersonateMutation = useMutation({
+  const resetImpersonationState = () => {
+    setImpersonateTarget(null);
+    setImpersonateReason('');
+    setActiveImpersonationRequestId(null);
+    setApprovedImpersonationToken(null);
+    setImpersonationStatus('idle');
+  };
+
+  const handleOpenImpersonate = (target: PortalRestaurantItem) => {
+    resetImpersonationState();
+    setImpersonateTarget(target);
+  };
+
+  // Impersonation Request Mutation
+  const createImpersonationRequestMutation = useMutation({
     mutationFn: (vars: { id: string; reason?: string }) =>
-      api.impersonateRestaurant(vars.id, vars.reason),
+      api.createImpersonationRequest(vars.id, vars.reason),
     onSuccess: (res) => {
-      setImpersonateTarget(null);
-      setImpersonateReason('');
-      setSuccessMessage(
-        `Impersonation session established for ${res.restaurant.name}. Launching admin console...`,
+      setActiveImpersonationRequestId(res.requestId);
+      setImpersonationStatus('pending');
+      toast.info(
+        'Request Sent',
+        `Access request dispatched to ${res.restaurantName}. Waiting for administrator consent...`,
       );
-      toast.info('Impersonation Active', `Launching ${res.restaurant.name} admin console...`);
-      const adminUrl = `${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
-        res.impersonationToken,
-      )}`;
-      window.open(adminUrl, '_blank', 'noopener,noreferrer');
     },
     onError: (err) => {
-      const msg = err instanceof Error ? err.message : 'Failed to create impersonation session.';
+      const msg = err instanceof Error ? err.message : 'Failed to send impersonation request.';
       setErrorMessage(msg);
-      toast.error('Impersonation Failed', msg);
+      toast.error('Request Failed', msg);
     },
   });
+
+  // Query to poll impersonation request status
+  const { data: impersonationRequestData } = useQuery({
+    queryKey: ['portal-impersonation-request', activeImpersonationRequestId],
+    queryFn: () => {
+      if (!activeImpersonationRequestId) return null;
+      return api.getImpersonationRequestStatus(activeImpersonationRequestId);
+    },
+    enabled: Boolean(activeImpersonationRequestId && impersonationStatus === 'pending'),
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status === 'approved' || status === 'declined' || status === 'expired') {
+        return false;
+      }
+      return 2000;
+    },
+  });
+
+  // Synchronize polled status into component state
+  React.useEffect(() => {
+    if (impersonationRequestData) {
+      if (impersonationRequestData.status === 'approved') {
+        setImpersonationStatus('approved');
+        if (impersonationRequestData.impersonationToken) {
+          setApprovedImpersonationToken(impersonationRequestData.impersonationToken);
+          toast.success(
+            'Access Approved',
+            'Restaurant administrator approved your support session request.',
+          );
+        }
+      } else if (impersonationRequestData.status === 'declined') {
+        setImpersonationStatus('declined');
+        toast.error(
+          'Request Declined',
+          'Restaurant administrator declined the support access request.',
+        );
+      } else if (impersonationRequestData.status === 'expired') {
+        setImpersonationStatus('expired');
+        toast.error('Request Expired', 'The support access request expired without response.');
+      }
+    }
+  }, [impersonationRequestData, toast]);
 
   const handleImpersonateConfirm = () => {
     if (!impersonateTarget) return;
@@ -199,7 +257,19 @@ export const RestaurantManagementScreen: React.FC = () => {
     if (impersonateReason.trim()) {
       payload.reason = impersonateReason.trim();
     }
-    impersonateMutation.mutate(payload);
+    createImpersonationRequestMutation.mutate(payload);
+  };
+
+  const handleLaunchSession = () => {
+    if (!approvedImpersonationToken) return;
+    setSuccessMessage(
+      `Launching delegated admin session for ${impersonateTarget?.name || 'restaurant'}...`,
+    );
+    const adminUrl = `${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
+      approvedImpersonationToken,
+    )}`;
+    window.open(adminUrl, '_blank', 'noopener,noreferrer');
+    resetImpersonationState();
   };
 
   const resetForm = () => {
@@ -560,7 +630,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                               type="button"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                setImpersonateTarget(rest);
+                                handleOpenImpersonate(rest);
                               }}
                               className="px-2 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 cursor-pointer"
                               title="Support Impersonation"
@@ -1017,66 +1087,216 @@ export const RestaurantManagementScreen: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
-                      Enter Support Impersonation Mode: &quot;{impersonateTarget.name}&quot;
+                      {impersonationStatus === 'pending'
+                        ? 'Waiting for Restaurant Approval'
+                        : impersonationStatus === 'approved'
+                          ? 'Support Access Approved'
+                          : impersonationStatus === 'declined'
+                            ? 'Support Access Declined'
+                            : impersonationStatus === 'expired'
+                              ? 'Support Request Expired'
+                              : `Request Support Access: "${impersonateTarget.name}"`}
                     </h3>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      Delegated live session. All actions are strictly audited.
+                      {impersonationStatus === 'pending'
+                        ? 'Consent prompt sent to restaurant administrator.'
+                        : impersonationStatus === 'approved'
+                          ? 'Consent verified. Ready to launch delegated session.'
+                          : impersonationStatus === 'declined'
+                            ? 'The restaurant declined this impersonation session.'
+                            : impersonationStatus === 'expired'
+                              ? 'The 5-minute approval window has expired.'
+                              : 'Requires approval from the restaurant administrator.'}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-2.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/20 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                  <p className="font-semibold flex items-center gap-1.5 text-[11px]">
-                    <HugeiconsIcon
-                      icon={AlertCircleIcon}
-                      className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0"
-                    />
-                    <span>Support Delegation Security Notice</span>
-                  </p>
-                  <p className="text-[10px] leading-relaxed text-amber-700 dark:text-amber-400">
-                    You are entering this restaurant&apos;s administration account as a delegated
-                    owner. A high-visibility warning banner will be displayed throughout your
-                    session.
-                  </p>
-                </div>
+                {/* State: IDLE */}
+                {impersonationStatus === 'idle' && (
+                  <>
+                    <div className="p-2.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/20 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300 space-y-1">
+                      <p className="font-semibold flex items-center gap-1.5 text-[11px]">
+                        <HugeiconsIcon
+                          icon={AlertCircleIcon}
+                          className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0"
+                        />
+                        <span>Restaurant Consent Protocol</span>
+                      </p>
+                      <p className="text-[10px] leading-relaxed text-amber-700 dark:text-amber-400">
+                        When you send this request, a real-time prompt will appear on the
+                        restaurant&apos;s active admin console. Access is granted only after an
+                        administrator approves.
+                      </p>
+                    </div>
 
-                <div>
-                  <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
-                    Support Ticket Reference / Reason (Optional)
-                  </label>
-                  <input
-                    type="text"
-                    value={impersonateReason}
-                    onChange={(e) => setImpersonateReason(e.target.value)}
-                    placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
-                    className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
-                  />
-                </div>
+                    <div>
+                      <label className="block text-[11px] font-medium text-stone-700 dark:text-stone-300 mb-1">
+                        Support Ticket Reference / Reason (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        value={impersonateReason}
+                        onChange={(e) => setImpersonateReason(e.target.value)}
+                        placeholder="e.g. Ticket #4021 - Staff onboarding assistance"
+                        className="w-full px-3 py-1.5 text-xs rounded-xl border border-stone-200/90 dark:border-stone-700 hover:border-stone-300 dark:hover:border-stone-600 bg-stone-50/70 dark:bg-stone-800/60 focus:bg-white dark:focus:bg-stone-800 focus:border-stone-400 dark:focus:border-stone-500 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] dark:focus:shadow-[0_0_0_3px_rgba(255,255,255,0.04)] outline-none transition-all duration-200 h-8.5 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:placeholder:text-stone-500"
+                      />
+                    </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
-                  <MotionButton
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      setImpersonateTarget(null);
-                      setImpersonateReason('');
-                    }}
-                    className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
-                  >
-                    Cancel
-                  </MotionButton>
-                  <MotionButton
-                    type="button"
-                    variant="primary"
-                    size="sm"
-                    onClick={handleImpersonateConfirm}
-                    disabled={impersonateMutation.isPending}
-                    className="bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
-                  >
-                    {impersonateMutation.isPending ? 'Delegating...' : 'Launch Admin Session'}
-                  </MotionButton>
-                </div>
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                      <MotionButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetImpersonationState}
+                        className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                      >
+                        Cancel
+                      </MotionButton>
+                      <MotionButton
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        onClick={handleImpersonateConfirm}
+                        disabled={createImpersonationRequestMutation.isPending}
+                        className="bg-stone-900 hover:bg-black text-white dark:bg-white dark:hover:bg-stone-100 dark:text-stone-900 px-3.5 py-1.5 text-xs font-medium rounded-lg shadow-2xs transition-all"
+                      >
+                        {createImpersonationRequestMutation.isPending
+                          ? 'Sending Request...'
+                          : 'Send Request to Restaurant'}
+                      </MotionButton>
+                    </div>
+                  </>
+                )}
+
+                {/* State: PENDING */}
+                {impersonationStatus === 'pending' && (
+                  <div className="space-y-4 py-2">
+                    <div className="p-4 rounded-xl bg-stone-50 dark:bg-stone-800/50 border border-stone-200 dark:border-stone-700 flex flex-col items-center justify-center text-center space-y-3">
+                      <div className="w-10 h-10 rounded-full border-2 border-stone-300 border-t-stone-900 dark:border-stone-600 dark:border-t-stone-100 animate-spin" />
+                      <div>
+                        <p className="text-xs font-semibold text-stone-900 dark:text-stone-100">
+                          Waiting for Restaurant Approval...
+                        </p>
+                        <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-1 max-w-xs">
+                          A consent popup is currently displayed on the restaurant admin console for
+                          &quot;{impersonateTarget.name}&quot;.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                      <MotionButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetImpersonationState}
+                        className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                      >
+                        Cancel Request
+                      </MotionButton>
+                    </div>
+                  </div>
+                )}
+
+                {/* State: APPROVED */}
+                {impersonationStatus === 'approved' && (
+                  <div className="space-y-4 py-2">
+                    <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 flex items-start gap-3">
+                      <HugeiconsIcon
+                        icon={CheckmarkCircle02Icon}
+                        className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5"
+                      />
+                      <div className="text-xs text-emerald-900 dark:text-emerald-200">
+                        <p className="font-semibold">Access Granted by Restaurant</p>
+                        <p className="text-[11px] text-emerald-700 dark:text-emerald-400 mt-0.5">
+                          The restaurant administrator approved your support session. Your temporary
+                          session token has been generated.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-800">
+                      <MotionButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetImpersonationState}
+                        className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                      >
+                        Close
+                      </MotionButton>
+                      <MotionButton
+                        type="button"
+                        variant="primary"
+                        size="sm"
+                        onClick={handleLaunchSession}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-1.5 text-xs font-semibold rounded-lg shadow-xs transition-colors flex items-center gap-1.5"
+                      >
+                        <span>Launch Admin Session</span>
+                      </MotionButton>
+                    </div>
+                  </div>
+                )}
+
+                {/* State: DECLINED */}
+                {impersonationStatus === 'declined' && (
+                  <div className="space-y-4 py-2">
+                    <div className="p-4 rounded-xl bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 flex items-start gap-3">
+                      <HugeiconsIcon
+                        icon={Cancel01Icon}
+                        className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
+                      />
+                      <div className="text-xs text-red-900 dark:text-red-200">
+                        <p className="font-semibold">Request Declined</p>
+                        <p className="text-[11px] text-red-700 dark:text-red-400 mt-0.5">
+                          The restaurant administrator declined this support access request.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end pt-2 border-t border-stone-100 dark:border-stone-800">
+                      <MotionButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetImpersonationState}
+                        className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                      >
+                        Dismiss
+                      </MotionButton>
+                    </div>
+                  </div>
+                )}
+
+                {/* State: EXPIRED */}
+                {impersonationStatus === 'expired' && (
+                  <div className="space-y-4 py-2">
+                    <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 flex items-start gap-3">
+                      <HugeiconsIcon
+                        icon={AlertCircleIcon}
+                        className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5"
+                      />
+                      <div className="text-xs text-amber-900 dark:text-amber-200">
+                        <p className="font-semibold">Request Timed Out</p>
+                        <p className="text-[11px] text-amber-700 dark:text-amber-400 mt-0.5">
+                          The support access request expired after 5 minutes without a response.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-end pt-2 border-t border-stone-100 dark:border-stone-800">
+                      <MotionButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={resetImpersonationState}
+                        className="px-3 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                      >
+                        Dismiss
+                      </MotionButton>
+                    </div>
+                  </div>
+                )}
               </div>
             </FadeIn>
           </div>,
@@ -1142,7 +1362,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       onClick={() => {
                         const target = detailsData.restaurant;
                         setSelectedRestaurantId(null);
-                        setImpersonateTarget(target);
+                        handleOpenImpersonate(target);
                       }}
                       className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
                       title="Impersonate Restaurant"

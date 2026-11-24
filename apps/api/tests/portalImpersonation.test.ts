@@ -66,6 +66,7 @@ describe('Portal Support Impersonation Routes', () => {
   };
 
   beforeEach(() => {
+    vi.restoreAllMocks();
     vi.clearAllMocks();
   });
 
@@ -242,5 +243,188 @@ describe('Portal Support Impersonation Routes', () => {
     expect(res.body.impersonation).toBeDefined();
     expect(res.body.impersonation.isImpersonated).toBe(true);
     expect(res.body.impersonation.impersonatorId).toBe(supportUserId);
+  });
+
+  describe('Two-Way Impersonation Consent Workflow', () => {
+    const adminUserToken = authService.generateAccessToken({
+      sub: ownerUserId,
+      role: 'owner',
+      realm: 'admin',
+      restaurantId,
+    });
+
+    const requestId = '33333333-3333-3333-3333-333333333333';
+    const mockPendingRequest = {
+      id: requestId,
+      restaurantId,
+      impersonatorId: supportUserId,
+      impersonatorEmail: 'support@tiptable.in',
+      reason: 'Assisting with table QR setup',
+      status: 'pending' as const,
+      token: null,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      respondedAt: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    it('creates an impersonation request requiring restaurant consent (POST /portal/restaurants/:id/impersonation-request)', async () => {
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      vi.spyOn(db, 'select')
+        .mockReturnValueOnce({
+          from: () => ({
+            where: () => ({
+              limit: () => [mockRestaurantRecord],
+            }),
+          }),
+        } as any)
+        .mockReturnValueOnce({
+          from: () => ({
+            where: () => ({
+              limit: () => [mockPlatformStaff],
+            }),
+          }),
+        } as any);
+
+      vi.spyOn(db, 'insert').mockReturnValueOnce({
+        values: () => ({
+          returning: () => [mockPendingRequest],
+        }),
+      } as any);
+
+      const res = await request(app)
+        .post(`/api/v1/portal/restaurants/${restaurantId}/impersonation-request`)
+        .set('Authorization', `Bearer ${supportToken}`)
+        .send({ reason: 'Assisting with table QR setup' });
+
+      expect(res.status).toBe(201);
+      expect(res.body.requestId).toBe(requestId);
+      expect(res.body.status).toBe('pending');
+      expect(res.body.restaurantName).toBe('The Bombay Canteen');
+
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'IMPERSONATION_REQUESTED',
+          actorId: supportUserId,
+          restaurantId,
+          entityId: requestId,
+        }),
+      );
+    });
+
+    it('checks impersonation request status (GET /portal/impersonation-requests/:requestId)', async () => {
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [mockPendingRequest],
+          }),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .get(`/api/v1/portal/impersonation-requests/${requestId}`)
+        .set('Authorization', `Bearer ${supportToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.id).toBe(requestId);
+      expect(res.body.status).toBe('pending');
+      expect(res.body.impersonationToken).toBeNull();
+    });
+
+    it('restaurant admin retrieves pending impersonation request (GET /admin/restaurants/:restaurantId/impersonation-requests/pending)', async () => {
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            orderBy: () => ({
+              limit: () => [mockPendingRequest],
+            }),
+          }),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .get(`/api/v1/admin/restaurants/${restaurantId}/impersonation-requests/pending`)
+        .set('Authorization', `Bearer ${adminUserToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.pendingRequest).toBeDefined();
+      expect(res.body.pendingRequest.id).toBe(requestId);
+      expect(res.body.pendingRequest.impersonatorEmail).toBe('support@tiptable.in');
+    });
+
+    it('restaurant admin approves impersonation request and generates token (POST /admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond)', async () => {
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [mockPendingRequest],
+          }),
+        }),
+      } as any);
+
+      const updateSpy = vi.spyOn(db, 'update').mockReturnValueOnce({
+        set: () => ({
+          where: () => Promise.resolve(),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .post(
+          `/api/v1/admin/restaurants/${restaurantId}/impersonation-requests/${requestId}/respond`,
+        )
+        .set('Authorization', `Bearer ${adminUserToken}`)
+        .send({ action: 'approve' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('approved');
+      expect(updateSpy).toHaveBeenCalled();
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'IMPERSONATION_APPROVED',
+          actorId: ownerUserId,
+          restaurantId,
+          entityId: requestId,
+        }),
+      );
+    });
+
+    it('restaurant admin declines impersonation request (POST /admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond)', async () => {
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [mockPendingRequest],
+          }),
+        }),
+      } as any);
+
+      const updateSpy = vi.spyOn(db, 'update').mockReturnValueOnce({
+        set: () => ({
+          where: () => Promise.resolve(),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .post(
+          `/api/v1/admin/restaurants/${restaurantId}/impersonation-requests/${requestId}/respond`,
+        )
+        .set('Authorization', `Bearer ${adminUserToken}`)
+        .send({ action: 'decline' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('declined');
+      expect(updateSpy).toHaveBeenCalled();
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'IMPERSONATION_DECLINED',
+          actorId: ownerUserId,
+          restaurantId,
+          entityId: requestId,
+        }),
+      );
+    });
   });
 });
