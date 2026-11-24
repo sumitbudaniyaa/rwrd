@@ -324,15 +324,16 @@ export const SettingsScreen: React.FC = () => {
     setSearchError(null);
     try {
       const res = await api.searchGooglePlaces(restaurantId, trimmed);
-      setSearchResults(res.results);
-      if (res.results.length === 0) {
+      const topResults = res.results.slice(0, 5);
+      setSearchResults(topResults);
+      if (topResults.length === 0) {
         setSearchError(
           res.message ||
             'No matching places found. Try pasting your Google Maps link (maps.app.goo.gl) or Place ID (ChIJ...) directly.',
         );
         setSelectedPlace(null);
-      } else if (res.results[0]) {
-        setSelectedPlace(res.results[0]);
+      } else if (topResults[0]) {
+        setSelectedPlace(topResults[0]);
       }
     } catch {
       setSearchError(
@@ -1268,10 +1269,10 @@ export const SettingsScreen: React.FC = () => {
               {searchResults.length > 0 && (
                 <div className="space-y-2">
                   <span className="text-[11px] font-medium text-stone-500 uppercase tracking-wider block">
-                    Matching Locations ({searchResults.length})
+                    Top Matching Locations ({Math.min(searchResults.length, 5)})
                   </span>
                   <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                    {searchResults.map((result) => {
+                    {searchResults.slice(0, 5).map((result) => {
                       const isSelected = selectedPlace?.placeId === result.placeId;
                       return (
                         <button

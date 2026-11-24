@@ -247,6 +247,7 @@ describe('Admin Restaurant Settings Routes', () => {
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.results)).toBe(true);
       expect(res.body.hasApiKey).toBe(true);
+      expect(res.body.results.length).toBeLessThanOrEqual(5);
       if (res.body.results.length > 0) {
         expect(res.body.results[0].placeId).toMatch(/^ChIJ/);
         expect(res.body.results[0].reviewUrl).toContain(

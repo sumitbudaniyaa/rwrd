@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Limit Google Places Matching Locations to Top 5 in Places Search API and Admin Modal (M7-T82)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Backend Places Search Result Capping**:
+    - In [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts), passed `pageSize: 5` to Google Places API (New) `places:searchText` request body to minimize response payload and network latency.
+    - Added result slicing to ensure the API response strictly caps `results` at at most 5 items.
+  - **Admin UI Top 5 Locations Presentation**:
+    - In [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx), sliced results in `executePlacesSearch` and the location cards list to at most 5 items.
+    - Updated the results list header label to state: `"Top Matching Locations (<count>)"` (at most 5).
+  - **Testing & Verification**:
+    - Updated [`apps/api/tests/adminRestaurant.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminRestaurant.test.ts) with assertions ensuring results count is at most 5.
+    - Verified `pnpm typecheck` (0 errors across 7 packages) and `pnpm lint` (0 warnings/errors).
+    - Verified all 15 API restaurant tests and 10 admin settings tests passed.
+
 ### 2026-11-24 - Fix Hardcoded Review Links: Real Google Places Autocomplete, Maps Share Link Unshortening & Place ID Extraction (M7-T81)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

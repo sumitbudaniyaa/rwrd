@@ -337,7 +337,7 @@ adminRestaurantRouter.post(
               'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
               'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress',
             },
-            body: JSON.stringify({ textQuery: query }),
+            body: JSON.stringify({ textQuery: query, pageSize: 5 }),
           });
 
           if (newResponse.ok) {
@@ -357,6 +357,7 @@ adminRestaurantRouter.post(
                     address: p.formattedAddress || '',
                     reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(p.id)}`,
                   });
+                  if (results.length >= 5) break;
                 }
               }
             }
@@ -389,6 +390,7 @@ adminRestaurantRouter.post(
                       address: cand.formatted_address || '',
                       reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(cand.place_id)}`,
                     });
+                    if (results.length >= 5) break;
                   }
                 }
               }
@@ -399,11 +401,13 @@ adminRestaurantRouter.post(
         }
       }
 
+      const topResults = results.slice(0, 5);
+
       res.status(200).json({
-        results,
+        results: topResults,
         hasApiKey: Boolean(env.GOOGLE_PLACES_API_KEY),
         message:
-          results.length === 0
+          topResults.length === 0
             ? env.GOOGLE_PLACES_API_KEY
               ? 'No matching places found on Google Maps for this query.'
               : 'Google Places API key is not configured for automatic name search. Please paste your Google Maps link or Place ID directly, or use the Google Place ID Finder.'
