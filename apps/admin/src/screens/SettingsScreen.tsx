@@ -53,64 +53,13 @@ export const SettingsScreen: React.FC = () => {
   const [selectedPlace, setSelectedPlace] = useState<GooglePlaceResult | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Whitespark-style Google Places Autocomplete: attach to search input if Google Maps script is available
+  // Clean up any third-party Google Maps script tags or DOM artifacts
   useEffect(() => {
-    if (!isGeneratorOpen) return;
-
-    const apiKey = (import.meta as unknown as { env?: { VITE_GOOGLE_MAPS_API_KEY?: string } }).env
-      ?.VITE_GOOGLE_MAPS_API_KEY;
-
-    const setupAutocomplete = () => {
-      if (!searchInputRef.current) return;
-      const googleMaps = (window as unknown as { google?: { maps?: { places?: any } } }).google
-        ?.maps?.places;
-      if (!googleMaps?.Autocomplete) return;
-
-      try {
-        const autocomplete = new googleMaps.Autocomplete(searchInputRef.current, {
-          types: ['establishment'],
-          fields: ['place_id', 'name', 'formatted_address'],
-        });
-
-        autocomplete.addListener('place_changed', () => {
-          const place = autocomplete.getPlace();
-          if (place && place.place_id) {
-            const result: GooglePlaceResult = {
-              placeId: place.place_id,
-              name: place.name || searchInputRef.current?.value || 'Selected Establishment',
-              address: place.formatted_address || '',
-              reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(place.place_id)}`,
-            };
-            setSelectedPlace(result);
-            setSearchResults([result]);
-            setSearchError(null);
-          }
-        });
-      } catch {
-        // Ignore initialization error
-      }
-    };
-
-    if (
-      (window as unknown as { google?: { maps?: { places?: { Autocomplete?: unknown } } } }).google
-        ?.maps?.places?.Autocomplete
-    ) {
-      setupAutocomplete();
-    } else if (apiKey) {
-      const scriptId = 'google-maps-places-script';
-      if (!document.getElementById(scriptId)) {
-        const script = document.createElement('script');
-        script.id = scriptId;
-        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places`;
-        script.async = true;
-        script.onload = () => setupAutocomplete();
-        document.head.appendChild(script);
-      } else {
-        const existingScript = document.getElementById(scriptId);
-        existingScript?.addEventListener('load', setupAutocomplete);
-      }
+    const existingScript = document.getElementById('google-maps-places-script');
+    if (existingScript) {
+      existingScript.remove();
     }
-  }, [isGeneratorOpen]);
+  }, []);
 
   // Field currently performing save mutation
   const [savingField, setSavingField] = useState<string | null>(null);

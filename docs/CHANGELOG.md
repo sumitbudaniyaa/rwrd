@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Remove Client-Side Google Maps Script Injection to Eliminate Google Popup Alert (M7-T83)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Eliminated Google Maps Client-Side Error Popup**:
+    - Removed browser DOM script injection of Google Maps JavaScript SDK (`https://maps.googleapis.com/maps/api/js`) from [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx).
+    - Removed `VITE_GOOGLE_MAPS_API_KEY` from `apps/admin/.env` and `.env.example`, permanently eliminating the intrusive Google error modal (`"This page can't load Google Maps correctly. Do you own this website?"`).
+    - Added automated cleanup to remove any lingering Google script tags or overlay DOM elements.
+  - **Direct Secure Backend Search**:
+    - All business name searches, Maps share links (`maps.app.goo.gl`), and Place IDs (`ChIJ...`) route strictly through our authenticated Express backend `POST /api/v1/admin/restaurants/:restaurantId/places-search`.
+    - Backend queries Google Places API (New) server-to-server with `GOOGLE_PLACES_API_KEY`, returning the top 5 genuine establishments cleanly formatted within our TipTable design system.
+  - **Testing & Verification**:
+    - Verified `pnpm typecheck` (0 errors across 7 packages) and `pnpm lint` (0 warnings/errors).
+    - Verified all 15 API restaurant tests and 10 admin settings tests passed.
+
 ### 2026-11-24 - Limit Google Places Matching Locations to Top 5 in Places Search API and Admin Modal (M7-T82)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
