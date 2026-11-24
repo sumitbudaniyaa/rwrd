@@ -6,6 +6,25 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - 14-Day Unpaid Restaurant Account Lifecycle Policy & Purge (M7-T85)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **14-Day Unpaid Account Lifecycle Policy**:
+    - Created [`AccountLifecycleService`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/services/accountLifecycleService.ts) to identify and cascade-purge restaurant accounts created >14 days ago without an active subscription or paid invoice.
+    - Cascades deletion cleanly across all tenant-linked tables (`tip_intents`, `review_taps`, `page_events`, `sessions`, `qr_tokens`, `tables`, `staff`, `invoices`, `subscriptions`, `feature_flags`, `audit_logs`, `restaurant_users`, `restaurants`).
+    - Records an immutable platform audit log with action `RESTAURANT_AUTO_PURGED_UNPAID_EXPIRED` preserving restaurant metadata.
+  - **Multi-Trigger Purge Integration**:
+    - **Login-Time Defense**: In [`apps/api/src/services/authService.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/services/authService.ts), evaluates unpaid expiration on admin login. Expired accounts are purged on the fly and rejected with HTTP 401 (`"Your 14-day unpaid trial has expired and this account has been deleted."`).
+    - **Automated Periodic Sweeper**: In [`apps/api/src/server.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/server.ts), registered an unref'd daily background interval sweeper.
+    - **Portal Super Admin Endpoint**: Added `POST /api/v1/portal/restaurants/purge-expired-unpaid` in [`apps/api/src/routes/portalRestaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalRestaurants.ts).
+    - **Billing Sweeper Integration**: Integrated unpaid expiration sweeping into `POST /api/v1/portal/billing/auto-suspend-check` in [`apps/api/src/routes/portalBilling.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalBilling.ts).
+  - **Testing & Verification**:
+    - Created exhaustive test suite [`apps/api/tests/accountLifecycle.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/accountLifecycle.test.ts) covering grace period boundaries, active vs unpaid filtering, paid invoice exceptions, and admin login rejection. All 9 tests passed.
+    - Full API test suite (29 test files, 219 tests) passed cleanly.
+    - Full typecheck (0 errors across 7 packages) and lint passed.
+
 ### 2026-11-24 - Customer App Greeting Copy Polish (M7-T84)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

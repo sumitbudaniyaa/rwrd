@@ -16,6 +16,7 @@ import { mfaService } from './mfaService.js';
 import { decryptSecret } from './crypto.js';
 import { UnauthorizedError } from '../errors/appError.js';
 import { logger } from '../utils/logger.js';
+import { accountLifecycleService } from './accountLifecycleService.js';
 
 export type AuthRealm = 'admin' | 'portal';
 
@@ -163,6 +164,20 @@ export class AuthService {
     }
 
     const planInfo = await this.getRestaurantSubscriptionStatus(user.restaurant.id);
+
+    // Evaluate 14-day unpaid expiration policy
+    if (!planInfo.hasActivePlan) {
+      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid(user.restaurant.id);
+      if (isExpired) {
+        await accountLifecycleService.purgeSingleRestaurant(
+          user.restaurant.id,
+          'Unpaid account attempted login after 14-day expiration threshold',
+        );
+        throw new UnauthorizedError(
+          'Your 14-day unpaid trial has expired and this account has been deleted.',
+        );
+      }
+    }
 
     // If user has MFA enabled, return temporary token for 2FA challenge
     if (user.user.totpEnabled) {

@@ -1,6 +1,7 @@
 import { createApp } from './app.js';
 import { env } from './config/env.js';
 import { logger } from './utils/logger.js';
+import { accountLifecycleService } from './services/accountLifecycleService.js';
 
 const app = createApp();
 
@@ -14,6 +15,24 @@ const server = app.listen(env.PORT, () => {
     `🚀 rwrd API server listening on port ${env.PORT}`,
   );
 });
+
+// Periodic automated sweep for unpaid expired restaurant accounts (>14 days)
+const UNPAID_PURGE_INTERVAL_MS = 24 * 60 * 60 * 1000;
+setInterval(() => {
+  accountLifecycleService
+    .purgeUnpaidExpiredRestaurants()
+    .then((result) => {
+      if (result.purgedCount > 0) {
+        logger.info(
+          { purgedCount: result.purgedCount, purged: result.purgedRestaurants },
+          'Automated periodic sweep purged expired unpaid accounts',
+        );
+      }
+    })
+    .catch((err) => {
+      logger.error({ err }, 'Automated periodic unpaid accounts sweep failed');
+    });
+}, UNPAID_PURGE_INTERVAL_MS).unref();
 
 // Graceful Shutdown Handler
 function handleShutdown(signal: string): void {

@@ -23,6 +23,7 @@ import { auditService } from '../services/auditService.js';
 import { requireAuth, requireRole } from '../middleware/rbac.js';
 import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
 import { NotFoundError, ConflictError, ValidationError } from '../errors/appError.js';
+import { accountLifecycleService } from '../services/accountLifecycleService.js';
 
 export const portalRestaurantsRouter = Router();
 
@@ -513,6 +514,28 @@ portalRestaurantsRouter.delete(
       res
         .status(200)
         .json({ message: 'Restaurant and all associated tenant data permanently deleted' });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
+
+/**
+ * POST /api/v1/portal/restaurants/purge-expired-unpaid
+ * Sweeps and permanently deletes all restaurant accounts created >14 days ago without payment.
+ * Restricted to super_admin.
+ */
+portalRestaurantsRouter.post(
+  '/portal/restaurants/purge-expired-unpaid',
+  requireAuth('portal'),
+  requireRole(['super_admin']),
+  async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const result = await accountLifecycleService.purgeUnpaidExpiredRestaurants();
+      res.status(200).json({
+        message: `Purged ${result.purgedCount} unpaid restaurant account(s) expired beyond 14 days`,
+        ...result,
+      });
     } catch (error) {
       next(error);
     }

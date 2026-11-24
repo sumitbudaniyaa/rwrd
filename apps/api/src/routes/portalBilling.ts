@@ -9,6 +9,7 @@ import { requireAuth, requireRole } from '../middleware/rbac.js';
 import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
 import { NotFoundError, ValidationError } from '../errors/appError.js';
 import { logger } from '../utils/logger.js';
+import { accountLifecycleService } from '../services/accountLifecycleService.js';
 
 export const portalBillingRouter = Router();
 
@@ -817,11 +818,17 @@ portalBillingRouter.post(
         }
       }
 
+      // 3. Evaluate Unpaid Accounts Exceeding 14-Day Limit
+      const unpaidPurgeResult = await accountLifecycleService.purgeUnpaidExpiredRestaurants();
+
       res.status(200).json({
         evaluatedSubscriptionsCount: expiredSubscriptions.length,
         evaluatedInvoicesCount: overdueInvoices.length,
         newlySuspendedCount: suspendedEstablishments.length,
         suspendedEstablishments,
+        evaluatedUnpaidCount: unpaidPurgeResult.evaluatedCount,
+        purgedUnpaidCount: unpaidPurgeResult.purgedCount,
+        purgedUnpaidRestaurants: unpaidPurgeResult.purgedRestaurants,
       });
     } catch (error) {
       next(error);
