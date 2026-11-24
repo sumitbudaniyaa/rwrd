@@ -9,8 +9,6 @@ import {
   RefreshIcon,
   Mail01Icon,
   CallIcon,
-  CheckmarkCircle02Icon,
-  AlertCircleIcon,
   Cancel01Icon,
   ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
@@ -38,8 +36,6 @@ export const LeadsManagementScreen: React.FC = () => {
   const [search, setSearch] = useState('');
   const [selectedLead, setSelectedLead] = useState<LeadItem | null>(null);
   const [editingNotes, setEditingNotes] = useState('');
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Fetch Leads Pipeline
   const {
@@ -66,7 +62,6 @@ export const LeadsManagementScreen: React.FC = () => {
         setSelectedLead(res.lead);
       }
       const readableStatus = res.lead.status.replace('_', ' ');
-      setSuccessMessage(`Lead "${res.lead.restaurantName}" updated to "${readableStatus}".`);
       toast.success(
         'Lead Pipeline Updated',
         `Lead "${res.lead.restaurantName}" moved to "${readableStatus}".`,
@@ -74,7 +69,6 @@ export const LeadsManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to update lead status.';
-      setErrorMessage(msg);
       toast.error('Update Failed', msg);
     },
   });
@@ -147,49 +141,6 @@ export const LeadsManagementScreen: React.FC = () => {
           </div>
         </div>
       </SlideUp>
-
-      {/* Notifications */}
-      {successMessage && (
-        <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-xs">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>{successMessage}</span>
-            </div>
-            <button
-              onClick={() => setSuccessMessage(null)}
-              className="text-emerald-700 hover:text-emerald-900 dark:hover:text-emerald-100"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-        </FadeIn>
-      )}
-
-      {errorMessage && (
-        <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-xs">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={AlertCircleIcon}
-                className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>{errorMessage}</span>
-            </div>
-            <button
-              onClick={() => setErrorMessage(null)}
-              className="text-rose-700 hover:text-rose-900 dark:hover:text-rose-100"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-        </FadeIn>
-      )}
 
       {/* Pipeline Stage Summary KPIs */}
       <SlideUp delay={0.1}>

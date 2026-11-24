@@ -280,7 +280,7 @@ describe('BillingManagementScreen', () => {
 
     await waitFor(() => {
       expect(sweepSpy).toHaveBeenCalled();
-      expect(screen.getByText(/Grace period sweep completed/)).toBeInTheDocument();
+      expect(screen.queryByText('Run Grace Period Enforcement Sweep')).toBeNull();
     });
   });
 

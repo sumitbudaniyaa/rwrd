@@ -59,8 +59,7 @@ export const RestaurantManagementScreen: React.FC = () => {
     requestId: string;
   } | null>(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [onboardError, setOnboardError] = useState<string | null>(null);
 
   // Form State for Onboarding (Aligned with Admin self-onboarding fields)
   const [formType, setFormType] = useState<
@@ -117,14 +116,11 @@ export const RestaurantManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
       setIsOnboardModalOpen(false);
       resetForm();
-      setSuccessMessage(
-        `Successfully onboarded "${data.restaurant.name}". Owner credentials generated for ${data.owner.email}.`,
-      );
       toast.success('Restaurant Onboarded', `${data.restaurant.name} has been provisioned.`);
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to onboard restaurant.';
-      setErrorMessage(msg);
+      setOnboardError(msg);
       toast.error('Onboarding Failed', msg);
     },
   });
@@ -146,16 +142,13 @@ export const RestaurantManagementScreen: React.FC = () => {
       setSuspendTarget(null);
       setSuspensionReason('');
       if (vars.action === 'suspend') {
-        setSuccessMessage('Restaurant has been suspended.');
         toast.warning('Restaurant Suspended', `${targetName} has been suspended.`);
       } else {
-        setSuccessMessage('Restaurant has been reactivated.');
         toast.success('Restaurant Reactivated', `${targetName} is now active.`);
       }
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to update restaurant status.';
-      setErrorMessage(msg);
       toast.error('Status Update Failed', msg);
     },
   });
@@ -167,7 +160,6 @@ export const RestaurantManagementScreen: React.FC = () => {
       const targetName = deleteTarget?.name || 'Restaurant';
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
       setDeleteTarget(null);
-      setSuccessMessage('Restaurant has been deleted.');
       toast.success(
         'Restaurant Deleted',
         `${targetName} and all associated data have been permanently removed.`,
@@ -175,7 +167,6 @@ export const RestaurantManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to delete restaurant.';
-      setErrorMessage(msg);
       toast.error('Deletion Failed', msg);
     },
   });
@@ -207,7 +198,6 @@ export const RestaurantManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to send impersonation request.';
-      setErrorMessage(msg);
       toast.error('Request Failed', msg);
     },
   });
@@ -279,7 +269,6 @@ export const RestaurantManagementScreen: React.FC = () => {
       token: approvedImpersonationToken,
       requestId: activeImpersonationRequestId,
     });
-    setSuccessMessage(`Delegated support session active for "${impersonateTarget.name}".`);
     resetImpersonationState();
   };
 
@@ -342,7 +331,7 @@ export const RestaurantManagementScreen: React.FC = () => {
     setFormOwnerEmail('');
     setFormOwnerPassword('');
     setFormOwnerConfirmPassword('');
-    setErrorMessage(null);
+    setOnboardError(null);
   };
 
   const handleNameChange = (val: string) => {
@@ -358,15 +347,15 @@ export const RestaurantManagementScreen: React.FC = () => {
 
   const handleOnboardSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setErrorMessage(null);
+    setOnboardError(null);
 
     if (formOwnerPassword.length < 8) {
-      setErrorMessage('Password must be at least 8 characters long.');
+      setOnboardError('Password must be at least 8 characters long.');
       return;
     }
 
     if (formOwnerPassword !== formOwnerConfirmPassword) {
-      setErrorMessage('Passwords do not match.');
+      setOnboardError('Passwords do not match.');
       return;
     }
 
@@ -452,46 +441,6 @@ export const RestaurantManagementScreen: React.FC = () => {
           )}
         </div>
       </SlideUp>
-
-      {/* Notifications */}
-      {successMessage && (
-        <FadeIn>
-          <div className="p-3 bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 dark:border-emerald-900 rounded-xl text-xs text-emerald-800 dark:text-emerald-300 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
-              />
-              <span>{successMessage}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSuccessMessage(null)}
-              className="text-emerald-500 hover:text-emerald-700 dark:hover:text-emerald-300"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
-            </button>
-          </div>
-        </FadeIn>
-      )}
-
-      {errorMessage && (
-        <FadeIn>
-          <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4 text-red-500 shrink-0" />
-              <span>{errorMessage}</span>
-            </div>
-            <button
-              type="button"
-              onClick={() => setErrorMessage(null)}
-              className="text-red-400 hover:text-red-700 dark:hover:text-red-300"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
-            </button>
-          </div>
-        </FadeIn>
-      )}
 
       {/* Search & Status Filters */}
       <SlideUp delay={50}>
@@ -777,13 +726,13 @@ export const RestaurantManagementScreen: React.FC = () => {
                   onSubmit={handleOnboardSubmit}
                   className="p-5 space-y-4 max-h-[75vh] overflow-y-auto"
                 >
-                  {errorMessage && (
+                  {onboardError && (
                     <div className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-lg text-xs text-red-700 dark:text-red-300 flex items-start gap-2">
                       <HugeiconsIcon
                         icon={AlertCircleIcon}
                         className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
                       />
-                      <span>{errorMessage}</span>
+                      <span>{onboardError}</span>
                     </div>
                   )}
 

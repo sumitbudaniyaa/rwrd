@@ -8,7 +8,6 @@ import {
   Search01Icon,
   Add01Icon,
   AlertCircleIcon,
-  CheckmarkCircle02Icon,
   Cancel01Icon,
   RefreshIcon,
   AlertSquareIcon,
@@ -55,8 +54,6 @@ export const BillingManagementScreen: React.FC = () => {
   const [editPlanPrice, setEditPlanPrice] = useState<number>(0);
   const [editPlanMonthlyFee, setEditPlanMonthlyFee] = useState<number>(0);
   const [editPlanIsActive, setEditPlanIsActive] = useState<boolean>(true);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Create Invoice Form State
   const [formRestaurantId, setFormRestaurantId] = useState('');
@@ -99,7 +96,6 @@ export const BillingManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-plans'] });
       queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
       setEditingPlan(null);
-      setSuccessMessage(`Pricing for "${res.plan.name}" updated to ₹${res.plan.priceInr}.`);
       toast.success(
         'Pricing Updated',
         `Pricing for "${res.plan.name}" updated to ₹${res.plan.priceInr}.`,
@@ -107,7 +103,6 @@ export const BillingManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to update plan pricing.';
-      setErrorMessage(msg);
       toast.error('Update Failed', msg);
     },
   });
@@ -120,12 +115,10 @@ export const BillingManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-plans'] });
       queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
       setPlanToDelete(null);
-      setSuccessMessage(res.message);
       toast.success('Plan Deleted', res.message);
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to delete billing plan.';
-      setErrorMessage(msg);
       toast.error('Delete Failed', msg);
     },
   });
@@ -160,7 +153,6 @@ export const BillingManagementScreen: React.FC = () => {
       setFormRestaurantId('');
       setFormAmountInr(999);
       setFormNotes('');
-      setSuccessMessage(`Invoice ${data.invoice.invoiceNumber} created successfully.`);
       toast.success(
         'Invoice Issued',
         `Invoice #${data.invoice.invoiceNumber} created for ₹${data.invoice.amountInr}.`,
@@ -168,7 +160,6 @@ export const BillingManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to create invoice.';
-      setErrorMessage(msg);
       toast.error('Invoice Failed', msg);
     },
   });
@@ -180,9 +171,6 @@ export const BillingManagementScreen: React.FC = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['portal-invoices'] });
       queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
-      setSuccessMessage(
-        `Invoice ${data.invoice.invoiceNumber} status updated to "${data.invoice.status}".`,
-      );
       toast.success(
         'Invoice Updated',
         `Invoice #${data.invoice.invoiceNumber} marked as ${data.invoice.status}.`,
@@ -190,7 +178,6 @@ export const BillingManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to update invoice status.';
-      setErrorMessage(msg);
       toast.error('Update Failed', msg);
     },
   });
@@ -203,9 +190,6 @@ export const BillingManagementScreen: React.FC = () => {
       queryClient.invalidateQueries({ queryKey: ['portal-subscriptions'] });
       queryClient.invalidateQueries({ queryKey: ['portal-restaurants'] });
       setIsSweepModalOpen(false);
-      setSuccessMessage(
-        `Grace period sweep completed. Evaluated ${result.evaluatedInvoicesCount} overdue invoice(s); newly suspended ${result.newlySuspendedCount} delinquent account(s).`,
-      );
       toast.info(
         'Auto-Suspend Sweep Complete',
         `Checked delinquent accounts: ${result.newlySuspendedCount} newly suspended.`,
@@ -213,7 +197,6 @@ export const BillingManagementScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to run auto-suspend sweep.';
-      setErrorMessage(msg);
       toast.error('Sweep Failed', msg);
     },
   });
@@ -363,49 +346,6 @@ export const BillingManagementScreen: React.FC = () => {
           </div>
         </div>
       </SlideUp>
-
-      {/* Notifications */}
-      {successMessage && (
-        <FadeIn>
-          <div className="flex items-center justify-between p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-sm">
-            <div className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>{successMessage}</span>
-            </div>
-            <button
-              onClick={() => setSuccessMessage(null)}
-              className="text-emerald-700 hover:text-emerald-900 dark:hover:text-emerald-100"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
-            </button>
-          </div>
-        </FadeIn>
-      )}
-
-      {errorMessage && (
-        <FadeIn>
-          <div className="flex items-center justify-between p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-sm">
-            <div className="flex items-center gap-2.5">
-              <HugeiconsIcon
-                icon={AlertCircleIcon}
-                className="w-5 h-5 text-rose-600 dark:text-rose-400 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>{errorMessage}</span>
-            </div>
-            <button
-              onClick={() => setErrorMessage(null)}
-              className="text-rose-700 hover:text-rose-900 dark:hover:text-rose-100"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" strokeWidth={1.5} />
-            </button>
-          </div>
-        </FadeIn>
-      )}
 
       {/* KPI Stats Overview */}
       <SlideUp delay={0.1}>
@@ -1211,7 +1151,7 @@ export const BillingManagementScreen: React.FC = () => {
                   onSubmit={(e) => {
                     e.preventDefault();
                     if (!formRestaurantId) {
-                      setErrorMessage('Please select a restaurant');
+                      toast.error('Selection Required', 'Please select a restaurant');
                       return;
                     }
                     const payload: CreateInvoiceInput = {

@@ -7,8 +7,6 @@ import {
   CloudServerIcon,
   DatabaseIcon,
   Flag01Icon,
-  CheckmarkCircle02Icon,
-  AlertCircleIcon,
   Cancel01Icon,
   Add01Icon,
   RefreshIcon,
@@ -40,8 +38,6 @@ export const SystemHealthScreen: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<Tab>('health');
   const [isFlagModalOpen, setIsFlagModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Form State for Flag Modal
   const [formRestaurantId, setFormRestaurantId] = useState('');
@@ -86,7 +82,6 @@ export const SystemHealthScreen: React.FC = () => {
       setIsFlagModalOpen(false);
       setFormRestaurantId('');
       setFormConfigJson('{}');
-      setSuccessMessage(`Feature flag "${res.flag.key}" saved for ${res.flag.restaurantName}.`);
       toast.success(
         'Feature Flag Saved',
         `Flag "${res.flag.key}" saved for ${res.flag.restaurantName}.`,
@@ -94,7 +89,6 @@ export const SystemHealthScreen: React.FC = () => {
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to save feature flag.';
-      setErrorMessage(msg);
       toast.error('Save Failed', msg);
     },
   });
@@ -106,12 +100,10 @@ export const SystemHealthScreen: React.FC = () => {
     onSuccess: (res) => {
       queryClient.invalidateQueries({ queryKey: ['portal-feature-flags'] });
       const statusText = res.flag.enabled ? 'enabled' : 'disabled';
-      setSuccessMessage(`Feature flag "${res.flag.key}" is now ${statusText}.`);
       toast.info('Feature Flag Toggled', `"${res.flag.key}" is now ${statusText}.`);
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to toggle feature flag.';
-      setErrorMessage(msg);
       toast.error('Toggle Failed', msg);
     },
   });
@@ -121,12 +113,10 @@ export const SystemHealthScreen: React.FC = () => {
     mutationFn: (id: string) => api.deleteFeatureFlag(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portal-feature-flags'] });
-      setSuccessMessage('Feature flag override deleted successfully.');
       toast.success('Feature Flag Deleted', 'Override removed successfully.');
     },
     onError: (err) => {
       const msg = err instanceof Error ? err.message : 'Failed to delete feature flag.';
-      setErrorMessage(msg);
       toast.error('Deletion Failed', msg);
     },
   });
@@ -136,13 +126,13 @@ export const SystemHealthScreen: React.FC = () => {
   const handleCreateFlagSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRestaurantId) {
-      setErrorMessage('Please select a target restaurant.');
+      toast.error('Validation Error', 'Please select a target restaurant.');
       return;
     }
 
     const keyToUse = formKey === 'custom' ? formCustomKey.trim() : formKey;
     if (!keyToUse) {
-      setErrorMessage('Feature flag key is required.');
+      toast.error('Validation Error', 'Feature flag key is required.');
       return;
     }
 
@@ -151,7 +141,7 @@ export const SystemHealthScreen: React.FC = () => {
       try {
         parsedConfig = JSON.parse(formConfigJson);
       } catch {
-        setErrorMessage('Config JSON must be valid JSON.');
+        toast.error('Validation Error', 'Config JSON must be valid JSON.');
         return;
       }
     }
@@ -226,49 +216,6 @@ export const SystemHealthScreen: React.FC = () => {
           </div>
         </div>
       </SlideUp>
-
-      {/* Notifications */}
-      {successMessage && (
-        <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/20 dark:border-emerald-900 text-emerald-900 dark:text-emerald-200 text-xs">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={CheckmarkCircle02Icon}
-                className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>{successMessage}</span>
-            </div>
-            <button
-              onClick={() => setSuccessMessage(null)}
-              className="text-emerald-700 hover:text-emerald-900 dark:hover:text-emerald-100"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-        </FadeIn>
-      )}
-
-      {errorMessage && (
-        <FadeIn>
-          <div className="flex items-center justify-between p-3 rounded-lg bg-rose-500/10 dark:bg-rose-950/40 border border-rose-500/20 dark:border-rose-900 text-rose-900 dark:text-rose-200 text-xs">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={AlertCircleIcon}
-                className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0"
-                strokeWidth={1.5}
-              />
-              <span>{errorMessage}</span>
-            </div>
-            <button
-              onClick={() => setErrorMessage(null)}
-              className="text-rose-700 hover:text-rose-900 dark:hover:text-rose-100"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
-          </div>
-        </FadeIn>
-      )}
 
       {/* Tabs */}
       <SlideUp delay={0.1}>

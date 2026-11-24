@@ -6,6 +6,24 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Remove Redundant In-Page Alert/Toast Banners Across All Super Admin Pages (M7-T90)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Eliminated In-Page Alert & Toast Banners Across Super Admin**:
+    - Removed redundant dismissible in-page success and error banners (`<div className="p-3 bg-emerald-50 ...">`) taking up vertical screen real estate across all Company Portal pages.
+    - Updated [`RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx): removed `setSuccessMessage('Delegated support session active for ...')` and all in-page alert banner states. Converted form errors to scoped inline modal errors for onboarding.
+    - Updated [`BillingManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/BillingManagementScreen.tsx): removed in-page success/error notification banners; converted manual invoice validation to toast feedback.
+    - Updated [`LeadsManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/LeadsManagementScreen.tsx): removed in-page pipeline notification banners.
+    - Updated [`SystemHealthScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SystemHealthScreen.tsx): removed in-page health/flag notification banners; converted form validation to toast feedback.
+    - All operational feedback (creating, updating, deleting, suspending, launching sessions, toggling feature flags, running sweeps) now exclusively uses the floating animated toast stack (`ToastProvider` / `@tiptable/ui`), eliminating duplicate messages and vertical screen layout shifts.
+  - **Clean Code & Strict TypeScript Verification**:
+    - Removed unused imports (`CheckmarkCircle02Icon`, `AlertCircleIcon`) across modified screens.
+    - Updated test in `apps/portal/tests/billingManagement.test.tsx` to assert modal closure rather than obsolete in-page banner text.
+    - Verified all test suites across `@tiptable/portal` (10 files, 43 tests), `@tiptable/admin` (11 files, 65 tests), and `@tiptable/api` (29 files, 227 tests).
+    - Passed `pnpm typecheck` and `pnpm lint` with 0 errors and 0 warnings.
+
 ### 2026-11-24 - Remove Heading Letter Badges & Icons, Bi-Directional Session Auto-Close in Super Admin (M7-T89)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
