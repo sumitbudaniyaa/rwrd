@@ -5,6 +5,7 @@ import { restaurantRepository } from '../src/repositories/restaurantRepository.j
 import { staffRepository } from '../src/repositories/staffRepository.js';
 import { authService } from '../src/services/authService.js';
 import { auditService } from '../src/services/auditService.js';
+import { env } from '../src/config/env.js';
 import type { Restaurant } from '../src/db/schema/index.js';
 
 describe('Admin Restaurant Settings Routes', () => {
@@ -217,16 +218,41 @@ describe('Admin Restaurant Settings Routes', () => {
   describe('POST /api/v1/admin/restaurants/:id/places-search', () => {
     it('returns guidance message and zero fake place IDs when no Google Places API key is configured', async () => {
       vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
+      const originalKey = env.GOOGLE_PLACES_API_KEY;
+      (env as Record<string, unknown>).GOOGLE_PLACES_API_KEY = undefined;
+
+      try {
+        const res = await request(app)
+          .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ query: 'The Bombay Canteen' });
+
+        expect(res.status).toBe(200);
+        expect(Array.isArray(res.body.results)).toBe(true);
+        expect(res.body.hasApiKey).toBe(false);
+        expect(res.body.message).toContain('Google Places API key is not configured');
+      } finally {
+        (env as Record<string, unknown>).GOOGLE_PLACES_API_KEY = originalKey;
+      }
+    });
+
+    it('queries Google Places API when key is configured and returns candidates with review URLs', async () => {
+      vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
 
       const res = await request(app)
         .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({ query: 'The Bombay Canteen' });
+        .send({ query: 'The Bombay Canteen Mumbai' });
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.results)).toBe(true);
-      expect(res.body.hasApiKey).toBe(false);
-      expect(res.body.message).toContain('Google Places API key is not configured');
+      expect(res.body.hasApiKey).toBe(true);
+      if (res.body.results.length > 0) {
+        expect(res.body.results[0].placeId).toMatch(/^ChIJ/);
+        expect(res.body.results[0].reviewUrl).toContain(
+          'https://search.google.com/local/writereview?placeid=',
+        );
+      }
     });
 
     it('returns direct place candidate when query is already a Place ID', async () => {

@@ -326,36 +326,70 @@ adminRestaurantRouter.post(
         return;
       }
 
-      // 3. If Google Places API key is configured, call Google Places API findplacefromtext
+      // 3. If Google Places API key is configured, query Places API (New) Text Search
       if (env.GOOGLE_PLACES_API_KEY) {
         try {
-          const googleUrl = new URL(
-            'https://maps.googleapis.com/maps/api/place/findplacefromtext/json',
-          );
-          googleUrl.searchParams.set('input', query);
-          googleUrl.searchParams.set('inputtype', 'textquery');
-          googleUrl.searchParams.set('fields', 'place_id,name,formatted_address');
-          googleUrl.searchParams.set('key', env.GOOGLE_PLACES_API_KEY);
+          const newApiUrl = 'https://places.googleapis.com/v1/places:searchText';
+          const newResponse = await fetch(newApiUrl, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
+              'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress',
+            },
+            body: JSON.stringify({ textQuery: query }),
+          });
 
-          const response = await fetch(googleUrl.toString());
-          if (response.ok) {
-            const data = (await response.json()) as {
-              status?: string;
-              candidates?: Array<{ place_id: string; name: string; formatted_address: string }>;
+          if (newResponse.ok) {
+            const data = (await newResponse.json()) as {
+              places?: Array<{
+                id: string;
+                displayName?: { text: string };
+                formattedAddress?: string;
+              }>;
             };
-            if (
-              data.status === 'OK' &&
-              Array.isArray(data.candidates) &&
-              data.candidates.length > 0
-            ) {
-              for (const cand of data.candidates) {
-                if (cand.place_id) {
+            if (Array.isArray(data.places) && data.places.length > 0) {
+              for (const p of data.places) {
+                if (p.id) {
                   results.push({
-                    placeId: cand.place_id,
-                    name: cand.name || query,
-                    address: cand.formatted_address || '',
-                    reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(cand.place_id)}`,
+                    placeId: p.id,
+                    name: p.displayName?.text || query,
+                    address: p.formattedAddress || '',
+                    reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(p.id)}`,
                   });
+                }
+              }
+            }
+          } else {
+            // Fallback to legacy endpoint if legacy API is enabled instead
+            const googleUrl = new URL(
+              'https://maps.googleapis.com/maps/api/place/findplacefromtext/json',
+            );
+            googleUrl.searchParams.set('input', query);
+            googleUrl.searchParams.set('inputtype', 'textquery');
+            googleUrl.searchParams.set('fields', 'place_id,name,formatted_address');
+            googleUrl.searchParams.set('key', env.GOOGLE_PLACES_API_KEY);
+
+            const legacyResponse = await fetch(googleUrl.toString());
+            if (legacyResponse.ok) {
+              const data = (await legacyResponse.json()) as {
+                status?: string;
+                candidates?: Array<{ place_id: string; name: string; formatted_address: string }>;
+              };
+              if (
+                data.status === 'OK' &&
+                Array.isArray(data.candidates) &&
+                data.candidates.length > 0
+              ) {
+                for (const cand of data.candidates) {
+                  if (cand.place_id) {
+                    results.push({
+                      placeId: cand.place_id,
+                      name: cand.name || query,
+                      address: cand.formatted_address || '',
+                      reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(cand.place_id)}`,
+                    });
+                  }
                 }
               }
             }

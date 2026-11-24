@@ -59,11 +59,12 @@ All frontend variables must be prefixed with `VITE_` and contain **zero sensitiv
 
 ## 3. Restaurant Admin App (`apps/admin`)
 
-| Variable            | Required | Type         | Purpose                            | Example Value                    |
-| :------------------ | :------: | :----------- | :--------------------------------- | :------------------------------- |
-| `VITE_API_BASE_URL` |   Yes    | String (URL) | Base URL for the TipTable REST API | `http://localhost:4000`          |
-| `VITE_APP_ENV`      |   Yes    | Enum         | Application environment            | `development`                    |
-| `VITE_SENTRY_DSN`   |    No    | String (URL) | Sentry DSN                         | `https://dummy@sentry.io/123456` |
+| Variable                   | Required | Type         | Purpose                                                           | Example Value                    |
+| :------------------------- | :------: | :----------- | :---------------------------------------------------------------- | :------------------------------- |
+| `VITE_API_BASE_URL`        |   Yes    | String (URL) | Base URL for the TipTable REST API                                | `http://localhost:4000`          |
+| `VITE_APP_ENV`             |   Yes    | Enum         | Application environment                                           | `development`                    |
+| `VITE_SENTRY_DSN`          |    No    | String (URL) | Sentry DSN                                                        | `https://dummy@sentry.io/123456` |
+| `VITE_GOOGLE_MAPS_API_KEY` |    No    | String       | Google Maps API Key for client-side Places Autocomplete generator | `AIzaSyDummyKeyForGoogleMaps123` |
 
 ---
 
