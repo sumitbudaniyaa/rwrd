@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Search01Icon, RefreshIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import { motion } from 'framer-motion';
 import { SlideUp, FadeIn, useToast } from '@tiptable/ui';
 import { useAuth } from '../context/AuthContext.js';
 import {
@@ -198,8 +199,12 @@ export const SupportTicketsScreen: React.FC = () => {
         <SlideUp delay={0.1}>
           <div className="bg-white dark:bg-stone-900 rounded-2xl border border-stone-200/80 dark:border-stone-800 p-4 shadow-xs space-y-3">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              {/* Status Tabs */}
-              <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+              {/* Status Tabs with beUI spring gliding active pill */}
+              <div
+                role="tablist"
+                aria-label="Filter support tickets by status"
+                className="inline-flex items-center gap-1 bg-stone-100/90 dark:bg-stone-800/80 p-1 rounded-xl border border-stone-200/70 dark:border-stone-700 overflow-x-auto max-w-full"
+              >
                 {(
                   [
                     { id: 'all', label: 'All' },
@@ -208,20 +213,32 @@ export const SupportTicketsScreen: React.FC = () => {
                     { id: 'resolved', label: 'Resolved' },
                     { id: 'closed', label: 'Closed' },
                   ] as const
-                ).map((tab) => (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setStatusFilter(tab.id)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                      statusFilter === tab.id
-                        ? 'bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 shadow-xs'
-                        : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-800'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
+                ).map((tab) => {
+                  const isSelected = statusFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={isSelected}
+                      onClick={() => setStatusFilter(tab.id)}
+                      className={`relative px-3.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none outline-none focus:outline-none whitespace-nowrap transition-colors duration-150 ${
+                        isSelected
+                          ? 'text-white dark:text-stone-900'
+                          : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+                      }`}
+                    >
+                      {isSelected && (
+                        <motion.span
+                          layoutId="portal-support-status-tab"
+                          className="absolute inset-0 bg-stone-900 dark:bg-stone-100 rounded-lg shadow-xs z-0"
+                          transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.8 }}
+                        />
+                      )}
+                      <span className="relative z-10">{tab.label}</span>
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Search Box */}

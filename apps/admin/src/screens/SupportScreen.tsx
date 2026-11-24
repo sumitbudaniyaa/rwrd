@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Add01Icon, Search01Icon } from '@hugeicons/core-free-icons';
+import { motion } from 'framer-motion';
 import { SlideUp, FadeIn, useToast } from '@tiptable/ui';
 import { MotionButton } from '../components/motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -156,8 +157,12 @@ export const SupportScreen: React.FC = () => {
       {/* Filter Tabs & Search Bar */}
       <SlideUp delay={0.05}>
         <div className="bg-white rounded-2xl border border-stone-200/80 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 md:pb-0">
+          {/* Status Tabs with beUI spring gliding active pill */}
+          <div
+            role="tablist"
+            aria-label="Filter support tickets by status"
+            className="inline-flex items-center gap-1 bg-stone-100/90 p-1 rounded-xl border border-stone-200/70 overflow-x-auto max-w-full"
+          >
             {(
               [
                 { id: 'all', label: 'All' },
@@ -166,20 +171,30 @@ export const SupportScreen: React.FC = () => {
                 { id: 'resolved', label: 'Resolved' },
                 { id: 'closed', label: 'Closed' },
               ] as const
-            ).map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setStatusFilter(tab.id)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  statusFilter === tab.id
-                    ? 'bg-stone-900 text-white shadow-xs'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+            ).map((tab) => {
+              const isSelected = statusFilter === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={isSelected}
+                  onClick={() => setStatusFilter(tab.id)}
+                  className={`relative px-3.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none outline-none focus:outline-none whitespace-nowrap transition-colors duration-150 ${
+                    isSelected ? 'text-white' : 'text-stone-600 hover:text-stone-900'
+                  }`}
+                >
+                  {isSelected && (
+                    <motion.span
+                      layoutId="admin-support-status-tab"
+                      className="absolute inset-0 bg-stone-900 rounded-lg shadow-xs z-0"
+                      transition={{ type: 'spring', stiffness: 420, damping: 32, mass: 0.8 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.label}</span>
+                </button>
+              );
+            })}
           </div>
 
           {/* Search Box */}

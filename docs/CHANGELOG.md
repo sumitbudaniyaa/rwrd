@@ -6,6 +6,22 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - beUI Spring-Gliding Active Tabs Animation for Support Status Filter Bars (M7-T92)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **beUI Spring-Gliding Segmented Active Tab Indicator**:
+    - Replaced static CSS background toggling on status filter tabs (**All**, **Open**, **In Progress**, **Resolved**, **Closed**) with the signature `beUI` shared layout active pill motion component.
+    - Updated [`SupportScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SupportScreen.tsx) (`apps/admin`): wrapped status buttons in a segmented dock (`bg-stone-100/90 rounded-xl border border-stone-200/70 p-1`) and rendered a sliding `motion.span` (`layoutId="admin-support-status-tab"`) configured with spring physics (`stiffness: 420, damping: 32, mass: 0.8`).
+    - Updated [`SupportTicketsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/SupportTicketsScreen.tsx) (`apps/portal`): wrapped status buttons in a dark-mode ready segmented dock (`bg-stone-100/90 dark:bg-stone-800/80 rounded-xl border border-stone-200/70 dark:border-stone-700 p-1`) and rendered a sliding `motion.span` (`layoutId="portal-support-status-tab"`) using `bg-stone-900 dark:bg-stone-100` and spring physics.
+    - Added `<span className="relative z-10">` to ensure labels smoothly layer over the gliding pill without flickering or clipping.
+  - **Testing & Verification**:
+    - Ran unit tests in `apps/admin/tests/support.test.tsx` (all 4 passed).
+    - Ran unit tests in `apps/portal/tests/supportTickets.test.tsx` (all 2 passed).
+    - Ran full monorepo typecheck (`pnpm typecheck`, all 7 packages passed with 0 errors).
+    - Ran linter (`pnpm lint`, 0 errors).
+
 ### 2026-11-24 - Restaurant Support & Complaints Ticketing System (M7-T91)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
