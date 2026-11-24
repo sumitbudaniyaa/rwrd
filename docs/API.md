@@ -846,3 +846,78 @@ Tamper-evident, immutable audit trail strictly tracking operational actions perf
   }
 }
 ```
+
+---
+
+## 8. Support & Complaints Management (`/api/v1`)
+
+Centralized ticketing system for restaurant managers to raise issues, complaints, and technical requests, and for Super Admin platform staff to review and resolve them.
+
+### 8.1 Restaurant Admin Support Endpoints
+
+#### List Support Tickets (`GET /api/v1/admin/restaurants/:restaurantId/support/tickets`)
+
+- **Authentication**: JWT Bearer (`admin` realm).
+- **Tenant Scoping**: Mandates `restaurantId` match.
+- **Query Parameters**:
+  - `limit`: Number of tickets (default: 50, max: 100).
+  - `offset`: Pagination offset (default: 0).
+- **Response `200 OK`**:
+  ```json
+  {
+    "data": [
+      {
+        "id": "tick_uuid",
+        "ticketNumber": "TICK-901234",
+        "category": "complaint",
+        "priority": "high",
+        "status": "open",
+        "subject": "Table 4 QR code unreadable",
+        "description": "Guests report their phone camera does not recognize the code.",
+        "resolutionNote": null,
+        "resolvedAt": null,
+        "createdAt": "2026-11-20T10:00:00.000Z"
+      }
+    ],
+    "total": 1,
+    "limit": 50,
+    "offset": 0
+  }
+  ```
+
+#### Create Support Ticket (`POST /api/v1/admin/restaurants/:restaurantId/support/tickets`)
+
+- **Authentication**: JWT Bearer (`admin` realm).
+- **Request Body**:
+  ```json
+  {
+    "category": "complaint",
+    "priority": "high",
+    "subject": "Table 4 QR code unreadable",
+    "description": "Guests report camera cannot scan the code printed at table 4."
+  }
+  ```
+- **Response `201 Created`**: Returns newly created `{ ticket }`.
+
+---
+
+### 8.2 Super Admin Portal Support Endpoints
+
+#### List All Tickets Across Tenants (`GET /api/v1/portal/support/tickets`)
+
+- **Authentication**: JWT Bearer (`portal` realm, roles: `super_admin`, `support`, `finance`).
+- **Query Parameters**: `status`, `category`, `priority`, `restaurantId`, `search`, `limit`, `offset`.
+- **Response `200 OK`**: Returns `{ data, total, kpis: { open, inProgress, resolved, urgent }, limit, offset }`.
+
+#### Update Ticket & Resolution Note (`PATCH /api/v1/portal/support/tickets/:ticketId`)
+
+- **Authentication**: JWT Bearer (`portal` realm).
+- **Request Body**:
+  ```json
+  {
+    "status": "resolved",
+    "priority": "urgent",
+    "resolutionNote": "Re-generated high-resolution QR placard vector."
+  }
+  ```
+- **Response `200 OK`**: Returns updated `{ ticket }`.

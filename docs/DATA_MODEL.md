@@ -41,6 +41,7 @@ erDiagram
     restaurants ||--o{ invoices : "billed"
     restaurants ||--o{ audit_logs : "audits"
     restaurants ||--o{ feature_flags : "configures"
+    restaurants ||--o{ support_tickets : "issues"
 
     billing_plans ||--o{ subscriptions : "defines"
     subscriptions ||--o{ invoices : "generates"
@@ -406,4 +407,32 @@ CREATE TABLE impersonation_requests (
 
 CREATE INDEX idx_impersonation_requests_tenant ON impersonation_requests(restaurant_id);
 CREATE INDEX idx_impersonation_requests_status ON impersonation_requests(status);
+```
+
+### 3.16 `support_tickets`
+
+Restaurant customer support complaints and technical requests.
+
+```sql
+CREATE TABLE support_tickets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+    created_by_id UUID REFERENCES restaurant_users(id) ON DELETE SET NULL,
+    ticket_number VARCHAR(32) NOT NULL UNIQUE,
+    category VARCHAR(50) NOT NULL, -- 'complaint' | 'request' | 'technical' | 'billing' | 'other'
+    priority VARCHAR(20) DEFAULT 'medium' NOT NULL, -- 'low' | 'medium' | 'high' | 'urgent'
+    status VARCHAR(30) DEFAULT 'open' NOT NULL, -- 'open' | 'in_progress' | 'resolved' | 'closed'
+    subject VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    assigned_staff_id UUID REFERENCES platform_users(id) ON DELETE SET NULL,
+    assigned_staff_email VARCHAR(255),
+    resolution_note TEXT,
+    resolved_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_support_tickets_restaurant ON support_tickets(restaurant_id);
+CREATE INDEX idx_support_tickets_status ON support_tickets(status);
+CREATE INDEX idx_support_tickets_created_at ON support_tickets(created_at);
 ```

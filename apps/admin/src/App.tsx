@@ -13,6 +13,7 @@ import { SettingsScreen } from './screens/SettingsScreen.js';
 import { QrManagementScreen } from './screens/QrManagementScreen.js';
 import { AnalyticsScreen } from './screens/AnalyticsScreen.js';
 import { AuditLogScreen } from './screens/AuditLogScreen.js';
+import { SupportScreen } from './screens/SupportScreen.js';
 import { OnboardingPaymentScreen } from './screens/OnboardingPaymentScreen.js';
 
 const queryClient = new QueryClient({
@@ -53,6 +54,7 @@ export const App: React.FC = () => {
                   <Route path="analytics" element={<AnalyticsScreen />} />
                   <Route path="settings" element={<SettingsScreen />} />
                   <Route path="audit" element={<AuditLogScreen />} />
+                  <Route path="support" element={<SupportScreen />} />
                 </Route>
               </Route>
 
@@ -63,6 +65,7 @@ export const App: React.FC = () => {
               <Route path="/admin/analytics" element={<Navigate to="/analytics" replace />} />
               <Route path="/admin/settings" element={<Navigate to="/settings" replace />} />
               <Route path="/admin/audit" element={<Navigate to="/audit" replace />} />
+              <Route path="/admin/support" element={<Navigate to="/support" replace />} />
 
               {/* Catch-all */}
               <Route path="*" element={<Navigate to="/" replace />} />

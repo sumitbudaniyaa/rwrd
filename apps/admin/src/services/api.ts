@@ -46,6 +46,38 @@ export interface ActiveAccessDetails {
   approvedAt: string;
 }
 
+export interface SupportTicketItem {
+  id: string;
+  restaurantId: string;
+  createdById?: string | null;
+  ticketNumber: string;
+  category: 'complaint' | 'request' | 'technical' | 'billing' | 'other';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  subject: string;
+  description: string;
+  assignedStaffId?: string | null;
+  assignedStaffEmail?: string | null;
+  resolutionNote?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SupportTicketsResponse {
+  data: SupportTicketItem[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
+export interface CreateSupportTicketInput {
+  category: 'complaint' | 'request' | 'technical' | 'billing' | 'other';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  subject: string;
+  description: string;
+}
+
 export interface PendingImpersonationResponse {
   pendingRequest: PendingImpersonationRequest | null;
   activeAccess?: ActiveAccessDetails | null;
@@ -647,6 +679,43 @@ export const api = {
         method: 'POST',
         body: JSON.stringify({ action }),
       },
+    );
+  },
+
+  getSupportTickets(
+    restaurantId: string,
+    params?: { limit?: number; offset?: number },
+  ): Promise<SupportTicketsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.limit) searchParams.set('limit', String(params.limit));
+    if (params?.offset) searchParams.set('offset', String(params.offset));
+    const qs = searchParams.toString();
+    return request<SupportTicketsResponse>(
+      `/admin/restaurants/${restaurantId}/support/tickets${qs ? `?${qs}` : ''}`,
+      { method: 'GET' },
+    );
+  },
+
+  createSupportTicket(
+    restaurantId: string,
+    data: CreateSupportTicketInput,
+  ): Promise<{ ticket: SupportTicketItem }> {
+    return request<{ ticket: SupportTicketItem }>(
+      `/admin/restaurants/${restaurantId}/support/tickets`,
+      {
+        method: 'POST',
+        body: JSON.stringify(data),
+      },
+    );
+  },
+
+  getSupportTicketDetails(
+    restaurantId: string,
+    ticketId: string,
+  ): Promise<{ ticket: SupportTicketItem }> {
+    return request<{ ticket: SupportTicketItem }>(
+      `/admin/restaurants/${restaurantId}/support/tickets/${ticketId}`,
+      { method: 'GET' },
     );
   },
 };

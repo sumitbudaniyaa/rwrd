@@ -6,6 +6,7 @@ import {
   Store01Icon,
   Invoice01Icon,
   UserGroupIcon,
+  CustomerSupportIcon,
   Shield01Icon,
   Activity01Icon,
   Logout01Icon,
@@ -24,6 +25,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { name: 'Platform Overview', to: '/', icon: DashboardSquare01Icon, end: true },
   { name: 'Restaurants', to: '/restaurants', icon: Store01Icon, end: false },
+  { name: 'Support Tickets', to: '/support', icon: CustomerSupportIcon, end: false },
   { name: 'Billing & Plans', to: '/billing', icon: Invoice01Icon, end: false },
   { name: 'Inbound Leads', to: '/leads', icon: UserGroupIcon, end: false },
   { name: 'Global Audit', to: '/audit', icon: Shield01Icon, end: false },

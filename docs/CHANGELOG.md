@@ -6,6 +6,40 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Restaurant Support & Complaints Ticketing System (M7-T91)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Support Tickets Database Schema & Migration**:
+    - Created PostgreSQL table `support_tickets` (`apps/api/src/db/schema/supportTickets.ts`) with tenant foreign key `restaurant_id` (cascading on delete), `ticket_number` (`TICK-xxxx`), `category` (`complaint`, `technical`, `billing`, `request`, `other`), `priority` (`low`, `medium`, `high`, `urgent`), `status` (`open`, `in_progress`, `resolved`, `closed`), `subject`, `description`, `assigned_staff_id`, `resolution_note`, timestamps, and performance indexes on `restaurant_id`, `status`, and `createdAt`.
+    - Executed database migration `0005_support_tickets.sql` against active PostgreSQL database via `pnpm db:migrate`.
+    - Registered table cascading deletion in `accountLifecycleService.ts` and `cleanTenantData.ts`.
+  - **Backend API Routes & Audit Integration**:
+    - Added `apps/api/src/routes/adminSupport.ts` with tenant-scoped endpoints:
+      - `POST /api/v1/admin/restaurants/:restaurantId/support/tickets` (RFC 7807 Zod validation, unique ticket number generation, audit log `SUPPORT_TICKET_CREATED`).
+      - `GET /api/v1/admin/restaurants/:restaurantId/support/tickets` (tenant-scoped listing with pagination).
+      - `GET /api/v1/admin/restaurants/:restaurantId/support/tickets/:ticketId` (single ticket fetch with 404 enforcement).
+    - Added `apps/api/src/routes/portalSupport.ts` with control plane endpoints:
+      - `GET /api/v1/portal/support/tickets` (multi-tenant listing with KPI counts for open, in-progress, resolved, and urgent tickets; filters by status, category, priority, and text search; joined with restaurant names).
+      - `GET /api/v1/portal/support/tickets/:ticketId` (ticket details).
+      - `PATCH /api/v1/portal/support/tickets/:ticketId` (update status, priority, assignment, and support resolution note; audit log `SUPPORT_TICKET_RESOLVED` / `SUPPORT_TICKET_UPDATED`).
+    - Mounted routers in `apps/api/src/app.ts` under `/api/v1`.
+  - **Restaurant Admin Support Tab (`apps/admin`)**:
+    - Added `Support` tab to liquid floating menu in `AdminLayout.tsx` (`/support`).
+    - Created `SupportScreen.tsx` with lowercase heading `support & complaints`, primary button `#FFE862`, status filter tabs, search box, ticket cards with status/priority badges, ticket submission modal dialog, and ticket details view with highlighted support resolution notes.
+    - Added API client methods `getSupportTickets`, `createSupportTicket`, `getSupportTicketDetails` in `apps/admin/src/services/api.ts`.
+  - **Super Admin Portal Support Tickets Management (`apps/portal`)**:
+    - Added `Support Tickets` to navigation sidebar in `PortalLayout.tsx` using `CustomerSupportIcon` (`/support`).
+    - Created `SupportTicketsScreen.tsx` with KPI summary cards (Open, In Progress, Resolved, Urgent Attention), filter controls, data table, and Review & Resolve modal dialog allowing staff to update ticket status, priority, and official resolution notes.
+    - Zero in-page static green/red toast banners; all actions use unified `ToastProvider` / `useToast()` stack.
+  - **Testing & Verification**:
+    - Backend integration tests in `apps/api/tests/supportTickets.test.ts` (all 7 tests passed).
+    - Admin UI unit tests in `apps/admin/tests/support.test.tsx` (all 4 tests passed).
+    - Portal UI unit tests in `apps/portal/tests/supportTickets.test.tsx` (all 2 tests passed).
+    - Full monorepo typecheck passed (`pnpm typecheck`, all 7 packages, 0 errors).
+    - Linter passed (`pnpm lint`, 0 errors).
+
 ### 2026-11-24 - Remove Redundant In-Page Alert/Toast Banners Across All Super Admin Pages (M7-T90)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

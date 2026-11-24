@@ -344,6 +344,46 @@ export interface PortalAuditResponse {
   };
 }
 
+export interface PortalSupportTicketItem {
+  id: string;
+  restaurantId: string;
+  restaurantName: string;
+  restaurantSlug: string;
+  createdById?: string | null;
+  ticketNumber: string;
+  category: 'complaint' | 'request' | 'technical' | 'billing' | 'other';
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  subject: string;
+  description: string;
+  assignedStaffId?: string | null;
+  assignedStaffEmail?: string | null;
+  resolutionNote?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PortalSupportTicketsResponse {
+  data: PortalSupportTicketItem[];
+  total: number;
+  kpis: {
+    open: number;
+    inProgress: number;
+    resolved: number;
+    urgent: number;
+  };
+  limit: number;
+  offset: number;
+}
+
+export interface UpdatePortalSupportTicketInput {
+  status?: 'open' | 'in_progress' | 'resolved' | 'closed';
+  priority?: 'low' | 'medium' | 'high' | 'urgent';
+  resolutionNote?: string | null;
+  assignedStaffId?: string | null;
+}
+
 export interface InvoiceItem {
   id: string;
   invoiceNumber: string;
@@ -766,6 +806,45 @@ export const api = {
     const qs = searchParams.toString();
     return request<PortalAuditResponse>(`/portal/audit${qs ? `?${qs}` : ''}`, {
       method: 'GET',
+    });
+  },
+
+  getSupportTickets(params?: {
+    status?: string;
+    category?: string;
+    priority?: string;
+    restaurantId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<PortalSupportTicketsResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set('status', params.status);
+    if (params?.category) searchParams.set('category', params.category);
+    if (params?.priority) searchParams.set('priority', params.priority);
+    if (params?.restaurantId) searchParams.set('restaurantId', params.restaurantId);
+    if (params?.search) searchParams.set('search', params.search);
+    if (params?.limit !== undefined) searchParams.set('limit', String(params.limit));
+    if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
+    const qs = searchParams.toString();
+    return request<PortalSupportTicketsResponse>(`/portal/support/tickets${qs ? `?${qs}` : ''}`, {
+      method: 'GET',
+    });
+  },
+
+  getSupportTicketDetails(ticketId: string): Promise<{ ticket: PortalSupportTicketItem }> {
+    return request<{ ticket: PortalSupportTicketItem }>(`/portal/support/tickets/${ticketId}`, {
+      method: 'GET',
+    });
+  },
+
+  updateSupportTicket(
+    ticketId: string,
+    data: UpdatePortalSupportTicketInput,
+  ): Promise<{ ticket: PortalSupportTicketItem }> {
+    return request<{ ticket: PortalSupportTicketItem }>(`/portal/support/tickets/${ticketId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
     });
   },
 };

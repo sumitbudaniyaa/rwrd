@@ -74,6 +74,12 @@ export const AdminLayout: React.FC = () => {
       onClick: () => navigate('/audit'),
     },
     {
+      label: 'Support',
+      active:
+        location.pathname.startsWith('/support') || location.pathname.startsWith('/admin/support'),
+      onClick: () => navigate('/support'),
+    },
+    {
       label: 'Log Out',
       isDanger: true,
       onClick: handleLogout,

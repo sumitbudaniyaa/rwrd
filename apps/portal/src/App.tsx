@@ -13,6 +13,7 @@ import { BillingManagementScreen } from './screens/BillingManagementScreen.js';
 import { LeadsManagementScreen } from './screens/LeadsManagementScreen.js';
 import { SystemHealthScreen } from './screens/SystemHealthScreen.js';
 import { AuditLogScreen } from './screens/AuditLogScreen.js';
+import { SupportTicketsScreen } from './screens/SupportTicketsScreen.js';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,6 +42,7 @@ export const App: React.FC = () => {
                   <Route element={<PortalLayout />}>
                     <Route index element={<DashboardOverview />} />
                     <Route path="restaurants" element={<RestaurantManagementScreen />} />
+                    <Route path="support" element={<SupportTicketsScreen />} />
                     <Route path="billing" element={<BillingManagementScreen />} />
                     <Route path="leads" element={<LeadsManagementScreen />} />
                     <Route path="audit" element={<AuditLogScreen />} />
@@ -54,6 +56,7 @@ export const App: React.FC = () => {
                   path="/portal/restaurants"
                   element={<Navigate to="/restaurants" replace />}
                 />
+                <Route path="/portal/support" element={<Navigate to="/support" replace />} />
                 <Route path="/portal/billing" element={<Navigate to="/billing" replace />} />
                 <Route path="/portal/leads" element={<Navigate to="/leads" replace />} />
                 <Route path="/portal/audit" element={<Navigate to="/audit" replace />} />

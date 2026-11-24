@@ -15,6 +15,7 @@ import {
   auditLogs,
   featureFlags,
   impersonationRequests,
+  supportTickets,
 } from '../db/schema/index.js';
 import { auditService } from './auditService.js';
 import { logger } from '../utils/logger.js';
@@ -121,6 +122,7 @@ export class AccountLifecycleService {
       await tx
         .delete(impersonationRequests)
         .where(eq(impersonationRequests.restaurantId, restaurantId));
+      await tx.delete(supportTickets).where(eq(supportTickets.restaurantId, restaurantId));
       await tx.delete(auditLogs).where(eq(auditLogs.restaurantId, restaurantId));
       await tx.delete(restaurantUsers).where(eq(restaurantUsers.restaurantId, restaurantId));
       await tx.delete(restaurants).where(eq(restaurants.id, restaurantId));

@@ -18,6 +18,7 @@ import { adminRestaurantRouter } from './routes/adminRestaurant.js';
 import { adminQrRouter } from './routes/adminQr.js';
 import { adminAnalyticsRouter } from './routes/adminAnalytics.js';
 import { adminAuditRouter } from './routes/adminAudit.js';
+import { adminSupportRouter } from './routes/adminSupport.js';
 import { authPortalRouter } from './routes/authPortal.js';
 import { portalRestaurantsRouter } from './routes/portalRestaurants.js';
 import { portalImpersonationRouter } from './routes/portalImpersonation.js';
@@ -26,6 +27,7 @@ import { portalBillingRouter } from './routes/portalBilling.js';
 import { portalLeadsRouter } from './routes/portalLeads.js';
 import { portalHealthRouter } from './routes/portalHealth.js';
 import { portalAuditRouter } from './routes/portalAudit.js';
+import { portalSupportRouter } from './routes/portalSupport.js';
 import { requireAuth, requireActiveSubscription } from './middleware/rbac.js';
 import { NotFoundError } from './errors/appError.js';
 
@@ -154,6 +156,7 @@ export function createApp(): Express {
   app.use('/api/v1', adminQrRouter);
   app.use('/api/v1', adminAnalyticsRouter);
   app.use('/api/v1', adminAuditRouter);
+  app.use('/api/v1', adminSupportRouter);
 
   // Portal Management Routes
   app.use('/api/v1', portalRestaurantsRouter);
@@ -163,6 +166,7 @@ export function createApp(): Express {
   app.use('/api/v1', portalLeadsRouter);
   app.use('/api/v1', portalHealthRouter);
   app.use('/api/v1', portalAuditRouter);
+  app.use('/api/v1', portalSupportRouter);
 
   // 404 Handler for undefined routes
   app.use((req, _res, next) => {

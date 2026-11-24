@@ -13,3 +13,4 @@ export * from './billing';
 export * from './auditLogs';
 export * from './featureFlags';
 export * from './impersonationRequests';
+export * from './supportTickets';

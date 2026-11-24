@@ -19,6 +19,7 @@ export async function cleanTenantData(): Promise<void> {
       page_events,
       feature_flags,
       impersonation_requests,
+      support_tickets,
       audit_logs,
       sessions,
       qr_tokens,
