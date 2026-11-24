@@ -225,6 +225,57 @@ adminRestaurantRouter.put(
 );
 
 /**
+ * Extracts Place ID from a raw string, URL, or search query.
+ */
+function extractPlaceId(text: string): string | null {
+  const trimmed = text.trim();
+  // Direct Place ID match (ChIJ followed by at least 20 alphanumeric or _ - chars)
+  const directMatch = trimmed.match(/\b(ChIJ[0-9A-Za-z_-]{20,})\b/);
+  if (directMatch) {
+    return directMatch[1]!;
+  }
+
+  // URL query parameter: ?placeid=... or ?place_id=...
+  try {
+    const url = new URL(trimmed);
+    const placeIdParam =
+      url.searchParams.get('placeid') ||
+      url.searchParams.get('place_id') ||
+      url.searchParams.get('placeId');
+    if (placeIdParam && /^ChIJ[0-9A-Za-z_-]{20,}$/.test(placeIdParam)) {
+      return placeIdParam;
+    }
+  } catch {
+    // Not a valid URL, ignore
+  }
+
+  return null;
+}
+
+/**
+ * Resolves short Google Maps URLs (e.g. maps.app.goo.gl, goo.gl/maps) to their expanded target URL.
+ */
+async function resolveShortGoogleUrl(shortUrl: string): Promise<string> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    const resp = await fetch(shortUrl, {
+      method: 'GET',
+      redirect: 'follow',
+      signal: controller.signal,
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+    });
+    clearTimeout(timeout);
+    return resp.url;
+  } catch {
+    return shortUrl;
+  }
+}
+
+/**
  * POST /api/v1/admin/restaurants/:restaurantId/places-search
  * Searches Google Places by business name or location to retrieve Google Place IDs
  * and generate official direct review submission links (https://search.google.com/local/writereview?placeid=...).
@@ -249,20 +300,33 @@ adminRestaurantRouter.post(
 
       const results: GooglePlaceResult[] = [];
 
-      // If user directly inputs a Place ID (starts with ChIJ)
-      if (/^ChIJ[0-9A-Za-z_-]{20,}$/.test(query.trim())) {
-        const placeId = query.trim();
+      // 1. Direct Place ID check or Place ID in URL parameter
+      let placeId = extractPlaceId(query);
+
+      // 2. If query is a Google Maps share link (e.g. maps.app.goo.gl), resolve redirect
+      if (
+        !placeId &&
+        /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|www\.google\.[a-z.]+\/maps)/i.test(query)
+      ) {
+        const resolvedUrl = await resolveShortGoogleUrl(query);
+        placeId = extractPlaceId(resolvedUrl);
+      }
+
+      if (placeId) {
         results.push({
           placeId,
           name: restaurant.name,
-          address: 'Custom Place ID',
+          address: 'Verified Google Place ID',
           reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(placeId)}`,
         });
-        res.status(200).json({ results });
+        res.status(200).json({
+          results,
+          hasApiKey: Boolean(env.GOOGLE_PLACES_API_KEY),
+        });
         return;
       }
 
-      // If Google Places API key is configured, call Google Places API findplacefromtext
+      // 3. If Google Places API key is configured, call Google Places API findplacefromtext
       if (env.GOOGLE_PLACES_API_KEY) {
         try {
           const googleUrl = new URL(
@@ -297,40 +361,20 @@ adminRestaurantRouter.post(
             }
           }
         } catch {
-          // Fall through to fallback
+          // Ignore external network error, fall through to results
         }
       }
 
-      // If no results from Google API or no key provided, generate simulated candidate
-      if (results.length === 0) {
-        const safeQuery = query.trim();
-        // Deterministic Place ID from query
-        const hash = Buffer.from(safeQuery.toLowerCase()).toString('hex').slice(0, 24);
-        const samplePlaceId = `ChIJ_${hash}`;
-
-        results.push({
-          placeId: samplePlaceId,
-          name: safeQuery,
-          address: `${safeQuery}, Local Area, India`,
-          reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(samplePlaceId)}`,
-          isSimulated: true,
-        });
-
-        // Add restaurant name candidate if different
-        if (restaurant.name.toLowerCase() !== safeQuery.toLowerCase()) {
-          const restHash = Buffer.from(restaurant.name.toLowerCase()).toString('hex').slice(0, 24);
-          const restPlaceId = `ChIJ_${restHash}`;
-          results.push({
-            placeId: restPlaceId,
-            name: restaurant.name,
-            address: `${restaurant.name}, Registered Location`,
-            reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(restPlaceId)}`,
-            isSimulated: true,
-          });
-        }
-      }
-
-      res.status(200).json({ results });
+      res.status(200).json({
+        results,
+        hasApiKey: Boolean(env.GOOGLE_PLACES_API_KEY),
+        message:
+          results.length === 0
+            ? env.GOOGLE_PLACES_API_KEY
+              ? 'No matching places found on Google Maps for this query.'
+              : 'Google Places API key is not configured for automatic name search. Please paste your Google Maps link or Place ID directly, or use the Google Place ID Finder.'
+            : undefined,
+      });
     } catch (error) {
       next(error);
     }

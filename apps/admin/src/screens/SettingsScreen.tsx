@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -51,6 +51,66 @@ export const SettingsScreen: React.FC = () => {
   const [isSearchingPlaces, setIsSearchingPlaces] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [selectedPlace, setSelectedPlace] = useState<GooglePlaceResult | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Whitespark-style Google Places Autocomplete: attach to search input if Google Maps script is available
+  useEffect(() => {
+    if (!isGeneratorOpen) return;
+
+    const apiKey = (import.meta as unknown as { env?: { VITE_GOOGLE_MAPS_API_KEY?: string } }).env
+      ?.VITE_GOOGLE_MAPS_API_KEY;
+
+    const setupAutocomplete = () => {
+      if (!searchInputRef.current) return;
+      const googleMaps = (window as unknown as { google?: { maps?: { places?: any } } }).google
+        ?.maps?.places;
+      if (!googleMaps?.Autocomplete) return;
+
+      try {
+        const autocomplete = new googleMaps.Autocomplete(searchInputRef.current, {
+          types: ['establishment'],
+          fields: ['place_id', 'name', 'formatted_address'],
+        });
+
+        autocomplete.addListener('place_changed', () => {
+          const place = autocomplete.getPlace();
+          if (place && place.place_id) {
+            const result: GooglePlaceResult = {
+              placeId: place.place_id,
+              name: place.name || searchInputRef.current?.value || 'Selected Establishment',
+              address: place.formatted_address || '',
+              reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(place.place_id)}`,
+            };
+            setSelectedPlace(result);
+            setSearchResults([result]);
+            setSearchError(null);
+          }
+        });
+      } catch {
+        // Ignore initialization error
+      }
+    };
+
+    if (
+      (window as unknown as { google?: { maps?: { places?: { Autocomplete?: unknown } } } }).google
+        ?.maps?.places?.Autocomplete
+    ) {
+      setupAutocomplete();
+    } else if (apiKey) {
+      const scriptId = 'google-maps-places-script';
+      if (!document.getElementById(scriptId)) {
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(apiKey)}&libraries=places`;
+        script.async = true;
+        script.onload = () => setupAutocomplete();
+        document.head.appendChild(script);
+      } else {
+        const existingScript = document.getElementById(scriptId);
+        existingScript?.addEventListener('load', setupAutocomplete);
+      }
+    }
+  }, [isGeneratorOpen]);
 
   // Field currently performing save mutation
   const [savingField, setSavingField] = useState<string | null>(null);
@@ -220,6 +280,18 @@ export const SettingsScreen: React.FC = () => {
     setSelectedPlace(null);
     setSearchError(null);
     setSearchResults([]);
+    if (googleReviewUrl) {
+      const match = googleReviewUrl.match(/placeid=(ChIJ[0-9A-Za-z_-]{20,})/);
+      if (match && match[1]) {
+        setSelectedPlace({
+          placeId: match[1],
+          name: name || restaurant?.name || 'Configured Location',
+          address: 'Current Google Review Location',
+          reviewUrl: googleReviewUrl,
+        });
+        return;
+      }
+    }
     if (initialQuery) {
       void executePlacesSearch(initialQuery);
     }
@@ -231,18 +303,41 @@ export const SettingsScreen: React.FC = () => {
       setSearchError('Please enter at least 2 characters to search.');
       return;
     }
+
+    // Direct Place ID match (ChIJ...) or Review URL
+    const directPlaceIdMatch = trimmed.match(/\b(ChIJ[0-9A-Za-z_-]{20,})\b/);
+    if (directPlaceIdMatch && directPlaceIdMatch[1]) {
+      const pId = directPlaceIdMatch[1];
+      const directPlace: GooglePlaceResult = {
+        placeId: pId,
+        name: name || restaurant?.name || 'Selected Establishment',
+        address: 'Direct Google Place ID',
+        reviewUrl: `https://search.google.com/local/writereview?placeid=${encodeURIComponent(pId)}`,
+      };
+      setSelectedPlace(directPlace);
+      setSearchResults([directPlace]);
+      setSearchError(null);
+      return;
+    }
+
     setIsSearchingPlaces(true);
     setSearchError(null);
     try {
       const res = await api.searchGooglePlaces(restaurantId, trimmed);
       setSearchResults(res.results);
       if (res.results.length === 0) {
-        setSearchError('No matching places found. Try entering your Google Place ID directly.');
+        setSearchError(
+          res.message ||
+            'No matching places found. Try pasting your Google Maps link (maps.app.goo.gl) or Place ID (ChIJ...) directly.',
+        );
+        setSelectedPlace(null);
       } else if (res.results[0]) {
         setSelectedPlace(res.results[0]);
       }
     } catch {
-      setSearchError('Search failed. You can paste your Google Place ID directly.');
+      setSearchError(
+        'Unable to complete search. You can paste your Google Maps link or Google Place ID directly.',
+      );
     } finally {
       setIsSearchingPlaces(false);
     }
@@ -1101,15 +1196,16 @@ export const SettingsScreen: React.FC = () => {
                 className="space-y-2"
               >
                 <label className="block text-xs font-medium text-stone-700">
-                  Restaurant Name or Location
+                  Search Establishment, Paste Maps Link or Place ID
                 </label>
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <input
+                      ref={searchInputRef}
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="e.g. The Bombay Canteen Mumbai"
+                      placeholder="e.g. The Bombay Canteen, maps.app.goo.gl/... or Place ID (ChIJ...)"
                       className="w-full px-3.5 py-2 pl-9 rounded-xl text-xs border border-stone-200 bg-white text-stone-900 placeholder:text-stone-400 focus:border-stone-400 focus:shadow-[0_0_0_3px_rgba(0,0,0,0.04)] outline-none"
                     />
                     <HugeiconsIcon
@@ -1129,6 +1225,37 @@ export const SettingsScreen: React.FC = () => {
                   </MotionButton>
                 </div>
               </form>
+
+              {/* Instructions when no search has been performed yet */}
+              {!selectedPlace && searchResults.length === 0 && !searchError && (
+                <div className="p-3.5 rounded-2xl bg-stone-50 border border-stone-200/80 space-y-2 text-xs text-stone-600">
+                  <span className="font-semibold text-stone-900 block text-[11px] uppercase tracking-wider">
+                    How to generate your official review link
+                  </span>
+                  <ul className="space-y-1.5 list-disc list-inside text-stone-600 text-[11px]">
+                    <li>
+                      <span className="font-medium text-stone-800">Type Business Name:</span> Type
+                      your establishment name above to search Google Maps.
+                    </li>
+                    <li>
+                      <span className="font-medium text-stone-800">Google Maps Share Link:</span>{' '}
+                      Paste your{' '}
+                      <code className="bg-white px-1 py-0.5 rounded border border-stone-200 font-mono text-[10px]">
+                        maps.app.goo.gl
+                      </code>{' '}
+                      or Maps link.
+                    </li>
+                    <li>
+                      <span className="font-medium text-stone-800">Google Place ID:</span> Paste
+                      your Place ID directly (starts with{' '}
+                      <code className="bg-white px-1 py-0.5 rounded border border-stone-200 font-mono text-[10px]">
+                        ChIJ...
+                      </code>
+                      ).
+                    </li>
+                  </ul>
+                </div>
+              )}
 
               {/* Search Error */}
               {searchError && (

@@ -71,7 +71,7 @@ export const UpdateRestaurantSettingsSchema = z
 export type UpdateRestaurantSettings = z.infer<typeof UpdateRestaurantSettingsSchema>;
 
 export const PlacesSearchRequestSchema = z.object({
-  query: z.string().trim().min(2, 'Search query must be at least 2 characters').max(150),
+  query: z.string().trim().min(2, 'Search query must be at least 2 characters').max(1000),
 });
 
 export type PlacesSearchRequest = z.infer<typeof PlacesSearchRequestSchema>;

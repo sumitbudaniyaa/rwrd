@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield01Icon, Key01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -17,8 +17,13 @@ export const MfaChallengeScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // If no pending MFA temp token exists, redirect back to login
+  useEffect(() => {
+    if (!tempToken) {
+      navigate('/login', { replace: true });
+    }
+  }, [tempToken, navigate]);
+
   if (!tempToken) {
-    navigate('/login', { replace: true });
     return null;
   }
 

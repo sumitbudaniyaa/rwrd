@@ -438,4 +438,48 @@ describe('SettingsScreen', () => {
       });
     });
   });
+
+  it('immediately extracts Place ID and previews direct review URL when manager pastes direct Place ID', async () => {
+    vi.spyOn(api, 'getRestaurantSettings').mockResolvedValue({
+      restaurant: {
+        ...mockRestaurantSettings,
+        googleReviewUrl: '',
+      },
+    });
+
+    renderWithProviders(<SettingsScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('google review integration')).toBeInTheDocument();
+    });
+
+    // Click "Generate Review Link" button
+    const generateBtn = screen.getByRole('button', { name: /Generate Review Link/i });
+    fireEvent.click(generateBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('heading', { name: /generate google review link/i }),
+      ).toBeInTheDocument();
+    });
+
+    // Input direct Place ID
+    const searchInput = screen.getByPlaceholderText(
+      /e\.g\. The Bombay Canteen, maps\.app\.goo\.gl/i,
+    );
+    fireEvent.change(searchInput, {
+      target: { value: 'ChIJN1t_tDeuEmsRUsoyG83frY4' },
+    });
+
+    const searchBtn = screen.getByRole('button', { name: /^Search$/i });
+    fireEvent.click(searchBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          'https://search.google.com/local/writereview?placeid=ChIJN1t_tDeuEmsRUsoyG83frY4',
+        ),
+      ).toBeInTheDocument();
+    });
+  });
 });

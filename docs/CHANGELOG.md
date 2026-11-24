@@ -6,6 +6,30 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Fix Hardcoded Review Links: Real Google Places Autocomplete, Maps Share Link Unshortening & Place ID Extraction (M7-T81)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Eliminated Hardcoded & Simulated Review Links**:
+    - Removed all fabricated Place IDs (`ChIJ_<hash>`) and simulated addresses (`..., Local Area, India`) from [`apps/api/src/routes/adminRestaurant.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/adminRestaurant.ts) and shared schemas.
+    - Zero fake data is generated; review links are strictly constructed from verified Google Place IDs or live Google Places queries.
+  - **Whitespark Client-Side Google Places Autocomplete**:
+    - In [`apps/admin/src/screens/SettingsScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/src/screens/SettingsScreen.tsx), integrated client-side Google Places Autocomplete (`google.maps.places.Autocomplete`), matching Whitespark's exact browser architecture.
+    - Attached autocomplete directly to the search input, allowing live selection of official Google business establishments and immediate extraction of the real `place.place_id`.
+  - **Google Maps Share URL & Place ID Parsing**:
+    - Implemented instant extraction for direct Google Place IDs (e.g. `ChIJ...`) and Google review URLs containing `placeid=` query parameters.
+    - Added backend redirect resolver in `POST /api/v1/admin/restaurants/:restaurantId/places-search` to unshorten Google Maps share links (`maps.app.goo.gl`, `goo.gl/maps`, `google.com/maps`) and parse the underlying Place ID.
+    - Added helpful guidance and direct 1-click links to Google's official [Place ID Finder](https://developers.google.com/maps/documentation/javascript/examples/places-placeid-finder) when managers look up their establishment without a Google Places API key.
+  - **Testing & Verification**:
+    - Added tests in [`apps/api/tests/adminRestaurant.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/adminRestaurant.test.ts) verifying zero fake Place IDs are generated and verifying Place ID extraction from direct strings and review URLs.
+    - Added tests in [`apps/admin/tests/settings.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/admin/tests/settings.test.tsx) verifying instant client-side Place ID extraction and preview.
+    - Verified `pnpm typecheck` (0 errors across 7 packages) and `pnpm lint` (0 warnings/errors).
+    - Verified full test suites pass:
+      - `@tiptable/admin`: 11 test files, 61 tests passed.
+      - `@tiptable/customer`: 8 test files, 26 tests passed.
+      - `@tiptable/api`: 28 test files, 209 tests passed.
+
 ### 2026-11-23 - QR Placard Copy Polish, Sticky Header Banner Fix & Whitespark-Style Google Review Link Generator (M7-T80)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

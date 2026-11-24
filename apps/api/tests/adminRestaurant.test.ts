@@ -215,7 +215,7 @@ describe('Admin Restaurant Settings Routes', () => {
   });
 
   describe('POST /api/v1/admin/restaurants/:id/places-search', () => {
-    it('returns place search results with direct review URLs for business name query', async () => {
+    it('returns guidance message and zero fake place IDs when no Google Places API key is configured', async () => {
       vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
 
       const res = await request(app)
@@ -225,11 +225,8 @@ describe('Admin Restaurant Settings Routes', () => {
 
       expect(res.status).toBe(200);
       expect(Array.isArray(res.body.results)).toBe(true);
-      expect(res.body.results.length).toBeGreaterThan(0);
-      const first = res.body.results[0];
-      expect(first.name).toBe('The Bombay Canteen');
-      expect(first.placeId).toMatch(/^ChIJ/);
-      expect(first.reviewUrl).toContain('https://search.google.com/local/writereview?placeid=');
+      expect(res.body.hasApiKey).toBe(false);
+      expect(res.body.message).toContain('Google Places API key is not configured');
     });
 
     it('returns direct place candidate when query is already a Place ID', async () => {
@@ -240,6 +237,24 @@ describe('Admin Restaurant Settings Routes', () => {
         .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ query: customPlaceId });
+
+      expect(res.status).toBe(200);
+      expect(res.body.results).toHaveLength(1);
+      expect(res.body.results[0].placeId).toBe(customPlaceId);
+      expect(res.body.results[0].reviewUrl).toBe(
+        `https://search.google.com/local/writereview?placeid=${customPlaceId}`,
+      );
+    });
+
+    it('extracts Place ID when query is a Google review URL containing placeid param', async () => {
+      vi.spyOn(restaurantRepository, 'findById').mockResolvedValueOnce(mockRestaurantRecord);
+
+      const customPlaceId = 'ChIJ8f8U8vPP5zsRD5e-z4w5VvE';
+      const reviewUrlQuery = `https://search.google.com/local/writereview?placeid=${customPlaceId}`;
+      const res = await request(app)
+        .post(`/api/v1/admin/restaurants/${restaurantId}/places-search`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ query: reviewUrlQuery });
 
       expect(res.status).toBe(200);
       expect(res.body.results).toHaveLength(1);

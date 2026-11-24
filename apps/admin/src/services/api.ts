@@ -161,7 +161,12 @@ export interface GooglePlaceResult {
   name: string;
   address: string;
   reviewUrl: string;
-  isSimulated?: boolean;
+}
+
+export interface PlacesSearchResponse {
+  results: GooglePlaceResult[];
+  hasApiKey?: boolean;
+  message?: string;
 }
 
 export interface QrTokenItem {
@@ -469,17 +474,11 @@ export const api = {
     );
   },
 
-  searchGooglePlaces(
-    restaurantId: string,
-    query: string,
-  ): Promise<{ results: GooglePlaceResult[] }> {
-    return request<{ results: GooglePlaceResult[] }>(
-      `/admin/restaurants/${restaurantId}/places-search`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ query }),
-      },
-    );
+  searchGooglePlaces(restaurantId: string, query: string): Promise<PlacesSearchResponse> {
+    return request<PlacesSearchResponse>(`/admin/restaurants/${restaurantId}/places-search`, {
+      method: 'POST',
+      body: JSON.stringify({ query }),
+    });
   },
 
   getQrList(restaurantId: string): Promise<QrListResponse> {
