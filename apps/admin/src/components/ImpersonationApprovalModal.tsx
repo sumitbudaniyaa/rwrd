@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { AlertCircleIcon, CheckmarkCircle02Icon, Clock01Icon } from '@hugeicons/core-free-icons';
 import { FadeIn, useToast } from '@tiptable/ui';
 import { MotionButton } from './motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
@@ -101,18 +99,13 @@ export const ImpersonationApprovalModal: React.FC = () => {
                 {pendingRequest.reason || 'Customer support assistance'}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 text-[11px] text-amber-700 pt-1">
-              <HugeiconsIcon icon={Clock01Icon} className="w-3.5 h-3.5 shrink-0" />
+            <div className="text-[11px] text-amber-700 pt-1">
               <span>This request will automatically expire in 5 minutes if unaddressed.</span>
             </div>
           </div>
 
           <div className="p-3 bg-amber-50/60 border border-amber-200/60 rounded-xl text-xs text-amber-900 space-y-1">
-            <p className="font-semibold flex items-center gap-1.5 text-[11px]">
-              <HugeiconsIcon
-                icon={AlertCircleIcon}
-                className="w-3.5 h-3.5 text-amber-600 shrink-0"
-              />
+            <p className="font-semibold text-[11px]">
               <span>security & consent notice</span>
             </p>
             <p className="text-[10px] text-amber-800 leading-relaxed">
@@ -139,9 +132,8 @@ export const ImpersonationApprovalModal: React.FC = () => {
               size="sm"
               disabled={respondMutation.isPending}
               onClick={() => handleRespond('approve')}
-              className="px-4 py-2 text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 text-xs font-semibold rounded-xl shadow-xs transition-colors"
             >
-              <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />
               <span>{respondMutation.isPending ? 'approving...' : 'approve access'}</span>
             </MotionButton>
           </div>

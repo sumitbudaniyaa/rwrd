@@ -91,9 +91,6 @@ export const AdminLayout: React.FC = () => {
             className="bg-amber-500 text-stone-950 px-6 py-2.5 text-xs font-medium flex items-center justify-between border-b border-amber-600 shadow-sm"
           >
             <div className="flex items-center gap-2.5">
-              <span className="text-base" aria-hidden="true">
-                ⚠️
-              </span>
               <span>
                 <strong>Impersonation Mode:</strong> You are viewing this account as Platform Staff
                 (Staff ID: {impersonation.impersonatorId || 'Support'}). All actions are strictly

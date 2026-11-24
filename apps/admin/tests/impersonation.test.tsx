@@ -74,6 +74,7 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
 
     const banner = screen.getByRole('alert');
     expect(banner).toBeDefined();
+    expect(screen.queryByText('⚠️')).toBeNull();
     expect(screen.getByText(/Impersonation Mode:/i)).toBeDefined();
     expect(screen.getByText(/staff-999/i)).toBeDefined();
     expect(screen.getByText(/All actions are strictly audited/i)).toBeDefined();

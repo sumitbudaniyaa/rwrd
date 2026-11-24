@@ -481,5 +481,52 @@ describe('Portal Support Impersonation Routes', () => {
         }),
       );
     });
+
+    it('platform staff ends active impersonation session (POST /portal/impersonation-requests/:requestId/end)', async () => {
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      const mockApprovedRequest = {
+        ...mockPendingRequest,
+        status: 'approved' as const,
+        token: 'token-active-123',
+        respondedAt: new Date(),
+      };
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [mockApprovedRequest],
+          }),
+        }),
+      } as any);
+
+      const updateSpy = vi.spyOn(db, 'update').mockReturnValueOnce({
+        set: () => ({
+          where: () => Promise.resolve(),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .post(`/api/v1/portal/impersonation-requests/${requestId}/end`)
+        .set('Authorization', `Bearer ${supportToken}`)
+        .send();
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('revoked');
+      expect(res.body.message).toBe('Support access session ended');
+      expect(updateSpy).toHaveBeenCalled();
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'IMPERSONATION_REVOKED',
+          actorId: supportUserId,
+          restaurantId,
+          entityId: requestId,
+          afterState: expect.objectContaining({
+            status: 'revoked',
+            endedBy: 'portal_user',
+          }),
+        }),
+      );
+    });
   });
 });

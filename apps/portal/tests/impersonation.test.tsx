@@ -191,8 +191,135 @@ describe('Portal Support Impersonation Flow', () => {
       expect(screen.getByRole('button', { name: /Exit Session/i })).toBeDefined();
     });
 
+    const endSpy = vi.spyOn(api, 'endImpersonationRequest').mockResolvedValueOnce({
+      message: 'Support access session ended',
+      status: 'revoked',
+    });
+
     const exitBtn = screen.getByRole('button', { name: /Exit Session/i });
     fireEvent.click(exitBtn);
+
+    await waitFor(() => {
+      expect(endSpy).toHaveBeenCalledWith('req-12345');
+      expect(
+        screen.queryByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+      ).toBeNull();
+    });
+  });
+
+  it('automatically closes active admin session dialog when session is revoked by restaurant administrator', async () => {
+    vi.spyOn(api, 'getRestaurants').mockResolvedValue(mockRestaurantsResponse);
+    vi.spyOn(api, 'createImpersonationRequest').mockResolvedValueOnce({
+      requestId: 'req-revoked-test',
+      status: 'pending',
+      restaurantName: 'The Bombay Canteen',
+      expiresAt: new Date(Date.now() + 300000).toISOString(),
+      reason: 'Live check',
+    });
+
+    // First call returns approved, subsequent call during session returns revoked
+    vi.spyOn(api, 'getImpersonationRequestStatus')
+      .mockResolvedValueOnce({
+        id: 'req-revoked-test',
+        status: 'approved',
+        reason: 'Live check',
+        impersonationToken: 'jwt-revoked-test',
+        expiresAt: new Date(Date.now() + 300000).toISOString(),
+        respondedAt: new Date().toISOString(),
+      })
+      .mockResolvedValueOnce({
+        id: 'req-revoked-test',
+        status: 'revoked',
+        reason: 'Live check',
+        impersonationToken: null,
+        expiresAt: new Date(Date.now() + 300000).toISOString(),
+        respondedAt: new Date().toISOString(),
+      });
+
+    renderWithProviders(<RestaurantManagementScreen />, 'support');
+
+    await waitFor(() => {
+      expect(screen.getByText('The Bombay Canteen')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Impersonate/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Send Request to Restaurant/i })).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Send Request to Restaurant/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Launch Admin Session/i })).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Launch Admin Session/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+      ).toBeDefined();
+    });
+
+    // When status query polls and receives revoked, the session dialog automatically unmounts
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+      ).toBeNull();
+    });
+  });
+
+  it('closes active admin session dialog when TIPTABLE_IMPERSONATION_EXIT window message is received', async () => {
+    vi.spyOn(api, 'getRestaurants').mockResolvedValue(mockRestaurantsResponse);
+    vi.spyOn(api, 'createImpersonationRequest').mockResolvedValueOnce({
+      requestId: 'req-msg-exit',
+      status: 'pending',
+      restaurantName: 'The Bombay Canteen',
+      expiresAt: new Date(Date.now() + 300000).toISOString(),
+      reason: 'Live check',
+    });
+
+    vi.spyOn(api, 'getImpersonationRequestStatus').mockResolvedValueOnce({
+      id: 'req-msg-exit',
+      status: 'approved',
+      reason: 'Live check',
+      impersonationToken: 'jwt-msg-exit',
+      expiresAt: new Date(Date.now() + 300000).toISOString(),
+      respondedAt: new Date().toISOString(),
+    });
+
+    renderWithProviders(<RestaurantManagementScreen />, 'support');
+
+    await waitFor(() => {
+      expect(screen.getByText('The Bombay Canteen')).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Impersonate/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Send Request to Restaurant/i })).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Send Request to Restaurant/i }));
+
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /Launch Admin Session/i })).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /Launch Admin Session/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+      ).toBeDefined();
+    });
+
+    // Simulate iframe firing exit postMessage
+    fireEvent(
+      window,
+      new MessageEvent('message', { data: { type: 'TIPTABLE_IMPERSONATION_EXIT' } }),
+    );
 
     await waitFor(() => {
       expect(

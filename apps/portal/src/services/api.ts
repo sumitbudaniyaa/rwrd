@@ -579,6 +579,13 @@ export const api = {
     );
   },
 
+  endImpersonationRequest(requestId: string): Promise<{ message: string; status: string }> {
+    return request<{ message: string; status: string }>(
+      `/portal/impersonation-requests/${requestId}/end`,
+      { method: 'POST' },
+    );
+  },
+
   getGlobalMetrics(): Promise<PlatformMetricsResponse> {
     return request<PlatformMetricsResponse>('/portal/metrics', {
       method: 'GET',

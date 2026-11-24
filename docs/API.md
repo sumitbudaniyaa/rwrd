@@ -537,7 +537,7 @@ The API supports three distinct authentication contexts:
 #### Poll Impersonation Request Status (`GET /api/v1/portal/impersonation-requests/:requestId`)
 
 - **Role Requirement**: `super_admin`, `support`.
-- **Purpose**: Returns the real-time consent status (`pending`, `approved`, `declined`, `expired`). Once approved, delivers the 1-hour delegated admin session token.
+- **Purpose**: Returns the real-time consent status (`pending`, `approved`, `declined`, `expired`, `revoked`). Once approved, delivers the 1-hour delegated admin session token. Polled during active session to auto-close if revoked.
 - **Response `200 OK`**:
 
 ```json
@@ -548,6 +548,19 @@ The API supports three distinct authentication contexts:
   "impersonationToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
   "expiresAt": "2026-11-24T15:20:00.000Z",
   "respondedAt": "2026-11-24T15:16:30.000Z"
+}
+```
+
+#### End Impersonation Session (`POST /api/v1/portal/impersonation-requests/:requestId/end`)
+
+- **Role Requirement**: `super_admin`, `support`.
+- **Purpose**: Terminates an active impersonation session from the platform portal side, marks status as `revoked`, and logs `IMPERSONATION_REVOKED`.
+- **Response `200 OK`**:
+
+```json
+{
+  "message": "Support access session ended",
+  "status": "revoked"
 }
 ```
 

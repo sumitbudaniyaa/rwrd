@@ -269,3 +269,56 @@ portalImpersonationRouter.get(
     }
   },
 );
+
+/**
+ * POST /api/v1/portal/impersonation-requests/:requestId/end
+ * Ends/revokes an active impersonation session from the platform portal side.
+ */
+portalImpersonationRouter.post(
+  '/portal/impersonation-requests/:requestId/end',
+  requireAuth('portal'),
+  requireRole(['super_admin', 'support']),
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const { requestId } = req.params;
+      const [requestRecord] = await db
+        .select()
+        .from(impersonationRequests)
+        .where(eq(impersonationRequests.id, requestId!))
+        .limit(1);
+
+      if (!requestRecord) {
+        throw new NotFoundError('Impersonation request not found');
+      }
+
+      await db
+        .update(impersonationRequests)
+        .set({
+          status: 'revoked',
+          token: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(impersonationRequests.id, requestRecord.id));
+
+      await auditService.record({
+        restaurantId: requestRecord.restaurantId,
+        actorId: req.user!.id,
+        actorType: 'platform_user',
+        action: 'IMPERSONATION_REVOKED',
+        entityType: 'impersonation_request',
+        entityId: requestRecord.id,
+        beforeState: { status: requestRecord.status },
+        afterState: { status: 'revoked', endedBy: 'portal_user' },
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+
+      res.status(200).json({
+        message: 'Support access session ended',
+        status: 'revoked',
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);

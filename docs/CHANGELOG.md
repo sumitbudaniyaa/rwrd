@@ -6,6 +6,28 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Remove Heading Letter Badges & Icons, Bi-Directional Session Auto-Close in Super Admin (M7-T89)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Clean Typography (Zero Letter Icons or Heading Icons)**:
+    - Removed the letter icon badge (`{restaurantName.charAt(0).toUpperCase()}`) next to the heading `support session: <name>` in the Super Admin session dialog (`apps/portal/src/screens/RestaurantManagementScreen.tsx`).
+    - Removed the icon container box (`UserCheck01Icon`) next to the impersonation modal heading and the warning icon next to `Restaurant Consent Protocol`.
+    - Removed the `AlertCircleIcon` next to `security & consent notice` and the clock icon next to the expiry note in `apps/admin/src/components/ImpersonationApprovalModal.tsx`.
+    - Removed the `⚠️` emoji next to `Impersonation Mode:` in the sticky header banner (`apps/admin/src/layouts/AdminLayout.tsx`).
+  - **Bi-Directional Real-Time Session Termination & Auto-Close**:
+    - Stored `requestId` in Super Admin `activeAdminSession` state.
+    - Added TanStack Query polling hook in `RestaurantManagementScreen.tsx` that polls `GET /api/v1/portal/impersonation-requests/:requestId` every 2s while the session dialog is open.
+    - When the restaurant admin clicks **"end access"** on the floating pill, the query detects `status === 'revoked'` and immediately dismisses the embedded session dialog in Super Admin with toast feedback.
+    - Added `POST /api/v1/portal/impersonation-requests/:requestId/end` in backend (`portalImpersonation.ts`) and API service. When Super Admin clicks **"Exit Session"**, it notifies the backend, marks the request as `revoked`, and removes the active access pill on the restaurant console.
+    - Added `postMessage` listener for `TIPTABLE_IMPERSONATION_EXIT` in Super Admin host window, so clicking "Exit Impersonation" within the embedded iframe closes the Super Admin dialog immediately.
+  - **Testing & Verification**:
+    - Updated `apps/portal/tests/impersonation.test.tsx` with tests for `endImpersonationRequest` call, auto-closing the session modal upon restaurant revocation, and closing on iframe exit postMessage (all 6/6 tests passed).
+    - Updated `apps/admin/tests/impersonation.test.tsx` verifying clean header banners without emoji/icons (all 10/10 tests passed).
+    - Added backend test in `apps/api/tests/portalImpersonation.test.ts` for `POST /portal/impersonation-requests/:requestId/end` (all 12/12 tests passed; full suite of 29 test files, 227 tests passed).
+    - Verified `pnpm typecheck` (7 packages, 0 errors) and `pnpm lint` (0 errors).
+
 ### 2026-11-24 - Impersonation Modal Polish, Real-Time Revocation, Floating Active Access Pill & In-App Portal Session Dialog (M7-T88)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

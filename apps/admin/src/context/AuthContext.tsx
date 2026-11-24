@@ -294,6 +294,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setRestaurant(null);
     setImpersonation(null);
+    try {
+      if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
+        window.parent.postMessage({ type: 'TIPTABLE_IMPERSONATION_EXIT' }, '*');
+      }
+    } catch {
+      // Ignore cross-origin error
+    }
     if (window.opener) {
       window.close();
     } else {

@@ -56,6 +56,7 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [activeAdminSession, setActiveAdminSession] = useState<{
     restaurantName: string;
     token: string;
+    requestId: string;
   } | null>(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -272,13 +273,61 @@ export const RestaurantManagementScreen: React.FC = () => {
   };
 
   const handleLaunchSession = () => {
-    if (!approvedImpersonationToken || !impersonateTarget) return;
+    if (!approvedImpersonationToken || !impersonateTarget || !activeImpersonationRequestId) return;
     setActiveAdminSession({
       restaurantName: impersonateTarget.name,
       token: approvedImpersonationToken,
+      requestId: activeImpersonationRequestId,
     });
     setSuccessMessage(`Delegated support session active for "${impersonateTarget.name}".`);
     resetImpersonationState();
+  };
+
+  // Poll session status while activeAdminSession is open to detect revocation by restaurant
+  const { data: activeSessionStatusData } = useQuery({
+    queryKey: ['portal-active-session-status', activeAdminSession?.requestId],
+    queryFn: () =>
+      activeAdminSession?.requestId
+        ? api.getImpersonationRequestStatus(activeAdminSession.requestId)
+        : null,
+    enabled: Boolean(activeAdminSession?.requestId),
+    refetchInterval: 2000,
+  });
+
+  React.useEffect(() => {
+    if (activeSessionStatusData && activeAdminSession) {
+      if (
+        activeSessionStatusData.status === 'revoked' ||
+        activeSessionStatusData.status === 'expired'
+      ) {
+        setActiveAdminSession(null);
+        toast.info('Support Access Ended', 'The support session has been terminated.');
+      }
+    }
+  }, [activeSessionStatusData, activeAdminSession, toast]);
+
+  // Listen for iframe exit messages (when user clicks "Exit Impersonation" inside the admin app)
+  React.useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'TIPTABLE_IMPERSONATION_EXIT') {
+        setActiveAdminSession(null);
+        toast.info('Support Access Ended', 'Delegated session exited.');
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [toast]);
+
+  const handleExitSession = async () => {
+    if (activeAdminSession?.requestId) {
+      try {
+        await api.endImpersonationRequest(activeAdminSession.requestId);
+      } catch {
+        // Continue closing session locally even if backend call fails
+      }
+    }
+    setActiveAdminSession(null);
+    toast.info('Support Access Ended', 'Delegated session exited.');
   };
 
   const resetForm = () => {
@@ -1090,45 +1139,36 @@ export const RestaurantManagementScreen: React.FC = () => {
           <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans">
             <FadeIn>
               <div className="bg-white dark:bg-stone-900 rounded-xl max-w-md w-full border border-stone-200/90 dark:border-stone-800 shadow-xl overflow-hidden p-5 space-y-3.5 transition-colors duration-200">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200 dark:border-stone-700 flex items-center justify-center text-stone-800 dark:text-stone-200 shrink-0">
-                    <HugeiconsIcon icon={UserCheck01Icon} className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
-                      {impersonationStatus === 'pending'
-                        ? 'Waiting for Restaurant Approval'
-                        : impersonationStatus === 'approved'
-                          ? 'Support Access Approved'
-                          : impersonationStatus === 'declined'
-                            ? 'Support Access Declined'
-                            : impersonationStatus === 'expired'
-                              ? 'Support Request Expired'
-                              : `Request Support Access: "${impersonateTarget.name}"`}
-                    </h3>
-                    <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
-                      {impersonationStatus === 'pending'
-                        ? 'Consent prompt sent to restaurant administrator.'
-                        : impersonationStatus === 'approved'
-                          ? 'Consent verified. Ready to launch delegated session.'
-                          : impersonationStatus === 'declined'
-                            ? 'The restaurant declined this impersonation session.'
-                            : impersonationStatus === 'expired'
-                              ? 'The 5-minute approval window has expired.'
-                              : 'Requires approval from the restaurant administrator.'}
-                    </p>
-                  </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                    {impersonationStatus === 'pending'
+                      ? 'Waiting for Restaurant Approval'
+                      : impersonationStatus === 'approved'
+                        ? 'Support Access Approved'
+                        : impersonationStatus === 'declined'
+                          ? 'Support Access Declined'
+                          : impersonationStatus === 'expired'
+                            ? 'Support Request Expired'
+                            : `Request Support Access: "${impersonateTarget.name}"`}
+                  </h3>
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400 mt-0.5">
+                    {impersonationStatus === 'pending'
+                      ? 'Consent prompt sent to restaurant administrator.'
+                      : impersonationStatus === 'approved'
+                        ? 'Consent verified. Ready to launch delegated session.'
+                        : impersonationStatus === 'declined'
+                          ? 'The restaurant declined this impersonation session.'
+                          : impersonationStatus === 'expired'
+                            ? 'The 5-minute approval window has expired.'
+                            : 'Requires approval from the restaurant administrator.'}
+                  </p>
                 </div>
 
                 {/* State: IDLE */}
                 {impersonationStatus === 'idle' && (
                   <>
                     <div className="p-2.5 bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/20 dark:border-amber-900 rounded-lg text-xs text-amber-800 dark:text-amber-300 space-y-1">
-                      <p className="font-semibold flex items-center gap-1.5 text-[11px]">
-                        <HugeiconsIcon
-                          icon={AlertCircleIcon}
-                          className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 shrink-0"
-                        />
+                      <p className="font-semibold text-[11px]">
                         <span>Restaurant Consent Protocol</span>
                       </p>
                       <p className="text-[10px] leading-relaxed text-amber-700 dark:text-amber-400">
@@ -1802,9 +1842,6 @@ export const RestaurantManagementScreen: React.FC = () => {
               {/* Header */}
               <div className="px-5 py-3.5 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-xs flex items-center justify-between shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 flex items-center justify-center font-bold text-xs shadow-xs">
-                    {activeAdminSession.restaurantName.charAt(0).toUpperCase()}
-                  </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
@@ -1823,7 +1860,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setActiveAdminSession(null)}
+                    onClick={handleExitSession}
                     className="px-3 py-1.5 text-xs text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg transition-colors cursor-pointer"
                   >
                     Exit Session
