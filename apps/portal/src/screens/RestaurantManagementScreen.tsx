@@ -11,6 +11,10 @@ import {
   Cancel01Icon,
   UserCheck01Icon,
   Delete02Icon,
+  Coins01Icon,
+  StarIcon,
+  Invoice01Icon,
+  ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
 import { SlideUp, FadeIn, MotionButton, useToast } from '@tiptable/ui';
 import { Badge } from '../components/Badge.js';
@@ -42,6 +46,7 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<PortalRestaurantItem | null>(null);
   const [impersonateTarget, setImpersonateTarget] = useState<PortalRestaurantItem | null>(null);
   const [impersonateReason, setImpersonateReason] = useState('');
+  const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -80,6 +85,17 @@ export const RestaurantManagementScreen: React.FC = () => {
       if (planFilter !== 'all') params.planId = planFilter;
       return api.getRestaurants(params);
     },
+  });
+
+  const {
+    data: detailsData,
+    isLoading: isDetailsLoading,
+    isError: isDetailsError,
+    refetch: refetchDetails,
+  } = useQuery({
+    queryKey: ['portal-restaurant-details', selectedRestaurantId],
+    queryFn: () => (selectedRestaurantId ? api.getRestaurantDetails(selectedRestaurantId) : null),
+    enabled: Boolean(selectedRestaurantId),
   });
 
   // Onboarding Mutation
@@ -455,15 +471,17 @@ export const RestaurantManagementScreen: React.FC = () => {
                     {restaurantsData.restaurants.map((rest) => (
                       <tr
                         key={rest.id}
-                        className="hover:bg-stone-50/60 dark:hover:bg-stone-800/50 transition-colors"
+                        onClick={() => setSelectedRestaurantId(rest.id)}
+                        className="hover:bg-stone-50/80 dark:hover:bg-stone-800/60 transition-colors cursor-pointer group"
+                        title="Click to view full restaurant details"
                       >
                         <td className="py-3 px-4 font-medium text-stone-900 dark:text-stone-100">
                           <div className="flex items-center gap-2.5">
-                            <div className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700 flex items-center justify-center text-stone-700 dark:text-stone-300 shrink-0">
+                            <div className="w-7 h-7 rounded-lg bg-stone-100 dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700 flex items-center justify-center text-stone-700 dark:text-stone-300 shrink-0 group-hover:border-stone-400 dark:group-hover:border-stone-500 transition-colors">
                               <HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />
                             </div>
                             <div>
-                              <span className="block font-semibold text-stone-900 dark:text-stone-100">
+                              <span className="block font-semibold text-stone-900 dark:text-stone-100 group-hover:text-emerald-700 dark:group-hover:text-emerald-400 transition-colors">
                                 {rest.name}
                               </span>
                               <span className="text-[10px] text-stone-400 dark:text-stone-500 block truncate max-w-xs font-mono">
@@ -523,10 +541,27 @@ export const RestaurantManagementScreen: React.FC = () => {
                         </td>
                         <td className="py-3 px-4 text-right whitespace-nowrap">
                           <div className="flex items-center justify-end gap-1.5">
+                            {/* View Details button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedRestaurantId(rest.id);
+                              }}
+                              className="px-2 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 cursor-pointer"
+                              title="View Full Details"
+                            >
+                              <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
+                              <span>Details</span>
+                            </button>
+
                             {/* Impersonate button */}
                             <button
                               type="button"
-                              onClick={() => setImpersonateTarget(rest)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setImpersonateTarget(rest);
+                              }}
                               className="px-2 py-1 rounded-md text-[11px] font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1 cursor-pointer"
                               title="Support Impersonation"
                             >
@@ -539,7 +574,10 @@ export const RestaurantManagementScreen: React.FC = () => {
                                 {rest.isSuspended ? (
                                   <button
                                     type="button"
-                                    onClick={() => handleReactivate(rest)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleReactivate(rest);
+                                    }}
                                     className="px-2 py-1 rounded-md text-[11px] font-medium bg-emerald-500/10 hover:bg-emerald-500/20 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 dark:border-emerald-800 transition-colors"
                                   >
                                     Reactivate
@@ -547,7 +585,10 @@ export const RestaurantManagementScreen: React.FC = () => {
                                 ) : (
                                   <button
                                     type="button"
-                                    onClick={() => setSuspendTarget(rest)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSuspendTarget(rest);
+                                    }}
                                     className="px-2 py-1 rounded-md text-[11px] font-medium bg-amber-500/10 hover:bg-amber-500/20 dark:bg-amber-950/40 dark:hover:bg-amber-900/60 text-amber-800 dark:text-amber-300 border border-amber-500/20 dark:border-amber-800 transition-colors"
                                   >
                                     Suspend
@@ -556,7 +597,10 @@ export const RestaurantManagementScreen: React.FC = () => {
 
                                 <button
                                   type="button"
-                                  onClick={() => handleDelete(rest)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDelete(rest);
+                                  }}
                                   className="px-2 py-1 rounded-md text-[11px] font-medium bg-rose-500/10 hover:bg-rose-500/20 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 text-rose-800 dark:text-rose-300 border border-rose-500/20 dark:border-rose-800 transition-colors"
                                 >
                                   Delete
@@ -1035,6 +1079,482 @@ export const RestaurantManagementScreen: React.FC = () => {
                 </div>
               </div>
             </FadeIn>
+          </div>,
+          document.body,
+        )}
+
+      {/* Restaurant Details Slide-Over Drawer */}
+      {selectedRestaurantId &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[190] flex justify-end bg-stone-900/40 dark:bg-black/70 backdrop-blur-xs animate-fade-in font-sans"
+            onClick={() => setSelectedRestaurantId(null)}
+          >
+            <div
+              className="w-full max-w-2xl bg-white dark:bg-stone-900 h-full shadow-2xl border-l border-stone-200 dark:border-stone-800 flex flex-col overflow-hidden animate-slide-left"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drawer Header */}
+              <div className="p-4 sm:p-5 border-b border-stone-200/80 dark:border-stone-800 flex items-center justify-between bg-stone-50/50 dark:bg-stone-900/50">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 flex items-center justify-center font-bold text-sm shadow-xs shrink-0">
+                    {detailsData?.restaurant.name
+                      ? detailsData.restaurant.name.charAt(0).toUpperCase()
+                      : 'R'}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-base font-bold text-stone-900 dark:text-stone-100 leading-tight">
+                        {detailsData?.restaurant.name || 'Restaurant Details'}
+                      </h2>
+                      {detailsData?.restaurant && (
+                        <>
+                          {detailsData.restaurant.deletedAt ? (
+                            <Badge variant="neutral">Deleted</Badge>
+                          ) : detailsData.restaurant.isSuspended ? (
+                            <Badge variant="danger">Suspended</Badge>
+                          ) : detailsData.restaurant.subscriptionStatus === 'unpaid' ||
+                            !detailsData.restaurant.isActive ? (
+                            <Badge variant="warning">Unpaid</Badge>
+                          ) : (
+                            <Badge variant="success">Active</Badge>
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      <span className="font-mono text-xs text-stone-500 dark:text-stone-400">
+                        {detailsData?.restaurant.slug}
+                      </span>
+                      <span className="text-stone-300 dark:text-stone-700">•</span>
+                      <span className="text-xs text-stone-400 dark:text-stone-500">
+                        ID: {selectedRestaurantId.slice(0, 8)}...
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {detailsData?.restaurant && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const target = detailsData.restaurant;
+                        setSelectedRestaurantId(null);
+                        setImpersonateTarget(target);
+                      }}
+                      className="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                      title="Impersonate Restaurant"
+                    >
+                      <HugeiconsIcon icon={UserCheck01Icon} className="w-3.5 h-3.5" />
+                      <span>Impersonate</span>
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedRestaurantId(null)}
+                    className="p-1.5 rounded-lg text-stone-400 dark:text-stone-500 hover:text-stone-700 dark:hover:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors"
+                    aria-label="Close drawer"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Drawer Body */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-6">
+                {isDetailsLoading && (
+                  <div className="space-y-4 animate-pulse">
+                    <div className="h-24 bg-stone-100 dark:bg-stone-800 rounded-xl" />
+                    <div className="h-32 bg-stone-100 dark:bg-stone-800 rounded-xl" />
+                    <div className="h-28 bg-stone-100 dark:bg-stone-800 rounded-xl" />
+                  </div>
+                )}
+
+                {isDetailsError && (
+                  <div className="p-4 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl text-xs text-red-700 dark:text-red-300 flex items-start gap-3">
+                    <HugeiconsIcon
+                      icon={AlertCircleIcon}
+                      className="w-5 h-5 text-red-500 shrink-0"
+                    />
+                    <div className="space-y-1">
+                      <p className="font-semibold">Failed to load restaurant details</p>
+                      <p>There was an error communicating with the TipTable API server.</p>
+                      <button
+                        type="button"
+                        onClick={() => refetchDetails()}
+                        className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-md font-medium"
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {detailsData && (
+                  <>
+                    {/* Suspended Alert */}
+                    {detailsData.restaurant.isSuspended && (
+                      <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900 rounded-xl flex items-start gap-2.5 text-xs text-red-800 dark:text-red-200">
+                        <HugeiconsIcon
+                          icon={AlertCircleIcon}
+                          className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5"
+                        />
+                        <div>
+                          <span className="font-semibold block">
+                            Account Administratively Suspended
+                          </span>
+                          <span className="text-[11px] text-red-700 dark:text-red-300">
+                            {detailsData.restaurant.suspensionReason ||
+                              'No reason recorded for this suspension.'}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Section 1: Live Operational Telemetry */}
+                    <div>
+                      <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={Coins01Icon} className="w-3.5 h-3.5" />
+                        <span>Operational & Telemetry Metrics</span>
+                      </h3>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800">
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 block font-medium">
+                            Active Staff
+                          </span>
+                          <span className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1 block">
+                            {detailsData.stats.staffCount}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800">
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 block font-medium">
+                            Dining Tables
+                          </span>
+                          <span className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1 block">
+                            {detailsData.stats.tablesCount}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800">
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 block font-medium">
+                            Active QR Codes
+                          </span>
+                          <span className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1 block">
+                            {detailsData.stats.qrTokensCount}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800">
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 block font-medium">
+                            Tips Initiated
+                          </span>
+                          <span className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1 block">
+                            {detailsData.stats.tipsCount}
+                          </span>
+                          <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
+                            Vol: ₹{detailsData.stats.totalTipsAmountInr.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800">
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 block font-medium">
+                            Review Taps
+                          </span>
+                          <span className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1 block">
+                            {detailsData.stats.reviewClicksCount}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800">
+                          <span className="text-[11px] text-stone-500 dark:text-stone-400 block font-medium">
+                            Invoices Billed
+                          </span>
+                          <span className="text-xl font-bold text-stone-900 dark:text-stone-100 mt-1 block">
+                            {detailsData.stats.invoicesCount}
+                          </span>
+                          <span className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
+                            Total: ₹{detailsData.stats.totalBilledInr.toLocaleString('en-IN')}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section 2: Account Owner & Admin */}
+                    <div>
+                      <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={UserCheck01Icon} className="w-3.5 h-3.5" />
+                        <span>Primary Account Owner</span>
+                      </h3>
+                      {detailsData.owner ? (
+                        <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800 space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="font-semibold text-stone-900 dark:text-stone-100 text-sm block">
+                                {detailsData.owner.fullName}
+                              </span>
+                              <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
+                                {detailsData.owner.email}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="neutral">{detailsData.owner.role}</Badge>
+                              {detailsData.owner.totpEnabled ? (
+                                <Badge variant="success">MFA Enabled</Badge>
+                              ) : (
+                                <Badge variant="warning">MFA Inactive</Badge>
+                              )}
+                            </div>
+                          </div>
+                          <div className="text-[11px] text-stone-400 dark:text-stone-500 pt-2 border-t border-stone-200/50 dark:border-stone-700/50 flex justify-between">
+                            <span>User ID: {detailsData.owner.id}</span>
+                            <span>
+                              Joined: {new Date(detailsData.owner.createdAt).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800 text-xs text-stone-500">
+                          No individual administrator account linked to this restaurant.
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Section 3: Billing & Subscription */}
+                    <div>
+                      <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={Invoice01Icon} className="w-3.5 h-3.5" />
+                        <span>Subscription & Billing</span>
+                      </h3>
+                      <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="font-semibold text-stone-900 dark:text-stone-100 text-sm block">
+                              {detailsData.subscription?.planName || 'Unassigned / Custom'}
+                            </span>
+                            <span className="text-xs text-stone-500 dark:text-stone-400 font-mono">
+                              Code: {detailsData.subscription?.planCode || 'none'} • ₹
+                              {detailsData.subscription?.priceInr ?? 0}
+                            </span>
+                          </div>
+                          <Badge
+                            variant={
+                              detailsData.subscription?.status === 'active'
+                                ? 'success'
+                                : detailsData.subscription?.status === 'past_due'
+                                  ? 'warning'
+                                  : detailsData.subscription?.status === 'cancelled'
+                                    ? 'danger'
+                                    : 'neutral'
+                            }
+                          >
+                            {detailsData.subscription?.status || 'unpaid'}
+                          </Badge>
+                        </div>
+
+                        {detailsData.subscription && (
+                          <div className="grid grid-cols-2 gap-2 pt-2 border-t border-stone-200/50 dark:border-stone-700/50 text-[11px]">
+                            <div>
+                              <span className="text-stone-400 dark:text-stone-500 block">
+                                Period Start
+                              </span>
+                              <span className="font-mono text-stone-700 dark:text-stone-300">
+                                {new Date(
+                                  detailsData.subscription.currentPeriodStart,
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-stone-400 dark:text-stone-500 block">
+                                Renewal / End
+                              </span>
+                              <span className="font-mono text-stone-700 dark:text-stone-300">
+                                {new Date(
+                                  detailsData.subscription.currentPeriodEnd,
+                                ).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Section 4: Guest Experience & App Config */}
+                    <div>
+                      <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={StarIcon} className="w-3.5 h-3.5" />
+                        <span>Guest Experience Configuration</span>
+                      </h3>
+                      <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800 space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700">
+                            <span className="text-xs font-medium text-stone-700 dark:text-stone-300">
+                              Waitstaff Tipping
+                            </span>
+                            <Badge
+                              variant={
+                                detailsData.restaurant.tippingEnabled ? 'success' : 'neutral'
+                              }
+                            >
+                              {detailsData.restaurant.tippingEnabled ? 'Enabled' : 'Disabled'}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-stone-800 border border-stone-200/60 dark:border-stone-700">
+                            <span className="text-xs font-medium text-stone-700 dark:text-stone-300">
+                              Google Reviews
+                            </span>
+                            <Badge
+                              variant={
+                                detailsData.restaurant.reviewsEnabled ? 'success' : 'neutral'
+                              }
+                            >
+                              {detailsData.restaurant.reviewsEnabled ? 'Enabled' : 'Disabled'}
+                            </Badge>
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="text-[11px] font-medium text-stone-500 dark:text-stone-400 block mb-1">
+                            Google Review Destination URL
+                          </span>
+                          {detailsData.restaurant.googleReviewUrl ? (
+                            <a
+                              href={detailsData.restaurant.googleReviewUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-mono text-emerald-600 dark:text-emerald-400 underline truncate block hover:opacity-80"
+                            >
+                              {detailsData.restaurant.googleReviewUrl}
+                            </a>
+                          ) : (
+                            <span className="text-xs text-stone-400 italic">
+                              Not configured yet
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-stone-200/50 dark:border-stone-700/50">
+                          <div>
+                            <span className="text-[11px] text-stone-400 dark:text-stone-500 block">
+                              Tip Range Limits
+                            </span>
+                            <span className="font-mono text-xs text-stone-800 dark:text-stone-200">
+                              ₹{detailsData.restaurant.minTipInr} - ₹
+                              {detailsData.restaurant.maxTipInr}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[11px] text-stone-400 dark:text-stone-500 block">
+                              Tip Presets
+                            </span>
+                            <span className="font-mono text-xs text-stone-800 dark:text-stone-200">
+                              {detailsData.restaurant.tipPresets?.map((p) => `₹${p}`).join(', ') ||
+                                '₹20, ₹50, ₹100, ₹200'}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Section 5: Establishment Profile */}
+                    <div>
+                      <h3 className="text-xs font-bold text-stone-400 dark:text-stone-500 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                        <HugeiconsIcon icon={Store01Icon} className="w-3.5 h-3.5" />
+                        <span>Establishment Profile & Coordinates</span>
+                      </h3>
+                      <div className="p-3.5 rounded-xl bg-stone-50 dark:bg-stone-800/60 border border-stone-200/70 dark:border-stone-800 space-y-2 text-xs">
+                        <div className="grid grid-cols-2 gap-2 text-[11px]">
+                          <div>
+                            <span className="text-stone-400 dark:text-stone-500 block">
+                              Full Legal Name
+                            </span>
+                            <span className="font-medium text-stone-900 dark:text-stone-100">
+                              {detailsData.restaurant.name}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-stone-400 dark:text-stone-500 block">
+                              URL Slug
+                            </span>
+                            <span className="font-mono text-stone-900 dark:text-stone-100">
+                              {detailsData.restaurant.slug}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-stone-400 dark:text-stone-500 block">
+                              Onboarded At
+                            </span>
+                            <span className="font-mono text-stone-700 dark:text-stone-300">
+                              {new Date(detailsData.restaurant.createdAt).toLocaleString()}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-stone-400 dark:text-stone-500 block">
+                              Last Updated
+                            </span>
+                            <span className="font-mono text-stone-700 dark:text-stone-300">
+                              {new Date(detailsData.restaurant.updatedAt).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Drawer Footer Actions */}
+              <div className="p-4 border-t border-stone-200/80 dark:border-stone-800 flex items-center justify-between bg-stone-50/50 dark:bg-stone-900/50">
+                <div className="flex items-center gap-2">
+                  {isSuperAdmin && detailsData?.restaurant && !detailsData.restaurant.deletedAt && (
+                    <>
+                      {detailsData.restaurant.isSuspended ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const target = detailsData.restaurant;
+                            setSelectedRestaurantId(null);
+                            handleReactivate(target);
+                          }}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 border border-emerald-500/20 transition-colors"
+                        >
+                          Reactivate
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const target = detailsData.restaurant;
+                            setSelectedRestaurantId(null);
+                            setSuspendTarget(target);
+                          }}
+                          className="px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 hover:bg-amber-500/20 text-amber-800 dark:text-amber-300 border border-amber-500/20 transition-colors"
+                        >
+                          Suspend
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const target = detailsData.restaurant;
+                          setSelectedRestaurantId(null);
+                          handleDelete(target);
+                        }}
+                        className="px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-500/20 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </div>
+                <MotionButton
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedRestaurantId(null)}
+                  className="px-3.5 py-1.5 text-xs text-stone-700 dark:text-stone-300 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg hover:bg-stone-50 dark:hover:bg-stone-700/80 transition-colors"
+                >
+                  Close
+                </MotionButton>
+              </div>
+            </div>
           </div>,
           document.body,
         )}

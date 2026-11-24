@@ -384,11 +384,93 @@ portalRestaurantsRouter.get(
         .from(tables)
         .where(eq(tables.restaurantId, id));
 
+      // Fetch primary owner / admin
+      const [owner] = await db
+        .select({
+          id: restaurantUsers.id,
+          fullName: restaurantUsers.fullName,
+          email: restaurantUsers.email,
+          role: restaurantUsers.role,
+          totpEnabled: restaurantUsers.totpEnabled,
+          isActive: restaurantUsers.isActive,
+          createdAt: restaurantUsers.createdAt,
+        })
+        .from(restaurantUsers)
+        .where(eq(restaurantUsers.restaurantId, id))
+        .orderBy(desc(restaurantUsers.createdAt))
+        .limit(1);
+
+      // Fetch subscription & plan info
+      const [subData] = await db
+        .select({
+          id: subscriptions.id,
+          status: subscriptions.status,
+          currentPeriodStart: subscriptions.currentPeriodStart,
+          currentPeriodEnd: subscriptions.currentPeriodEnd,
+          trialEndsAt: subscriptions.trialEndsAt,
+          planId: billingPlans.id,
+          planName: billingPlans.name,
+          planCode: billingPlans.code,
+          priceInr: billingPlans.priceInr,
+          monthlyFeeInr: billingPlans.monthlyFeeInr,
+        })
+        .from(subscriptions)
+        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+        .where(eq(subscriptions.restaurantId, id))
+        .limit(1);
+
+      // Count QR tokens and find root QR token
+      const [qrTokensRes] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(qrTokens)
+        .where(and(eq(qrTokens.restaurantId, id), eq(qrTokens.isActive, true)));
+
+      const [rootTokenRow] = await db
+        .select({ token: qrTokens.token })
+        .from(qrTokens)
+        .where(
+          and(eq(qrTokens.restaurantId, id), isNull(qrTokens.tableId), eq(qrTokens.isActive, true)),
+        )
+        .limit(1);
+
+      // Telemetry: Tips aggregate
+      const [tipsRes] = await db
+        .select({
+          count: sql<number>`count(*)::int`,
+          totalAmountInr: sql<number>`coalesce(sum(${tipIntents.amountInr}), 0)::int`,
+        })
+        .from(tipIntents)
+        .where(eq(tipIntents.restaurantId, id));
+
+      // Telemetry: Review taps aggregate
+      const [reviewTapsRes] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(reviewTaps)
+        .where(eq(reviewTaps.restaurantId, id));
+
+      // Telemetry: Invoices aggregate
+      const [invoicesRes] = await db
+        .select({
+          count: sql<number>`count(*)::int`,
+          totalBilledInr: sql<number>`coalesce(sum(${invoices.amountInr}), 0)::int`,
+        })
+        .from(invoices)
+        .where(eq(invoices.restaurantId, id));
+
       res.status(200).json({
         restaurant,
+        owner: owner || null,
+        subscription: subData || null,
         stats: {
           staffCount: staffCountRes?.count ?? 0,
           tablesCount: tablesCountRes?.count ?? 0,
+          qrTokensCount: qrTokensRes?.count ?? 0,
+          rootQrToken: rootTokenRow?.token || null,
+          tipsCount: tipsRes?.count ?? 0,
+          totalTipsAmountInr: tipsRes?.totalAmountInr ?? 0,
+          reviewClicksCount: reviewTapsRes?.count ?? 0,
+          invoicesCount: invoicesRes?.count ?? 0,
+          totalBilledInr: invoicesRes?.totalBilledInr ?? 0,
         },
       });
     } catch (error) {

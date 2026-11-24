@@ -6,6 +6,27 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Company Portal Restaurant Directory Details Slide-Over Drawer (M7-T86)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Enriched Restaurant Details Backend Contract**:
+    - Expanded `GET /api/v1/portal/restaurants/:id` in [`apps/api/src/routes/portalRestaurants.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/src/routes/portalRestaurants.ts) to return full establishment profile, primary owner account info, subscription & billing plan joined data, QR tokens count and root token, and aggregated live telemetry (tips count, tips volume in INR, review clicks count, and total billed invoices).
+  - **Clickable Table Rows & Comprehensive Slide-Over Drawer**:
+    - Enhanced [`apps/portal/src/screens/RestaurantManagementScreen.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/src/screens/RestaurantManagementScreen.tsx) with clickable table rows (`cursor-pointer`) and a dedicated "Details" action button.
+    - Implemented slide-over drawer modal via `createPortal` with backdrop blur, categorized into 5 distinct cards:
+      1. Operational & Telemetry Metrics (Active Staff, Dining Tables, QR codes, Tips count & volume ₹, Review taps, Invoices total).
+      2. Primary Account Owner (Full Name, Email, Role, MFA security status, User ID, Onboarding date).
+      3. Subscription & Billing (Plan name, code, monthly fee, status badge, renewal date).
+      4. Guest Experience Configuration (Tipping status, Google Reviews status, Review destination URL, Tip presets, Tip bounds).
+      5. Establishment Profile & Coordinates (Legal Name, Slug, Onboarded date, Last updated date).
+    - Integrated direct quick actions inside the drawer (Impersonate, Suspend/Reactivate, Delete).
+  - **Testing & Verification**:
+    - Added API test in [`apps/api/tests/portalRestaurants.test.ts`](file:///Users/Sumit/Desktop/rwrd/apps/api/tests/portalRestaurants.test.ts) verifying enriched response contract (all 9 tests passed).
+    - Added portal test in [`apps/portal/tests/restaurantManagement.test.tsx`](file:///Users/Sumit/Desktop/rwrd/apps/portal/tests/restaurantManagement.test.tsx) testing row click, drawer opening, data rendering, and dismissal (all 7 tests passed).
+    - Typecheck (0 errors across 7 packages) and lint passed cleanly.
+
 ### 2026-11-24 - 14-Day Unpaid Restaurant Account Lifecycle Policy & Purge (M7-T85)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

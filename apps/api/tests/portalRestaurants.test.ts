@@ -274,6 +274,113 @@ describe('Portal Restaurant Management Routes', () => {
     expect(res.body.code).toBe('FORBIDDEN');
   });
 
+  it('GET /api/v1/portal/restaurants/:id returns enriched profile, owner, subscription, and telemetry metrics', async () => {
+    vi.spyOn(db, 'select')
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [mockRestaurantRecord],
+          }),
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [{ count: 8 }],
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [{ count: 14 }],
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            orderBy: () => ({
+              limit: () => [
+                {
+                  id: 'user-owner-1',
+                  fullName: 'Sameer Seth',
+                  email: 'sameer@bombaycanteen.com',
+                  role: 'admin',
+                  totpEnabled: true,
+                  isActive: true,
+                  createdAt: new Date(),
+                },
+              ],
+            }),
+          }),
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          leftJoin: () => ({
+            where: () => ({
+              limit: () => [
+                {
+                  id: 'sub-1',
+                  status: 'active',
+                  currentPeriodStart: new Date(),
+                  currentPeriodEnd: new Date(),
+                  trialEndsAt: null,
+                  planId: 'plan-1',
+                  planName: 'Quarterly Growth',
+                  planCode: 'quarterly',
+                  priceInr: 249,
+                  monthlyFeeInr: 99,
+                },
+              ],
+            }),
+          }),
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [{ count: 14 }],
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [{ token: 'root-token-abc' }],
+          }),
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [{ count: 42, totalAmountInr: 5200 }],
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [{ count: 19 }],
+        }),
+      } as any)
+      .mockReturnValueOnce({
+        from: () => ({
+          where: () => [{ count: 3, totalBilledInr: 747 }],
+        }),
+      } as any);
+
+    const res = await request(app)
+      .get(`/api/v1/portal/restaurants/${restaurantId}`)
+      .set('Authorization', `Bearer ${superAdminToken}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.restaurant.id).toBe(restaurantId);
+    expect(res.body.owner.fullName).toBe('Sameer Seth');
+    expect(res.body.subscription.planName).toBe('Quarterly Growth');
+    expect(res.body.stats.staffCount).toBe(8);
+    expect(res.body.stats.tablesCount).toBe(14);
+    expect(res.body.stats.qrTokensCount).toBe(14);
+    expect(res.body.stats.rootQrToken).toBe('root-token-abc');
+    expect(res.body.stats.tipsCount).toBe(42);
+    expect(res.body.stats.totalTipsAmountInr).toBe(5200);
+    expect(res.body.stats.reviewClicksCount).toBe(19);
+    expect(res.body.stats.invoicesCount).toBe(3);
+    expect(res.body.stats.totalBilledInr).toBe(747);
+  });
+
   it('PATCH /api/v1/portal/restaurants/:id/status suspends restaurant and records audit', async () => {
     vi.spyOn(db, 'select').mockReturnValueOnce({
       from: () => ({

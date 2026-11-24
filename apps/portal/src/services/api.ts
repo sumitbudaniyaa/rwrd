@@ -45,6 +45,8 @@ export interface PortalRestaurantItem {
   tipPresets: number[];
   minTipInr: number;
   maxTipInr: number;
+  tippingEnabled?: boolean;
+  reviewsEnabled?: boolean;
   isActive: boolean;
   isSuspended: boolean;
   suspensionReason: string | null;
@@ -68,6 +70,48 @@ export interface PortalRestaurantsResponse {
     offset: number;
     count: number;
   };
+}
+
+export interface RestaurantOwnerDetails {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  totpEnabled: boolean;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface RestaurantSubscriptionDetails {
+  id: string;
+  status: 'unpaid' | 'trial' | 'active' | 'past_due' | 'cancelled';
+  currentPeriodStart: string;
+  currentPeriodEnd: string;
+  trialEndsAt: string | null;
+  planId: string | null;
+  planName: string | null;
+  planCode: string | null;
+  priceInr: number | null;
+  monthlyFeeInr: number | null;
+}
+
+export interface RestaurantDetailsStats {
+  staffCount: number;
+  tablesCount: number;
+  qrTokensCount: number;
+  rootQrToken: string | null;
+  tipsCount: number;
+  totalTipsAmountInr: number;
+  reviewClicksCount: number;
+  invoicesCount: number;
+  totalBilledInr: number;
+}
+
+export interface RestaurantDetailsResponse {
+  restaurant: PortalRestaurantItem;
+  owner: RestaurantOwnerDetails | null;
+  subscription: RestaurantSubscriptionDetails | null;
+  stats: RestaurantDetailsStats;
 }
 
 export interface OnboardRestaurantInput {
@@ -445,6 +489,12 @@ export const api = {
     if (params?.offset !== undefined) searchParams.set('offset', String(params.offset));
     const qs = searchParams.toString();
     return request<PortalRestaurantsResponse>(`/portal/restaurants${qs ? `?${qs}` : ''}`, {
+      method: 'GET',
+    });
+  },
+
+  getRestaurantDetails(id: string): Promise<RestaurantDetailsResponse> {
+    return request<RestaurantDetailsResponse>(`/portal/restaurants/${id}`, {
       method: 'GET',
     });
   },

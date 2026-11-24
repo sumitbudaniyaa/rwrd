@@ -247,9 +247,7 @@ describe('RestaurantManagementScreen Component', () => {
       expect(screen.getByText(/Delete "The Bombay Canteen"\?/i)).toBeDefined();
       expect(screen.getByText(/Destructive Action Warning/i)).toBeDefined();
       expect(
-        screen.getByText(
-          /revoke all staff and admin logins, deactivate associated table QR codes/i,
-        ),
+        screen.getByText(/permanently purge all staff, dining tables, QR codes/i),
       ).toBeDefined();
     });
 
@@ -313,6 +311,75 @@ describe('RestaurantManagementScreen Component', () => {
           status: 'unpaid',
         }),
       );
+    });
+  });
+
+  it('clicking a restaurant row opens slide-over details drawer showing all details and operational metrics', async () => {
+    vi.spyOn(api, 'getRestaurants').mockResolvedValue(mockRestaurantsResponse);
+    const getDetailsSpy = vi.spyOn(api, 'getRestaurantDetails').mockResolvedValue({
+      restaurant: mockRestaurantsResponse.restaurants[0]!,
+      owner: {
+        id: 'owner-001',
+        fullName: 'Sameer Seth',
+        email: 'sameer@bombaycanteen.com',
+        role: 'admin',
+        totpEnabled: true,
+        isActive: true,
+        createdAt: '2026-01-01T00:00:00.000Z',
+      },
+      subscription: {
+        id: 'sub-001',
+        status: 'active',
+        currentPeriodStart: '2026-01-01T00:00:00.000Z',
+        currentPeriodEnd: '2026-04-01T00:00:00.000Z',
+        trialEndsAt: null,
+        planId: 'plan-001',
+        planName: 'Quarterly Growth',
+        planCode: 'quarterly',
+        priceInr: 249,
+        monthlyFeeInr: 99,
+      },
+      stats: {
+        staffCount: 12,
+        tablesCount: 24,
+        qrTokensCount: 24,
+        rootQrToken: 'test-root-token',
+        tipsCount: 145,
+        totalTipsAmountInr: 18500,
+        reviewClicksCount: 89,
+        invoicesCount: 2,
+        totalBilledInr: 498,
+      },
+    });
+
+    renderWithProviders(<RestaurantManagementScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText('The Bombay Canteen')).toBeDefined();
+    });
+
+    // Click on the restaurant row
+    const restaurantRow = screen.getByText('The Bombay Canteen').closest('tr')!;
+    fireEvent.click(restaurantRow);
+
+    await waitFor(() => {
+      expect(getDetailsSpy).toHaveBeenCalledWith('rest-001');
+      expect(screen.getByText('Operational & Telemetry Metrics')).toBeDefined();
+      expect(screen.getByText('Primary Account Owner')).toBeDefined();
+      expect(screen.getByText('Subscription & Billing')).toBeDefined();
+      expect(screen.getByText('Guest Experience Configuration')).toBeDefined();
+      expect(screen.getByText('Establishment Profile & Coordinates')).toBeDefined();
+      expect(screen.getByText('Sameer Seth')).toBeDefined();
+      expect(screen.getByText('sameer@bombaycanteen.com')).toBeDefined();
+      expect(screen.getByText('Quarterly Growth')).toBeDefined();
+    });
+
+    // Click Close button dismisses drawer
+    const closeBtn = screen.getByRole('button', { name: /^Close$/i });
+    fireEvent.click(closeBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByText('Operational & Telemetry Metrics')).toBeNull();
     });
   });
 });
