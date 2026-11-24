@@ -156,8 +156,6 @@ describe('Portal Support Impersonation Flow', () => {
       respondedAt: new Date().toISOString(),
     });
 
-    const windowOpenSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
-
     renderWithProviders(<RestaurantManagementScreen />, 'support');
 
     await waitFor(() => {
@@ -185,11 +183,22 @@ describe('Portal Support Impersonation Flow', () => {
     const launchBtn = screen.getByRole('button', { name: /Launch Admin Session/i });
     fireEvent.click(launchBtn);
 
-    expect(windowOpenSpy).toHaveBeenCalledWith(
-      expect.stringContaining('impersonate_token=jwt-approved-impersonate-token'),
-      '_blank',
-      'noopener,noreferrer',
-    );
+    await waitFor(() => {
+      expect(
+        screen.getByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+      ).toBeDefined();
+      expect(screen.getByTitle(/Admin Console - The Bombay Canteen/i)).toBeDefined();
+      expect(screen.getByRole('button', { name: /Exit Session/i })).toBeDefined();
+    });
+
+    const exitBtn = screen.getByRole('button', { name: /Exit Session/i });
+    fireEvent.click(exitBtn);
+
+    await waitFor(() => {
+      expect(
+        screen.queryByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+      ).toBeNull();
+    });
   });
 
   it('displays declined view when restaurant administrator rejects request', async () => {

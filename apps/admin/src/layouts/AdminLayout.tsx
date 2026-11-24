@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.js';
 import { FloatingMenu, type MenuItem } from '../components/ui/liquid-morph-floating-menu.js';
 import { ImpersonationApprovalModal } from '../components/ImpersonationApprovalModal.js';
+import { ActiveImpersonationPill } from '../components/ActiveImpersonationPill.js';
 import logoImage from '../assets/logo.png';
 
 export const AdminLayout: React.FC = () => {
@@ -169,6 +170,9 @@ export const AdminLayout: React.FC = () => {
 
       {/* Liquid Morph Floating Navigation Menu */}
       <FloatingMenu items={adminTabs} />
+
+      {/* Active Platform Support Access Floating Pill */}
+      <ActiveImpersonationPill />
 
       {/* Real-Time Platform Support Impersonation Request Consent Modal */}
       <ImpersonationApprovalModal />

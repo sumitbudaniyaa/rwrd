@@ -147,10 +147,10 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
     renderLayoutWithAuth(null);
 
     await waitFor(() => {
-      expect(screen.getByText('Support Access Request')).toBeInTheDocument();
+      expect(screen.getByText(/support access request/i)).toBeInTheDocument();
       expect(screen.getByText('tech-support@tiptable.in')).toBeInTheDocument();
       expect(screen.getByText('Ticket #8092 - QR code sync issue')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: /Approve Access/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /approve access/i })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: /Decline/i })).toBeInTheDocument();
     });
   });
@@ -174,10 +174,10 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
     renderLayoutWithAuth(null);
 
     await waitFor(() => {
-      expect(screen.getByText('Support Access Request')).toBeInTheDocument();
+      expect(screen.getByText(/support access request/i)).toBeInTheDocument();
     });
 
-    const approveBtn = screen.getByRole('button', { name: /Approve Access/i });
+    const approveBtn = screen.getByRole('button', { name: /approve access/i });
     fireEvent.click(approveBtn);
 
     await waitFor(() => {
@@ -204,7 +204,7 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
     renderLayoutWithAuth(null);
 
     await waitFor(() => {
-      expect(screen.getByText('Support Access Request')).toBeInTheDocument();
+      expect(screen.getByText(/support access request/i)).toBeInTheDocument();
     });
 
     const declineBtn = screen.getByRole('button', { name: /Decline/i });
@@ -212,6 +212,37 @@ describe('Admin Header Banners (Impersonation & Review Link Missing)', () => {
 
     await waitFor(() => {
       expect(respondSpy).toHaveBeenCalledWith('rest-1111', 'req-pending-3', 'decline');
+    });
+  });
+
+  it('renders floating on admin access pill when activeAccess exists and revokes access when end access is clicked', async () => {
+    vi.spyOn(api, 'getPendingImpersonationRequest').mockResolvedValueOnce({
+      pendingRequest: null,
+      activeAccess: {
+        id: 'req-active-1',
+        impersonatorEmail: 'tech-support@tiptable.in',
+        reason: 'Live debugging',
+        approvedAt: new Date().toISOString(),
+      },
+    });
+
+    const revokeSpy = vi.spyOn(api, 'respondToImpersonationRequest').mockResolvedValueOnce({
+      message: 'Support access revoked',
+      status: 'revoked',
+    });
+
+    renderLayoutWithAuth(null);
+
+    await waitFor(() => {
+      expect(screen.getByText(/on admin access/i)).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /end access/i })).toBeInTheDocument();
+    });
+
+    const endBtn = screen.getByRole('button', { name: /end access/i });
+    fireEvent.click(endBtn);
+
+    await waitFor(() => {
+      expect(revokeSpy).toHaveBeenCalledWith('rest-1111', 'req-active-1', 'revoke');
     });
   });
 });

@@ -333,15 +333,25 @@ describe('Portal Support Impersonation Routes', () => {
     });
 
     it('restaurant admin retrieves pending impersonation request (GET /admin/restaurants/:restaurantId/impersonation-requests/pending)', async () => {
-      vi.spyOn(db, 'select').mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            orderBy: () => ({
-              limit: () => [mockPendingRequest],
+      vi.spyOn(db, 'select')
+        .mockReturnValueOnce({
+          from: () => ({
+            where: () => ({
+              orderBy: () => ({
+                limit: () => [mockPendingRequest],
+              }),
             }),
           }),
-        }),
-      } as any);
+        } as any)
+        .mockReturnValueOnce({
+          from: () => ({
+            where: () => ({
+              orderBy: () => ({
+                limit: () => [],
+              }),
+            }),
+          }),
+        } as any);
 
       const res = await request(app)
         .get(`/api/v1/admin/restaurants/${restaurantId}/impersonation-requests/pending`)
@@ -420,6 +430,51 @@ describe('Portal Support Impersonation Routes', () => {
       expect(auditSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'IMPERSONATION_DECLINED',
+          actorId: ownerUserId,
+          restaurantId,
+          entityId: requestId,
+        }),
+      );
+    });
+
+    it('restaurant admin revokes active impersonation access (POST /admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond with action: revoke)', async () => {
+      const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+
+      const mockApprovedRequest = {
+        ...mockPendingRequest,
+        status: 'approved' as const,
+        token: 'token-active-123',
+        respondedAt: new Date(),
+      };
+
+      vi.spyOn(db, 'select').mockReturnValueOnce({
+        from: () => ({
+          where: () => ({
+            limit: () => [mockApprovedRequest],
+          }),
+        }),
+      } as any);
+
+      const updateSpy = vi.spyOn(db, 'update').mockReturnValueOnce({
+        set: () => ({
+          where: () => Promise.resolve(),
+        }),
+      } as any);
+
+      const res = await request(app)
+        .post(
+          `/api/v1/admin/restaurants/${restaurantId}/impersonation-requests/${requestId}/respond`,
+        )
+        .set('Authorization', `Bearer ${adminUserToken}`)
+        .send({ action: 'revoke' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe('revoked');
+      expect(res.body.message).toBe('Support access revoked');
+      expect(updateSpy).toHaveBeenCalled();
+      expect(auditSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          action: 'IMPERSONATION_REVOKED',
           actorId: ownerUserId,
           restaurantId,
           entityId: requestId,

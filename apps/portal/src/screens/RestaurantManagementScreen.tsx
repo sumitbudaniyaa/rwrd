@@ -53,6 +53,10 @@ export const RestaurantManagementScreen: React.FC = () => {
   const [impersonationStatus, setImpersonationStatus] = useState<
     'idle' | 'pending' | 'approved' | 'declined' | 'expired'
   >('idle');
+  const [activeAdminSession, setActiveAdminSession] = useState<{
+    restaurantName: string;
+    token: string;
+  } | null>(null);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -245,6 +249,13 @@ export const RestaurantManagementScreen: React.FC = () => {
       } else if (impersonationRequestData.status === 'expired') {
         setImpersonationStatus('expired');
         toast.error('Request Expired', 'The support access request expired without response.');
+      } else if (impersonationRequestData.status === 'revoked') {
+        setImpersonationStatus('idle');
+        setActiveAdminSession(null);
+        toast.info(
+          'Support Access Ended',
+          'The restaurant administrator has terminated active support access.',
+        );
       }
     }
   }, [impersonationRequestData, toast]);
@@ -261,14 +272,12 @@ export const RestaurantManagementScreen: React.FC = () => {
   };
 
   const handleLaunchSession = () => {
-    if (!approvedImpersonationToken) return;
-    setSuccessMessage(
-      `Launching delegated admin session for ${impersonateTarget?.name || 'restaurant'}...`,
-    );
-    const adminUrl = `${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
-      approvedImpersonationToken,
-    )}`;
-    window.open(adminUrl, '_blank', 'noopener,noreferrer');
+    if (!approvedImpersonationToken || !impersonateTarget) return;
+    setActiveAdminSession({
+      restaurantName: impersonateTarget.name,
+      token: approvedImpersonationToken,
+    });
+    setSuccessMessage(`Delegated support session active for "${impersonateTarget.name}".`);
     resetImpersonationState();
   };
 
@@ -1773,6 +1782,65 @@ export const RestaurantManagementScreen: React.FC = () => {
                 >
                   Close
                 </MotionButton>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
+
+      {/* Embedded In-App Delegated Admin Session Dialog */}
+      {activeAdminSession &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Support session: ${activeAdminSession.restaurantName}`}
+            className="fixed inset-0 z-[250] flex items-center justify-center p-3 sm:p-6 bg-stone-900/60 backdrop-blur-sm animate-fade-in font-sans"
+          >
+            <div className="w-full h-full max-w-7xl bg-white dark:bg-stone-900 rounded-2xl shadow-2xl border border-stone-200 dark:border-stone-800 flex flex-col overflow-hidden">
+              {/* Header */}
+              <div className="px-5 py-3.5 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/80 backdrop-blur-xs flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-stone-900 dark:bg-white text-white dark:text-stone-900 flex items-center justify-center font-bold text-xs shadow-xs">
+                    {activeAdminSession.restaurantName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                        support session: {activeAdminSession.restaurantName}
+                      </h2>
+                      <Badge variant="warning">Live Delegated Session</Badge>
+                    </div>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                      All actions performed within this session are immutably audited.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <MotionButton
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveAdminSession(null)}
+                    className="px-3 py-1.5 text-xs text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 hover:bg-rose-100 dark:hover:bg-rose-900/60 rounded-lg transition-colors cursor-pointer"
+                  >
+                    Exit Session
+                  </MotionButton>
+                </div>
+              </div>
+
+              {/* Iframe Body */}
+              <div className="flex-1 w-full bg-stone-100 dark:bg-stone-950 relative overflow-hidden">
+                <iframe
+                  title={`Admin Console - ${activeAdminSession.restaurantName}`}
+                  src={`${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
+                    activeAdminSession.token,
+                  )}`}
+                  className="w-full h-full border-0"
+                  allow="clipboard-write"
+                />
               </div>
             </div>
           </div>,

@@ -6,6 +6,32 @@ All completed development tasks are recorded in this file in reverse chronologic
 
 ## [Unreleased] - Documentation & Monorepo Foundation
 
+### 2026-11-24 - Impersonation Modal Polish, Real-Time Revocation, Floating Active Access Pill & In-App Portal Session Dialog (M7-T88)
+
+- **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)
+- **Author**: Senior Staff Engineer (AI Agent)
+- **Summary**:
+  - **Design System Alignment for Impersonation Consent Modal**:
+    - In `apps/admin/src/components/ImpersonationApprovalModal.tsx`, removed emoji and shield icon container box from the modal header.
+    - Updated typography to match admin design standards with lowercase section headings (`support access request` and `security & consent notice`).
+    - Restored the admin design system primary action button using `MotionButton` styled with `#FFE862` brand yellow and dark text.
+    - Added immediate modal dismissal (`dismissedRequestId`) when approving access so the dialog closes without delay upon user confirmation.
+  - **Real-Time Active Access Floating Pill & Session Revocation**:
+    - Created `ActiveImpersonationPill` in `apps/admin/src/components/ActiveImpersonationPill.tsx` docked above the bottom menu dock (`fixed bottom-20 left-1/2 -translate-x-1/2 z-[110]`).
+    - Renders live active indicator: pulsing emerald dot, `on admin access` label, and an `end access` action button.
+    - Implemented session revocation in backend `POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond` with `action: 'revoke'`. It updates the request state to `'revoked'`, nullifies the token, and writes an `IMPERSONATION_REVOKED` audit record.
+    - Updated `GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending` to return both `{ pendingRequest, activeAccess }` so active sessions remain tracked until expiry (1 hour) or revocation.
+    - Clicking `end access` revokes platform access immediately and hides the pill with toast confirmation.
+  - **Company Portal Embedded In-App Dialog**:
+    - Replaced `window.open` external tab popup with an embedded dialog modal in `apps/portal/src/screens/RestaurantManagementScreen.tsx`.
+    - Rendered via `createPortal` with a dark blurred backdrop, sticky session header ("support session: <name>", "Live Delegated Session" badge, and "Exit Session" button), and full-height iframe running the admin console with `?impersonate_token=${token}` directly within the Super Admin application.
+    - Synchronized with revocation events: automatically terminates the session and returns to the restaurant list if revoked by the restaurant admin.
+  - **Testing & Verification**:
+    - Updated `apps/admin/tests/impersonation.test.tsx` verifying lowercase headers, `#FFE862` primary button styling, immediate dismissal upon approval, and the active access pill with revoke mutation (all 10/10 tests passed).
+    - Updated `apps/portal/tests/impersonation.test.tsx` verifying embedded in-app dialog launch, token iframe URL, and exit session action (all 4/4 tests passed).
+    - Added revoke endpoint integration test in `apps/api/tests/portalImpersonation.test.ts` (all 11/11 tests passed; full suite of 29 test files, 226 tests passed).
+    - Verified `pnpm typecheck` (all 7 packages pass with 0 errors) and `pnpm lint` (0 errors).
+
 ### 2026-11-24 - Two-Way Platform Support Impersonation Request & Restaurant Consent Approval Flow (M7-T87)
 
 - **Milestone**: Milestone 7 (Admin Dashboard & Design System Polish)

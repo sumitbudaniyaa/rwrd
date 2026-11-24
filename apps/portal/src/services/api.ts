@@ -235,7 +235,7 @@ export interface CreateImpersonationRequestResponse {
 
 export interface ImpersonationRequestStatusResponse {
   id: string;
-  status: 'pending' | 'approved' | 'declined' | 'expired';
+  status: 'pending' | 'approved' | 'declined' | 'expired' | 'revoked';
   reason: string;
   impersonationToken: string | null;
   expiresAt: string;

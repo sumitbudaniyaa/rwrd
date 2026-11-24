@@ -422,12 +422,13 @@ adminRestaurantRouter.post(
 );
 
 const RespondImpersonationSchema = z.object({
-  action: z.enum(['approve', 'decline']),
+  action: z.enum(['approve', 'decline', 'revoke']),
 });
 
 /**
  * GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending
- * Returns active pending impersonation requests awaiting restaurant administrator decision.
+ * Returns active pending impersonation requests awaiting restaurant administrator decision,
+ * as well as currently active approved support access sessions.
  */
 adminRestaurantRouter.get(
   '/admin/restaurants/:restaurantId/impersonation-requests/pending',
@@ -451,6 +452,21 @@ adminRestaurantRouter.get(
         .orderBy(desc(impersonationRequests.createdAt))
         .limit(1);
 
+      // Check for actively approved support access within 1-hour session window
+      const oneHourAgo = new Date(now.getTime() - 3600 * 1000);
+      const [activeApproved] = await db
+        .select()
+        .from(impersonationRequests)
+        .where(
+          and(
+            eq(impersonationRequests.restaurantId, restaurantId),
+            eq(impersonationRequests.status, 'approved'),
+            gt(impersonationRequests.updatedAt, oneHourAgo),
+          ),
+        )
+        .orderBy(desc(impersonationRequests.updatedAt))
+        .limit(1);
+
       res.status(200).json({
         pendingRequest: pending
           ? {
@@ -459,6 +475,14 @@ adminRestaurantRouter.get(
               reason: pending.reason,
               expiresAt: pending.expiresAt,
               createdAt: pending.createdAt,
+            }
+          : null,
+        activeAccess: activeApproved
+          ? {
+              id: activeApproved.id,
+              impersonatorEmail: activeApproved.impersonatorEmail,
+              reason: activeApproved.reason,
+              approvedAt: activeApproved.respondedAt || activeApproved.updatedAt,
             }
           : null,
       });
@@ -470,7 +494,7 @@ adminRestaurantRouter.get(
 
 /**
  * POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond
- * Restaurant administrator approves or declines an impersonation request from company portal.
+ * Restaurant administrator approves, declines, or revokes an impersonation request.
  */
 adminRestaurantRouter.post(
   '/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond',
@@ -496,11 +520,47 @@ adminRestaurantRouter.post(
         throw new NotFoundError('Impersonation request not found');
       }
 
+      const now = new Date();
+
+      if (action === 'revoke') {
+        await db
+          .update(impersonationRequests)
+          .set({
+            status: 'revoked',
+            token: null,
+            updatedAt: now,
+          })
+          .where(eq(impersonationRequests.id, requestRecord.id));
+
+        await auditService.record({
+          restaurantId: restaurantId!,
+          actorId: req.user!.id,
+          actorType: 'restaurant_user',
+          action: 'IMPERSONATION_REVOKED',
+          entityType: 'impersonation_request',
+          entityId: requestRecord.id,
+          beforeState: { status: requestRecord.status },
+          afterState: {
+            status: 'revoked',
+            impersonatorId: requestRecord.impersonatorId,
+            impersonatorEmail: requestRecord.impersonatorEmail,
+            reason: requestRecord.reason,
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+
+        res.status(200).json({
+          message: 'Support access revoked',
+          status: 'revoked',
+        });
+        return;
+      }
+
       if (requestRecord.status !== 'pending') {
         throw new ConflictError(`This request has already been ${requestRecord.status}`);
       }
 
-      const now = new Date();
       if (now > new Date(requestRecord.expiresAt)) {
         await db
           .update(impersonationRequests)

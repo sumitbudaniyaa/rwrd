@@ -39,8 +39,16 @@ export interface PendingImpersonationRequest {
   createdAt: string;
 }
 
+export interface ActiveAccessDetails {
+  id: string;
+  impersonatorEmail: string;
+  reason: string;
+  approvedAt: string;
+}
+
 export interface PendingImpersonationResponse {
   pendingRequest: PendingImpersonationRequest | null;
+  activeAccess?: ActiveAccessDetails | null;
 }
 
 export interface AdminRestaurant {
@@ -631,9 +639,9 @@ export const api = {
   respondToImpersonationRequest(
     restaurantId: string,
     requestId: string,
-    action: 'approve' | 'decline',
-  ): Promise<{ message: string; status: 'approved' | 'declined' }> {
-    return request<{ message: string; status: 'approved' | 'declined' }>(
+    action: 'approve' | 'decline' | 'revoke',
+  ): Promise<{ message: string; status: 'approved' | 'declined' | 'revoked' }> {
+    return request<{ message: string; status: 'approved' | 'declined' | 'revoked' }>(
       `/admin/restaurants/${restaurantId}/impersonation-requests/${requestId}/respond`,
       {
         method: 'POST',

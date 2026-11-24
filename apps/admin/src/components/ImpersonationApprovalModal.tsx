@@ -1,14 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Shield01Icon,
-  AlertCircleIcon,
-  CheckmarkCircle02Icon,
-  Clock01Icon,
-} from '@hugeicons/core-free-icons';
-import { FadeIn, MotionButton, useToast } from '@tiptable/ui';
+import { AlertCircleIcon, CheckmarkCircle02Icon, Clock01Icon } from '@hugeicons/core-free-icons';
+import { FadeIn, useToast } from '@tiptable/ui';
+import { MotionButton } from './motion/button.js';
 import { useAuth } from '../context/AuthContext.js';
 import { api } from '../services/api.js';
 
@@ -16,6 +12,7 @@ export const ImpersonationApprovalModal: React.FC = () => {
   const { restaurant, impersonation } = useAuth();
   const queryClient = useQueryClient();
   const toast = useToast();
+  const [dismissedRequestId, setDismissedRequestId] = useState<string | null>(null);
 
   const isImpersonated = Boolean(impersonation?.isImpersonated);
   const restaurantId = restaurant?.id;
@@ -51,11 +48,19 @@ export const ImpersonationApprovalModal: React.FC = () => {
     },
   });
 
-  if (!pendingRequest || isImpersonated || typeof document === 'undefined') {
+  if (
+    !pendingRequest ||
+    pendingRequest.id === dismissedRequestId ||
+    isImpersonated ||
+    typeof document === 'undefined'
+  ) {
     return null;
   }
 
   const handleRespond = (action: 'approve' | 'decline') => {
+    if (action === 'approve') {
+      setDismissedRequestId(pendingRequest.id);
+    }
     respondMutation.mutate({
       requestId: pendingRequest.id,
       action,
@@ -71,18 +76,16 @@ export const ImpersonationApprovalModal: React.FC = () => {
     >
       <FadeIn>
         <div className="bg-white rounded-2xl max-w-md w-full border border-stone-200/90 shadow-2xl overflow-hidden p-6 space-y-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-700 shrink-0">
-              <HugeiconsIcon icon={Shield01Icon} className="w-5 h-5" />
-            </div>
-            <div>
-              <h3 id="impersonation-request-title" className="text-base font-bold text-stone-900">
-                Support Access Request
-              </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
-                A platform engineer is requesting temporary admin access.
-              </p>
-            </div>
+          <div>
+            <h3
+              id="impersonation-request-title"
+              className="text-base font-semibold text-stone-900 tracking-tight"
+            >
+              support access request
+            </h3>
+            <p className="text-xs text-stone-500 mt-0.5">
+              A platform engineer is requesting temporary admin access.
+            </p>
           </div>
 
           <div className="p-3.5 bg-stone-50 border border-stone-200/80 rounded-xl space-y-2 text-xs">
@@ -110,7 +113,7 @@ export const ImpersonationApprovalModal: React.FC = () => {
                 icon={AlertCircleIcon}
                 className="w-3.5 h-3.5 text-amber-600 shrink-0"
               />
-              <span>Security & Consent Notice</span>
+              <span>security & consent notice</span>
             </p>
             <p className="text-[10px] text-amber-800 leading-relaxed">
               Approving grants the platform support team 1-hour delegated access to assist with your
@@ -136,10 +139,10 @@ export const ImpersonationApprovalModal: React.FC = () => {
               size="sm"
               disabled={respondMutation.isPending}
               onClick={() => handleRespond('approve')}
-              className="px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+              className="px-4 py-2 text-xs font-semibold rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
             >
               <HugeiconsIcon icon={CheckmarkCircle02Icon} className="w-4 h-4" />
-              <span>{respondMutation.isPending ? 'Approving...' : 'Approve Access'}</span>
+              <span>{respondMutation.isPending ? 'approving...' : 'approve access'}</span>
             </MotionButton>
           </div>
         </div>

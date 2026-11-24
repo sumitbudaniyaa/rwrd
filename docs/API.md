@@ -551,10 +551,10 @@ The API supports three distinct authentication contexts:
 }
 ```
 
-#### Fetch Pending Impersonation Request (`GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending`)
+#### Fetch Pending Impersonation Request & Active Access (`GET /api/v1/admin/restaurants/:restaurantId/impersonation-requests/pending`)
 
 - **Role Requirement**: `admin` (tenant scoped).
-- **Purpose**: Polled by active restaurant sessions to detect incoming support access requests and display the approval modal.
+- **Purpose**: Polled by active restaurant sessions to detect incoming support access requests, display the approval modal, and monitor active support sessions for revocation.
 - **Response `200 OK`**:
 
 ```json
@@ -565,18 +565,24 @@ The API supports three distinct authentication contexts:
     "reason": "Ticket #4021 - Staff onboarding assistance",
     "expiresAt": "2026-11-24T15:20:00.000Z",
     "createdAt": "2026-11-24T15:15:00.000Z"
+  },
+  "activeAccess": {
+    "id": "33333333-3333-3333-3333-333333333333",
+    "impersonatorEmail": "support@tiptable.in",
+    "reason": "Ticket #4021 - Staff onboarding assistance",
+    "respondedAt": "2026-11-24T15:18:00.000Z"
   }
 }
 ```
 
-#### Approve or Decline Impersonation Request (`POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond`)
+#### Respond to Impersonation Request (Approve, Decline or Revoke) (`POST /api/v1/admin/restaurants/:restaurantId/impersonation-requests/:requestId/respond`)
 
 - **Role Requirement**: `admin` (tenant scoped).
 - **Request Body**:
 
 ```json
 {
-  "action": "approve" // or "decline"
+  "action": "approve" // or "decline" or "revoke"
 }
 ```
 
@@ -584,8 +590,8 @@ The API supports three distinct authentication contexts:
 
 ```json
 {
-  "message": "Support access request approved",
-  "status": "approved"
+  "message": "Support access request approved", // or "Support access revoked"
+  "status": "approved" // or "declined" or "revoked"
 }
 ```
 
