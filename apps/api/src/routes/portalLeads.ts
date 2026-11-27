@@ -6,10 +6,20 @@ import { leads } from '../db/schema/index.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireRole } from '../middleware/rbac.js';
 import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
-import { NotFoundError, ValidationError } from '../errors/appError.js';
+import { createRateLimiter } from '../middleware/rateLimiter.js';
+import { env } from '../config/env.js';
+import { BadRequestError, NotFoundError, ValidationError } from '../errors/appError.js';
 import { logger } from '../utils/logger.js';
 
 export const portalLeadsRouter = Router();
+
+const UuidSchema = z.string().uuid('Valid UUID identifier is required');
+
+const leadRateLimiter = createRateLimiter({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  keyPrefix: 'public-leads-rl',
+});
 
 const UpdateLeadStatusSchema = z.object({
   status: z.enum(['new', 'contacted', 'demo_scheduled', 'won', 'lost']),
@@ -27,7 +37,34 @@ export const PublicLeadSchema = z.object({
     .max(100),
   city: z.string().trim().min(2, 'City is required').max(100),
   notes: z.string().trim().max(1000).optional(),
+  captchaToken: z.string().trim().min(1).max(4096).optional(),
 });
+
+async function verifyTurnstileToken(token: string, remoteIp?: string): Promise<boolean> {
+  if (!env.TURNSTILE_SECRET_KEY) return false;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const body = new URLSearchParams({
+      secret: env.TURNSTILE_SECRET_KEY,
+      response: token,
+    });
+    if (remoteIp) body.set('remoteip', remoteIp);
+    const resp = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+      signal: controller.signal,
+    });
+    if (!resp.ok) return false;
+    const data = (await resp.json()) as { success?: boolean };
+    return data.success === true;
+  } catch {
+    return false;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 /**
  * Public Route: POST /api/v1/public/leads
@@ -35,6 +72,7 @@ export const PublicLeadSchema = z.object({
  */
 portalLeadsRouter.post(
   '/public/leads',
+  leadRateLimiter,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const parsed = PublicLeadSchema.safeParse(req.body);
@@ -48,7 +86,20 @@ portalLeadsRouter.post(
         );
       }
 
-      const { contactName, email, phone, restaurantName, city, notes } = parsed.data;
+      const { contactName, email, phone, restaurantName, city, notes, captchaToken } = parsed.data;
+
+      let captchaVerified = false;
+      if (env.TURNSTILE_SECRET_KEY) {
+        if (!captchaToken) {
+          throw new ValidationError('Bot verification challenge is required', [
+            { name: 'captchaToken', reason: 'Turnstile verification token is required' },
+          ]);
+        }
+        captchaVerified = await verifyTurnstileToken(captchaToken, req.ip);
+        if (!captchaVerified) {
+          throw new BadRequestError('Bot verification failed. Please retry the challenge.');
+        }
+      }
 
       const [newLead] = await db
         .insert(leads)
@@ -60,7 +111,7 @@ portalLeadsRouter.post(
           city,
           notes: notes || null,
           status: 'new',
-          captchaVerified: false,
+          captchaVerified,
         })
         .returning();
 
@@ -158,10 +209,11 @@ portalLeadsRouter.get(
   requireRole(['super_admin', 'support', 'finance']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const leadId = req.params.id;
-      if (!leadId) {
-        throw new NotFoundError('Lead ID is required');
+      const parsedId = UuidSchema.safeParse(req.params.id);
+      if (!parsedId.success) {
+        throw new BadRequestError('Invalid lead ID format');
       }
+      const leadId = parsedId.data;
 
       const [lead] = await db.select().from(leads).where(eq(leads.id, leadId)).limit(1);
 
@@ -186,10 +238,11 @@ portalLeadsRouter.patch(
   requireRole(['super_admin', 'support']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const leadId = req.params.id;
-      if (!leadId) {
-        throw new NotFoundError('Lead ID is required');
+      const parsedId = UuidSchema.safeParse(req.params.id);
+      if (!parsedId.success) {
+        throw new BadRequestError('Invalid lead ID format');
       }
+      const leadId = parsedId.data;
 
       const parsed = UpdateLeadStatusSchema.safeParse(req.body);
       if (!parsed.success) {

@@ -3,15 +3,18 @@ import request from 'supertest';
 import { createApp } from '../src/app.js';
 import { authService } from '../src/services/authService.js';
 import { auditService } from '../src/services/auditService.js';
+import { impersonationSessionService } from '../src/services/impersonationSessionService.js';
 import { db } from '../src/db/index.js';
 
 describe('Portal Support Impersonation Routes', () => {
   const app = createApp();
   const superAdminId = '99999999-9999-9999-9999-999999999999';
   const supportUserId = '88888888-8888-8888-8888-888888888888';
+  const otherSupportUserId = '66666666-6666-6666-6666-666666666666';
   const financeUserId = '77777777-7777-7777-7777-777777777777';
   const restaurantId = '11111111-1111-1111-1111-111111111111';
   const ownerUserId = '22222222-2222-2222-2222-222222222222';
+  const approvedRequestId = '44444444-4444-4444-4444-444444444444';
 
   const superAdminToken = authService.generateAccessToken({
     sub: superAdminId,
@@ -21,6 +24,12 @@ describe('Portal Support Impersonation Routes', () => {
 
   const supportToken = authService.generateAccessToken({
     sub: supportUserId,
+    role: 'support',
+    realm: 'portal',
+  });
+
+  const otherSupportToken = authService.generateAccessToken({
+    sub: otherSupportUserId,
     role: 'support',
     realm: 'portal',
   });
@@ -45,7 +54,6 @@ describe('Portal Support Impersonation Routes', () => {
     suspensionReason: null,
     createdAt: new Date('2026-01-01T00:00:00Z'),
     updatedAt: new Date('2026-01-01T00:00:00Z'),
-    deletedAt: null,
   };
 
   const mockOwnerUser = {
@@ -68,83 +76,31 @@ describe('Portal Support Impersonation Routes', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.clearAllMocks();
+    impersonationSessionService.clearLocalRevocations();
   });
 
-  it('super_admin can initiate impersonation session and receives valid token and audit record', async () => {
-    const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({
-      id: 'audit-log-1',
-      restaurantId,
-      actorId: superAdminId,
-      actorType: 'platform_user',
-      action: 'IMPERSONATION_STARTED',
-      entityType: 'restaurant',
-      entityId: restaurantId,
-      beforeState: null,
-      afterState: { impersonatorId: superAdminId },
-      ipAddress: '127.0.0.1',
-      userAgent: 'test-agent',
-      createdAt: new Date(),
-    });
-
-    // 1. Restaurant query
-    // 2. Owner user query
-    // 3. Platform staff query
-    vi.spyOn(db, 'select')
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () => [mockRestaurantRecord],
-          }),
-        }),
-      } as any)
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () => [mockOwnerUser],
-          }),
-        }),
-      } as any)
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () => [{ ...mockPlatformStaff, id: superAdminId, role: 'super_admin' }],
-          }),
-        }),
-      } as any);
-
+  it('rejects unconsented direct impersonation attempts with 403 Forbidden', async () => {
     const res = await request(app)
       .post(`/api/v1/portal/restaurants/${restaurantId}/impersonate`)
       .set('Authorization', `Bearer ${superAdminToken}`)
-      .send({ reason: 'Investigating QR scan routing incident' });
+      .send({ reason: 'Trying to bypass consent' });
 
-    expect(res.status).toBe(200);
-    expect(res.body.impersonationToken).toBeDefined();
-    expect(res.body.expiresInSeconds).toBe(3600);
-    expect(res.body.restaurant.id).toBe(restaurantId);
-    expect(res.body.restaurant.name).toBe('The Bombay Canteen');
-    expect(res.body.impersonator.id).toBe(superAdminId);
-
-    // Verify token validity in admin realm
-    const decoded = authService.verifyAccessToken(res.body.impersonationToken, 'admin');
-    expect(decoded.realm).toBe('admin');
-    expect(decoded.restaurantId).toBe(restaurantId);
-    expect(decoded.isImpersonated).toBe(true);
-    expect(decoded.impersonatorId).toBe(superAdminId);
-
-    expect(auditSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
-        action: 'IMPERSONATION_STARTED',
-        actorId: superAdminId,
-        actorType: 'platform_user',
-        restaurantId,
-        entityType: 'restaurant',
-        entityId: restaurantId,
-      }),
-    );
+    expect(res.status).toBe(403);
+    expect(res.body.code).toBe('FORBIDDEN');
+    expect(res.body.detail).toContain('consent is required');
   });
 
-  it('support staff can initiate impersonation session', async () => {
-    vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
+  it('allows super_admin or owning support user to claim token for an already approved requestId', async () => {
+    const issuedJwt = authService.generateAccessToken({
+      sub: ownerUserId,
+      role: 'admin',
+      realm: 'admin',
+      restaurantId,
+      isImpersonated: true,
+      impersonationRequestId: approvedRequestId,
+      impersonatorId: supportUserId,
+      impersonatorEmail: 'support@tiptable.in',
+    });
 
     vi.spyOn(db, 'select')
       .mockReturnValueOnce({
@@ -157,14 +113,16 @@ describe('Portal Support Impersonation Routes', () => {
       .mockReturnValueOnce({
         from: () => ({
           where: () => ({
-            limit: () => [mockOwnerUser],
-          }),
-        }),
-      } as any)
-      .mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () => [mockPlatformStaff],
+            limit: () => [
+              {
+                id: approvedRequestId,
+                restaurantId,
+                impersonatorId: supportUserId,
+                impersonatorEmail: 'support@tiptable.in',
+                status: 'approved',
+                token: issuedJwt,
+              },
+            ],
           }),
         }),
       } as any);
@@ -172,24 +130,25 @@ describe('Portal Support Impersonation Routes', () => {
     const res = await request(app)
       .post(`/api/v1/portal/restaurants/${restaurantId}/impersonate`)
       .set('Authorization', `Bearer ${supportToken}`)
-      .send({});
+      .send({ requestId: approvedRequestId });
 
     expect(res.status).toBe(200);
-    expect(res.body.impersonationToken).toBeDefined();
-    expect(res.body.impersonator.role).toBe('support');
+    expect(res.body.impersonationToken).toBe(issuedJwt);
+    expect(res.body.expiresInSeconds).toBe(900);
+    expect(res.body.restaurant.id).toBe(restaurantId);
   });
 
   it('finance role cannot initiate impersonation (403 Forbidden)', async () => {
     const res = await request(app)
       .post(`/api/v1/portal/restaurants/${restaurantId}/impersonate`)
       .set('Authorization', `Bearer ${financeToken}`)
-      .send({});
+      .send({ requestId: approvedRequestId });
 
     expect(res.status).toBe(403);
     expect(res.body.code).toBe('FORBIDDEN');
   });
 
-  it('returns 404 Not Found when restaurant does not exist', async () => {
+  it('returns 404 Not Found when restaurant does not exist for an impersonation claim', async () => {
     vi.spyOn(db, 'select').mockReturnValueOnce({
       from: () => ({
         where: () => ({
@@ -201,23 +160,25 @@ describe('Portal Support Impersonation Routes', () => {
     const res = await request(app)
       .post(`/api/v1/portal/restaurants/00000000-0000-0000-0000-000000000000/impersonate`)
       .set('Authorization', `Bearer ${supportToken}`)
-      .send({});
+      .send({ requestId: approvedRequestId });
 
     expect(res.status).toBe(404);
     expect(res.body.code).toBe('NOT_FOUND');
   });
 
-  it('impersonation token can access /api/v1/admin/auth/me and returns tenant profile and impersonation flag', async () => {
+  it('impersonation token bound to active requestId can access /api/v1/admin/auth/me', async () => {
     const impersonationToken = authService.generateAccessToken({
       sub: ownerUserId,
       role: 'owner',
       realm: 'admin',
       restaurantId,
       isImpersonated: true,
+      impersonationRequestId: approvedRequestId,
       impersonatorId: supportUserId,
       impersonatorEmail: 'support@tiptable.in',
     });
 
+    vi.spyOn(impersonationSessionService, 'verifyActive').mockResolvedValueOnce(true);
     vi.spyOn(db, 'select').mockReturnValueOnce({
       from: () => ({
         innerJoin: () => ({
@@ -243,6 +204,40 @@ describe('Portal Support Impersonation Routes', () => {
     expect(res.body.impersonation).toBeDefined();
     expect(res.body.impersonation.isImpersonated).toBe(true);
     expect(res.body.impersonation.impersonatorId).toBe(supportUserId);
+  });
+
+  it('immediately rejects revoked or missing-requestId impersonation tokens with 401 Unauthorized', async () => {
+    const tokenWithoutReqId = authService.generateAccessToken({
+      sub: ownerUserId,
+      role: 'owner',
+      realm: 'admin',
+      restaurantId,
+      isImpersonated: true,
+      impersonatorId: supportUserId,
+    });
+
+    const missingIdRes = await request(app)
+      .get('/api/v1/admin/auth/me')
+      .set('Authorization', `Bearer ${tokenWithoutReqId}`);
+    expect(missingIdRes.status).toBe(401);
+
+    const revokedToken = authService.generateAccessToken({
+      sub: ownerUserId,
+      role: 'owner',
+      realm: 'admin',
+      restaurantId,
+      isImpersonated: true,
+      impersonationRequestId: approvedRequestId,
+      impersonatorId: supportUserId,
+    });
+
+    await impersonationSessionService.markRevoked(approvedRequestId);
+
+    const revokedRes = await request(app)
+      .get('/api/v1/admin/auth/me')
+      .set('Authorization', `Bearer ${revokedToken}`);
+    expect(revokedRes.status).toBe(401);
+    expect(revokedRes.body.detail).toContain('revoked or expired');
   });
 
   describe('Two-Way Impersonation Consent Workflow', () => {
@@ -527,6 +522,36 @@ describe('Portal Support Impersonation Routes', () => {
           }),
         }),
       );
+    });
+
+    it('forbids non-owning support staff from viewing or ending another staff member request (IDOR protection)', async () => {
+      vi.spyOn(db, 'select')
+        .mockReturnValueOnce({
+          from: () => ({
+            where: () => ({
+              limit: () => [mockPendingRequest],
+            }),
+          }),
+        } as any)
+        .mockReturnValueOnce({
+          from: () => ({
+            where: () => ({
+              limit: () => [mockPendingRequest],
+            }),
+          }),
+        } as any);
+
+      const getRes = await request(app)
+        .get(`/api/v1/portal/impersonation-requests/${requestId}`)
+        .set('Authorization', `Bearer ${otherSupportToken}`);
+      expect(getRes.status).toBe(403);
+      expect(getRes.body.code).toBe('FORBIDDEN');
+
+      const endRes = await request(app)
+        .post(`/api/v1/portal/impersonation-requests/${requestId}/end`)
+        .set('Authorization', `Bearer ${otherSupportToken}`);
+      expect(endRes.status).toBe(403);
+      expect(endRes.body.code).toBe('FORBIDDEN');
     });
   });
 });

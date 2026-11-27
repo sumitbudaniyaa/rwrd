@@ -123,6 +123,13 @@ Review the resulting SQL migration file in `apps/api/src/db/migrations/` before 
 - **Production Deployment**:
   Executed as an immutable pre-deploy task in the CI/CD pipeline. Application containers do not start until the migration exit code is `0`.
 
+### 3.3 PostgreSQL Row-Level Security (RLS) Runtime Role
+
+PostgreSQL `SUPERUSER` and `BYPASSRLS` roles bypass `FORCE ROW LEVEL SECURITY`. Migration `0007_enable_force_rls.sql` provisions the `tiptable_app` (`NOSUPERUSER`, `NOBYPASSRLS`) role with table DML grants:
+
+- Run `pnpm db:migrate` using the table owner / migration credentials.
+- Configure the API runtime `DATABASE_URL` to connect via a dedicated non-superuser login user granted `tiptable_app` so `FORCE ROW LEVEL SECURITY` policies are strictly enforced on every pooled query.
+
 ---
 
 ## 4. Production Health, Telemetry & Observability

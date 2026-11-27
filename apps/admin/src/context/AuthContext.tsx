@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useToast } from '@tiptable/ui';
+import { adminEnv } from '../config/env.js';
 import {
   api,
   setAccessToken,
@@ -117,18 +118,57 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     async function restoreSession() {
       try {
-        // Check for URL parameter ?impersonate_token= or stored impersonation token
         const urlParams = new URLSearchParams(window.location.search);
-        const urlToken = urlParams.get('impersonate_token');
-        const storedToken = sessionStorage.getItem('tiptable_impersonate_token');
-        const tokenToUse = urlToken || storedToken;
+        const expectsParentToken = urlParams.get('impersonate_session') === '1';
+        let tokenToUse = sessionStorage.getItem('tiptable_impersonate_token');
+
+        if (expectsParentToken) {
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, '', cleanUrl);
+
+          if (
+            !tokenToUse &&
+            typeof window !== 'undefined' &&
+            window.parent &&
+            window.parent !== window
+          ) {
+            const expectedPortalOrigin = new URL(adminEnv.VITE_PORTAL_APP_URL).origin;
+            tokenToUse = await new Promise<string | null>((resolve) => {
+              let settled = false;
+              const timeoutId = window.setTimeout(() => {
+                if (!settled) {
+                  settled = true;
+                  window.removeEventListener('message', onTokenMessage);
+                  resolve(null);
+                }
+              }, 2500);
+
+              const onTokenMessage = (event: MessageEvent) => {
+                if (event.origin !== expectedPortalOrigin) {
+                  return;
+                }
+                if (
+                  event.data?.type === 'TIPTABLE_IMPERSONATION_TOKEN' &&
+                  typeof event.data?.token === 'string'
+                ) {
+                  settled = true;
+                  window.clearTimeout(timeoutId);
+                  window.removeEventListener('message', onTokenMessage);
+                  resolve(event.data.token);
+                }
+              };
+
+              window.addEventListener('message', onTokenMessage);
+              window.parent.postMessage(
+                { type: 'TIPTABLE_IMPERSONATION_READY' },
+                expectedPortalOrigin,
+              );
+            });
+          }
+        }
 
         if (tokenToUse) {
-          if (urlToken) {
-            sessionStorage.setItem('tiptable_impersonate_token', urlToken);
-            const cleanUrl = window.location.pathname + window.location.hash;
-            window.history.replaceState({}, '', cleanUrl);
-          }
+          sessionStorage.setItem('tiptable_impersonate_token', tokenToUse);
           setAccessToken(tokenToUse);
           setAccessTokenState(tokenToUse);
 
@@ -296,7 +336,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setImpersonation(null);
     try {
       if (typeof window !== 'undefined' && window.parent && window.parent !== window) {
-        window.parent.postMessage({ type: 'TIPTABLE_IMPERSONATION_EXIT' }, '*');
+        const expectedPortalOrigin = new URL(adminEnv.VITE_PORTAL_APP_URL).origin;
+        window.parent.postMessage({ type: 'TIPTABLE_IMPERSONATION_EXIT' }, expectedPortalOrigin);
       }
     } catch {
       // Ignore cross-origin error

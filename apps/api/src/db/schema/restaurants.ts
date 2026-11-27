@@ -31,7 +31,6 @@ export const restaurants = pgTable(
     suspensionReason: text('suspension_reason'),
     createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
-    deletedAt: timestamp('deleted_at', { withTimezone: true }),
   },
   (table) => [
     index('idx_restaurants_slug').on(table.slug),

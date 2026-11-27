@@ -73,9 +73,12 @@ export function createApp(): Express {
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (e.g. mobile apps, curl) in non-prod
+        // Only allow requests with no Origin header in non-production environments
         if (!origin) {
-          return callback(null, true);
+          if (env.NODE_ENV !== 'production') {
+            return callback(null, true);
+          }
+          return callback(null, false);
         }
         if (env.CORS_ALLOWED_ORIGINS.includes(origin) || env.NODE_ENV === 'development') {
           return callback(null, true);
@@ -84,15 +87,10 @@ export function createApp(): Express {
       },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: [
-        'Content-Type',
-        'Authorization',
-        'x-request-id',
-        'x-csrf-token',
-        'x-requested-with',
-      ],
+      allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'x-csrf-token'],
       exposedHeaders: [
         'x-request-id',
+        'x-csrf-token',
         'Retry-After',
         'RateLimit-Limit',
         'RateLimit-Remaining',

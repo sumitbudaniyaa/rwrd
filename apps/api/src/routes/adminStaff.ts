@@ -1,15 +1,31 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
+import { isSafeMediaUrl } from '@tiptable/shared';
 import { staffRepository } from '../repositories/staffRepository.js';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { encryptVpa, maskVpa } from '../services/crypto.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
-import { NotFoundError } from '../errors/appError.js';
+import { BadRequestError, NotFoundError } from '../errors/appError.js';
 
 export const adminStaffRouter = Router();
 
 const VPA_REGEX = /^[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}$/;
+const UuidSchema = z.string().uuid('Valid UUID identifier is required');
+
+function parseUuidParam(value: string | undefined, label: string): string {
+  const parsed = UuidSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new BadRequestError(`Invalid ${label} format`);
+  }
+  return parsed.data;
+}
+
+const SafePhotoUrlSchema = z
+  .string()
+  .trim()
+  .url()
+  .refine(isSafeMediaUrl, 'Photo URL must be http(s) or a valid raster image');
 
 const CreateStaffSchema = z.object({
   displayName: z.string().trim().min(1, 'Display name is required').max(100),
@@ -18,14 +34,19 @@ const CreateStaffSchema = z.object({
     .string()
     .trim()
     .regex(VPA_REGEX, 'Invalid UPI VPA format. Must be handle@psp (e.g. name@okaxis)'),
-  photoUrl: z.string().trim().url().optional(),
+  photoUrl: SafePhotoUrlSchema.optional(),
+  consentRecorded: z
+    .literal(true, {
+      errorMap: () => ({ message: 'Explicit consent record is mandatory under India DPDP Act' }),
+    })
+    .optional(),
 });
 
 const UpdateStaffSchema = z.object({
   displayName: z.string().trim().min(1).max(100).optional(),
   roleLabel: z.string().trim().max(50).optional(),
   vpa: z.string().trim().regex(VPA_REGEX, 'Invalid UPI VPA format').optional(),
-  photoUrl: z.string().trim().url().nullable().optional(),
+  photoUrl: SafePhotoUrlSchema.nullable().optional(),
   isActive: z.boolean().optional(),
 });
 
@@ -156,7 +177,7 @@ adminStaffRouter.get(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const restaurantId = req.params.restaurantId as string;
-      const staffId = req.params.staffId as string;
+      const staffId = parseUuidParam(req.params.staffId, 'staff ID');
 
       const found = await staffRepository.findById(restaurantId, staffId);
       if (!found) {
@@ -193,7 +214,7 @@ adminStaffRouter.put(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const restaurantId = req.params.restaurantId as string;
-      const staffId = req.params.staffId as string;
+      const staffId = parseUuidParam(req.params.staffId, 'staff ID');
       const body = UpdateStaffSchema.parse(req.body);
 
       const existing = await staffRepository.findById(restaurantId, staffId);
@@ -290,7 +311,7 @@ adminStaffRouter.delete(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const restaurantId = req.params.restaurantId as string;
-      const staffId = req.params.staffId as string;
+      const staffId = parseUuidParam(req.params.staffId, 'staff ID');
 
       const existing = await staffRepository.findById(restaurantId, staffId);
       if (!existing) {
@@ -346,7 +367,7 @@ adminStaffRouter.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const restaurantId = req.params.restaurantId as string;
-      const staffId = req.params.staffId as string;
+      const staffId = parseUuidParam(req.params.staffId, 'staff ID');
 
       const existing = await staffRepository.findById(restaurantId, staffId);
       if (!existing) {

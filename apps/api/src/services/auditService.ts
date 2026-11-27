@@ -1,5 +1,5 @@
-import { desc, eq, and } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { desc, eq, and, type SQL } from 'drizzle-orm';
+import { withSystemContext, withTenantContext } from '../db/rls.js';
 import { auditLogs, type AuditLog, type NewAuditLog } from '../db/schema/auditLogs.js';
 import { logger } from '../utils/logger.js';
 
@@ -91,7 +91,13 @@ export class AuditService {
       userAgent: event.userAgent ? event.userAgent.slice(0, 512) : null,
     };
 
-    const [inserted] = await db.insert(auditLogs).values(newLog).returning();
+    const [inserted] = event.restaurantId
+      ? await withTenantContext(event.restaurantId, (executor) =>
+          executor.insert(auditLogs).values(newLog).returning(),
+        )
+      : await withSystemContext('audit_platform_record', (executor) =>
+          executor.insert(auditLogs).values(newLog).returning(),
+        );
 
     logger.info(
       {
@@ -120,13 +126,15 @@ export class AuditService {
       conditions.push(eq(auditLogs.entityType, options.entityType.toLowerCase()));
     }
 
-    return db
-      .select()
-      .from(auditLogs)
-      .where(and(...conditions))
-      .orderBy(desc(auditLogs.createdAt))
-      .limit(limit)
-      .offset(offset);
+    return withTenantContext(restaurantId, (executor) =>
+      executor
+        .select()
+        .from(auditLogs)
+        .where(and(...conditions))
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit)
+        .offset(offset),
+    );
   }
 
   /**
@@ -136,18 +144,20 @@ export class AuditService {
     const limit = Math.min(options.limit ?? 50, 100);
     const offset = options.offset ?? 0;
 
-    const conditions = [];
+    const conditions: SQL[] = [];
     if (options.entityType) {
       conditions.push(eq(auditLogs.entityType, options.entityType.toLowerCase()));
     }
 
-    return db
-      .select()
-      .from(auditLogs)
-      .where(conditions.length ? and(...conditions) : undefined)
-      .orderBy(desc(auditLogs.createdAt))
-      .limit(limit)
-      .offset(offset);
+    return withSystemContext('audit_platform_query', (executor) =>
+      executor
+        .select()
+        .from(auditLogs)
+        .where(conditions.length ? and(...conditions) : undefined)
+        .orderBy(desc(auditLogs.createdAt))
+        .limit(limit)
+        .offset(offset),
+    );
   }
 }
 

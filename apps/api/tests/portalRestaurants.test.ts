@@ -37,11 +37,10 @@ describe('Portal Restaurant Management Routes', () => {
     suspensionReason: null,
     createdAt: new Date('2026-01-01T00:00:00Z'),
     updatedAt: new Date('2026-01-01T00:00:00Z'),
-    deletedAt: null,
   };
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('GET /api/v1/portal/restaurants returns list of restaurants with subscription & plan for staff', async () => {
@@ -121,22 +120,14 @@ describe('Portal Restaurant Management Routes', () => {
   });
 
   it('POST /api/v1/portal/restaurants creates restaurant, root QR, and owner user with audit log', async () => {
-    // 1. Slug check returns empty (no duplicate)
-    vi.spyOn(db, 'select').mockReturnValueOnce({
-      from: () => ({
-        where: () => ({
-          limit: () => [],
-        }),
-      }),
-    } as any);
-
-    // 2. Transaction mock
+    // Transaction mock (slug uniqueness returns [], defaultPlan lookup returns plan)
     vi.spyOn(db, 'transaction').mockImplementationOnce(async (cb: any) => {
+      let selectIdx = 0;
       const mockTx = {
         select: () => ({
           from: () => ({
             where: () => ({
-              limit: () => [{ id: 'plan-id-123' }],
+              limit: () => (selectIdx++ === 0 ? [] : [{ id: 'plan-id-123' }]),
             }),
           }),
         }),
@@ -185,20 +176,13 @@ describe('Portal Restaurant Management Routes', () => {
   });
 
   it('POST /api/v1/portal/restaurants auto-derives slug and accepts location & establishmentType', async () => {
-    vi.spyOn(db, 'select').mockReturnValueOnce({
-      from: () => ({
-        where: () => ({
-          limit: () => [],
-        }),
-      }),
-    } as any);
-
     vi.spyOn(db, 'transaction').mockImplementationOnce(async (cb: any) => {
+      let selectIdx = 0;
       const mockTx = {
         select: () => ({
           from: () => ({
             where: () => ({
-              limit: () => [{ id: 'plan-id-123' }],
+              limit: () => (selectIdx++ === 0 ? [] : [{ id: 'plan-id-123' }]),
             }),
           }),
         }),
@@ -422,17 +406,16 @@ describe('Portal Restaurant Management Routes', () => {
   });
 
   it('DELETE /api/v1/portal/restaurants/:id permanently deletes restaurant, purges tenant data, and records audit', async () => {
-    vi.spyOn(db, 'select').mockReturnValueOnce({
-      from: () => ({
-        where: () => ({
-          limit: () => [mockRestaurantRecord],
-        }),
-      }),
-    } as any);
-
     const deleteMock = vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue({}) });
     vi.spyOn(db, 'transaction').mockImplementation(async (callback: any) => {
       const tx = {
+        select: () => ({
+          from: () => ({
+            where: () => ({
+              limit: () => [mockRestaurantRecord],
+            }),
+          }),
+        }),
         delete: deleteMock,
       };
       return callback(tx);

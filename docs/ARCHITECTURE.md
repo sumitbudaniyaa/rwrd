@@ -187,11 +187,11 @@ To ensure strict separation of concerns, testability, and enterprise maintainabi
 │                    Repositories                        │
 │   - Direct Drizzle ORM queries                         │
 │   - Mandatory restaurant_id parameterization           │
-│   - Encapsulate SQL constraints and transactions       │
+│   - Transaction-local `withTenantContext` RLS scoping  │
 └───────────────────────────┬────────────────────────────┘
                             │
 ┌───────────────────────────▼────────────────────────────┐
-│               PostgreSQL 16 (with RLS)                 │
+│        PostgreSQL 16 (FORCE ROW LEVEL SECURITY)        │
 └────────────────────────────────────────────────────────┘
 ```
 

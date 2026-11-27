@@ -1,5 +1,6 @@
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull } from 'drizzle-orm';
 import { db, type Database } from '../db/index.js';
+import { getActiveRlsContext, withSystemContext, withTenantContext } from '../db/rls.js';
 import {
   qrTokens,
   restaurants,
@@ -21,31 +22,44 @@ export interface ResolvedQrToken {
 export class QrTokenRepository {
   constructor(private readonly database: Database = db) {}
 
+  private runTenant<T>(restaurantId: string, fn: (executor: Database) => Promise<T>): Promise<T> {
+    return this.database !== db ? fn(this.database) : withTenantContext(restaurantId, fn);
+  }
+
   /**
    * Resolves a public QR token string and returns the associated restaurant and table.
    * Enforces 2-day plan grace period: tokens become inactive 2 days after plan expiration.
    */
   async findByToken(token: string): Promise<ResolvedQrToken | null> {
-    const results = await this.database
-      .select({
-        qrToken: qrTokens,
-        restaurant: restaurants,
-        table: tables,
-        subscription: subscriptions,
-      })
-      .from(qrTokens)
-      .innerJoin(restaurants, eq(qrTokens.restaurantId, restaurants.id))
-      .leftJoin(tables, eq(qrTokens.tableId, tables.id))
-      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
-      .where(
-        and(
-          eq(qrTokens.token, token),
-          eq(qrTokens.isActive, true),
-          eq(restaurants.isActive, true),
-          eq(restaurants.isSuspended, false),
-        ),
-      )
-      .limit(1);
+    const runLookup = (executor: Database) =>
+      executor
+        .select({
+          qrToken: qrTokens,
+          restaurant: restaurants,
+          table: tables,
+          subscription: subscriptions,
+        })
+        .from(qrTokens)
+        .innerJoin(restaurants, eq(qrTokens.restaurantId, restaurants.id))
+        .leftJoin(tables, eq(qrTokens.tableId, tables.id))
+        .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+        .where(
+          and(
+            eq(qrTokens.token, token),
+            eq(qrTokens.isActive, true),
+            eq(restaurants.isActive, true),
+            eq(restaurants.isSuspended, false),
+          ),
+        )
+        .limit(1);
+
+    const activeContext = getActiveRlsContext();
+    const results =
+      this.database !== db
+        ? await runLookup(this.database)
+        : activeContext
+          ? await runLookup(activeContext.tx)
+          : await withSystemContext('public_qr_token_lookup', runLookup);
 
     const match = results[0];
     if (!match) return null;
@@ -75,10 +89,12 @@ export class QrTokenRepository {
    * Retrieves all active QR tokens for a restaurant.
    */
   async findByRestaurant(restaurantId: string): Promise<QrToken[]> {
-    return await this.database
-      .select()
-      .from(qrTokens)
-      .where(and(eq(qrTokens.restaurantId, restaurantId), eq(qrTokens.isActive, true)));
+    return await this.runTenant(restaurantId, (executor) =>
+      executor
+        .select()
+        .from(qrTokens)
+        .where(and(eq(qrTokens.restaurantId, restaurantId), eq(qrTokens.isActive, true))),
+    );
   }
 
   /**
@@ -87,31 +103,33 @@ export class QrTokenRepository {
   async rotate(restaurantId: string, tableId: string | null, newToken: string): Promise<QrToken> {
     const now = new Date();
 
-    // Deactivate previous active tokens for this restaurant/table
-    await this.database
-      .update(qrTokens)
-      .set({
-        isActive: false,
-        rotatedAt: now,
-      })
-      .where(
-        and(
-          eq(qrTokens.restaurantId, restaurantId),
-          tableId ? eq(qrTokens.tableId, tableId) : eq(qrTokens.isActive, true),
-          eq(qrTokens.isActive, true),
-        ),
-      );
+    const [created] = await this.runTenant(restaurantId, async (executor) => {
+      // Deactivate previous active tokens only for the targeted root (null) or specific table
+      await executor
+        .update(qrTokens)
+        .set({
+          isActive: false,
+          rotatedAt: now,
+        })
+        .where(
+          and(
+            eq(qrTokens.restaurantId, restaurantId),
+            tableId ? eq(qrTokens.tableId, tableId) : isNull(qrTokens.tableId),
+            eq(qrTokens.isActive, true),
+          ),
+        );
 
-    // Insert new active token
-    const [created] = await this.database
-      .insert(qrTokens)
-      .values({
-        restaurantId,
-        tableId,
-        token: newToken,
-        isActive: true,
-      })
-      .returning();
+      // Insert new active token
+      return await executor
+        .insert(qrTokens)
+        .values({
+          restaurantId,
+          tableId,
+          token: newToken,
+          isActive: true,
+        })
+        .returning();
+    });
 
     if (!created) {
       throw new Error('Failed to create rotated QR token');
@@ -123,19 +141,21 @@ export class QrTokenRepository {
    * Deactivates all active tokens for a specific table.
    */
   async deactivateByTable(restaurantId: string, tableId: string): Promise<void> {
-    await this.database
-      .update(qrTokens)
-      .set({
-        isActive: false,
-        rotatedAt: new Date(),
-      })
-      .where(
-        and(
-          eq(qrTokens.restaurantId, restaurantId),
-          eq(qrTokens.tableId, tableId),
-          eq(qrTokens.isActive, true),
+    await this.runTenant(restaurantId, (executor) =>
+      executor
+        .update(qrTokens)
+        .set({
+          isActive: false,
+          rotatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(qrTokens.restaurantId, restaurantId),
+            eq(qrTokens.tableId, tableId),
+            eq(qrTokens.isActive, true),
+          ),
         ),
-      );
+    );
   }
 }
 

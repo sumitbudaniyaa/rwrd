@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { and, desc, eq, ilike, or, type SQL } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { withSystemContext } from '../db/rls.js';
 import { auditLogs } from '../db/schema/auditLogs.js';
 import { platformUsers } from '../db/schema/platformUsers.js';
 import { restaurants } from '../db/schema/restaurants.js';
@@ -55,33 +55,35 @@ portalAuditRouter.get(
 
       const activeConditions = conditions.filter((c): c is SQL<unknown> => c !== undefined);
 
-      const rows = await db
-        .select({
-          id: auditLogs.id,
-          action: auditLogs.action,
-          actorId: auditLogs.actorId,
-          actorType: auditLogs.actorType,
-          actorName: platformUsers.fullName,
-          actorEmail: platformUsers.email,
-          actorRole: platformUsers.role,
-          entityType: auditLogs.entityType,
-          entityId: auditLogs.entityId,
-          restaurantId: auditLogs.restaurantId,
-          restaurantName: restaurants.name,
-          restaurantSlug: restaurants.slug,
-          beforeState: auditLogs.beforeState,
-          afterState: auditLogs.afterState,
-          ipAddress: auditLogs.ipAddress,
-          userAgent: auditLogs.userAgent,
-          createdAt: auditLogs.createdAt,
-        })
-        .from(auditLogs)
-        .leftJoin(platformUsers, eq(auditLogs.actorId, platformUsers.id))
-        .leftJoin(restaurants, eq(auditLogs.restaurantId, restaurants.id))
-        .where(activeConditions.length > 0 ? and(...activeConditions) : undefined)
-        .orderBy(desc(auditLogs.createdAt))
-        .limit(limit)
-        .offset(offset);
+      const rows = await withSystemContext('portal_audit_query', (executor) =>
+        executor
+          .select({
+            id: auditLogs.id,
+            action: auditLogs.action,
+            actorId: auditLogs.actorId,
+            actorType: auditLogs.actorType,
+            actorName: platformUsers.fullName,
+            actorEmail: platformUsers.email,
+            actorRole: platformUsers.role,
+            entityType: auditLogs.entityType,
+            entityId: auditLogs.entityId,
+            restaurantId: auditLogs.restaurantId,
+            restaurantName: restaurants.name,
+            restaurantSlug: restaurants.slug,
+            beforeState: auditLogs.beforeState,
+            afterState: auditLogs.afterState,
+            ipAddress: auditLogs.ipAddress,
+            userAgent: auditLogs.userAgent,
+            createdAt: auditLogs.createdAt,
+          })
+          .from(auditLogs)
+          .leftJoin(platformUsers, eq(auditLogs.actorId, platformUsers.id))
+          .leftJoin(restaurants, eq(auditLogs.restaurantId, restaurants.id))
+          .where(activeConditions.length > 0 ? and(...activeConditions) : undefined)
+          .orderBy(desc(auditLogs.createdAt))
+          .limit(limit)
+          .offset(offset),
+      );
 
       res.status(200).json({
         logs: rows,

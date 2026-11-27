@@ -1,20 +1,30 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { eq, and, desc } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { eq, and, desc, type SQL } from 'drizzle-orm';
+import { withSystemContext, withTenantContext } from '../db/rls.js';
 import { featureFlags, restaurants } from '../db/schema/index.js';
 import { checkDbConnection } from '../db/client.js';
 import { checkRedisConnection } from '../cache/redis.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireRole } from '../middleware/rbac.js';
 import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
-import { NotFoundError, ValidationError } from '../errors/appError.js';
+import { BadRequestError, NotFoundError, ValidationError } from '../errors/appError.js';
 import { env } from '../config/env.js';
 
 export const portalHealthRouter = Router();
 
 // Apply IP allowlist protection
 portalHealthRouter.use('/portal/system', portalIpAllowlist());
+
+const UuidSchema = z.string().uuid('Valid UUID identifier is required');
+
+function parseUuidParam(value: string | undefined, label: string): string {
+  const parsed = UuidSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new BadRequestError(`Invalid ${label} format`);
+  }
+  return parsed.data;
+}
 
 const UpsertFeatureFlagSchema = z.object({
   restaurantId: z.string().uuid('Valid restaurant ID is required'),
@@ -66,7 +76,7 @@ portalHealthRouter.get(
             uptimeSeconds,
             memoryUsageMb: Math.round(memUsage.rss / 1024 / 1024),
             heapUsedMb: Math.round(memUsage.heapUsed / 1024 / 1024),
-            version: '0.1.0',
+            version: process.env.npm_package_version || '0.1.0',
             nodeVersion: process.version,
           },
           database: {
@@ -81,9 +91,9 @@ portalHealthRouter.get(
           },
           workers: {
             status: redisHealthy ? 'operational' : 'degraded',
-            queue: 'telemetry_processing',
+            queue: 'inline_async',
             activeJobs: 0,
-            completedJobs: 1420,
+            completedJobs: 0,
             failedJobs: 0,
           },
         },
@@ -107,30 +117,34 @@ portalHealthRouter.get(
       const restaurantId = (req.query.restaurantId as string)?.trim();
       const key = (req.query.key as string)?.trim();
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (restaurantId) {
-        conditions.push(eq(featureFlags.restaurantId, restaurantId));
+        conditions.push(
+          eq(featureFlags.restaurantId, parseUuidParam(restaurantId, 'restaurant ID')),
+        );
       }
       if (key) {
         conditions.push(eq(featureFlags.key, key));
       }
 
-      const rows = await db
-        .select({
-          id: featureFlags.id,
-          restaurantId: featureFlags.restaurantId,
-          restaurantName: restaurants.name,
-          restaurantSlug: restaurants.slug,
-          key: featureFlags.key,
-          enabled: featureFlags.enabled,
-          configJson: featureFlags.configJson,
-          createdAt: featureFlags.createdAt,
-          updatedAt: featureFlags.updatedAt,
-        })
-        .from(featureFlags)
-        .innerJoin(restaurants, eq(featureFlags.restaurantId, restaurants.id))
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(featureFlags.updatedAt));
+      const rows = await withSystemContext('portal_list_feature_flags', (executor) =>
+        executor
+          .select({
+            id: featureFlags.id,
+            restaurantId: featureFlags.restaurantId,
+            restaurantName: restaurants.name,
+            restaurantSlug: restaurants.slug,
+            key: featureFlags.key,
+            enabled: featureFlags.enabled,
+            configJson: featureFlags.configJson,
+            createdAt: featureFlags.createdAt,
+            updatedAt: featureFlags.updatedAt,
+          })
+          .from(featureFlags)
+          .innerJoin(restaurants, eq(featureFlags.restaurantId, restaurants.id))
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(featureFlags.updatedAt)),
+      );
 
       res.status(200).json({ flags: rows });
     } catch (error) {
@@ -163,48 +177,55 @@ portalHealthRouter.post(
 
       const { restaurantId, key, enabled, configJson } = parsed.data;
 
-      // 1. Verify restaurant exists
-      const [restaurant] = await db
-        .select()
-        .from(restaurants)
-        .where(eq(restaurants.id, restaurantId))
-        .limit(1);
+      const { restaurant, existingFlag, savedFlag } = await withTenantContext(
+        restaurantId,
+        async (executor) => {
+          // 1. Verify restaurant exists
+          const [restaurantRow] = await executor
+            .select()
+            .from(restaurants)
+            .where(eq(restaurants.id, restaurantId))
+            .limit(1);
 
-      if (!restaurant) {
-        throw new NotFoundError('Target restaurant not found');
-      }
+          if (!restaurantRow) {
+            throw new NotFoundError('Target restaurant not found');
+          }
 
-      // 2. Locate existing flag if any
-      const [existingFlag] = await db
-        .select()
-        .from(featureFlags)
-        .where(and(eq(featureFlags.restaurantId, restaurantId), eq(featureFlags.key, key)))
-        .limit(1);
+          // 2. Locate existing flag if any
+          const [existingRow] = await executor
+            .select()
+            .from(featureFlags)
+            .where(and(eq(featureFlags.restaurantId, restaurantId), eq(featureFlags.key, key)))
+            .limit(1);
 
-      let savedFlag;
-      if (existingFlag) {
-        const [updated] = await db
-          .update(featureFlags)
-          .set({
-            enabled,
-            configJson: configJson || null,
-            updatedAt: new Date(),
-          })
-          .where(eq(featureFlags.id, existingFlag.id))
-          .returning();
-        savedFlag = updated;
-      } else {
-        const [inserted] = await db
-          .insert(featureFlags)
-          .values({
-            restaurantId,
-            key,
-            enabled,
-            configJson: configJson || null,
-          })
-          .returning();
-        savedFlag = inserted;
-      }
+          let savedRow;
+          if (existingRow) {
+            const [updated] = await executor
+              .update(featureFlags)
+              .set({
+                enabled,
+                configJson: configJson || null,
+                updatedAt: new Date(),
+              })
+              .where(eq(featureFlags.id, existingRow.id))
+              .returning();
+            savedRow = updated;
+          } else {
+            const [inserted] = await executor
+              .insert(featureFlags)
+              .values({
+                restaurantId,
+                key,
+                enabled,
+                configJson: configJson || null,
+              })
+              .returning();
+            savedRow = inserted;
+          }
+
+          return { restaurant: restaurantRow, existingFlag: existingRow, savedFlag: savedRow };
+        },
+      );
 
       // 3. Immutable audit trail
       await auditService.record({
@@ -257,43 +278,47 @@ portalHealthRouter.patch(
   requireRole(['super_admin']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const flagId = req.params.id;
-      if (!flagId) {
-        throw new NotFoundError('Flag ID is required');
-      }
+      const flagId = parseUuidParam(req.params.id, 'feature flag ID');
 
       const parsed = UpdateFeatureFlagSchema.safeParse(req.body);
       if (!parsed.success) {
         throw new ValidationError('Invalid update payload');
       }
 
-      const [existingFlag] = await db
-        .select()
-        .from(featureFlags)
-        .where(eq(featureFlags.id, flagId))
-        .limit(1);
+      const { existingFlag, updatedFlag } = await withSystemContext(
+        'portal_patch_feature_flag',
+        async (executor) => {
+          const [existing] = await executor
+            .select()
+            .from(featureFlags)
+            .where(eq(featureFlags.id, flagId))
+            .limit(1);
 
-      if (!existingFlag) {
-        throw new NotFoundError('Feature flag not found');
-      }
+          if (!existing) {
+            throw new NotFoundError('Feature flag not found');
+          }
 
-      const { enabled, configJson } = parsed.data;
+          const { enabled, configJson } = parsed.data;
 
-      const updateData: {
-        enabled?: boolean;
-        configJson?: Record<string, unknown> | null;
-        updatedAt: Date;
-      } = {
-        updatedAt: new Date(),
-      };
-      if (enabled !== undefined) updateData.enabled = enabled;
-      if (configJson !== undefined) updateData.configJson = configJson;
+          const updateData: {
+            enabled?: boolean;
+            configJson?: Record<string, unknown> | null;
+            updatedAt: Date;
+          } = {
+            updatedAt: new Date(),
+          };
+          if (enabled !== undefined) updateData.enabled = enabled;
+          if (configJson !== undefined) updateData.configJson = configJson;
 
-      const [updatedFlag] = await db
-        .update(featureFlags)
-        .set(updateData)
-        .where(eq(featureFlags.id, flagId))
-        .returning();
+          const [updated] = await executor
+            .update(featureFlags)
+            .set(updateData)
+            .where(eq(featureFlags.id, flagId))
+            .returning();
+
+          return { existingFlag: existing, updatedFlag: updated };
+        },
+      );
 
       // Audit log
       await auditService.record({
@@ -333,22 +358,25 @@ portalHealthRouter.delete(
   requireRole(['super_admin']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const flagId = req.params.id;
-      if (!flagId) {
-        throw new NotFoundError('Flag ID is required');
-      }
+      const flagId = parseUuidParam(req.params.id, 'feature flag ID');
 
-      const [existingFlag] = await db
-        .select()
-        .from(featureFlags)
-        .where(eq(featureFlags.id, flagId))
-        .limit(1);
+      const existingFlag = await withSystemContext(
+        'portal_delete_feature_flag',
+        async (executor) => {
+          const [existing] = await executor
+            .select()
+            .from(featureFlags)
+            .where(eq(featureFlags.id, flagId))
+            .limit(1);
 
-      if (!existingFlag) {
-        throw new NotFoundError('Feature flag not found');
-      }
+          if (!existing) {
+            throw new NotFoundError('Feature flag not found');
+          }
 
-      await db.delete(featureFlags).where(eq(featureFlags.id, flagId));
+          await executor.delete(featureFlags).where(eq(featureFlags.id, flagId));
+          return existing;
+        },
+      );
 
       await auditService.record({
         restaurantId: existingFlag.restaurantId,

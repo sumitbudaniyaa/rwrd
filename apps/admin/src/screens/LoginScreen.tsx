@@ -193,13 +193,10 @@ export const LoginScreen: React.FC = () => {
 
     if (errors.email) return;
 
-    setStatus('loading');
-    setTimeout(() => {
-      setStatus('idle');
-      setSuccessMessage(
-        'If an account exists for this email, password reset instructions have been sent.',
-      );
-    }, 400);
+    setStatus('idle');
+    setSuccessMessage(
+      'Self-service email resets are currently unavailable. Please contact rwrd support with your registered email to reset your password.',
+    );
   };
 
   return (

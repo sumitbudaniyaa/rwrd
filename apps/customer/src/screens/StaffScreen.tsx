@@ -30,7 +30,7 @@ export const StaffScreen: React.FC = () => {
     queryKey: ['staff', restaurant?.id, token],
     queryFn: () =>
       restaurant ? api.getStaff(restaurant.id, token || undefined) : Promise.reject(),
-    enabled: Boolean(restaurant?.id),
+    enabled: Boolean(restaurant?.id) && restaurant?.tippingEnabled !== false,
     staleTime: 60 * 1000,
     retry: false,
   });

@@ -36,7 +36,6 @@ describe('Public Customer API Endpoints', () => {
     suspensionReason: null,
     createdAt: new Date(),
     updatedAt: new Date(),
-    deletedAt: null,
   };
 
   const mockResolvedToken: ResolvedQrToken = {

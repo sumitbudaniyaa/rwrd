@@ -204,3 +204,25 @@ This document records the architectural and design decisions made for **TipTable
   - Positive: Authentic TipTable brand identity with fluid, native DOM spring animations and zero canvas overhead.
   - Positive: Consistent custom date range selection across all browsers with immediate telemetry query updates.
   - Positive: Headless tests and lightweight devices run at 100% reliability without mock canvas dependencies.
+
+---
+
+## ADR-012: PostgreSQL FORCE ROW LEVEL SECURITY with AsyncLocalStorage Transaction Context
+
+- **Status**: Accepted
+- **Date**: 2026-11-26
+- **Context**:
+  Application-level `WHERE restaurant_id = :tenant_id` scoping in Drizzle repositories protects normal flows, but a forgotten filter or raw join in a route/service could risk leaking cross-tenant records if PostgreSQL does not independently reject cross-tenant reads and writes. Meanwhile, Company Portal endpoints, authentication credential lookups by email, and public opaque QR token resolution must look up or aggregate across tenants cleanly before/outside a single-tenant context without breaking existing connection pooling (`postgres.js`) or unit test suites.
+- **Alternatives Considered**:
+  1. _Separate PostgreSQL database/schema per tenant_: Excessive operational migration and connection pool overhead for thousands of small/medium restaurants.
+  2. _Session-level `SET app.current_restaurant_id` without `AsyncLocalStorage` transaction scoping_: Risks leaking tenant context across HTTP requests sharing a `postgres.js` pool connection if an error interrupts cleanup.
+  3. _Transaction-local `set_config(..., true)` + `FORCE ROW LEVEL SECURITY` + `AsyncLocalStorage` (`withTenantContext` / `withSystemContext`)_:
+     - Every tenant query executes inside a transaction setting `app.rls_bypass = 'off'` and `app.current_restaurant_id` locally (`is_local = true`), automatically cleared on `COMMIT`/`ROLLBACK`.
+     - Explicit `withSystemContext(reason, ...)` handles pre-auth, public opaque QR lookups, and platform control-plane queries, and throws `ForbiddenError` if called inside an active tenant transaction.
+     - Dedicated `tiptable_app` (`NOSUPERUSER`, `NOBYPASSRLS`) database role ensures PostgreSQL enforces `FORCE ROW LEVEL SECURITY` at runtime.
+- **Decision**:
+  Enable `ENABLE ROW LEVEL SECURITY` and `FORCE ROW LEVEL SECURITY` on all 15 tenant tables (`0007_enable_force_rls.sql`), enforce transaction-local context switching via `AsyncLocalStorage` in `apps/api/src/db/rls.ts`, and wrap all tenant repositories, services, and direct DB route blocks.
+- **Consequences**:
+  - Positive: Pooled connections can never leak tenant context across requests; unset contexts fail closed (0 rows returned, `SQLSTATE 42501` on cross-tenant writes).
+  - Positive: Nested same-tenant operations reuse a single transaction via `AsyncLocalStorage`, while mismatched cross-tenant switches throw `ForbiddenError` before reaching PostgreSQL.
+  - Trade-off: Runtime database connections in production must use a non-superuser role inheriting `tiptable_app` (migrations run with table-owner privileges), and pre-auth/portal paths must explicitly declare `withSystemContext`.

@@ -371,7 +371,7 @@ The API supports three distinct authentication contexts:
 
 - **Query Parameters**:
   - `search` (optional string): Case-insensitive match on name or slug.
-  - `status` (optional): `all` (default), `active`, `suspended`, `deleted`.
+  - `status` (optional): `all` (default), `active`, `unpaid`, `suspended`.
   - `limit` (optional integer, default 20, max 100).
   - `offset` (optional integer, default 0).
 - **Response `200 OK`**:
@@ -386,7 +386,6 @@ The API supports three distinct authentication contexts:
       "googleReviewUrl": "https://maps.app.goo.gl/tbc123",
       "isSuspended": false,
       "suspensionReason": null,
-      "deletedAt": null,
       "createdAt": "2026-11-01T10:00:00.000Z",
       "updatedAt": "2026-11-01T10:00:00.000Z"
     }
@@ -650,7 +649,7 @@ The API supports three distinct authentication contexts:
 
 - **Role Requirement**: `super_admin`, `support`, `finance`.
 - **Query Parameters**:
-  - `status`: `'all' | 'active' | 'unpaid' | 'suspended' | 'deleted'` (defaults to `'all'`).
+  - `status`: `'all' | 'active' | 'unpaid' | 'suspended'` (defaults to `'all'`).
   - `planId`: Specific billing plan ID or `'unpaid'` to filter restaurants by their active tier.
   - `search`: Keyword matching restaurant name or URL slug.
   - `limit`: Integer (1-100, default 50).

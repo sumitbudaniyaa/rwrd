@@ -12,15 +12,17 @@ const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
  * Ensures a double-submit CSRF token cookie is present for browser clients.
  */
 export function setCsrfCookie(req: Request, res: Response, next: NextFunction): void {
-  if (!req.cookies?.[CSRF_COOKIE_NAME]) {
-    const token = randomBytes(24).toString('hex');
+  let token = req.cookies?.[CSRF_COOKIE_NAME] as string | undefined;
+  if (!token) {
+    token = randomBytes(24).toString('hex');
     res.cookie(CSRF_COOKIE_NAME, token, {
-      httpOnly: false, // Client JavaScript reads this to attach x-csrf-token header
+      httpOnly: false, // Client JavaScript reads this or response header to attach x-csrf-token
       secure: env.NODE_ENV === 'production',
       sameSite: 'strict',
       path: '/',
     });
   }
+  res.setHeader(CSRF_HEADER_NAME, token);
   next();
 }
 
@@ -41,13 +43,13 @@ export function verifyCsrf(req: Request, _res: Response, next: NextFunction): vo
     return next();
   }
 
-  const headerToken = req.headers[CSRF_HEADER_NAME] || req.headers['x-requested-with'];
+  const headerToken = req.headers[CSRF_HEADER_NAME];
 
-  if (!headerToken) {
+  if (!headerToken || typeof headerToken !== 'string') {
     throw new ForbiddenError('CSRF validation failed: missing anti-forgery token or header');
   }
 
-  if (cookieToken && headerToken !== cookieToken && headerToken !== 'XMLHttpRequest') {
+  if (!cookieToken || headerToken !== cookieToken) {
     throw new ForbiddenError('CSRF validation failed: token mismatch');
   }
 

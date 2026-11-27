@@ -1,5 +1,5 @@
-import { and, eq, lte, isNull } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { and, eq, lte } from 'drizzle-orm';
+import { withSystemContext, withTenantContext } from '../db/rls.js';
 import {
   restaurants,
   restaurantUsers,
@@ -21,6 +21,7 @@ import { auditService } from './auditService.js';
 import { logger } from '../utils/logger.js';
 
 export const UNPAID_ACCOUNT_EXPIRATION_DAYS = 14;
+export const SYSTEM_ACTOR_ID = '00000000-0000-0000-0000-000000000000';
 
 export interface PurgedRestaurantRecord {
   restaurantId: string;
@@ -46,42 +47,46 @@ export class AccountLifecycleService {
   ): Promise<boolean> {
     const cutoff = this.getCutoffDate(days);
 
-    const [restaurant] = await db
-      .select({
-        id: restaurants.id,
-        createdAt: restaurants.createdAt,
-      })
-      .from(restaurants)
-      .where(and(eq(restaurants.id, restaurantId), lte(restaurants.createdAt, cutoff)))
-      .limit(1);
+    return withTenantContext(restaurantId, async (executor) => {
+      const [restaurant] = await executor
+        .select({
+          id: restaurants.id,
+          createdAt: restaurants.createdAt,
+        })
+        .from(restaurants)
+        .where(and(eq(restaurants.id, restaurantId), lte(restaurants.createdAt, cutoff)))
+        .limit(1);
 
-    if (!restaurant) {
-      return false;
-    }
+      if (!restaurant) {
+        return false;
+      }
 
-    // Check if restaurant has an active subscription
-    const [activeSub] = await db
-      .select({ id: subscriptions.id })
-      .from(subscriptions)
-      .where(and(eq(subscriptions.restaurantId, restaurantId), eq(subscriptions.status, 'active')))
-      .limit(1);
+      // Check if restaurant has an active subscription
+      const [activeSub] = await executor
+        .select({ id: subscriptions.id })
+        .from(subscriptions)
+        .where(
+          and(eq(subscriptions.restaurantId, restaurantId), eq(subscriptions.status, 'active')),
+        )
+        .limit(1);
 
-    if (activeSub) {
-      return false;
-    }
+      if (activeSub) {
+        return false;
+      }
 
-    // Check if restaurant has any paid invoice
-    const [paidInvoice] = await db
-      .select({ id: invoices.id })
-      .from(invoices)
-      .where(and(eq(invoices.restaurantId, restaurantId), eq(invoices.status, 'paid')))
-      .limit(1);
+      // Check if restaurant has any paid invoice
+      const [paidInvoice] = await executor
+        .select({ id: invoices.id })
+        .from(invoices)
+        .where(and(eq(invoices.restaurantId, restaurantId), eq(invoices.status, 'paid')))
+        .limit(1);
 
-    if (paidInvoice) {
-      return false;
-    }
+      if (paidInvoice) {
+        return false;
+      }
 
-    return true;
+      return true;
+    });
   }
 
   /**
@@ -90,25 +95,25 @@ export class AccountLifecycleService {
   async purgeSingleRestaurant(
     restaurantId: string,
     reason = 'unpaid_14_day_expiration',
-    actorId = 'system',
+    actorId = SYSTEM_ACTOR_ID,
   ): Promise<PurgedRestaurantRecord | null> {
-    const [existing] = await db
-      .select({
-        id: restaurants.id,
-        name: restaurants.name,
-        slug: restaurants.slug,
-        createdAt: restaurants.createdAt,
-      })
-      .from(restaurants)
-      .where(eq(restaurants.id, restaurantId))
-      .limit(1);
+    // Atomically read & cascade delete all tenant data within strict tenant RLS context
+    const existing = await withTenantContext(restaurantId, async (tx) => {
+      const [found] = await tx
+        .select({
+          id: restaurants.id,
+          name: restaurants.name,
+          slug: restaurants.slug,
+          createdAt: restaurants.createdAt,
+        })
+        .from(restaurants)
+        .where(eq(restaurants.id, restaurantId))
+        .limit(1);
 
-    if (!existing) {
-      return null;
-    }
+      if (!found) {
+        return null;
+      }
 
-    // Atomically cascade delete all tenant data
-    await db.transaction(async (tx) => {
       await tx.delete(tipIntents).where(eq(tipIntents.restaurantId, restaurantId));
       await tx.delete(reviewTaps).where(eq(reviewTaps.restaurantId, restaurantId));
       await tx.delete(pageEvents).where(eq(pageEvents.restaurantId, restaurantId));
@@ -126,7 +131,13 @@ export class AccountLifecycleService {
       await tx.delete(auditLogs).where(eq(auditLogs.restaurantId, restaurantId));
       await tx.delete(restaurantUsers).where(eq(restaurantUsers.restaurantId, restaurantId));
       await tx.delete(restaurants).where(eq(restaurants.id, restaurantId));
+
+      return found;
     });
+
+    if (!existing) {
+      return null;
+    }
 
     // Record platform audit log with restaurantId: undefined so it survives tenant deletion
     await auditService.record({
@@ -172,40 +183,46 @@ export class AccountLifecycleService {
   }> {
     const cutoff = this.getCutoffDate(days);
 
-    const candidates = await db
-      .select({
-        id: restaurants.id,
-        name: restaurants.name,
-        slug: restaurants.slug,
-        createdAt: restaurants.createdAt,
-      })
-      .from(restaurants)
-      .where(and(lte(restaurants.createdAt, cutoff), isNull(restaurants.deletedAt)));
+    const candidates = await withSystemContext('lifecycle_unpaid_candidate_scan', (executor) =>
+      executor
+        .select({
+          id: restaurants.id,
+          name: restaurants.name,
+          slug: restaurants.slug,
+          createdAt: restaurants.createdAt,
+        })
+        .from(restaurants)
+        .where(lte(restaurants.createdAt, cutoff)),
+    );
 
     const purgedRestaurants: PurgedRestaurantRecord[] = [];
 
     for (const candidate of candidates) {
-      // Check active subscription
-      const [activeSub] = await db
-        .select({ id: subscriptions.id })
-        .from(subscriptions)
-        .where(
-          and(eq(subscriptions.restaurantId, candidate.id), eq(subscriptions.status, 'active')),
-        )
-        .limit(1);
+      const { hasActiveSub, hasPaidInvoice } = await withTenantContext(
+        candidate.id,
+        async (executor) => {
+          const [activeSub] = await executor
+            .select({ id: subscriptions.id })
+            .from(subscriptions)
+            .where(
+              and(eq(subscriptions.restaurantId, candidate.id), eq(subscriptions.status, 'active')),
+            )
+            .limit(1);
 
-      if (activeSub) {
-        continue;
-      }
+          const [paidInvoice] = await executor
+            .select({ id: invoices.id })
+            .from(invoices)
+            .where(and(eq(invoices.restaurantId, candidate.id), eq(invoices.status, 'paid')))
+            .limit(1);
 
-      // Check paid invoice
-      const [paidInvoice] = await db
-        .select({ id: invoices.id })
-        .from(invoices)
-        .where(and(eq(invoices.restaurantId, candidate.id), eq(invoices.status, 'paid')))
-        .limit(1);
+          return {
+            hasActiveSub: Boolean(activeSub),
+            hasPaidInvoice: Boolean(paidInvoice),
+          };
+        },
+      );
 
-      if (paidInvoice) {
+      if (hasActiveSub || hasPaidInvoice) {
         continue;
       }
 

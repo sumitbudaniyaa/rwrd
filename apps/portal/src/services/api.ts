@@ -52,7 +52,6 @@ export interface PortalRestaurantItem {
   suspensionReason: string | null;
   createdAt: string;
   updatedAt: string;
-  deletedAt: string | null;
   subscriptionId?: string | null;
   subscriptionStatus?: 'unpaid' | 'trial' | 'active' | 'past_due' | 'cancelled' | null;
   currentPeriodEnd?: string | null;
@@ -133,6 +132,26 @@ export interface OnboardRestaurantInput {
 
 let inMemoryToken: string | null = null;
 
+let csrfTokenMemory: string | null = null;
+
+function readCsrfCookie(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)tiptable_csrf=([^;]+)/);
+  return match && match[1] ? decodeURIComponent(match[1]) : null;
+}
+
+function getCsrfHeaders(): Record<string, string> {
+  const token = csrfTokenMemory || readCsrfCookie();
+  return token ? { 'x-csrf-token': token } : {};
+}
+
+function captureCsrfHeader(response: Response): void {
+  const headerToken = response.headers.get('x-csrf-token');
+  if (headerToken) {
+    csrfTokenMemory = headerToken;
+  }
+}
+
 export function setAccessToken(token: string | null): void {
   inMemoryToken = token;
 }
@@ -153,7 +172,10 @@ async function request<T>(
     headers.set('Content-Type', 'application/json');
   }
 
-  headers.set('X-Requested-With', 'XMLHttpRequest');
+  const csrfToken = csrfTokenMemory || readCsrfCookie();
+  if (csrfToken) {
+    headers.set('x-csrf-token', csrfToken);
+  }
 
   if (inMemoryToken) {
     headers.set('Authorization', `Bearer ${inMemoryToken}`);
@@ -164,6 +186,7 @@ async function request<T>(
     headers,
     credentials: 'include',
   });
+  captureCsrfHeader(response);
 
   // Handle 401 Unauthorized by attempting a single silent refresh
   if (
@@ -175,9 +198,10 @@ async function request<T>(
     try {
       const refreshRes = await fetch(`${portalEnv.VITE_API_BASE_URL}/api/v1/portal/auth/refresh`, {
         method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        headers: { ...getCsrfHeaders() },
         credentials: 'include',
       });
+      captureCsrfHeader(refreshRes);
 
       if (refreshRes.ok) {
         const refreshData = (await refreshRes.json()) as RefreshResponse;
@@ -588,8 +612,12 @@ export const api = {
     });
   },
 
-  impersonateRestaurant(id: string, reason?: string): Promise<ImpersonateResponse> {
-    const payload: { reason?: string } = {};
+  impersonateRestaurant(
+    id: string,
+    requestId: string,
+    reason?: string,
+  ): Promise<ImpersonateResponse> {
+    const payload: { requestId: string; reason?: string } = { requestId };
     if (reason) payload.reason = reason;
     return request<ImpersonateResponse>(`/portal/restaurants/${id}/impersonate`, {
       method: 'POST',

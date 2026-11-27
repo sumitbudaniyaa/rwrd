@@ -113,11 +113,18 @@ adminAnalyticsRouter.get(
       );
 
       const escapeCsv = (val: string | number): string => {
-        const str = String(val);
-        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
-          return `"${str.replace(/"/g, '""')}"`;
+        const raw = String(val);
+        // Prevent CSV formula injection (CWE-1236) in spreadsheet applications
+        const safe = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+        if (
+          safe.includes(',') ||
+          safe.includes('"') ||
+          safe.includes('\n') ||
+          safe.includes('\r')
+        ) {
+          return `"${safe.replace(/"/g, '""')}"`;
         }
-        return str;
+        return safe;
       };
 
       const headers = [

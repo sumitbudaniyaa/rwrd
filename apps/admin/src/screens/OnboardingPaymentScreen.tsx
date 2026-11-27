@@ -24,51 +24,6 @@ const TAB_SPRING = {
   mass: 0.8,
 } as const;
 
-interface FallbackPlan {
-  id: string;
-  name: string;
-  code: string;
-  priceInr: number;
-  durationMonths: number;
-  badge?: string;
-  savings?: string;
-}
-
-const DEFAULT_PLANS: FallbackPlan[] = [
-  {
-    id: 'plan-1m',
-    name: '1 Month',
-    code: 'monthly',
-    priceInr: 99,
-    durationMonths: 1,
-  },
-  {
-    id: 'plan-3m',
-    name: '3 Months',
-    code: 'quarterly',
-    priceInr: 269,
-    durationMonths: 3,
-    savings: 'Save 10%',
-  },
-  {
-    id: 'plan-6m',
-    name: '6 Months',
-    code: 'semi_annual',
-    priceInr: 549,
-    durationMonths: 6,
-    badge: 'Popular',
-  },
-  {
-    id: 'plan-12m',
-    name: '12 Months',
-    code: 'yearly',
-    priceInr: 1029,
-    durationMonths: 12,
-    badge: 'Best Value',
-    savings: 'Save 15%',
-  },
-];
-
 export const OnboardingPaymentScreen: React.FC = () => {
   const navigate = useNavigate();
   const { user, restaurant, logout, refreshUser } = useAuth();
@@ -77,44 +32,46 @@ export const OnboardingPaymentScreen: React.FC = () => {
   const [plans, setPlans] = useState<BillingPlanItem[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>('');
   const [isLoadingPlans, setIsLoadingPlans] = useState(true);
+  const [plansLoadError, setPlansLoadError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<ButtonState>('idle');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const loadPlans = React.useCallback(async (isMountedCheck?: () => boolean) => {
+    setIsLoadingPlans(true);
+    setPlansLoadError(null);
+    try {
+      const res = await api.getBillingPlans();
+      if (isMountedCheck && !isMountedCheck()) return;
+      if (res.plans && res.plans.length > 0) {
+        setPlans(res.plans);
+        const defaultPick = res.plans.find((p) => p.durationMonths === 6) || res.plans[0];
+        if (defaultPick) setSelectedPlanId(defaultPick.id);
+      } else {
+        setPlans([]);
+        setPlansLoadError('No active subscription plans are available right now.');
+      }
+    } catch {
+      if (isMountedCheck && !isMountedCheck()) return;
+      setPlans([]);
+      setPlansLoadError('Could not load subscription plans. Please retry.');
+    } finally {
+      if (!isMountedCheck || isMountedCheck()) {
+        setIsLoadingPlans(false);
+      }
+    }
+  }, []);
+
   // Fetch active SaaS tiers from backend
   useEffect(() => {
     let mounted = true;
-    async function loadPlans() {
-      try {
-        const res = await api.getBillingPlans();
-        if (mounted && res.plans && res.plans.length > 0) {
-          setPlans(res.plans);
-          // Default to the 6m or 1m plan
-          const defaultPick = res.plans.find((p) => p.durationMonths === 6) || res.plans[0];
-          if (defaultPick) setSelectedPlanId(defaultPick.id);
-        }
-      } catch {
-        // Fallback to static pricing structure if network/API drops
-        if (mounted) {
-          setPlans(
-            DEFAULT_PLANS.map((p) => ({
-              ...p,
-              monthlyFeeInr: Math.round(p.priceInr / p.durationMonths),
-            })),
-          );
-          setSelectedPlanId(DEFAULT_PLANS[1]?.id || DEFAULT_PLANS[0]!.id);
-        }
-      } finally {
-        if (mounted) setIsLoadingPlans(false);
-      }
-    }
-    loadPlans();
+    void loadPlans(() => mounted);
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [loadPlans]);
 
-  const activePlanList = plans.length > 0 ? plans : DEFAULT_PLANS;
+  const activePlanList = plans;
   const currentPlan = activePlanList.find((p) => p.id === selectedPlanId) || activePlanList[0];
 
   const handleOpenPayment = () => {
@@ -192,6 +149,20 @@ export const OnboardingPaymentScreen: React.FC = () => {
             </h1>
           </div>
         </FadeIn>
+
+        {/* Plan Load Error Retry State */}
+        {!isLoadingPlans && plansLoadError && (
+          <div className="mt-8 w-full max-w-md rounded-2xl border border-rose-200 bg-rose-50/70 p-5 text-center space-y-3">
+            <p className="text-xs font-medium text-rose-800">{plansLoadError}</p>
+            <button
+              type="button"
+              onClick={() => void loadPlans()}
+              className="px-4 py-2 rounded-xl bg-stone-900 hover:bg-black text-white text-xs font-semibold transition-colors cursor-pointer"
+            >
+              Retry Loading Plans
+            </button>
+          </div>
+        )}
 
         {/* beUI Segmented Tabs Selector */}
         {!isLoadingPlans && activePlanList.length > 0 && (

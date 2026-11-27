@@ -17,7 +17,7 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
   });
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe('AccountLifecycleService.isRestaurantExpiredUnpaid', () => {
@@ -31,7 +31,9 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
         }),
       } as any);
 
-      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid('rest-recent-1');
+      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid(
+        '00000000-0000-4000-8000-000000000001',
+      );
       expect(isExpired).toBe(false);
     });
 
@@ -44,7 +46,7 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
               limit: () =>
                 Promise.resolve([
                   {
-                    id: 'rest-active-sub',
+                    id: '00000000-0000-4000-8000-000000000002',
                     createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
                   },
                 ]),
@@ -60,7 +62,9 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
           }),
         } as any);
 
-      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid('rest-active-sub');
+      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid(
+        '00000000-0000-4000-8000-000000000002',
+      );
       expect(isExpired).toBe(false);
     });
 
@@ -73,7 +77,7 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
               limit: () =>
                 Promise.resolve([
                   {
-                    id: 'rest-paid-invoice',
+                    id: '00000000-0000-4000-8000-000000000003',
                     createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
                   },
                 ]),
@@ -97,8 +101,9 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
           }),
         } as any);
 
-      const isExpired =
-        await accountLifecycleService.isRestaurantExpiredUnpaid('rest-paid-invoice');
+      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid(
+        '00000000-0000-4000-8000-000000000003',
+      );
       expect(isExpired).toBe(false);
     });
 
@@ -111,7 +116,7 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
               limit: () =>
                 Promise.resolve([
                   {
-                    id: 'rest-unpaid-expired',
+                    id: '00000000-0000-4000-8000-000000000004',
                     createdAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000),
                   },
                 ]),
@@ -135,8 +140,9 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
           }),
         } as any);
 
-      const isExpired =
-        await accountLifecycleService.isRestaurantExpiredUnpaid('rest-unpaid-expired');
+      const isExpired = await accountLifecycleService.isRestaurantExpiredUnpaid(
+        '00000000-0000-4000-8000-000000000004',
+      );
       expect(isExpired).toBe(true);
     });
   });
@@ -151,20 +157,21 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
         createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000),
       };
 
-      vi.spyOn(db, 'select').mockReturnValueOnce({
-        from: () => ({
-          where: () => ({
-            limit: () => Promise.resolve([mockRest]),
-          }),
-        }),
-      } as any);
-
       const txDeleteSpy = vi.fn().mockReturnValue({
         where: vi.fn().mockResolvedValue({}),
       });
 
       vi.spyOn(db, 'transaction').mockImplementation(async (callback: any) => {
-        return callback({ delete: txDeleteSpy });
+        return callback({
+          select: () => ({
+            from: () => ({
+              where: () => ({
+                limit: () => Promise.resolve([mockRest]),
+              }),
+            }),
+          }),
+          delete: txDeleteSpy,
+        });
       });
 
       const auditSpy = vi.spyOn(auditService, 'record').mockResolvedValue({} as any);
@@ -174,7 +181,7 @@ describe('Account Lifecycle & Unpaid 14-Day Expiration Policy', () => {
       expect(purged).not.toBeNull();
       expect(purged?.restaurantId).toBe(restId);
       expect(purged?.restaurantName).toBe('Unpaid Cafe');
-      expect(txDeleteSpy).toHaveBeenCalledTimes(14); // 14 tenant tables cascade deleted (including impersonationRequests)
+      expect(txDeleteSpy).toHaveBeenCalledTimes(15); // 15 tables cascade deleted (including impersonationRequests & supportTickets)
       expect(auditSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           action: 'RESTAURANT_AUTO_PURGED_UNPAID_EXPIRED',

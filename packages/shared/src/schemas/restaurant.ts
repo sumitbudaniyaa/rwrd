@@ -36,18 +36,57 @@ export const ResolveTokenResponseSchema = z.object({
 
 export type ResolveTokenResponse = z.infer<typeof ResolveTokenResponseSchema>;
 
+const ALLOWED_REVIEW_HOST_PATTERNS = [
+  /^(?:[a-z0-9-]+\.)*google\.[a-z]{2,3}(?:\.[a-z]{2})?$/i,
+  /^(?:[a-z0-9-]+\.)*g\.page$/i,
+  /^maps\.app\.goo\.gl$/i,
+  /^goo\.gl$/i,
+];
+
+export function isValidGoogleReviewUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
+      return false;
+    }
+    const hostname = parsed.hostname.toLowerCase();
+    if (hostname === 'goo.gl') {
+      return parsed.pathname.startsWith('/maps');
+    }
+    return ALLOWED_REVIEW_HOST_PATTERNS.some((pattern) => pattern.test(hostname));
+  } catch {
+    return false;
+  }
+}
+
+export function isSafeMediaUrl(rawUrl: string): boolean {
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return true;
+    }
+    if (parsed.protocol === 'data:') {
+      return /^data:image\/(?:png|jpeg|jpg|webp|gif);base64,[A-Za-z0-9+/=]+$/i.test(rawUrl);
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 export const UpdateRestaurantSettingsSchema = z
   .object({
     name: z.string().min(2).max(255).optional(),
-    logoUrl: z.string().url().nullable().optional(),
+    logoUrl: z
+      .string()
+      .url()
+      .refine(isSafeMediaUrl, 'Logo URL must be http(s) or a valid raster image')
+      .nullable()
+      .optional(),
     googleReviewUrl: z
       .string()
       .url()
-      .refine(
-        (url) =>
-          url.includes('google.com') || url.includes('g.page') || url.includes('maps.app.goo.gl'),
-        'Must be a valid Google review URL',
-      )
+      .refine(isValidGoogleReviewUrl, 'Must be a valid HTTPS Google review URL')
       .optional(),
     tipPresets: z.array(z.number().int().positive()).min(1).max(6).optional(),
     minTipInr: z.number().int().positive().optional(),

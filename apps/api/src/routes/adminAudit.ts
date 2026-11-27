@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { withTenantContext } from '../db/rls.js';
 import { restaurantUsers } from '../db/schema/index.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
@@ -63,17 +63,21 @@ adminAuditRouter.get(
         auditOptions.entityType = entityType;
       }
 
-      const logs = await auditService.getTenantLogs(restaurantId, auditOptions);
+      const { logs, users } = await withTenantContext(restaurantId, async (executor) => {
+        const tenantLogs = await auditService.getTenantLogs(restaurantId, auditOptions);
 
-      // Fetch restaurant users to enrich actor information
-      const users = await db
-        .select({
-          id: restaurantUsers.id,
-          fullName: restaurantUsers.fullName,
-          email: restaurantUsers.email,
-        })
-        .from(restaurantUsers)
-        .where(eq(restaurantUsers.restaurantId, restaurantId));
+        // Fetch restaurant users to enrich actor information
+        const tenantUsers = await executor
+          .select({
+            id: restaurantUsers.id,
+            fullName: restaurantUsers.fullName,
+            email: restaurantUsers.email,
+          })
+          .from(restaurantUsers)
+          .where(eq(restaurantUsers.restaurantId, restaurantId));
+
+        return { logs: tenantLogs, users: tenantUsers };
+      });
 
       const userMap = new Map(users.map((u) => [u.id, u]));
 

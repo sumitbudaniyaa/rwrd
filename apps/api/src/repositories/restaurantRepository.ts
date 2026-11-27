@@ -1,20 +1,23 @@
 import { eq, and } from 'drizzle-orm';
 import { db, type Database } from '../db/index.js';
+import { withTenantContext } from '../db/rls.js';
 import { restaurants, subscriptions, type Restaurant } from '../db/schema/index.js';
 import { PLAN_GRACE_PERIOD_MS } from './qrTokenRepository.js';
 
 export class RestaurantRepository {
   constructor(private readonly database: Database = db) {}
 
+  private runTenant<T>(restaurantId: string, fn: (executor: Database) => Promise<T>): Promise<T> {
+    return this.database !== db ? fn(this.database) : withTenantContext(restaurantId, fn);
+  }
+
   /**
    * Retrieves a restaurant by primary key ID.
    */
   async findById(id: string): Promise<Restaurant | null> {
-    const results = await this.database
-      .select()
-      .from(restaurants)
-      .where(eq(restaurants.id, id))
-      .limit(1);
+    const results = await this.runTenant(id, (executor) =>
+      executor.select().from(restaurants).where(eq(restaurants.id, id)).limit(1),
+    );
 
     return results[0] || null;
   }
@@ -24,21 +27,23 @@ export class RestaurantRepository {
    * Enforces 2-day plan grace period: service becomes inactive 2 days after plan expiration.
    */
   async findActiveById(id: string): Promise<Restaurant | null> {
-    const results = await this.database
-      .select({
-        restaurant: restaurants,
-        subscription: subscriptions,
-      })
-      .from(restaurants)
-      .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
-      .where(
-        and(
-          eq(restaurants.id, id),
-          eq(restaurants.isActive, true),
-          eq(restaurants.isSuspended, false),
-        ),
-      )
-      .limit(1);
+    const results = await this.runTenant(id, (executor) =>
+      executor
+        .select({
+          restaurant: restaurants,
+          subscription: subscriptions,
+        })
+        .from(restaurants)
+        .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+        .where(
+          and(
+            eq(restaurants.id, id),
+            eq(restaurants.isActive, true),
+            eq(restaurants.isSuspended, false),
+          ),
+        )
+        .limit(1),
+    );
 
     const match = results[0];
     if (!match) return null;
@@ -67,14 +72,16 @@ export class RestaurantRepository {
     id: string,
     data: Partial<Omit<Restaurant, 'id' | 'createdAt'>>,
   ): Promise<Restaurant | null> {
-    const [updated] = await this.database
-      .update(restaurants)
-      .set({
-        ...data,
-        updatedAt: new Date(),
-      })
-      .where(eq(restaurants.id, id))
-      .returning();
+    const [updated] = await this.runTenant(id, (executor) =>
+      executor
+        .update(restaurants)
+        .set({
+          ...data,
+          updatedAt: new Date(),
+        })
+        .where(eq(restaurants.id, id))
+        .returning(),
+    );
 
     return updated || null;
   }

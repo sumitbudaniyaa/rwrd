@@ -17,7 +17,7 @@ describe('Restaurant Admin Authentication & MFA Endpoints', () => {
   const app = createApp();
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('POST /api/v1/admin/auth/login returns tempToken when MFA is required', async () => {
@@ -49,17 +49,16 @@ describe('Restaurant Admin Authentication & MFA Endpoints', () => {
   });
 
   it('POST /api/v1/admin/auth/register registers new restaurant with isActive: true and logs in', async () => {
-    vi.spyOn(db, 'select').mockReturnValue({
-      from: () => ({
-        where: () => ({
-          limit: () => Promise.resolve([]),
-        }),
-      }),
-    } as any);
-
     let insertedRestaurantValues: any = null;
     vi.spyOn(db, 'transaction').mockImplementationOnce(async (cb: any) => {
       const mockTx = {
+        select: () => ({
+          from: () => ({
+            where: () => ({
+              limit: () => Promise.resolve([]),
+            }),
+          }),
+        }),
         insert: vi.fn().mockImplementation((_table: any) => ({
           values: vi.fn().mockImplementation((val: any) => {
             if (!insertedRestaurantValues) {
@@ -190,11 +189,12 @@ describe('Restaurant Admin Authentication & MFA Endpoints', () => {
 
   it('POST /api/v1/admin/auth/logout clears cookie and revokes refresh token', async () => {
     const logoutSpy = vi.spyOn(authService, 'logout').mockResolvedValueOnce(undefined);
+    const csrfToken = 'abcdef1234567890abcdef1234567890';
 
     const res = await request(app)
       .post('/api/v1/admin/auth/logout')
-      .set('Cookie', ['tiptable_admin_rf=valid_refresh_token'])
-      .set('X-Requested-With', 'XMLHttpRequest');
+      .set('Cookie', [`tiptable_admin_rf=valid_refresh_token; tiptable_csrf=${csrfToken}`])
+      .set('x-csrf-token', csrfToken);
 
     expect(res.status).toBe(200);
     expect(logoutSpy).toHaveBeenCalledWith('valid_refresh_token');
@@ -227,7 +227,7 @@ describe('Restaurant Admin Authentication & MFA Endpoints', () => {
       sub: 'user-111',
       role: 'admin',
       realm: 'admin',
-      restaurantId: 'rest-222',
+      restaurantId: '11111111-1111-1111-1111-111111111222',
       hasActivePlan: false,
     });
 

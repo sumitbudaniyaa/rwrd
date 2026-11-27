@@ -89,34 +89,6 @@ publicRouter.get(
   },
 );
 
-/**
- * GET /api/v1/public/billing/plans
- * Returns active subscription pricing plans for prospective dining establishments and onboarding.
- */
-publicRouter.get(
-  '/public/billing/plans',
-  async (_req: Request, res: Response, next: NextFunction) => {
-    try {
-      const plans = await db
-        .select({
-          id: billingPlans.id,
-          name: billingPlans.name,
-          code: billingPlans.code,
-          priceInr: billingPlans.priceInr,
-          durationMonths: billingPlans.durationMonths,
-          monthlyFeeInr: billingPlans.monthlyFeeInr,
-        })
-        .from(billingPlans)
-        .where(eq(billingPlans.isActive, true))
-        .orderBy(billingPlans.durationMonths);
-
-      res.status(200).json({ plans });
-    } catch (error) {
-      next(error);
-    }
-  },
-);
-
 const TokenParamSchema = z.object({
   token: z.string().trim().min(1, 'Token is required'),
 });
@@ -205,6 +177,13 @@ publicRouter.get(
         throw new NotFoundError('Restaurant not found or inactive', 'RESTAURANT_NOT_FOUND');
       }
 
+      if (!restaurant.tippingEnabled) {
+        throw new ForbiddenError(
+          'Waitstaff tipping is currently disabled by this restaurant',
+          'TIPPING_DISABLED',
+        );
+      }
+
       // Telemetry: Record staff_view event
       let tableId: string | null = null;
       if (tokenQuery) {
@@ -267,6 +246,13 @@ publicRouter.post(
       }
 
       const { restaurant, table } = resolved;
+
+      if (!restaurant.tippingEnabled) {
+        throw new ForbiddenError(
+          'Waitstaff tipping is currently disabled by this restaurant',
+          'TIPPING_DISABLED',
+        );
+      }
 
       // 2. Validate tip amount against restaurant-specific bounds
       if (amountInr < restaurant.minTipInr || amountInr > restaurant.maxTipInr) {
@@ -345,6 +331,13 @@ publicRouter.post(
       const restaurant = await restaurantRepo.findActiveById(restaurantId);
       if (!restaurant) {
         throw new NotFoundError('Restaurant not found or inactive', 'RESTAURANT_NOT_FOUND');
+      }
+
+      if (!restaurant.reviewsEnabled) {
+        throw new ForbiddenError(
+          'Google review redirection is currently disabled by this restaurant',
+          'REVIEWS_DISABLED',
+        );
       }
 
       // Verify token belongs to this restaurant

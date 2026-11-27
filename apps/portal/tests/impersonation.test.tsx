@@ -21,7 +21,6 @@ const mockRestaurantsResponse: PortalRestaurantsResponse = {
       isActive: true,
       isSuspended: false,
       suspensionReason: null,
-      deletedAt: null,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
     },
@@ -187,7 +186,10 @@ describe('Portal Support Impersonation Flow', () => {
       expect(
         screen.getByRole('dialog', { name: /support session: The Bombay Canteen/i }),
       ).toBeDefined();
-      expect(screen.getByTitle(/Admin Console - The Bombay Canteen/i)).toBeDefined();
+      const iframe = screen.getByTitle(/Admin Console - The Bombay Canteen/i);
+      expect(iframe).toBeDefined();
+      expect(iframe.getAttribute('src')).toContain('?impersonate_session=1');
+      expect(iframe.getAttribute('src')).not.toContain('impersonate_token');
       expect(screen.getByRole('button', { name: /Exit Session/i })).toBeDefined();
     });
 
@@ -315,10 +317,26 @@ describe('Portal Support Impersonation Flow', () => {
       ).toBeDefined();
     });
 
-    // Simulate iframe firing exit postMessage
+    // Untrusted origin postMessage must be ignored
     fireEvent(
       window,
-      new MessageEvent('message', { data: { type: 'TIPTABLE_IMPERSONATION_EXIT' } }),
+      new MessageEvent('message', {
+        data: { type: 'TIPTABLE_IMPERSONATION_EXIT' },
+        origin: 'https://evil.example',
+      }),
+    );
+
+    expect(
+      screen.getByRole('dialog', { name: /support session: The Bombay Canteen/i }),
+    ).toBeDefined();
+
+    // Simulate iframe firing exit postMessage from trusted admin app origin
+    fireEvent(
+      window,
+      new MessageEvent('message', {
+        data: { type: 'TIPTABLE_IMPERSONATION_EXIT' },
+        origin: 'http://localhost:3001',
+      }),
     );
 
     await waitFor(() => {

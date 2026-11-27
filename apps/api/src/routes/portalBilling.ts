@@ -1,13 +1,14 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
 import { eq, and, desc, isNull, lte, ne, or, ilike, type SQL } from 'drizzle-orm';
-import { randomUUID } from 'node:crypto';
+import { randomInt } from 'node:crypto';
 import { db } from '../db/index.js';
+import { withSystemContext, withTenantContext } from '../db/rls.js';
 import { billingPlans, subscriptions, invoices, restaurants } from '../db/schema/index.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireRole } from '../middleware/rbac.js';
 import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
-import { NotFoundError, ValidationError } from '../errors/appError.js';
+import { BadRequestError, NotFoundError, ValidationError } from '../errors/appError.js';
 import { logger } from '../utils/logger.js';
 import { accountLifecycleService } from '../services/accountLifecycleService.js';
 
@@ -15,6 +16,16 @@ export const portalBillingRouter = Router();
 
 // Apply IP allowlist protection
 portalBillingRouter.use(portalIpAllowlist());
+
+const UuidSchema = z.string().uuid('Valid UUID identifier is required');
+
+function parseUuidParam(value: string | undefined, label: string): string {
+  const parsed = UuidSchema.safeParse(value);
+  if (!parsed.success) {
+    throw new BadRequestError(`Invalid ${label} format`);
+  }
+  return parsed.data;
+}
 
 const CreateInvoiceSchema = z.object({
   restaurantId: z.string().uuid('Valid restaurant ID is required'),
@@ -74,10 +85,7 @@ portalBillingRouter.patch(
   requireRole(['super_admin']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const planId = req.params.id;
-      if (!planId) {
-        throw new ValidationError('Plan ID is required');
-      }
+      const planId = parseUuidParam(req.params.id, 'plan ID');
 
       const parsed = UpdateBillingPlanSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -170,10 +178,7 @@ portalBillingRouter.delete(
   requireRole(['super_admin']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const planId = req.params.id;
-      if (!planId) {
-        throw new ValidationError('Plan ID is required');
-      }
+      const planId = parseUuidParam(req.params.id, 'plan ID');
 
       const [existing] = await db
         .select()
@@ -186,11 +191,13 @@ portalBillingRouter.delete(
       }
 
       // Check if any subscriptions reference this plan
-      const [existingSub] = await db
-        .select({ id: subscriptions.id })
-        .from(subscriptions)
-        .where(eq(subscriptions.planId, planId))
-        .limit(1);
+      const [existingSub] = await withSystemContext('portal_delete_plan_check', (executor) =>
+        executor
+          .select({ id: subscriptions.id })
+          .from(subscriptions)
+          .where(eq(subscriptions.planId, planId))
+          .limit(1),
+      );
 
       if (existingSub) {
         // Safe deactivation: preserve historical & current period subscriber foreign keys
@@ -291,7 +298,7 @@ portalBillingRouter.get(
       const planId = (req.query.planId as string)?.trim();
       const search = (req.query.search as string)?.trim();
 
-      const conditions: (SQL<unknown> | undefined)[] = [isNull(restaurants.deletedAt)];
+      const conditions: (SQL<unknown> | undefined)[] = [];
 
       if (status === 'unpaid') {
         conditions.push(
@@ -333,32 +340,34 @@ portalBillingRouter.get(
 
       const activeConditions = conditions.filter((c): c is SQL<unknown> => c !== undefined);
 
-      const rows = await db
-        .select({
-          id: subscriptions.id,
-          restaurantId: restaurants.id,
-          restaurantName: restaurants.name,
-          restaurantSlug: restaurants.slug,
-          isRestaurantActive: restaurants.isActive,
-          isRestaurantSuspended: restaurants.isSuspended,
-          planId: subscriptions.planId,
-          planName: billingPlans.name,
-          planCode: billingPlans.code,
-          monthlyFeeInr: billingPlans.monthlyFeeInr,
-          durationMonths: billingPlans.durationMonths,
-          priceInr: billingPlans.priceInr,
-          status: subscriptions.status,
-          trialEndsAt: subscriptions.trialEndsAt,
-          currentPeriodStart: subscriptions.currentPeriodStart,
-          currentPeriodEnd: subscriptions.currentPeriodEnd,
-          createdAt: subscriptions.createdAt,
-          updatedAt: subscriptions.updatedAt,
-        })
-        .from(restaurants)
-        .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
-        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
-        .where(activeConditions.length > 0 ? and(...activeConditions) : undefined)
-        .orderBy(desc(restaurants.createdAt));
+      const rows = await withSystemContext('portal_list_subscriptions', (executor) =>
+        executor
+          .select({
+            id: subscriptions.id,
+            restaurantId: restaurants.id,
+            restaurantName: restaurants.name,
+            restaurantSlug: restaurants.slug,
+            isRestaurantActive: restaurants.isActive,
+            isRestaurantSuspended: restaurants.isSuspended,
+            planId: subscriptions.planId,
+            planName: billingPlans.name,
+            planCode: billingPlans.code,
+            monthlyFeeInr: billingPlans.monthlyFeeInr,
+            durationMonths: billingPlans.durationMonths,
+            priceInr: billingPlans.priceInr,
+            status: subscriptions.status,
+            trialEndsAt: subscriptions.trialEndsAt,
+            currentPeriodStart: subscriptions.currentPeriodStart,
+            currentPeriodEnd: subscriptions.currentPeriodEnd,
+            createdAt: subscriptions.createdAt,
+            updatedAt: subscriptions.updatedAt,
+          })
+          .from(restaurants)
+          .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+          .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+          .where(activeConditions.length > 0 ? and(...activeConditions) : undefined)
+          .orderBy(desc(restaurants.createdAt)),
+      );
 
       const mapped = rows.map((r) => {
         const isUnpaid = !r.status || r.status === 'unpaid' || !r.isRestaurantActive;
@@ -415,33 +424,35 @@ portalBillingRouter.get(
       const limit = Math.min(Number(req.query.limit) || 50, 100);
       const offset = Math.max(Number(req.query.offset) || 0, 0);
 
-      const conditions = [];
+      const conditions: SQL[] = [];
       if (status !== 'all' && ['paid', 'unpaid', 'void'].includes(status)) {
         conditions.push(eq(invoices.status, status));
       }
       if (restaurantId) {
-        conditions.push(eq(invoices.restaurantId, restaurantId));
+        conditions.push(eq(invoices.restaurantId, parseUuidParam(restaurantId, 'restaurant ID')));
       }
 
-      const rows = await db
-        .select({
-          id: invoices.id,
-          invoiceNumber: invoices.invoiceNumber,
-          restaurantId: invoices.restaurantId,
-          restaurantName: restaurants.name,
-          subscriptionId: invoices.subscriptionId,
-          amountInr: invoices.amountInr,
-          status: invoices.status,
-          dueDate: invoices.dueDate,
-          paidAt: invoices.paidAt,
-          createdAt: invoices.createdAt,
-        })
-        .from(invoices)
-        .innerJoin(restaurants, eq(invoices.restaurantId, restaurants.id))
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
-        .orderBy(desc(invoices.createdAt))
-        .limit(limit)
-        .offset(offset);
+      const rows = await withSystemContext('portal_list_invoices', (executor) =>
+        executor
+          .select({
+            id: invoices.id,
+            invoiceNumber: invoices.invoiceNumber,
+            restaurantId: invoices.restaurantId,
+            restaurantName: restaurants.name,
+            subscriptionId: invoices.subscriptionId,
+            amountInr: invoices.amountInr,
+            status: invoices.status,
+            dueDate: invoices.dueDate,
+            paidAt: invoices.paidAt,
+            createdAt: invoices.createdAt,
+          })
+          .from(invoices)
+          .innerJoin(restaurants, eq(invoices.restaurantId, restaurants.id))
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(invoices.createdAt))
+          .limit(limit)
+          .offset(offset),
+      );
 
       res.status(200).json({
         invoices: rows,
@@ -481,81 +492,91 @@ portalBillingRouter.post(
 
       const { restaurantId, amountInr, dueDate } = parsed.data;
 
-      // 1. Verify restaurant exists
-      const [restaurant] = await db
-        .select()
-        .from(restaurants)
-        .where(and(eq(restaurants.id, restaurantId), isNull(restaurants.deletedAt)))
-        .limit(1);
-
-      if (!restaurant) {
-        throw new NotFoundError('Restaurant not found or deleted');
-      }
-
-      // 2. Locate or ensure subscription for this restaurant
-      let [subscription] = await db
-        .select()
-        .from(subscriptions)
-        .where(eq(subscriptions.restaurantId, restaurantId))
-        .limit(1);
-
-      if (!subscription) {
-        // Fallback: Link to starter plan if no subscription row exists yet
-        const [defaultPlan] = await db
+      const newInvoice = await withTenantContext(restaurantId, async (executor) => {
+        // 1. Verify restaurant exists
+        const [restaurant] = await executor
           .select()
-          .from(billingPlans)
-          .where(eq(billingPlans.isActive, true))
+          .from(restaurants)
+          .where(eq(restaurants.id, restaurantId))
           .limit(1);
 
-        const now = new Date();
-        const oneMonthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+        if (!restaurant) {
+          throw new NotFoundError('Restaurant not found');
+        }
 
-        const [createdSub] = await db
-          .insert(subscriptions)
+        // 2. Locate or ensure subscription for this restaurant
+        let [subscription] = await executor
+          .select()
+          .from(subscriptions)
+          .where(eq(subscriptions.restaurantId, restaurantId))
+          .limit(1);
+
+        if (!subscription) {
+          // Fallback: Link to starter plan if no subscription row exists yet
+          const [defaultPlan] = await executor
+            .select()
+            .from(billingPlans)
+            .where(eq(billingPlans.isActive, true))
+            .limit(1);
+
+          if (!defaultPlan) {
+            throw new ValidationError(
+              'No active billing plan is available to create a subscription',
+            );
+          }
+
+          const now = new Date();
+          const oneMonthLater = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+          const [createdSub] = await executor
+            .insert(subscriptions)
+            .values({
+              restaurantId,
+              planId: defaultPlan.id,
+              status: 'active',
+              currentPeriodStart: now,
+              currentPeriodEnd: oneMonthLater,
+            })
+            .returning();
+
+          subscription = createdSub;
+        }
+
+        // 3. Generate unique invoice number using CSPRNG
+        const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${randomInt(1000, 10000)}`;
+
+        const [createdInvoice] = await executor
+          .insert(invoices)
           .values({
             restaurantId,
-            planId: defaultPlan?.id || randomUUID(),
-            status: 'active',
-            currentPeriodStart: now,
-            currentPeriodEnd: oneMonthLater,
+            subscriptionId: subscription!.id,
+            invoiceNumber,
+            amountInr,
+            status: 'unpaid',
+            dueDate,
           })
           .returning();
 
-        subscription = createdSub;
-      }
-
-      // 3. Generate unique invoice number
-      const invoiceNumber = `INV-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      const [newInvoice] = await db
-        .insert(invoices)
-        .values({
+        // 4. Audit log
+        await auditService.record({
           restaurantId,
-          subscriptionId: subscription!.id,
-          invoiceNumber,
-          amountInr,
-          status: 'unpaid',
-          dueDate,
-        })
-        .returning();
+          actorId: req.user!.id,
+          actorType: 'platform_user',
+          action: 'INVOICE_CREATED',
+          entityType: 'invoice',
+          entityId: createdInvoice!.id,
+          beforeState: null,
+          afterState: {
+            invoiceNumber,
+            amountInr,
+            dueDate,
+            restaurantName: restaurant.name,
+          },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
 
-      // 4. Audit log
-      await auditService.record({
-        restaurantId,
-        actorId: req.user!.id,
-        actorType: 'platform_user',
-        action: 'INVOICE_CREATED',
-        entityType: 'invoice',
-        entityId: newInvoice!.id,
-        beforeState: null,
-        afterState: {
-          invoiceNumber,
-          amountInr,
-          dueDate,
-          restaurantName: restaurant.name,
-        },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
+        return createdInvoice!;
       });
 
       res.status(201).json({
@@ -586,51 +607,55 @@ portalBillingRouter.patch(
   requireRole(['super_admin', 'finance']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const invoiceId = req.params.id;
-      if (!invoiceId) {
-        throw new NotFoundError('Invoice ID is required');
-      }
+      const invoiceId = parseUuidParam(req.params.id, 'invoice ID');
 
       const parsed = UpdateInvoiceStatusSchema.safeParse(req.body);
       if (!parsed.success) {
         throw new ValidationError('Invalid status update request');
       }
 
-      const [existingInvoice] = await db
-        .select()
-        .from(invoices)
-        .where(eq(invoices.id, invoiceId))
-        .limit(1);
+      const updatedInvoice = await withSystemContext(
+        'portal_update_invoice_status',
+        async (executor) => {
+          const [existingInvoice] = await executor
+            .select()
+            .from(invoices)
+            .where(eq(invoices.id, invoiceId))
+            .limit(1);
 
-      if (!existingInvoice) {
-        throw new NotFoundError('Invoice not found');
-      }
+          if (!existingInvoice) {
+            throw new NotFoundError('Invoice not found');
+          }
 
-      const newStatus = parsed.data.action === 'mark_paid' ? 'paid' : 'void';
-      const paidAt = parsed.data.action === 'mark_paid' ? new Date() : null;
+          const newStatus = parsed.data.action === 'mark_paid' ? 'paid' : 'void';
+          const paidAt = parsed.data.action === 'mark_paid' ? new Date() : null;
 
-      const [updatedInvoice] = await db
-        .update(invoices)
-        .set({
-          status: newStatus,
-          paidAt,
-        })
-        .where(eq(invoices.id, invoiceId))
-        .returning();
+          const [savedInvoice] = await executor
+            .update(invoices)
+            .set({
+              status: newStatus,
+              paidAt,
+            })
+            .where(eq(invoices.id, invoiceId))
+            .returning();
 
-      // Audit log
-      await auditService.record({
-        restaurantId: existingInvoice.restaurantId,
-        actorId: req.user!.id,
-        actorType: 'platform_user',
-        action: 'INVOICE_STATUS_UPDATED',
-        entityType: 'invoice',
-        entityId: invoiceId,
-        beforeState: { status: existingInvoice.status },
-        afterState: { status: newStatus, paidAt },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
-      });
+          // Audit log
+          await auditService.record({
+            restaurantId: existingInvoice.restaurantId,
+            actorId: req.user!.id,
+            actorType: 'platform_user',
+            action: 'INVOICE_STATUS_UPDATED',
+            entityType: 'invoice',
+            entityId: invoiceId,
+            beforeState: { status: existingInvoice.status },
+            afterState: { status: newStatus, paidAt },
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent'),
+          });
+
+          return savedInvoice;
+        },
+      );
 
       res.status(200).json({ invoice: updatedInvoice });
     } catch (error) {
@@ -663,167 +688,175 @@ portalBillingRouter.post(
         Date.now() - PLAN_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
       );
 
-      const expiredSubscriptions = await db
-        .select({
-          subscriptionId: subscriptions.id,
-          restaurantId: subscriptions.restaurantId,
-          currentPeriodEnd: subscriptions.currentPeriodEnd,
-          restaurantName: restaurants.name,
-          isSuspended: restaurants.isSuspended,
-        })
-        .from(subscriptions)
-        .innerJoin(restaurants, eq(subscriptions.restaurantId, restaurants.id))
-        .where(
-          and(
-            lte(subscriptions.currentPeriodEnd, planGraceThreshold),
-            ne(subscriptions.status, 'cancelled'),
-            ne(subscriptions.status, 'past_due'),
-            isNull(restaurants.deletedAt),
-          ),
-        );
-
-      for (const item of expiredSubscriptions) {
-        if (!item.isSuspended) {
-          const reason = `Automatic suspension: Plan expired on ${item.currentPeriodEnd.toISOString().slice(0, 10)}; 2-day grace period concluded`;
-
-          // 1. Suspend restaurant
-          await db
-            .update(restaurants)
-            .set({
-              isSuspended: true,
-              suspensionReason: reason,
-              updatedAt: new Date(),
+      const { evaluatedSubscriptionsCount, evaluatedInvoicesCount } = await withSystemContext(
+        'portal_billing_auto_suspend',
+        async (executor) => {
+          const expiredSubscriptions = await executor
+            .select({
+              subscriptionId: subscriptions.id,
+              restaurantId: subscriptions.restaurantId,
+              currentPeriodEnd: subscriptions.currentPeriodEnd,
+              restaurantName: restaurants.name,
+              isSuspended: restaurants.isSuspended,
             })
-            .where(eq(restaurants.id, item.restaurantId));
+            .from(subscriptions)
+            .innerJoin(restaurants, eq(subscriptions.restaurantId, restaurants.id))
+            .where(
+              and(
+                lte(subscriptions.currentPeriodEnd, planGraceThreshold),
+                ne(subscriptions.status, 'cancelled'),
+                ne(subscriptions.status, 'past_due'),
+              ),
+            );
 
-          // 2. Mark subscription past_due
-          await db
-            .update(subscriptions)
-            .set({
-              status: 'past_due',
-              updatedAt: new Date(),
-            })
-            .where(eq(subscriptions.id, item.subscriptionId));
+          for (const item of expiredSubscriptions) {
+            if (!item.isSuspended) {
+              const reason = `Automatic suspension: Plan expired on ${item.currentPeriodEnd.toISOString().slice(0, 10)}; 2-day grace period concluded`;
 
-          // 3. Record immutable audit log
-          await auditService.record({
-            restaurantId: item.restaurantId,
-            actorId: req.user!.id,
-            actorType: 'system',
-            action: 'RESTAURANT_SUSPENDED',
-            entityType: 'restaurant',
-            entityId: item.restaurantId,
-            beforeState: { isSuspended: false },
-            afterState: { isSuspended: true, suspensionReason: reason },
-            ipAddress: req.ip,
-            userAgent: req.get('user-agent'),
-          });
+              // 1. Suspend restaurant
+              await executor
+                .update(restaurants)
+                .set({
+                  isSuspended: true,
+                  suspensionReason: reason,
+                  updatedAt: new Date(),
+                })
+                .where(eq(restaurants.id, item.restaurantId));
 
-          logger.warn(
-            {
-              restaurantId: item.restaurantId,
-              subscriptionId: item.subscriptionId,
-              reason,
-            },
-            'Restaurant automatically suspended due to expired plan past 2-day grace period',
+              // 2. Mark subscription past_due
+              await executor
+                .update(subscriptions)
+                .set({
+                  status: 'past_due',
+                  updatedAt: new Date(),
+                })
+                .where(eq(subscriptions.id, item.subscriptionId));
+
+              // 3. Record immutable audit log
+              await auditService.record({
+                restaurantId: item.restaurantId,
+                actorId: req.user!.id,
+                actorType: 'system',
+                action: 'RESTAURANT_SUSPENDED',
+                entityType: 'restaurant',
+                entityId: item.restaurantId,
+                beforeState: { isSuspended: false },
+                afterState: { isSuspended: true, suspensionReason: reason },
+                ipAddress: req.ip,
+                userAgent: req.get('user-agent'),
+              });
+
+              logger.warn(
+                {
+                  restaurantId: item.restaurantId,
+                  subscriptionId: item.subscriptionId,
+                  reason,
+                },
+                'Restaurant automatically suspended due to expired plan past 2-day grace period',
+              );
+
+              suspendedEstablishments.push({
+                restaurantId: item.restaurantId,
+                restaurantName: item.restaurantName,
+                invoiceNumber: 'PLAN-EXP-2D',
+              });
+            }
+          }
+
+          // 2. Evaluate Overdue Invoices beyond 7-day grace period
+          const INVOICE_GRACE_PERIOD_DAYS = 7;
+          const invoiceGraceThreshold = new Date(
+            Date.now() - INVOICE_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
           );
+          const invoiceGraceThresholdDateStr = invoiceGraceThreshold.toISOString().slice(0, 10);
 
-          suspendedEstablishments.push({
-            restaurantId: item.restaurantId,
-            restaurantName: item.restaurantName,
-            invoiceNumber: 'PLAN-EXP-2D',
-          });
-        }
-      }
+          // Find all unpaid invoices where dueDate <= invoiceGraceThresholdDateStr
+          const overdueInvoices = await executor
+            .select({
+              invoiceId: invoices.id,
+              invoiceNumber: invoices.invoiceNumber,
+              restaurantId: invoices.restaurantId,
+              dueDate: invoices.dueDate,
+              amountInr: invoices.amountInr,
+              restaurantName: restaurants.name,
+              isSuspended: restaurants.isSuspended,
+            })
+            .from(invoices)
+            .innerJoin(restaurants, eq(invoices.restaurantId, restaurants.id))
+            .where(
+              and(
+                eq(invoices.status, 'unpaid'),
+                lte(invoices.dueDate, invoiceGraceThresholdDateStr),
+              ),
+            );
 
-      // 2. Evaluate Overdue Invoices beyond 7-day grace period
-      const INVOICE_GRACE_PERIOD_DAYS = 7;
-      const invoiceGraceThreshold = new Date(
-        Date.now() - INVOICE_GRACE_PERIOD_DAYS * 24 * 60 * 60 * 1000,
+          for (const item of overdueInvoices) {
+            if (!item.isSuspended) {
+              const reason = `Automatic suspension: Overdue invoice #${item.invoiceNumber} beyond 7-day grace period`;
+
+              // 1. Suspend restaurant
+              await executor
+                .update(restaurants)
+                .set({
+                  isSuspended: true,
+                  suspensionReason: reason,
+                  updatedAt: new Date(),
+                })
+                .where(eq(restaurants.id, item.restaurantId));
+
+              // 2. Mark subscription past_due
+              await executor
+                .update(subscriptions)
+                .set({
+                  status: 'past_due',
+                  updatedAt: new Date(),
+                })
+                .where(eq(subscriptions.restaurantId, item.restaurantId));
+
+              // 3. Record immutable audit log
+              await auditService.record({
+                restaurantId: item.restaurantId,
+                actorId: req.user!.id,
+                actorType: 'system',
+                action: 'RESTAURANT_SUSPENDED',
+                entityType: 'restaurant',
+                entityId: item.restaurantId,
+                beforeState: { isSuspended: false },
+                afterState: { isSuspended: true, suspensionReason: reason },
+                ipAddress: req.ip,
+                userAgent: req.get('user-agent'),
+              });
+
+              logger.warn(
+                {
+                  restaurantId: item.restaurantId,
+                  invoiceNumber: item.invoiceNumber,
+                  reason,
+                },
+                'Restaurant automatically suspended due to overdue invoice',
+              );
+
+              suspendedEstablishments.push({
+                restaurantId: item.restaurantId,
+                restaurantName: item.restaurantName,
+                invoiceNumber: item.invoiceNumber,
+              });
+            }
+          }
+
+          return {
+            evaluatedSubscriptionsCount: expiredSubscriptions.length,
+            evaluatedInvoicesCount: overdueInvoices.length,
+          };
+        },
       );
-      const invoiceGraceThresholdDateStr = invoiceGraceThreshold.toISOString().slice(0, 10);
-
-      // Find all unpaid invoices where dueDate <= invoiceGraceThresholdDateStr
-      const overdueInvoices = await db
-        .select({
-          invoiceId: invoices.id,
-          invoiceNumber: invoices.invoiceNumber,
-          restaurantId: invoices.restaurantId,
-          dueDate: invoices.dueDate,
-          amountInr: invoices.amountInr,
-          restaurantName: restaurants.name,
-          isSuspended: restaurants.isSuspended,
-        })
-        .from(invoices)
-        .innerJoin(restaurants, eq(invoices.restaurantId, restaurants.id))
-        .where(
-          and(
-            eq(invoices.status, 'unpaid'),
-            lte(invoices.dueDate, invoiceGraceThresholdDateStr),
-            isNull(restaurants.deletedAt),
-          ),
-        );
-
-      for (const item of overdueInvoices) {
-        if (!item.isSuspended) {
-          const reason = `Automatic suspension: Overdue invoice #${item.invoiceNumber} beyond 7-day grace period`;
-
-          // 1. Suspend restaurant
-          await db
-            .update(restaurants)
-            .set({
-              isSuspended: true,
-              suspensionReason: reason,
-              updatedAt: new Date(),
-            })
-            .where(eq(restaurants.id, item.restaurantId));
-
-          // 2. Mark subscription past_due
-          await db
-            .update(subscriptions)
-            .set({
-              status: 'past_due',
-              updatedAt: new Date(),
-            })
-            .where(eq(subscriptions.restaurantId, item.restaurantId));
-
-          // 3. Record immutable audit log
-          await auditService.record({
-            restaurantId: item.restaurantId,
-            actorId: req.user!.id,
-            actorType: 'system',
-            action: 'RESTAURANT_SUSPENDED',
-            entityType: 'restaurant',
-            entityId: item.restaurantId,
-            beforeState: { isSuspended: false },
-            afterState: { isSuspended: true, suspensionReason: reason },
-            ipAddress: req.ip,
-            userAgent: req.get('user-agent'),
-          });
-
-          logger.warn(
-            {
-              restaurantId: item.restaurantId,
-              invoiceNumber: item.invoiceNumber,
-              reason,
-            },
-            'Restaurant automatically suspended due to overdue invoice',
-          );
-
-          suspendedEstablishments.push({
-            restaurantId: item.restaurantId,
-            restaurantName: item.restaurantName,
-            invoiceNumber: item.invoiceNumber,
-          });
-        }
-      }
 
       // 3. Evaluate Unpaid Accounts Exceeding 14-Day Limit
       const unpaidPurgeResult = await accountLifecycleService.purgeUnpaidExpiredRestaurants();
 
       res.status(200).json({
-        evaluatedSubscriptionsCount: expiredSubscriptions.length,
-        evaluatedInvoicesCount: overdueInvoices.length,
+        evaluatedSubscriptionsCount,
+        evaluatedInvoicesCount,
         newlySuspendedCount: suspendedEstablishments.length,
         suspendedEstablishments,
         evaluatedUnpaidCount: unpaidPurgeResult.evaluatedCount,

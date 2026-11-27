@@ -1,4 +1,4 @@
-import { db } from './index.js';
+import { withSystemContext } from './rls.js';
 import { sql } from 'drizzle-orm';
 import { logger } from '../utils/logger.js';
 import { closeDbConnection } from './client.js';
@@ -12,7 +12,8 @@ export async function cleanTenantData(): Promise<void> {
   logger.info('Purging all seeded and demo tenant data...');
 
   // Order of truncation with CASCADE
-  await db.execute(sql`
+  await withSystemContext('clean_tenant_data', (executor) =>
+    executor.execute(sql`
     TRUNCATE TABLE
       tip_intents,
       review_taps,
@@ -32,7 +33,8 @@ export async function cleanTenantData(): Promise<void> {
       leads,
       platform_users
     RESTART IDENTITY CASCADE;
-  `);
+  `),
+  );
 
   logger.info(
     'Successfully cleared all tenant and platform records. Database is at clean 0-tenant state.',

@@ -24,20 +24,20 @@ This document outlines the threat model, technical security controls, data prote
 - [x] **Zero Money Custody**: Deep-link architecture eliminates financial aggregator licensing requirements and fund-handling risks.
 - [x] **Column-Level VPA Encryption**: AES-256-GCM encryption with 12-byte IV and 16-byte authentication tag for all stored VPAs.
 - [x] **Session Family Invalidation**: Refresh token reuse detection automatically invalidates the entire session family in Redis/Postgres.
-- [x] **Multi-Tenancy Defense-in-Depth**: Strict tenant scoping in Drizzle repositories complemented by PostgreSQL Row-Level Security (RLS).
+- [x] **Multi-Tenancy Defense-in-Depth (`M7-T94`)**: Strict tenant scoping in Drizzle repositories backed by PostgreSQL `ENABLE` + `FORCE ROW LEVEL SECURITY` policies across all 15 tenant tables, `AsyncLocalStorage`-enforced `withTenantContext` (`set_config(..., true)` fail-closed isolation), audited `withSystemContext` for platform/pre-auth paths, and dedicated non-superuser `tiptable_app` DB role (`NOBYPASSRLS`).
 - [x] **No Customer PII**: Zero customer accounts, zero phone/email collection, zero banking credentials stored.
-- [x] **Server-Side Image Sanitization**: All uploaded staff photos stripped of EXIF metadata and re-encoded using `sharp`.
+- [x] **Media & Review Link Hardening**: Strictly validates `https:` Google review domains and safe raster media URLs (`svg+xml` / `javascript:` blocked); server-side S3/`sharp` pipeline pending dedicated storage milestone.
 - [x] **HTTP Security Headers**: Strict Content-Security-Policy (CSP), HSTS, `no-sniff`, `frame-ancestors 'none'`, and stripped `X-Powered-By`.
+- [x] **CSRF & Impersonation Hardening (`M7-T93`)**: Cryptographic double-submit CSRF verification (`x-csrf-token` header + `tiptable_csrf` cookie), account lockout after failed attempts, Redis/DB impersonation session revocation, consent gating, SSRF hop/IP blocking on Maps shortlinks, and origin-checked `postMessage` token handoff.
 - [x] **Strict CORS & Origin Whitelisting**: Explicit origin checking driven by validated environment config.
 - [x] **Automated Secret Scanning**: Pre-commit hooks and GitHub Actions CI pipelines scanning with `gitleaks`.
 
-### Controls Pending Implementation in M1-M6
+### Controls Pending Implementation in Subsequent Tasks
 
-- [ ] **M1**: Automated account lockout with exponential backoff on repeated failed logins.
-- [ ] **M1**: CSRF protection for cookie-based state-changing endpoints.
+- [ ] **Portal MFA & Media Pipeline**: TOTP MFA login enforcement/setup on Company Portal and S3/MinIO multipart + `sharp` EXIF stripping.
 - [ ] **M3**: Waiter VPA change approval cooling-off period.
-- [ ] **M5**: Cloudflare Turnstile / hCaptcha integration on public demo request forms.
-- [ ] **M6**: Automated penetration testing and dependency vulnerability scanning in CI (`pnpm audit`).
+- [ ] **M5**: Enforce mandatory Cloudflare Turnstile secret key verification in production lead intake.
+- [ ] **M6**: Automated dependency vulnerability scanning in CI (`pnpm audit`).
 
 ---
 

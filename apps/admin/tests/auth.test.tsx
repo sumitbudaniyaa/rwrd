@@ -165,9 +165,7 @@ describe('Admin Authentication Flow', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(
-          /if an account exists for this email, password reset instructions have been sent/i,
-        ),
+        screen.getByText(/self-service email resets are currently unavailable/i),
       ).toBeInTheDocument();
     });
 

@@ -240,7 +240,7 @@ export const AuditLogScreen: React.FC = () => {
                               )}
                             </p>
                             <p className="text-[10px] text-stone-400 dark:text-stone-500 font-mono">
-                              {log.actorEmail || 'staff@tiptable.in'}
+                              {log.actorEmail || 'Internal Platform Staff'}
                             </p>
                           </div>
                         </div>

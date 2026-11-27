@@ -311,6 +311,26 @@ let activeRefreshPromise: Promise<RefreshResponse> | null = null;
 type UnauthorizedHandler = (problem?: ProblemDetails) => void;
 let unauthorizedHandler: UnauthorizedHandler | null = null;
 
+let csrfTokenMemory: string | null = null;
+
+function readCsrfCookie(): string | null {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie.match(/(?:^|;\s*)tiptable_csrf=([^;]+)/);
+  return match && match[1] ? decodeURIComponent(match[1]) : null;
+}
+
+function getCsrfHeaders(): Record<string, string> {
+  const token = csrfTokenMemory || readCsrfCookie();
+  return token ? { 'x-csrf-token': token } : {};
+}
+
+function captureCsrfHeader(response: Response): void {
+  const headerToken = response.headers.get('x-csrf-token');
+  if (headerToken) {
+    csrfTokenMemory = headerToken;
+  }
+}
+
 export function setOnUnauthorized(handler: UnauthorizedHandler | null): void {
   unauthorizedHandler = handler;
 }
@@ -336,7 +356,10 @@ async function request<T>(
   }
 
   // Double-submit CSRF protection for credentials
-  headers.set('X-Requested-With', 'XMLHttpRequest');
+  const csrfToken = csrfTokenMemory || readCsrfCookie();
+  if (csrfToken) {
+    headers.set('x-csrf-token', csrfToken);
+  }
 
   if (inMemoryToken) {
     headers.set('Authorization', `Bearer ${inMemoryToken}`);
@@ -347,6 +370,7 @@ async function request<T>(
     headers,
     credentials: 'include', // Includes httpOnly refresh cookies
   });
+  captureCsrfHeader(response);
 
   // Handle 401 Unauthorized by attempting a single silent refresh
   if (
@@ -602,11 +626,12 @@ export const api = {
       {
         headers: {
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          'X-Requested-With': 'XMLHttpRequest',
+          ...getCsrfHeaders(),
         },
         credentials: 'include',
       },
     );
+    captureCsrfHeader(res);
     if (!res.ok) {
       throw new Error(`Failed to download CSV (${res.status})`);
     }

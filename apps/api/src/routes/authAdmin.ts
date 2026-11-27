@@ -1,4 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { eq, and } from 'drizzle-orm';
 import { authService } from '../services/authService.js';
@@ -6,6 +7,7 @@ import { auditService } from '../services/auditService.js';
 import { staffRepository } from '../repositories/staffRepository.js';
 import { requireAuth } from '../middleware/rbac.js';
 import { db } from '../db/index.js';
+import { withSystemContext, withTenantContext } from '../db/rls.js';
 import {
   restaurantUsers,
   restaurants,
@@ -26,7 +28,7 @@ export const authAdminRouter = Router();
 
 const LoginSchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1),
+  password: z.string().min(1).max(128, 'Password must be at most 128 characters'),
 });
 
 const RegisterSchema = z.object({
@@ -37,7 +39,10 @@ const RegisterSchema = z.object({
     .max(100),
   fullName: z.string().trim().min(2, 'Full name must be at least 2 characters').max(100),
   email: z.string().trim().email('Valid work email is required').toLowerCase(),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z
+    .string()
+    .min(8, 'Password must be at least 8 characters')
+    .max(128, 'Password must be at most 128 characters'),
 });
 
 const MfaChallengeSchema = z.object({
@@ -99,40 +104,40 @@ authAdminRouter.post(
     try {
       const { restaurantName, fullName, email, password } = RegisterSchema.parse(req.body);
 
-      // Check if email already registered
-      const [existingUser] = await db
-        .select({ id: restaurantUsers.id })
-        .from(restaurantUsers)
-        .where(eq(restaurantUsers.email, email))
-        .limit(1);
-
-      if (existingUser) {
-        throw new ConflictError('An account with this email address already exists');
-      }
-
-      // Generate base slug
-      let baseSlug = restaurantName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-|-$/g, '');
-      if (!baseSlug) baseSlug = 'restaurant';
-
-      // Ensure slug uniqueness; append random suffix if collision
-      let slug = baseSlug;
-      const [existingSlug] = await db
-        .select({ id: restaurants.id })
-        .from(restaurants)
-        .where(eq(restaurants.slug, slug))
-        .limit(1);
-
-      if (existingSlug) {
-        slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
-      }
-
       const passwordHash = await hashPassword(password);
 
-      // Create restaurant, root QR token, and single admin user atomically in transaction
-      await db.transaction(async (tx) => {
+      // Verify uniqueness & create restaurant, root QR token, and single admin user atomically
+      await withSystemContext('admin_register_tenant', async (tx) => {
+        // Check if email already registered
+        const [existingUser] = await tx
+          .select({ id: restaurantUsers.id })
+          .from(restaurantUsers)
+          .where(eq(restaurantUsers.email, email))
+          .limit(1);
+
+        if (existingUser) {
+          throw new ConflictError('An account with this email address already exists');
+        }
+
+        // Generate base slug
+        let baseSlug = restaurantName
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-|-$/g, '');
+        if (!baseSlug) baseSlug = 'restaurant';
+
+        // Ensure slug uniqueness; append random suffix if collision
+        let slug = baseSlug;
+        const [existingSlug] = await tx
+          .select({ id: restaurants.id })
+          .from(restaurants)
+          .where(eq(restaurants.slug, slug))
+          .limit(1);
+
+        if (existingSlug) {
+          slug = `${baseSlug}-${randomBytes(2).toString('hex')}`;
+        }
+
         const [createdRestaurant] = await tx
           .insert(restaurants)
           .values({
@@ -317,13 +322,13 @@ authAdminRouter.get(
   requireAuth('admin'),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      let userProfile = {
-        id: req.user!.id,
-        email: 'staff@tiptable.in',
-        fullName: 'Restaurant Staff',
-        role: req.user!.role,
-        restaurantId: req.user!.restaurantId || '',
-        totpEnabled: false,
+      let userProfile: {
+        id: string;
+        email: string;
+        fullName: string;
+        role: string;
+        restaurantId: string;
+        totpEnabled: boolean;
       };
 
       let restaurantData: {
@@ -335,23 +340,31 @@ authAdminRouter.get(
         tippingEnabled: boolean;
         reviewsEnabled: boolean;
         hasActiveStaff: boolean;
-      } | null = null;
+      };
 
-      const [record] = await db
-        .select({
-          user: restaurantUsers,
-          restaurant: restaurants,
-        })
-        .from(restaurantUsers)
-        .innerJoin(restaurants, eq(restaurantUsers.restaurantId, restaurants.id))
-        .where(eq(restaurantUsers.id, req.user!.id))
-        .limit(1);
+      const runInAuthRls = <T>(fn: (executor: typeof db) => Promise<T>): Promise<T> =>
+        req.user?.restaurantId
+          ? withTenantContext(req.user.restaurantId, fn)
+          : withSystemContext('admin_me_lookup', fn);
+
+      const [record] = await runInAuthRls((executor) =>
+        executor
+          .select({
+            user: restaurantUsers,
+            restaurant: restaurants,
+          })
+          .from(restaurantUsers)
+          .innerJoin(restaurants, eq(restaurantUsers.restaurantId, restaurants.id))
+          .where(eq(restaurantUsers.id, req.user!.id))
+          .limit(1),
+      );
 
       if (
         record &&
         record.user.isActive &&
+        !record.user.deletedAt &&
         record.restaurant.isActive &&
-        !record.restaurant.deletedAt
+        !record.restaurant.isSuspended
       ) {
         userProfile = {
           id: record.user.id,
@@ -376,11 +389,13 @@ authAdminRouter.get(
           hasActiveStaff,
         };
       } else if (req.user?.isImpersonated && req.user.restaurantId) {
-        const [targetRest] = await db
-          .select()
-          .from(restaurants)
-          .where(eq(restaurants.id, req.user.restaurantId))
-          .limit(1);
+        const [targetRest] = await withTenantContext(req.user.restaurantId, (executor) =>
+          executor
+            .select()
+            .from(restaurants)
+            .where(eq(restaurants.id, req.user!.restaurantId!))
+            .limit(1),
+        );
 
         if (!targetRest || !targetRest.isActive || targetRest.isSuspended) {
           throw new UnauthorizedError('Restaurant account not found or suspended');
@@ -388,7 +403,7 @@ authAdminRouter.get(
 
         userProfile = {
           id: req.user.id,
-          email: req.user.impersonatorEmail || 'support@tiptable.in',
+          email: req.user.impersonatorEmail || 'support@rwrd.live',
           fullName: 'Platform Support Staff',
           role: 'admin',
           restaurantId: targetRest.id,
@@ -410,7 +425,7 @@ authAdminRouter.get(
           hasActiveStaff,
         };
       } else {
-        throw new UnauthorizedError('User account not found or inactive');
+        throw new UnauthorizedError('Restaurant account not found, inactive, or suspended');
       }
 
       const planInfo = userProfile.restaurantId
@@ -471,7 +486,7 @@ authAdminRouter.post(
       const currentPeriodEnd = new Date(now);
       currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + plan.durationMonths);
 
-      await db.transaction(async (tx) => {
+      await withTenantContext(restaurantId, async (tx) => {
         const [existingSub] = await tx
           .select({ id: subscriptions.id })
           .from(subscriptions)

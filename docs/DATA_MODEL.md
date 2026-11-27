@@ -8,17 +8,25 @@ This document defines the PostgreSQL 16 relational data model managed via **Driz
 
 1. **Primary Keys**: All primary keys are `UUID` (generated via UUIDv7 or `gen_random_uuid()`) to eliminate enumeration attacks and preserve sequential insert performance.
 2. **Multi-Tenancy Invariant**:
-   - Every tenant-scoped table contains a mandatory `restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE`.
-   - All Drizzle queries in `apps/api/src/repositories` must parameterize `WHERE restaurant_id = :tenant_id`.
-   - PostgreSQL Row-Level Security (RLS) is enabled on tenant tables as defense-in-depth:
+   - All tenant-scoped child tables link via `restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE` (`NOT NULL` on operational tables; nullable on `audit_logs` and `sessions` for platform-level entries).
+   - All Drizzle queries in `apps/api/src/repositories` parameterize `WHERE restaurant_id = :tenant_id` AND wrap operations via `withTenantContext(restaurantId, ...)`.
+   - PostgreSQL Row-Level Security (`ENABLE ROW LEVEL SECURITY` + `FORCE ROW LEVEL SECURITY`) is enforced across all 15 tenant tables (`restaurants`, `restaurant_users`, `staff`, `tables`, `qr_tokens`, `tip_intents`, `review_taps`, `page_events`, `subscriptions`, `invoices`, `feature_flags`, `impersonation_requests`, `support_tickets`, `audit_logs`, `sessions`) under the non-superuser `tiptable_app` role:
      ```sql
      ALTER TABLE staff ENABLE ROW LEVEL SECURITY;
+     ALTER TABLE staff FORCE ROW LEVEL SECURITY;
      CREATE POLICY tenant_isolation_policy ON staff
        FOR ALL
-       USING (restaurant_id = current_setting('app.current_restaurant_id', true)::uuid);
+       USING (
+         current_setting('app.rls_bypass', true) = 'on'
+         OR restaurant_id = NULLIF(current_setting('app.current_restaurant_id', true), '')::uuid
+       )
+       WITH CHECK (
+         current_setting('app.rls_bypass', true) = 'on'
+         OR restaurant_id = NULLIF(current_setting('app.current_restaurant_id', true), '')::uuid
+       );
      ```
-3. **Audit Trails & Soft Deletes**:
-   - Sensitive entities (`restaurants`, `staff`, `restaurant_users`) implement soft deletion via `deleted_at TIMESTAMP WITH TIME ZONE`. Queries must filter `deleted_at IS NULL` unless explicitly requesting archived records.
+3. **Audit Trails, Hard Tenant Purge & Staff Soft Deletes**:
+   - Restaurants use permanent cascade hard-deletion when purged (`M7-T77` / `M7-T93`). Waitstaff (`staff`) and user accounts (`restaurant_users`, `platform_users`) implement soft deletion via `deleted_at TIMESTAMP WITH TIME ZONE` so historical tip intents and audit records preserve integrity. Queries filter `deleted_at IS NULL`.
    - All tables include `created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL` and `updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL`.
 4. **Data Minimization (DPDP Compliance)**:
    - We **never** store customer names, phone numbers, UPI VPAs, payment identifiers, or banking credentials in `tip_intents` or `page_events`.
@@ -77,11 +85,10 @@ CREATE TABLE restaurants (
     suspension_reason TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
-    deleted_at TIMESTAMP WITH TIME ZONE,
     CONSTRAINT check_tip_bounds CHECK (min_tip_inr > 0 AND max_tip_inr >= min_tip_inr)
 );
 
-CREATE INDEX idx_restaurants_slug ON restaurants(slug) WHERE deleted_at IS NULL;
+CREATE INDEX idx_restaurants_slug ON restaurants(slug);
 CREATE INDEX idx_restaurants_active ON restaurants(is_active) WHERE is_suspended = FALSE;
 ```
 

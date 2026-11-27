@@ -1,4 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import { randomUUID } from 'node:crypto';
+import { isIP } from 'node:net';
 import { eq, and, desc, gt } from 'drizzle-orm';
 import { z } from 'zod';
 import {
@@ -6,17 +8,55 @@ import {
   PlacesSearchRequestSchema,
   type GooglePlaceResult,
 } from '@tiptable/shared';
-import { db } from '../db/index.js';
+import { withTenantContext } from '../db/rls.js';
 import { subscriptions, billingPlans, impersonationRequests } from '../db/schema/index.js';
 import { restaurantRepository } from '../repositories/restaurantRepository.js';
 import { staffRepository } from '../repositories/staffRepository.js';
 import { auditService } from '../services/auditService.js';
 import { authService } from '../services/authService.js';
+import { impersonationSessionService } from '../services/impersonationSessionService.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
 import { NotFoundError, BadRequestError, ConflictError } from '../errors/appError.js';
 import { env } from '../config/env.js';
 
 export const adminRestaurantRouter = Router();
+
+const UuidParamSchema = z.string().uuid('Valid UUID identifier is required');
+
+function isAllowedGoogleHost(hostname: string, pathname: string): boolean {
+  const host = hostname.toLowerCase();
+  if (!host || host === 'localhost' || host.endsWith('.local') || host.endsWith('.internal')) {
+    return false;
+  }
+  if (isIP(host) !== 0) {
+    return false;
+  }
+  if (host === 'maps.app.goo.gl') {
+    return true;
+  }
+  if (host === 'goo.gl') {
+    return pathname.startsWith('/maps');
+  }
+  if (host === 'maps.google.com' || host === 'search.google.com') {
+    return true;
+  }
+  if (/^(www\.)?google\.[a-z]{2,3}(\.[a-z]{2})?$/i.test(host)) {
+    return pathname.startsWith('/maps') || pathname.startsWith('/search');
+  }
+  return false;
+}
+
+function parseSafeGoogleMapsUrl(rawUrl: string): URL | null {
+  try {
+    const parsed = new URL(rawUrl.trim());
+    if (parsed.protocol !== 'https:' || parsed.username || parsed.password) {
+      return null;
+    }
+    return isAllowedGoogleHost(parsed.hostname, parsed.pathname) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * GET /api/v1/admin/restaurants/:restaurantId/settings
@@ -31,28 +71,30 @@ adminRestaurantRouter.get(
       const restaurantId = req.params.restaurantId as string;
       const restaurant = await restaurantRepository.findById(restaurantId);
 
-      if (!restaurant || restaurant.deletedAt) {
+      if (!restaurant) {
         throw new NotFoundError('Restaurant not found');
       }
 
-      const [sub] = await db
-        .select({
-          id: subscriptions.id,
-          status: subscriptions.status,
-          currentPeriodStart: subscriptions.currentPeriodStart,
-          currentPeriodEnd: subscriptions.currentPeriodEnd,
-          trialEndsAt: subscriptions.trialEndsAt,
-          planId: billingPlans.id,
-          planName: billingPlans.name,
-          planCode: billingPlans.code,
-          priceInr: billingPlans.priceInr,
-          durationMonths: billingPlans.durationMonths,
-          monthlyFeeInr: billingPlans.monthlyFeeInr,
-        })
-        .from(subscriptions)
-        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
-        .where(eq(subscriptions.restaurantId, restaurantId))
-        .limit(1);
+      const [sub] = await withTenantContext(restaurantId, (executor) =>
+        executor
+          .select({
+            id: subscriptions.id,
+            status: subscriptions.status,
+            currentPeriodStart: subscriptions.currentPeriodStart,
+            currentPeriodEnd: subscriptions.currentPeriodEnd,
+            trialEndsAt: subscriptions.trialEndsAt,
+            planId: billingPlans.id,
+            planName: billingPlans.name,
+            planCode: billingPlans.code,
+            priceInr: billingPlans.priceInr,
+            durationMonths: billingPlans.durationMonths,
+            monthlyFeeInr: billingPlans.monthlyFeeInr,
+          })
+          .from(subscriptions)
+          .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+          .where(eq(subscriptions.restaurantId, restaurantId))
+          .limit(1),
+      );
 
       const hasActiveStaff = await staffRepository.hasActiveStaff(restaurantId);
       const hasReviewUrl = Boolean(
@@ -113,7 +155,7 @@ adminRestaurantRouter.put(
       const body = UpdateRestaurantSettingsSchema.parse(req.body);
 
       const existing = await restaurantRepository.findById(restaurantId);
-      if (!existing || existing.deletedAt) {
+      if (!existing) {
         throw new NotFoundError('Restaurant not found');
       }
 
@@ -255,26 +297,58 @@ function extractPlaceId(text: string): string | null {
 }
 
 /**
- * Resolves short Google Maps URLs (e.g. maps.app.goo.gl, goo.gl/maps) to their expanded target URL.
+ * Resolves short Google Maps URLs safely with strict hop/host validation to prevent SSRF.
  */
-async function resolveShortGoogleUrl(shortUrl: string): Promise<string> {
-  try {
+async function resolveShortGoogleUrl(initialUrl: URL): Promise<string> {
+  let currentUrl = initialUrl;
+
+  for (let hop = 0; hop < 5; hop++) {
+    if (!isAllowedGoogleHost(currentUrl.hostname, currentUrl.pathname)) {
+      break;
+    }
+
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000);
-    const resp = await fetch(shortUrl, {
-      method: 'GET',
-      redirect: 'follow',
-      signal: controller.signal,
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      },
-    });
-    clearTimeout(timeout);
-    return resp.url;
-  } catch {
-    return shortUrl;
+    try {
+      const resp = await fetch(currentUrl.toString(), {
+        method: 'GET',
+        redirect: 'manual',
+        signal: controller.signal,
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        },
+      });
+      await resp.body?.cancel();
+
+      if (resp.status >= 300 && resp.status < 400) {
+        const location = resp.headers.get('location');
+        if (!location) {
+          return currentUrl.toString();
+        }
+        const nextUrl = new URL(location, currentUrl);
+        if (nextUrl.protocol !== 'https:' || nextUrl.username || nextUrl.password) {
+          return currentUrl.toString();
+        }
+        if (extractPlaceId(nextUrl.toString())) {
+          return nextUrl.toString();
+        }
+        if (!isAllowedGoogleHost(nextUrl.hostname, nextUrl.pathname)) {
+          return currentUrl.toString();
+        }
+        currentUrl = nextUrl;
+        continue;
+      }
+
+      return resp.url || currentUrl.toString();
+    } catch {
+      return currentUrl.toString();
+    } finally {
+      clearTimeout(timeout);
+    }
   }
+
+  return currentUrl.toString();
 }
 
 /**
@@ -296,7 +370,7 @@ adminRestaurantRouter.post(
 
       const { query } = parseResult.data;
       const restaurant = await restaurantRepository.findById(restaurantId);
-      if (!restaurant || restaurant.deletedAt) {
+      if (!restaurant) {
         throw new NotFoundError('Restaurant not found');
       }
 
@@ -305,13 +379,13 @@ adminRestaurantRouter.post(
       // 1. Direct Place ID check or Place ID in URL parameter
       let placeId = extractPlaceId(query);
 
-      // 2. If query is a Google Maps share link (e.g. maps.app.goo.gl), resolve redirect
-      if (
-        !placeId &&
-        /https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|www\.google\.[a-z.]+\/maps)/i.test(query)
-      ) {
-        const resolvedUrl = await resolveShortGoogleUrl(query);
-        placeId = extractPlaceId(resolvedUrl);
+      // 2. If query is a verified Google Maps share link (e.g. maps.app.goo.gl), resolve redirect safely
+      if (!placeId) {
+        const safeGoogleUrl = parseSafeGoogleMapsUrl(query);
+        if (safeGoogleUrl) {
+          const resolvedUrl = await resolveShortGoogleUrl(safeGoogleUrl);
+          placeId = extractPlaceId(resolvedUrl);
+        }
       }
 
       if (placeId) {
@@ -332,15 +406,23 @@ adminRestaurantRouter.post(
       if (env.GOOGLE_PLACES_API_KEY) {
         try {
           const newApiUrl = 'https://places.googleapis.com/v1/places:searchText';
-          const newResponse = await fetch(newApiUrl, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
-              'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress',
-            },
-            body: JSON.stringify({ textQuery: query, pageSize: 5 }),
-          });
+          const newApiController = new AbortController();
+          const newApiTimeout = setTimeout(() => newApiController.abort(), 5000);
+          let newResponse: globalThis.Response;
+          try {
+            newResponse = await fetch(newApiUrl, {
+              method: 'POST',
+              signal: newApiController.signal,
+              headers: {
+                'Content-Type': 'application/json',
+                'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
+                'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress',
+              },
+              body: JSON.stringify({ textQuery: query, pageSize: 5 }),
+            });
+          } finally {
+            clearTimeout(newApiTimeout);
+          }
 
           if (newResponse.ok) {
             const data = (await newResponse.json()) as {
@@ -373,7 +455,16 @@ adminRestaurantRouter.post(
             googleUrl.searchParams.set('fields', 'place_id,name,formatted_address');
             googleUrl.searchParams.set('key', env.GOOGLE_PLACES_API_KEY);
 
-            const legacyResponse = await fetch(googleUrl.toString());
+            const legacyController = new AbortController();
+            const legacyTimeout = setTimeout(() => legacyController.abort(), 5000);
+            let legacyResponse: globalThis.Response;
+            try {
+              legacyResponse = await fetch(googleUrl.toString(), {
+                signal: legacyController.signal,
+              });
+            } finally {
+              clearTimeout(legacyTimeout);
+            }
             if (legacyResponse.ok) {
               const data = (await legacyResponse.json()) as {
                 status?: string;
@@ -439,33 +530,40 @@ adminRestaurantRouter.get(
       const restaurantId = req.params.restaurantId as string;
       const now = new Date();
 
-      const [pending] = await db
-        .select()
-        .from(impersonationRequests)
-        .where(
-          and(
-            eq(impersonationRequests.restaurantId, restaurantId),
-            eq(impersonationRequests.status, 'pending'),
-            gt(impersonationRequests.expiresAt, now),
-          ),
-        )
-        .orderBy(desc(impersonationRequests.createdAt))
-        .limit(1);
+      const { pending, activeApproved } = await withTenantContext(
+        restaurantId,
+        async (executor) => {
+          const [pendingRow] = await executor
+            .select()
+            .from(impersonationRequests)
+            .where(
+              and(
+                eq(impersonationRequests.restaurantId, restaurantId),
+                eq(impersonationRequests.status, 'pending'),
+                gt(impersonationRequests.expiresAt, now),
+              ),
+            )
+            .orderBy(desc(impersonationRequests.createdAt))
+            .limit(1);
 
-      // Check for actively approved support access within 1-hour session window
-      const oneHourAgo = new Date(now.getTime() - 3600 * 1000);
-      const [activeApproved] = await db
-        .select()
-        .from(impersonationRequests)
-        .where(
-          and(
-            eq(impersonationRequests.restaurantId, restaurantId),
-            eq(impersonationRequests.status, 'approved'),
-            gt(impersonationRequests.updatedAt, oneHourAgo),
-          ),
-        )
-        .orderBy(desc(impersonationRequests.updatedAt))
-        .limit(1);
+          // Check for actively approved support access within 1-hour session window
+          const oneHourAgo = new Date(now.getTime() - 3600 * 1000);
+          const [activeRow] = await executor
+            .select()
+            .from(impersonationRequests)
+            .where(
+              and(
+                eq(impersonationRequests.restaurantId, restaurantId),
+                eq(impersonationRequests.status, 'approved'),
+                gt(impersonationRequests.updatedAt, oneHourAgo),
+              ),
+            )
+            .orderBy(desc(impersonationRequests.updatedAt))
+            .limit(1);
+
+          return { pending: pendingRow, activeApproved: activeRow };
+        },
+      );
 
       res.status(200).json({
         pendingRequest: pending
@@ -502,119 +600,125 @@ adminRestaurantRouter.post(
   requireTenant('restaurantId'),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { restaurantId, requestId } = req.params;
+      const restaurantId = UuidParamSchema.parse(req.params.restaurantId);
+      const requestId = UuidParamSchema.parse(req.params.requestId);
       const { action } = RespondImpersonationSchema.parse(req.body);
 
-      const [requestRecord] = await db
-        .select()
-        .from(impersonationRequests)
-        .where(
-          and(
-            eq(impersonationRequests.id, requestId!),
-            eq(impersonationRequests.restaurantId, restaurantId!),
-          ),
-        )
-        .limit(1);
+      const result = await withTenantContext(restaurantId, async (executor) => {
+        const [requestRecord] = await executor
+          .select()
+          .from(impersonationRequests)
+          .where(
+            and(
+              eq(impersonationRequests.id, requestId),
+              eq(impersonationRequests.restaurantId, restaurantId),
+            ),
+          )
+          .limit(1);
 
-      if (!requestRecord) {
-        throw new NotFoundError('Impersonation request not found');
-      }
+        if (!requestRecord) {
+          throw new NotFoundError('Impersonation request not found');
+        }
 
-      const now = new Date();
+        const now = new Date();
 
-      if (action === 'revoke') {
-        await db
-          .update(impersonationRequests)
-          .set({
+        if (action === 'revoke') {
+          await executor
+            .update(impersonationRequests)
+            .set({
+              status: 'revoked',
+              token: null,
+              updatedAt: now,
+            })
+            .where(eq(impersonationRequests.id, requestRecord.id));
+
+          await impersonationSessionService.markRevoked(requestRecord.id);
+
+          await auditService.record({
+            restaurantId: restaurantId!,
+            actorId: req.user!.id,
+            actorType: 'restaurant_user',
+            action: 'IMPERSONATION_REVOKED',
+            entityType: 'impersonation_request',
+            entityId: requestRecord.id,
+            beforeState: { status: requestRecord.status },
+            afterState: {
+              status: 'revoked',
+              impersonatorId: requestRecord.impersonatorId,
+              impersonatorEmail: requestRecord.impersonatorEmail,
+              reason: requestRecord.reason,
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent'),
+          });
+
+          return {
+            message: 'Support access revoked',
             status: 'revoked',
-            token: null,
-            updatedAt: now,
-          })
-          .where(eq(impersonationRequests.id, requestRecord.id));
+          };
+        }
 
-        await auditService.record({
-          restaurantId: restaurantId!,
-          actorId: req.user!.id,
-          actorType: 'restaurant_user',
-          action: 'IMPERSONATION_REVOKED',
-          entityType: 'impersonation_request',
-          entityId: requestRecord.id,
-          beforeState: { status: requestRecord.status },
-          afterState: {
-            status: 'revoked',
+        if (requestRecord.status !== 'pending') {
+          throw new ConflictError(`This request has already been ${requestRecord.status}`);
+        }
+
+        if (now > new Date(requestRecord.expiresAt)) {
+          await executor
+            .update(impersonationRequests)
+            .set({ status: 'expired', updatedAt: now })
+            .where(eq(impersonationRequests.id, requestRecord.id));
+          throw new ConflictError('This support request has expired');
+        }
+
+        if (action === 'approve') {
+          // Issue delegated impersonation token bound to impersonationRequestId for revocation enforcement
+          const impersonationToken = authService.generateAccessToken({
+            sub: req.user!.id,
+            role: 'admin',
+            realm: 'admin',
+            restaurantId,
+            isImpersonated: true,
+            impersonationRequestId: requestRecord.id,
             impersonatorId: requestRecord.impersonatorId,
             impersonatorEmail: requestRecord.impersonatorEmail,
-            reason: requestRecord.reason,
-          },
-          ipAddress: req.ip,
-          userAgent: req.get('user-agent'),
-        });
+            jti: randomUUID(),
+          });
 
-        res.status(200).json({
-          message: 'Support access revoked',
-          status: 'revoked',
-        });
-        return;
-      }
+          await executor
+            .update(impersonationRequests)
+            .set({
+              status: 'approved',
+              token: impersonationToken,
+              respondedAt: now,
+              updatedAt: now,
+            })
+            .where(eq(impersonationRequests.id, requestRecord.id));
 
-      if (requestRecord.status !== 'pending') {
-        throw new ConflictError(`This request has already been ${requestRecord.status}`);
-      }
+          await auditService.record({
+            restaurantId: restaurantId!,
+            actorId: req.user!.id,
+            actorType: 'restaurant_user',
+            action: 'IMPERSONATION_APPROVED',
+            entityType: 'impersonation_request',
+            entityId: requestRecord.id,
+            beforeState: { status: 'pending' },
+            afterState: {
+              status: 'approved',
+              impersonatorId: requestRecord.impersonatorId,
+              impersonatorEmail: requestRecord.impersonatorEmail,
+              reason: requestRecord.reason,
+            },
+            ipAddress: req.ip,
+            userAgent: req.get('user-agent'),
+          });
 
-      if (now > new Date(requestRecord.expiresAt)) {
-        await db
-          .update(impersonationRequests)
-          .set({ status: 'expired', updatedAt: now })
-          .where(eq(impersonationRequests.id, requestRecord.id));
-        throw new ConflictError('This support request has expired');
-      }
-
-      if (action === 'approve') {
-        // Issue delegated impersonation token
-        const impersonationToken = authService.generateAccessToken({
-          sub: req.user!.id,
-          role: 'admin',
-          realm: 'admin',
-          restaurantId: restaurantId!,
-          isImpersonated: true,
-          impersonatorId: requestRecord.impersonatorId,
-          impersonatorEmail: requestRecord.impersonatorEmail,
-        });
-
-        await db
-          .update(impersonationRequests)
-          .set({
+          return {
+            message: 'Support access request approved',
             status: 'approved',
-            token: impersonationToken,
-            respondedAt: now,
-            updatedAt: now,
-          })
-          .where(eq(impersonationRequests.id, requestRecord.id));
+          };
+        }
 
-        await auditService.record({
-          restaurantId: restaurantId!,
-          actorId: req.user!.id,
-          actorType: 'restaurant_user',
-          action: 'IMPERSONATION_APPROVED',
-          entityType: 'impersonation_request',
-          entityId: requestRecord.id,
-          beforeState: { status: 'pending' },
-          afterState: {
-            status: 'approved',
-            impersonatorId: requestRecord.impersonatorId,
-            impersonatorEmail: requestRecord.impersonatorEmail,
-            reason: requestRecord.reason,
-          },
-          ipAddress: req.ip,
-          userAgent: req.get('user-agent'),
-        });
-
-        res.status(200).json({
-          message: 'Support access request approved',
-          status: 'approved',
-        });
-      } else {
-        await db
+        await executor
           .update(impersonationRequests)
           .set({
             status: 'declined',
@@ -641,11 +745,13 @@ adminRestaurantRouter.post(
           userAgent: req.get('user-agent'),
         });
 
-        res.status(200).json({
+        return {
           message: 'Support access request declined',
           status: 'declined',
-        });
-      }
+        };
+      });
+
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }

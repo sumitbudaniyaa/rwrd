@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
-import { eq } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import { db } from '../db/index.js';
 import { platformUsers } from '../db/schema/index.js';
 import { authService } from '../services/authService.js';
@@ -15,7 +15,7 @@ authPortalRouter.use(portalIpAllowlist());
 
 const LoginSchema = z.object({
   email: z.string().trim().email(),
-  password: z.string().min(1),
+  password: z.string().min(1).max(128, 'Password must be at most 128 characters'),
 });
 
 /**
@@ -96,10 +96,16 @@ authPortalRouter.get(
           isActive: platformUsers.isActive,
         })
         .from(platformUsers)
-        .where(eq(platformUsers.id, userId))
+        .where(
+          and(
+            eq(platformUsers.id, userId),
+            eq(platformUsers.isActive, true),
+            isNull(platformUsers.deletedAt),
+          ),
+        )
         .limit(1);
 
-      if (!user) {
+      if (!user || !user.isActive) {
         throw new NotFoundError('Platform user account not found');
       }
 
@@ -122,7 +128,9 @@ authPortalRouter.post(
         await authService.logout(rawRefreshToken);
       }
 
-      res.clearCookie('tiptable_portal_rf', authService.getCookieOptions('portal'));
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { maxAge: _unused, ...clearOptions } = authService.getCookieOptions('portal');
+      res.clearCookie('tiptable_portal_rf', clearOptions);
       res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
       next(error);

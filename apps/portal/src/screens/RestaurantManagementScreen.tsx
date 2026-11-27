@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -58,6 +58,8 @@ export const RestaurantManagementScreen: React.FC = () => {
     token: string;
     requestId: string;
   } | null>(null);
+  const impersonationIframeRef = useRef<HTMLIFrameElement | null>(null);
+  const adminAppOrigin = React.useMemo(() => new URL(portalEnv.VITE_ADMIN_APP_URL).origin, []);
   const [selectedRestaurantId, setSelectedRestaurantId] = useState<string | null>(null);
   const [onboardError, setOnboardError] = useState<string | null>(null);
 
@@ -295,9 +297,24 @@ export const RestaurantManagementScreen: React.FC = () => {
     }
   }, [activeSessionStatusData, activeAdminSession, toast]);
 
-  // Listen for iframe exit messages (when user clicks "Exit Impersonation" inside the admin app)
+  const dispatchImpersonationToken = React.useCallback(() => {
+    if (!activeAdminSession?.token) return;
+    impersonationIframeRef.current?.contentWindow?.postMessage(
+      { type: 'TIPTABLE_IMPERSONATION_TOKEN', token: activeAdminSession.token },
+      adminAppOrigin,
+    );
+  }, [activeAdminSession?.token, adminAppOrigin]);
+
+  // Handle verified iframe postMessage events (token handoff & session exit)
   React.useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== adminAppOrigin) {
+        return;
+      }
+      if (event.data?.type === 'TIPTABLE_IMPERSONATION_READY') {
+        dispatchImpersonationToken();
+        return;
+      }
       if (event.data?.type === 'TIPTABLE_IMPERSONATION_EXIT') {
         setActiveAdminSession(null);
         toast.info('Support Access Ended', 'Delegated session exited.');
@@ -305,7 +322,7 @@ export const RestaurantManagementScreen: React.FC = () => {
     };
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, [toast]);
+  }, [adminAppOrigin, dispatchImpersonationToken, toast]);
 
   const handleExitSession = async () => {
     if (activeAdminSession?.requestId) {
@@ -573,9 +590,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                           </span>
                         </td>
                         <td className="py-3 px-4">
-                          {rest.deletedAt ? (
-                            <Badge variant="neutral">Deleted</Badge>
-                          ) : rest.isSuspended ? (
+                          {rest.isSuspended ? (
                             <div className="flex flex-col gap-0.5">
                               <Badge variant="danger">Suspended</Badge>
                               {rest.suspensionReason && (
@@ -646,7 +661,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                               <span>Impersonate</span>
                             </button>
 
-                            {isSuperAdmin && !rest.deletedAt && (
+                            {isSuperAdmin && (
                               <>
                                 {rest.isSuspended ? (
                                   <button
@@ -1328,9 +1343,7 @@ export const RestaurantManagementScreen: React.FC = () => {
                       </h2>
                       {detailsData?.restaurant && (
                         <>
-                          {detailsData.restaurant.deletedAt ? (
-                            <Badge variant="neutral">Deleted</Badge>
-                          ) : detailsData.restaurant.isSuspended ? (
+                          {detailsData.restaurant.isSuspended ? (
                             <Badge variant="danger">Suspended</Badge>
                           ) : detailsData.restaurant.subscriptionStatus === 'unpaid' ||
                             !detailsData.restaurant.isActive ? (
@@ -1721,7 +1734,7 @@ export const RestaurantManagementScreen: React.FC = () => {
               {/* Drawer Footer Actions */}
               <div className="p-4 border-t border-stone-200/80 dark:border-stone-800 flex items-center justify-between bg-stone-50/50 dark:bg-stone-900/50">
                 <div className="flex items-center gap-2">
-                  {isSuperAdmin && detailsData?.restaurant && !detailsData.restaurant.deletedAt && (
+                  {isSuperAdmin && detailsData?.restaurant && (
                     <>
                       {detailsData.restaurant.isSuspended ? (
                         <button
@@ -1820,10 +1833,10 @@ export const RestaurantManagementScreen: React.FC = () => {
               {/* Iframe Body */}
               <div className="flex-1 w-full bg-stone-100 dark:bg-stone-950 relative overflow-hidden">
                 <iframe
+                  ref={impersonationIframeRef}
                   title={`Admin Console - ${activeAdminSession.restaurantName}`}
-                  src={`${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_token=${encodeURIComponent(
-                    activeAdminSession.token,
-                  )}`}
+                  src={`${portalEnv.VITE_ADMIN_APP_URL}/admin?impersonate_session=1`}
+                  onLoad={dispatchImpersonationToken}
                   className="w-full h-full border-0"
                   allow="clipboard-write"
                 />

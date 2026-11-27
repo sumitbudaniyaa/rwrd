@@ -1,7 +1,9 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import { randomBytes } from 'node:crypto';
 import { z } from 'zod';
-import { eq, and, ilike, isNull, isNotNull, desc, sql, or } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { eq, and, ilike, isNull, desc, sql, or, type SQL } from 'drizzle-orm';
+import { isValidGoogleReviewUrl } from '@tiptable/shared';
+import { withSystemContext, withTenantContext } from '../db/rls.js';
 import {
   restaurants,
   restaurantUsers,
@@ -18,12 +20,18 @@ import {
   auditLogs,
   featureFlags,
   impersonationRequests,
+  supportTickets,
 } from '../db/schema/index.js';
 import { hashPassword, generateSecureToken } from '../utils/authCrypto.js';
 import { auditService } from '../services/auditService.js';
 import { requireAuth, requireRole } from '../middleware/rbac.js';
 import { portalIpAllowlist } from '../middleware/ipAllowlist.js';
-import { NotFoundError, ConflictError, ValidationError } from '../errors/appError.js';
+import {
+  NotFoundError,
+  ConflictError,
+  ValidationError,
+  BadRequestError,
+} from '../errors/appError.js';
 import { accountLifecycleService } from '../services/accountLifecycleService.js';
 
 export const portalRestaurantsRouter = Router();
@@ -31,8 +39,7 @@ export const portalRestaurantsRouter = Router();
 // Apply IP allowlist protection to Portal restaurant management
 portalRestaurantsRouter.use(portalIpAllowlist());
 
-const GOOGLE_REVIEW_URL_REGEX =
-  /^https?:\/\/(maps\.app\.goo\.gl\/[a-zA-Z0-9_\-]+|g\.page\/r\/[a-zA-Z0-9_\-]+|www\.google\.[a-z.]+\/maps\/|search\.google\.com\/local\/writereview\?placeid=)/i;
+const UuidSchema = z.string().uuid('Valid UUID identifier is required');
 
 const OnboardRestaurantSchema = z.object({
   name: z.string().trim().min(1, 'Restaurant name is required').max(255),
@@ -53,12 +60,15 @@ const OnboardRestaurantSchema = z.object({
     .string()
     .trim()
     .url('Must be a valid URL')
-    .regex(GOOGLE_REVIEW_URL_REGEX, 'Must be a valid Google Maps / Google Review write URL')
+    .refine(isValidGoogleReviewUrl, 'Must be a valid HTTPS Google Maps / Google Review write URL')
     .optional()
     .or(z.literal('')),
   ownerFullName: z.string().trim().min(1, 'Owner full name is required').max(100),
   ownerEmail: z.string().trim().email('Valid owner email is required'),
-  ownerPassword: z.string().min(8, 'Temporary password must be at least 8 characters'),
+  ownerPassword: z
+    .string()
+    .min(8, 'Temporary password must be at least 8 characters')
+    .max(128, 'Password must be at most 128 characters'),
   tipPresets: z.array(z.number().int().positive()).min(1).max(6).optional(),
   minTipInr: z.number().int().positive().optional(),
   maxTipInr: z.number().int().positive().optional(),
@@ -85,7 +95,7 @@ portalRestaurantsRouter.get(
       const limit = Math.min(Number(req.query.limit) || 50, 100);
       const offset = Math.max(Number(req.query.offset) || 0, 0);
 
-      const conditions = [];
+      const conditions: (SQL<unknown> | undefined)[] = [];
 
       // Status filtering
       if (status === 'active') {
@@ -93,28 +103,19 @@ portalRestaurantsRouter.get(
           and(
             eq(restaurants.isActive, true),
             eq(restaurants.isSuspended, false),
-            isNull(restaurants.deletedAt),
             or(eq(subscriptions.status, 'active'), eq(subscriptions.status, 'trial')),
           ),
         );
       } else if (status === 'unpaid') {
         conditions.push(
-          and(
-            isNull(restaurants.deletedAt),
-            or(
-              eq(restaurants.isActive, false),
-              eq(subscriptions.status, 'unpaid'),
-              isNull(subscriptions.status),
-            ),
+          or(
+            eq(restaurants.isActive, false),
+            eq(subscriptions.status, 'unpaid'),
+            isNull(subscriptions.status),
           ),
         );
       } else if (status === 'suspended') {
-        conditions.push(and(eq(restaurants.isSuspended, true), isNull(restaurants.deletedAt)));
-      } else if (status === 'deleted') {
-        conditions.push(isNotNull(restaurants.deletedAt));
-      } else {
-        // 'all' excludes soft-deleted by default unless requested
-        conditions.push(isNull(restaurants.deletedAt));
+        conditions.push(eq(restaurants.isSuspended, true));
       }
 
       // Plan filtering
@@ -133,38 +134,39 @@ portalRestaurantsRouter.get(
         );
       }
 
-      const rows = await db
-        .select({
-          id: restaurants.id,
-          name: restaurants.name,
-          slug: restaurants.slug,
-          logoUrl: restaurants.logoUrl,
-          googleReviewUrl: restaurants.googleReviewUrl,
-          tipPresets: restaurants.tipPresets,
-          minTipInr: restaurants.minTipInr,
-          maxTipInr: restaurants.maxTipInr,
-          isActive: restaurants.isActive,
-          isSuspended: restaurants.isSuspended,
-          suspensionReason: restaurants.suspensionReason,
-          createdAt: restaurants.createdAt,
-          updatedAt: restaurants.updatedAt,
-          deletedAt: restaurants.deletedAt,
-          subscriptionId: subscriptions.id,
-          subscriptionStatus: subscriptions.status,
-          currentPeriodEnd: subscriptions.currentPeriodEnd,
-          planId: billingPlans.id,
-          planName: billingPlans.name,
-          planCode: billingPlans.code,
-          planPriceInr: billingPlans.priceInr,
-          planDurationMonths: billingPlans.durationMonths,
-        })
-        .from(restaurants)
-        .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
-        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
-        .where(conditions.length ? and(...conditions) : undefined)
-        .orderBy(desc(restaurants.createdAt))
-        .limit(limit)
-        .offset(offset);
+      const rows = await withSystemContext('portal_list_restaurants', (executor) =>
+        executor
+          .select({
+            id: restaurants.id,
+            name: restaurants.name,
+            slug: restaurants.slug,
+            logoUrl: restaurants.logoUrl,
+            googleReviewUrl: restaurants.googleReviewUrl,
+            tipPresets: restaurants.tipPresets,
+            minTipInr: restaurants.minTipInr,
+            maxTipInr: restaurants.maxTipInr,
+            isActive: restaurants.isActive,
+            isSuspended: restaurants.isSuspended,
+            suspensionReason: restaurants.suspensionReason,
+            createdAt: restaurants.createdAt,
+            updatedAt: restaurants.updatedAt,
+            subscriptionId: subscriptions.id,
+            subscriptionStatus: subscriptions.status,
+            currentPeriodEnd: subscriptions.currentPeriodEnd,
+            planId: billingPlans.id,
+            planName: billingPlans.name,
+            planCode: billingPlans.code,
+            planPriceInr: billingPlans.priceInr,
+            planDurationMonths: billingPlans.durationMonths,
+          })
+          .from(restaurants)
+          .leftJoin(subscriptions, eq(restaurants.id, subscriptions.restaurantId))
+          .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+          .where(conditions.length ? and(...conditions) : undefined)
+          .orderBy(desc(restaurants.createdAt))
+          .limit(limit)
+          .offset(offset),
+      );
 
       const sanitizedRows = rows.map((r) => {
         const isUnpaid = !r.subscriptionStatus || r.subscriptionStatus === 'unpaid' || !r.isActive;
@@ -216,42 +218,29 @@ portalRestaurantsRouter.post(
 
       const data = parsed.data;
 
-      // 1. Resolve slug (use provided or derive uniquely from name)
-      let slug = data.slug;
-      if (!slug) {
-        let baseSlug = data.name
+      const passwordHash = await hashPassword(data.ownerPassword);
+      const requestedSlug = data.slug;
+      const derivedBaseSlug =
+        data.name
           .toLowerCase()
           .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-        if (!baseSlug) baseSlug = 'restaurant';
-        slug = baseSlug;
+          .replace(/^-|-$/g, '') || 'restaurant';
 
-        const [collision] = await db
-          .select({ id: restaurants.id })
-          .from(restaurants)
-          .where(eq(restaurants.slug, slug))
-          .limit(1);
-
-        if (collision) {
-          slug = `${baseSlug}-${Math.random().toString(36).substring(2, 6)}`;
-        }
-      } else {
-        const [existingSlug] = await db
+      // Provision restaurant, root QR token, owner user & default plan atomically in RLS system context
+      const result = await withSystemContext('portal_onboard_restaurant', async (tx) => {
+        let slug = requestedSlug || derivedBaseSlug;
+        const [existingSlug] = await tx
           .select({ id: restaurants.id })
           .from(restaurants)
           .where(eq(restaurants.slug, slug))
           .limit(1);
 
         if (existingSlug) {
-          throw new ConflictError(`Slug '${slug}' is already taken by another restaurant.`);
+          if (requestedSlug) {
+            throw new ConflictError(`Slug '${slug}' is already taken by another restaurant.`);
+          }
+          slug = `${derivedBaseSlug}-${randomBytes(2).toString('hex')}`;
         }
-      }
-
-      // 2. Hash owner password
-      const passwordHash = await hashPassword(data.ownerPassword);
-
-      // 3. Provision in transaction
-      const result = await db.transaction(async (tx) => {
         // Create restaurant
         const [createdRestaurant] = await tx
           .insert(restaurants)
@@ -362,118 +351,130 @@ portalRestaurantsRouter.get(
   requireRole(['super_admin', 'support', 'finance']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const id = req.params.id as string;
-      const [restaurant] = await db
-        .select()
-        .from(restaurants)
-        .where(eq(restaurants.id, id))
-        .limit(1);
-
-      if (!restaurant) {
-        throw new NotFoundError('Restaurant not found');
+      const parsedId = UuidSchema.safeParse(req.params.id);
+      if (!parsedId.success) {
+        throw new BadRequestError('Invalid restaurant ID format');
       }
+      const id = parsedId.data;
+      const details = await withTenantContext(id, async (executor) => {
+        const [restaurant] = await executor
+          .select()
+          .from(restaurants)
+          .where(eq(restaurants.id, id))
+          .limit(1);
 
-      // Count active staff
-      const [staffCountRes] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(staff)
-        .where(and(eq(staff.restaurantId, id), isNull(staff.deletedAt)));
+        if (!restaurant) {
+          throw new NotFoundError('Restaurant not found');
+        }
 
-      // Count physical tables
-      const [tablesCountRes] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(tables)
-        .where(eq(tables.restaurantId, id));
+        // Count active staff
+        const [staffCountRes] = await executor
+          .select({ count: sql<number>`count(*)::int` })
+          .from(staff)
+          .where(and(eq(staff.restaurantId, id), isNull(staff.deletedAt)));
 
-      // Fetch primary owner / admin
-      const [owner] = await db
-        .select({
-          id: restaurantUsers.id,
-          fullName: restaurantUsers.fullName,
-          email: restaurantUsers.email,
-          role: restaurantUsers.role,
-          totpEnabled: restaurantUsers.totpEnabled,
-          isActive: restaurantUsers.isActive,
-          createdAt: restaurantUsers.createdAt,
-        })
-        .from(restaurantUsers)
-        .where(eq(restaurantUsers.restaurantId, id))
-        .orderBy(desc(restaurantUsers.createdAt))
-        .limit(1);
+        // Count physical tables
+        const [tablesCountRes] = await executor
+          .select({ count: sql<number>`count(*)::int` })
+          .from(tables)
+          .where(eq(tables.restaurantId, id));
 
-      // Fetch subscription & plan info
-      const [subData] = await db
-        .select({
-          id: subscriptions.id,
-          status: subscriptions.status,
-          currentPeriodStart: subscriptions.currentPeriodStart,
-          currentPeriodEnd: subscriptions.currentPeriodEnd,
-          trialEndsAt: subscriptions.trialEndsAt,
-          planId: billingPlans.id,
-          planName: billingPlans.name,
-          planCode: billingPlans.code,
-          priceInr: billingPlans.priceInr,
-          monthlyFeeInr: billingPlans.monthlyFeeInr,
-        })
-        .from(subscriptions)
-        .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
-        .where(eq(subscriptions.restaurantId, id))
-        .limit(1);
+        // Fetch primary owner / admin
+        const [owner] = await executor
+          .select({
+            id: restaurantUsers.id,
+            fullName: restaurantUsers.fullName,
+            email: restaurantUsers.email,
+            role: restaurantUsers.role,
+            totpEnabled: restaurantUsers.totpEnabled,
+            isActive: restaurantUsers.isActive,
+            createdAt: restaurantUsers.createdAt,
+          })
+          .from(restaurantUsers)
+          .where(eq(restaurantUsers.restaurantId, id))
+          .orderBy(desc(restaurantUsers.createdAt))
+          .limit(1);
 
-      // Count QR tokens and find root QR token
-      const [qrTokensRes] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(qrTokens)
-        .where(and(eq(qrTokens.restaurantId, id), eq(qrTokens.isActive, true)));
+        // Fetch subscription & plan info
+        const [subData] = await executor
+          .select({
+            id: subscriptions.id,
+            status: subscriptions.status,
+            currentPeriodStart: subscriptions.currentPeriodStart,
+            currentPeriodEnd: subscriptions.currentPeriodEnd,
+            trialEndsAt: subscriptions.trialEndsAt,
+            planId: billingPlans.id,
+            planName: billingPlans.name,
+            planCode: billingPlans.code,
+            priceInr: billingPlans.priceInr,
+            monthlyFeeInr: billingPlans.monthlyFeeInr,
+          })
+          .from(subscriptions)
+          .leftJoin(billingPlans, eq(subscriptions.planId, billingPlans.id))
+          .where(eq(subscriptions.restaurantId, id))
+          .limit(1);
 
-      const [rootTokenRow] = await db
-        .select({ token: qrTokens.token })
-        .from(qrTokens)
-        .where(
-          and(eq(qrTokens.restaurantId, id), isNull(qrTokens.tableId), eq(qrTokens.isActive, true)),
-        )
-        .limit(1);
+        // Count QR tokens and find root QR token
+        const [qrTokensRes] = await executor
+          .select({ count: sql<number>`count(*)::int` })
+          .from(qrTokens)
+          .where(and(eq(qrTokens.restaurantId, id), eq(qrTokens.isActive, true)));
 
-      // Telemetry: Tips aggregate
-      const [tipsRes] = await db
-        .select({
-          count: sql<number>`count(*)::int`,
-          totalAmountInr: sql<number>`coalesce(sum(${tipIntents.amountInr}), 0)::int`,
-        })
-        .from(tipIntents)
-        .where(eq(tipIntents.restaurantId, id));
+        const [rootTokenRow] = await executor
+          .select({ token: qrTokens.token })
+          .from(qrTokens)
+          .where(
+            and(
+              eq(qrTokens.restaurantId, id),
+              isNull(qrTokens.tableId),
+              eq(qrTokens.isActive, true),
+            ),
+          )
+          .limit(1);
 
-      // Telemetry: Review taps aggregate
-      const [reviewTapsRes] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(reviewTaps)
-        .where(eq(reviewTaps.restaurantId, id));
+        // Telemetry: Tips aggregate
+        const [tipsRes] = await executor
+          .select({
+            count: sql<number>`count(*)::int`,
+            totalAmountInr: sql<number>`coalesce(sum(${tipIntents.amountInr}), 0)::int`,
+          })
+          .from(tipIntents)
+          .where(eq(tipIntents.restaurantId, id));
 
-      // Telemetry: Invoices aggregate
-      const [invoicesRes] = await db
-        .select({
-          count: sql<number>`count(*)::int`,
-          totalBilledInr: sql<number>`coalesce(sum(${invoices.amountInr}), 0)::int`,
-        })
-        .from(invoices)
-        .where(eq(invoices.restaurantId, id));
+        // Telemetry: Review taps aggregate
+        const [reviewTapsRes] = await executor
+          .select({ count: sql<number>`count(*)::int` })
+          .from(reviewTaps)
+          .where(eq(reviewTaps.restaurantId, id));
 
-      res.status(200).json({
-        restaurant,
-        owner: owner || null,
-        subscription: subData || null,
-        stats: {
-          staffCount: staffCountRes?.count ?? 0,
-          tablesCount: tablesCountRes?.count ?? 0,
-          qrTokensCount: qrTokensRes?.count ?? 0,
-          rootQrToken: rootTokenRow?.token || null,
-          tipsCount: tipsRes?.count ?? 0,
-          totalTipsAmountInr: tipsRes?.totalAmountInr ?? 0,
-          reviewClicksCount: reviewTapsRes?.count ?? 0,
-          invoicesCount: invoicesRes?.count ?? 0,
-          totalBilledInr: invoicesRes?.totalBilledInr ?? 0,
-        },
+        // Telemetry: Invoices aggregate
+        const [invoicesRes] = await executor
+          .select({
+            count: sql<number>`count(*)::int`,
+            totalBilledInr: sql<number>`coalesce(sum(${invoices.amountInr}), 0)::int`,
+          })
+          .from(invoices)
+          .where(eq(invoices.restaurantId, id));
+
+        return {
+          restaurant,
+          owner: owner || null,
+          subscription: subData || null,
+          stats: {
+            staffCount: staffCountRes?.count ?? 0,
+            tablesCount: tablesCountRes?.count ?? 0,
+            qrTokensCount: qrTokensRes?.count ?? 0,
+            rootQrToken: rootTokenRow?.token || null,
+            tipsCount: tipsRes?.count ?? 0,
+            totalTipsAmountInr: tipsRes?.totalAmountInr ?? 0,
+            reviewClicksCount: reviewTapsRes?.count ?? 0,
+            invoicesCount: invoicesRes?.count ?? 0,
+            totalBilledInr: invoicesRes?.totalBilledInr ?? 0,
+          },
+        };
       });
+
+      res.status(200).json(details);
     } catch (error) {
       next(error);
     }
@@ -490,7 +491,11 @@ portalRestaurantsRouter.patch(
   requireRole(['super_admin']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const id = req.params.id as string;
+      const parsedId = UuidSchema.safeParse(req.params.id);
+      if (!parsedId.success) {
+        throw new BadRequestError('Invalid restaurant ID format');
+      }
+      const id = parsedId.data;
       const parsed = UpdateStatusSchema.safeParse(req.body);
       if (!parsed.success) {
         throw new ValidationError('Invalid status update request', [
@@ -503,39 +508,47 @@ portalRestaurantsRouter.patch(
 
       const { action, reason } = parsed.data;
 
-      const [existing] = await db.select().from(restaurants).where(eq(restaurants.id, id)).limit(1);
-
-      if (!existing) {
-        throw new NotFoundError('Restaurant not found');
-      }
-
       const isSuspended = action === 'suspend';
       const suspensionReason = isSuspended ? reason || 'Administrative suspension' : null;
 
-      const [updated] = await db
-        .update(restaurants)
-        .set({
-          isSuspended,
-          suspensionReason,
-          updatedAt: new Date(),
-        })
-        .where(eq(restaurants.id, id))
-        .returning();
+      const updated = await withTenantContext(id, async (executor) => {
+        const [existing] = await executor
+          .select()
+          .from(restaurants)
+          .where(eq(restaurants.id, id))
+          .limit(1);
 
-      await auditService.record({
-        restaurantId: id,
-        actorId: req.user!.id,
-        actorType: 'platform_user',
-        action: isSuspended ? 'RESTAURANT_SUSPENDED' : 'RESTAURANT_REACTIVATED',
-        entityType: 'restaurant',
-        entityId: id,
-        beforeState: {
-          isSuspended: existing.isSuspended,
-          suspensionReason: existing.suspensionReason,
-        },
-        afterState: { isSuspended, suspensionReason },
-        ipAddress: req.ip,
-        userAgent: req.get('user-agent'),
+        if (!existing) {
+          throw new NotFoundError('Restaurant not found');
+        }
+
+        const [saved] = await executor
+          .update(restaurants)
+          .set({
+            isSuspended,
+            suspensionReason,
+            updatedAt: new Date(),
+          })
+          .where(eq(restaurants.id, id))
+          .returning();
+
+        await auditService.record({
+          restaurantId: id,
+          actorId: req.user!.id,
+          actorType: 'platform_user',
+          action: isSuspended ? 'RESTAURANT_SUSPENDED' : 'RESTAURANT_REACTIVATED',
+          entityType: 'restaurant',
+          entityId: id,
+          beforeState: {
+            isSuspended: existing.isSuspended,
+            suspensionReason: existing.suspensionReason,
+          },
+          afterState: { isSuspended, suspensionReason },
+          ipAddress: req.ip,
+          userAgent: req.get('user-agent'),
+        });
+
+        return saved;
       });
 
       res.status(200).json({ restaurant: updated });
@@ -556,15 +569,18 @@ portalRestaurantsRouter.delete(
   requireRole(['super_admin']),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const id = req.params.id as string;
-      const [existing] = await db.select().from(restaurants).where(eq(restaurants.id, id)).limit(1);
-
-      if (!existing) {
-        throw new NotFoundError('Restaurant not found');
+      const parsedId = UuidSchema.safeParse(req.params.id);
+      if (!parsedId.success) {
+        throw new BadRequestError('Invalid restaurant ID format');
       }
+      const id = parsedId.data;
+      // In a strict tenant RLS transaction, verify existence and cascade delete all tenant records
+      const existing = await withTenantContext(id, async (tx) => {
+        const [found] = await tx.select().from(restaurants).where(eq(restaurants.id, id)).limit(1);
+        if (!found) {
+          throw new NotFoundError('Restaurant not found');
+        }
 
-      // In a transaction, cascade delete all tenant data and active sessions
-      await db.transaction(async (tx) => {
         await tx.delete(tipIntents).where(eq(tipIntents.restaurantId, id));
         await tx.delete(reviewTaps).where(eq(reviewTaps.restaurantId, id));
         await tx.delete(pageEvents).where(eq(pageEvents.restaurantId, id));
@@ -576,9 +592,11 @@ portalRestaurantsRouter.delete(
         await tx.delete(subscriptions).where(eq(subscriptions.restaurantId, id));
         await tx.delete(featureFlags).where(eq(featureFlags.restaurantId, id));
         await tx.delete(impersonationRequests).where(eq(impersonationRequests.restaurantId, id));
+        await tx.delete(supportTickets).where(eq(supportTickets.restaurantId, id));
         await tx.delete(auditLogs).where(eq(auditLogs.restaurantId, id));
         await tx.delete(restaurantUsers).where(eq(restaurantUsers.restaurantId, id));
         await tx.delete(restaurants).where(eq(restaurants.id, id));
+        return found;
       });
 
       // Record platform audit log (restaurantId: undefined so it survives tenant purge)

@@ -1,13 +1,16 @@
 import { Router, type Request, type Response, type NextFunction } from 'express';
+import { randomInt } from 'node:crypto';
 import { z } from 'zod';
 import { desc, eq, and, count } from 'drizzle-orm';
-import { db } from '../db/index.js';
+import { withTenantContext } from '../db/rls.js';
 import { supportTickets } from '../db/schema/index.js';
 import { requireAuth, requireTenant } from '../middleware/rbac.js';
-import { ValidationError, NotFoundError } from '../errors/appError.js';
+import { ValidationError, NotFoundError, BadRequestError } from '../errors/appError.js';
 import { auditService } from '../services/auditService.js';
 
 export const adminSupportRouter = Router();
+
+const UuidParamSchema = z.string().uuid('Valid UUID identifier is required');
 
 const CreateTicketSchema = z.object({
   category: z.enum(['complaint', 'request', 'technical', 'billing', 'other']),
@@ -30,19 +33,21 @@ adminSupportRouter.get(
       const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
       const offset = Math.max(Number(req.query.offset) || 0, 0);
 
-      const [tickets, totalResult] = await Promise.all([
-        db
-          .select()
-          .from(supportTickets)
-          .where(eq(supportTickets.restaurantId, restaurantId))
-          .orderBy(desc(supportTickets.createdAt))
-          .limit(limit)
-          .offset(offset),
-        db
-          .select({ value: count() })
-          .from(supportTickets)
-          .where(eq(supportTickets.restaurantId, restaurantId)),
-      ]);
+      const [tickets, totalResult] = await withTenantContext(restaurantId, (executor) =>
+        Promise.all([
+          executor
+            .select()
+            .from(supportTickets)
+            .where(eq(supportTickets.restaurantId, restaurantId))
+            .orderBy(desc(supportTickets.createdAt))
+            .limit(limit)
+            .offset(offset),
+          executor
+            .select({ value: count() })
+            .from(supportTickets)
+            .where(eq(supportTickets.restaurantId, restaurantId)),
+        ]),
+      );
 
       res.json({
         data: tickets,
@@ -78,39 +83,43 @@ adminSupportRouter.post(
       }
 
       const { category, priority, subject, description } = parsed.data;
-      const ticketNumber = `TICK-${Date.now().toString().slice(-6)}${Math.floor(100 + Math.random() * 900)}`;
+      const ticketNumber = `TICK-${Date.now().toString().slice(-6)}${randomInt(100, 1000)}`;
 
-      const [ticket] = await db
-        .insert(supportTickets)
-        .values({
+      const ticket = await withTenantContext(restaurantId, async (executor) => {
+        const [inserted] = await executor
+          .insert(supportTickets)
+          .values({
+            restaurantId,
+            createdById: req.user?.id,
+            ticketNumber,
+            category,
+            priority,
+            status: 'open',
+            subject,
+            description,
+          })
+          .returning();
+
+        if (!inserted) {
+          throw new Error('Failed to create ticket');
+        }
+
+        await auditService.record({
           restaurantId,
-          createdById: req.user?.id,
-          ticketNumber,
-          category,
-          priority,
-          status: 'open',
-          subject,
-          description,
-        })
-        .returning();
+          actorId: req.user?.id || 'unknown',
+          actorType: 'restaurant_user',
+          action: 'SUPPORT_TICKET_CREATED',
+          entityType: 'support_ticket',
+          entityId: inserted.id,
+          afterState: {
+            ticketNumber: inserted.ticketNumber,
+            category: inserted.category,
+            priority: inserted.priority,
+            subject: inserted.subject,
+          },
+        });
 
-      if (!ticket) {
-        throw new Error('Failed to create ticket');
-      }
-
-      await auditService.record({
-        restaurantId,
-        actorId: req.user?.id || 'unknown',
-        actorType: 'restaurant_user',
-        action: 'SUPPORT_TICKET_CREATED',
-        entityType: 'support_ticket',
-        entityId: ticket.id,
-        afterState: {
-          ticketNumber: ticket.ticketNumber,
-          category: ticket.category,
-          priority: ticket.priority,
-          subject: ticket.subject,
-        },
+        return inserted;
       });
 
       res.status(201).json({ ticket });
@@ -130,13 +139,22 @@ adminSupportRouter.get(
   requireTenant('restaurantId'),
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const { restaurantId, ticketId } = req.params as { restaurantId: string; ticketId: string };
+      const restaurantId = req.params.restaurantId as string;
+      const parsedTicketId = UuidParamSchema.safeParse(req.params.ticketId);
+      if (!parsedTicketId.success) {
+        throw new BadRequestError('Invalid ticket ID format');
+      }
+      const ticketId = parsedTicketId.data;
 
-      const [ticket] = await db
-        .select()
-        .from(supportTickets)
-        .where(and(eq(supportTickets.id, ticketId), eq(supportTickets.restaurantId, restaurantId)))
-        .limit(1);
+      const [ticket] = await withTenantContext(restaurantId, (executor) =>
+        executor
+          .select()
+          .from(supportTickets)
+          .where(
+            and(eq(supportTickets.id, ticketId), eq(supportTickets.restaurantId, restaurantId)),
+          )
+          .limit(1),
+      );
 
       if (!ticket) {
         throw new NotFoundError('Support ticket not found');

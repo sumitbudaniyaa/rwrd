@@ -23,7 +23,6 @@ const mockRestaurantsResponse: PortalRestaurantsResponse = {
       suspensionReason: null,
       createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
-      deletedAt: null,
     },
     {
       id: 'rest-002',
@@ -39,7 +38,6 @@ const mockRestaurantsResponse: PortalRestaurantsResponse = {
       suspensionReason: 'Overdue monthly plan',
       createdAt: '2026-01-05T00:00:00.000Z',
       updatedAt: '2026-01-10T00:00:00.000Z',
-      deletedAt: null,
     },
     {
       id: 'rest-003',
@@ -58,7 +56,6 @@ const mockRestaurantsResponse: PortalRestaurantsResponse = {
       planPriceInr: null,
       createdAt: '2026-02-01T00:00:00.000Z',
       updatedAt: '2026-02-01T00:00:00.000Z',
-      deletedAt: null,
     },
   ],
   pagination: {
@@ -229,7 +226,7 @@ describe('RestaurantManagementScreen Component', () => {
   it('super admin clicking delete opens custom confirmation dialog box and can cancel or confirm', async () => {
     vi.spyOn(api, 'getRestaurants').mockResolvedValue(mockRestaurantsResponse);
     const deleteSpy = vi.spyOn(api, 'deleteRestaurant').mockResolvedValueOnce({
-      message: 'Restaurant has been soft-deleted.',
+      message: 'Restaurant and all associated tenant data permanently deleted',
     });
 
     renderWithProviders(<RestaurantManagementScreen />);

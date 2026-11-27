@@ -45,7 +45,7 @@ adminQrRouter.get(
       const restaurantId = req.params.restaurantId as string;
 
       const restaurant = await restaurantRepository.findById(restaurantId);
-      if (!restaurant || restaurant.deletedAt) {
+      if (!restaurant) {
         throw new NotFoundError('Restaurant not found');
       }
 

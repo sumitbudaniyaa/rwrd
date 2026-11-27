@@ -1,10 +1,13 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { authService, type AuthRealm } from '../services/authService.js';
+import { impersonationSessionService } from '../services/impersonationSessionService.js';
 import { UnauthorizedError, ForbiddenError, PaymentRequiredError } from '../errors/appError.js';
 
 export type AdminRole = 'admin';
 export type PortalRole = 'super_admin' | 'support' | 'finance';
 export type AppRole = AdminRole | PortalRole;
+
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface AuthUser {
   id: string;
@@ -13,6 +16,7 @@ export interface AuthUser {
   restaurantId?: string | undefined;
   hasActivePlan?: boolean | undefined;
   isImpersonated?: boolean | undefined;
+  impersonationRequestId?: string | undefined;
   impersonatorId?: string | undefined;
   impersonatorEmail?: string | undefined;
 }
@@ -28,22 +32,35 @@ declare global {
 
 /**
  * Validates JWT Bearer access token for specified realm ('admin' or 'portal').
- * Attaches validated user claims to `req.user`.
+ * Attaches validated user claims to `req.user` and verifies live revocation for impersonated sessions.
  */
 export function requireAuth(realm: AuthRealm): RequestHandler {
-  return (req: Request, _res: Response, next: NextFunction): void => {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedError('Authentication token is missing or malformed');
-    }
-
-    const token = authHeader.slice(7).trim();
-    if (!token) {
-      throw new UnauthorizedError('Authentication token is missing');
-    }
-
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new UnauthorizedError('Authentication token is missing or malformed');
+      }
+
+      const token = authHeader.slice(7).trim();
+      if (!token) {
+        throw new UnauthorizedError('Authentication token is missing');
+      }
+
       const payload = authService.verifyAccessToken(token, realm);
+
+      if (payload.isImpersonated) {
+        if (!payload.impersonationRequestId || !UUID_REGEX.test(payload.impersonationRequestId)) {
+          throw new UnauthorizedError('Invalid impersonation session token');
+        }
+        const isActive = await impersonationSessionService.verifyActive(
+          payload.impersonationRequestId,
+        );
+        if (!isActive) {
+          throw new UnauthorizedError('Support impersonation session has been revoked or expired');
+        }
+      }
+
       req.user = {
         id: payload.sub,
         role: payload.role,
@@ -51,15 +68,17 @@ export function requireAuth(realm: AuthRealm): RequestHandler {
         restaurantId: payload.restaurantId,
         hasActivePlan: payload.hasActivePlan,
         isImpersonated: payload.isImpersonated,
+        impersonationRequestId: payload.impersonationRequestId,
         impersonatorId: payload.impersonatorId,
         impersonatorEmail: payload.impersonatorEmail,
       };
       next();
     } catch (err) {
       if (err instanceof UnauthorizedError) {
-        throw err;
+        next(err);
+        return;
       }
-      throw new UnauthorizedError('Invalid or expired authentication credentials');
+      next(new UnauthorizedError('Invalid or expired authentication credentials'));
     }
   };
 }
